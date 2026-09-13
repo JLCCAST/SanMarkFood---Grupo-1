@@ -1,5 +1,10 @@
 ## Tarjeta Jira
-Closes DSM-XX
+Closes SCRUM-XX
+
+## Proyecto afectado
+- [ ] app-comensal
+- [ ] app-restaurante
+- [ ] backend
 
 ## ¿Qué hace este PR?
 
