@@ -7,31 +7,32 @@ El curso exige **evidenciar la participación individual de cada integrante** me
 ```
 main            → siempre refleja el último estado presentable del proyecto
  └─ develop      → trabajo integrado del equipo; crece sin parar durante todo el semestre
-     └─ feature/DSM-XX-descripcion-corta   → una rama por tarea de Jira
-     └─ fix/DSM-XX-descripcion-corta       → correcciones de bugs
+     └─ feature/SCRUM-XX-descripcion-corta   → una rama por tarjeta de Jira
+     └─ fix/SCRUM-XX-descripcion-corta       → correcciones de bugs
 ```
 
 - **Nunca** se hace push directo a `main` ni a `develop`.
-- Cada tarea de Jira (historia de usuario, tarea técnica) se trabaja en su propia rama `feature/DSM-XX-...`: se abre cuando empiezas la tarea, se mergea a `develop` cuando termina. Esto pasa continuamente, sin relación con sprints ni fechas del sílabo.
+- Cada tarjeta de Jira (historia de usuario, tarea técnica) se trabaja en su propia rama `feature/SCRUM-XX-...`: se abre cuando empiezas la tarea, se mergea a `develop` cuando termina. Esto pasa continuamente, sin relación con sprints ni fechas del sílabo.
 - `develop` se actualiza tarea por tarea, PR por PR, a lo largo de todo el semestre — no se acumula trabajo para mergear en bloque.
 - `main` se actualiza (`develop` → `main`) cuando hay que **mostrar** el proyecto (sustentaciones del sílabo). Es solo una foto del estado actual para el profesor — no significa que el equipo se detenga ahí. El trabajo en `develop` sigue exactamente igual antes y después de cada sustentación.
+- Si la tarea toca un solo módulo, puedes incluirlo en el nombre de rama para mayor claridad, ej. `feature/SCRUM-14-comensal-login`.
 
 ## 2. Formato de commits
 
 ```
-[DSM-XX] tipo: descripción corta en imperativo
+[SCRUM-XX] tipo: descripción corta en imperativo
 
 tipo: feat | fix | refactor | docs | test | chore | style
 ```
 
 Ejemplos:
 ```
-[DSM-12] feat: agrega login con Firebase Authentication
-[DSM-15] fix: corrige crash al rotar pantalla en detalle de producto
-[DSM-20] docs: agrega diagrama de arquitectura MVVM
+[SCRUM-12] feat: agrega login con Firebase Authentication
+[SCRUM-15] fix: corrige crash al rotar pantalla en detalle de restaurante
+[SCRUM-20] docs: agrega diagrama de arquitectura MVVM
 ```
 
-El código `DSM-XX` es el ID de la tarjeta en Jira — así se puede rastrear cada commit hasta la planificación (y Jira, si está integrado con GitHub, enlaza automáticamente los commits a la tarjeta).
+El código `SCRUM-XX` es el ID de la tarjeta en Jira (board del proyecto: `SCRUM`) — así se puede rastrear cada commit hasta la planificación (y Jira, si está integrado con GitHub, enlaza automáticamente los commits a la tarjeta). Las historias de usuario del backlog (HU01, HU02, ...) deben cargarse como issues en ese board antes de nombrar ramas o commits, para que tengan su número `SCRUM-XX` real.
 
 **Regla de oro:** cada integrante hace commit de su propio trabajo con su propia cuenta de GitHub. No se suben cambios de otra persona bajo tu usuario, ni se hacen commits masivos de "trabajo de todo el sprint" al final.
 
