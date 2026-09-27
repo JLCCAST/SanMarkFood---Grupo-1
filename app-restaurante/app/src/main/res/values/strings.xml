@@ -1,3 +1,69 @@
 <resources>
     <string name="app_name">app-restaurante</string>
+
+    <!-- Comunes -->
+    <string name="volver">Volver</string>
+    <string name="campo_correo">Correo electrónico</string>
+    <string name="campo_correo_ejemplo">tu@correo.com</string>
+    <string name="campo_contrasena">Contraseña</string>
+
+    <!-- Errores de la cuenta -->
+    <string name="error_sin_conexion">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
+    <string name="error_campos_vacios">Ingresa tu correo y tu contraseña.</string>
+    <string name="error_credenciales_invalidas">El correo o la contraseña no son correctos.</string>
+    <string name="error_correo_ya_registrado">Este correo ya tiene una cuenta en San Mark Food. Si es tu cuenta de comensal, usa otro correo para tu local.</string>
+    <string name="error_correo_invalido">Revisa el correo: no parece válido.</string>
+    <string name="error_correo_sin_verificar">Todavía no vemos tu correo confirmado. Abre el enlace que te enviamos y vuelve a intentarlo.</string>
+    <string name="error_cuenta_comensal">Esta cuenta es de comensal. Para pedir, usa la app San Mark Food; para tu local, crea una cuenta con otro correo.</string>
+    <string name="error_demasiados_intentos">Hiciste muchos intentos seguidos. Espera unos minutos y vuelve a intentarlo.</string>
+    <string name="error_desconocido">Algo salió mal. Inténtalo de nuevo.</string>
+
+    <!-- Arranque -->
+    <string name="arranque_reintentar">Reintentar</string>
+
+    <!-- Inicio de sesión -->
+    <string name="login_etiqueta">PARA RESTAURANTES</string>
+    <string name="login_marca">San Mark</string>
+    <string name="login_marca_acento">Food</string>
+    <string name="login_lema">Publica tu menú del día y recibe pedidos y reservas de los sanmarquinos.</string>
+    <string name="login_titulo">Inicia sesión</string>
+    <string name="login_olvidaste">¿Olvidaste tu contraseña?</string>
+    <string name="login_iniciar_sesion">Iniciar sesión</string>
+    <string name="login_sesion_guardada">Tu sesión quedará iniciada en este celular. Puedes usar la misma cuenta en otro celular del local.</string>
+    <string name="login_sin_local">¿Tu local aún no está?</string>
+    <string name="login_registralo">Regístralo</string>
+
+    <!-- Recuperar contraseña -->
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_explicacion">Te enviaremos un enlace para crear una contraseña nueva.</string>
+    <string name="recuperar_campo_correo">Correo de tu cuenta</string>
+    <string name="recuperar_cancelar">Cancelar</string>
+    <string name="recuperar_enviar">Enviar enlace</string>
+    <string name="recuperar_listo">Listo. Si el correo está registrado, te llegará el enlace en unos minutos. Revisa también la carpeta de spam.</string>
+    <string name="recuperar_entendido">Entendido</string>
+
+    <!-- Registro -->
+    <string name="registro_paso">Paso 1 de 3 · Tu cuenta</string>
+    <string name="registro_titulo">Crea la cuenta de tu local</string>
+    <string name="registro_subtitulo">Cada cuenta es para un solo local. Luego completarás sus datos y el horario.</string>
+    <string name="registro_repetir_contrasena">Repite la contraseña</string>
+    <string name="registro_minimo_caracteres">Mínimo 8 caracteres</string>
+    <string name="registro_contrasena_valida">Contraseña válida</string>
+    <string name="registro_no_coinciden">Las contraseñas no coinciden.</string>
+    <string name="registro_crear_cuenta">Crear cuenta</string>
+
+    <!-- Verificación de correo -->
+    <string name="verificar_titulo">Confirma tu correo</string>
+    <string name="verificar_enviamos">Enviamos un enlace a %1$s. Ábrelo para activar la cuenta de tu local.</string>
+    <string name="verificar_no_llego">¿No llegó? Revisa la carpeta de spam o pide otro enlace.</string>
+    <string name="verificar_reenviado">Te enviamos un enlace nuevo.</string>
+    <string name="verificar_ya_confirme">Ya lo confirmé</string>
+    <string name="verificar_reenviar">Reenviar enlace</string>
+
+    <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
+    <string name="provisional_titulo">Tu cuenta está lista</string>
+    <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
+    <string name="provisional_admin_titulo">Administración</string>
+    <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
+    <string name="provisional_cerrar_sesion">Cerrar sesión</string>
 </resources>

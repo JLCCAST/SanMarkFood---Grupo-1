@@ -25,14 +25,7 @@ El detalle de capas, las convenciones de código y qué carpetas existen hoy est
 
 ## Diseño
 
-Las pantallas de las dos apps ya están diseñadas, revisadas y con sus decisiones de producto cerradas. **Antes de programar una pantalla, míralas** — incluyen los estados que hay que implementar (vacío, cargando, sin conexión, invitado, error):
-
-| Qué | Dónde |
-| --- | --- |
-| Prototipo navegable — App Comensal (46 pantallas) | https://claude.ai/artifact/HMEjQm4nBAiPRtMHUBFSeF (usar solo la página «Versión B») |
-| Prototipo navegable — App Restaurante + Administrador (29 pantallas) | https://claude.ai/artifact/7bxRDUe6815yRJrMqG1tDF |
-| Decisiones, paleta, tipografía y equivalencia con Material 3 | [`docs/handoff-diseno-comensal.md`](docs/handoff-diseno-comensal.md) |
-| Decisiones del restaurante y coherencia entre ambas apps | [`docs/handoff-diseno-restaurante.md`](docs/handoff-diseno-restaurante.md) |
+Las pantallas de las dos apps ya están diseñadas y con sus decisiones de producto cerradas: 46 pantallas del comensal y 29 del restaurante, incluidos los estados de vacío, cargando, sin conexión, invitado y error. **Los prototipos y la guía de diseño los comparte el equipo por separado** — pídeselos a Jose antes de programar una pantalla, porque ahí están los estados que hay que implementar.
 
 La paleta y la tipografía ya están implementadas en `ui/theme/` y `res/font/` de cada app (modo claro y oscuro). En las pantallas se usan **solo** vía `MaterialTheme.colorScheme` y `MaterialTheme.typography`.
 
@@ -44,11 +37,11 @@ Jose Chuque · Camila Bada · Rodrigo Puente
 
 Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de verdad (el estado detallado por historia de usuario vive en Jira, no aquí):
 
-- [ ] Autenticación (Firebase Auth) — ambas apps + rol administrador
+- [ ] Autenticación (Firebase Auth) — ambas apps + rol administrador. Hecha en la App Restaurante (HU01, incluido el rol administrador); falta la App Comensal (HU05)
 - [ ] Mínimo 3 procesos de negocio (el proyecto cubre 6: gestión de restaurante, descubrimiento, reservas, pedidos, reseñas, moderación/admin)
 - [ ] Uso de herramientas Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions, Test Lab)
-- [ ] Material Design 3 con paleta de colores propia — tema (colores, tipografía, modo oscuro) ya implementado; falta aplicarlo en pantallas
-- [ ] Arquitectura MVVM + Clean Code (`data` / `domain` / `presentation` en cada app)
+- [ ] Material Design 3 con paleta de colores propia — tema (colores, tipografía, modo oscuro) ya implementado y aplicado en las pantallas de cuenta de la App Restaurante; falta el resto de pantallas
+- [ ] Arquitectura MVVM + Clean Code (`data` / `domain` / `presentation` en cada app) — ya en uso en la App Restaurante (HU01)
 - [ ] Corrutinas + Retrofit (consumo del backend propio y de APIs externas)
 - [ ] WorkManager
 - [ ] SQLite (Room)
@@ -64,10 +57,11 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - **Arquitectura:** MVVM + Clean Architecture (`data` / `domain` / `presentation`)
 - **Networking:** Retrofit + OkHttp + Corrutinas
 - **Persistencia local:** Room (SQLite)
-- **Backend as a service:** Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions)
+- **Navegación:** Navigation Compose con rutas tipadas
+- **Backend as a service:** Firebase (Auth, Firestore, Storage, Cloud Messaging), en el plan Spark: sin Cloud Functions
 - **Backend propio:** Ktor + Exposed (ORM) + PostgreSQL/H2
 - **Tareas en background:** WorkManager
-- **Inyección de dependencias:** Hilt (o Koin)
+- **Inyección de dependencias:** Hilt (con KSP)
 - **Dashboards:** Vico o MPAndroidChart
 
 ## Planificación (Jira)
