@@ -2,11 +2,6 @@ package com.equipo.sanmarkfood.restaurante.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Esquema M3 de San Mark Food. Fuente: docs/handoff-diseno-comensal.md (sección 3)
-// + roles faltantes generados con la librería Material Color Utilities.
-// Los contenedores de estado y los "on" de contenedor son iguales en claro y oscuro.
-
-// ---- Claro ----
 val LightPrimary = Color(0xFF8C1D2F)
 val LightOnPrimary = Color(0xFFFFFFFF)
 val LightPrimaryContainer = Color(0xFFF6D9DC)
@@ -44,7 +39,6 @@ val LightInversePrimary = Color(0xFFFFB3B6)
 val LightSurfaceTint = Color(0xFF8C1D2F)
 val LightScrim = Color(0xFF000000)
 
-// ---- Oscuro ----
 val DarkPrimary = Color(0xFFFFB2B9)
 val DarkOnPrimary = Color(0xFF5F1121)
 val DarkPrimaryContainer = Color(0xFFF6D9DC)
@@ -82,5 +76,4 @@ val DarkInversePrimary = Color(0xFFA93342)
 val DarkSurfaceTint = Color(0xFFFFB2B9)
 val DarkScrim = Color(0xFF000000)
 
-// ---- Colores extendidos (sin rol M3) ----
 val Pizarra = Color(0xFF23332C)

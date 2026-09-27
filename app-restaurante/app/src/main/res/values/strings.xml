@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">app-restaurante</string>
+
+    <!-- Comunes -->
+    <string name="volver">Volver</string>
+    <string name="campo_correo">Correo electrónico</string>
+    <string name="campo_correo_ejemplo">tu@correo.com</string>
+    <string name="campo_contrasena">Contraseña</string>
+
+    <!-- Errores de la cuenta -->
+    <string name="error_sin_conexion">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
+    <string name="error_correo_ya_registrado">Este correo ya tiene una cuenta en San Mark Food. Si es tu cuenta de comensal, usa otro correo para tu local.</string>
+    <string name="error_correo_invalido">Revisa el correo: no parece válido.</string>
+    <string name="error_desconocido">Algo salió mal. Inténtalo de nuevo.</string>
+
+    <!-- Registro -->
+    <string name="registro_paso">Paso 1 de 3 · Tu cuenta</string>
+    <string name="registro_titulo">Crea la cuenta de tu local</string>
+    <string name="registro_subtitulo">Cada cuenta es para un solo local. Luego completarás sus datos y el horario.</string>
+    <string name="registro_repetir_contrasena">Repite la contraseña</string>
+    <string name="registro_minimo_caracteres">Mínimo 8 caracteres</string>
+    <string name="registro_contrasena_valida">Contraseña válida</string>
+    <string name="registro_no_coinciden">Las contraseñas no coinciden.</string>
+    <string name="registro_crear_cuenta">Crear cuenta</string>
 </resources>

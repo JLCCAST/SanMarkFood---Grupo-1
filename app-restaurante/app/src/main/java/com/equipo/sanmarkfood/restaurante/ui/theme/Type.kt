@@ -10,8 +10,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.equipo.sanmarkfood.restaurante.R
 
-// Fuentes variables (Google Fonts, licencia OFL). El peso variable requiere Android 8+;
-// en Android 7 (minSdk 24) se usa el peso por defecto de cada fuente.
 @OptIn(ExperimentalTextApi::class)
 private fun variable(resId: Int, weight: Int) = Font(
     resId = resId,
@@ -35,7 +33,6 @@ val Caveat = FontFamily(
     variable(R.font.caveat, 700),
 )
 
-// Tamaños del prototipo (docs/handoff-diseno-comensal.md). Bricolage: títulos y precios; Figtree: texto.
 val Typography = Typography(
     displaySmall = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp),
     headlineSmall = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp),
@@ -50,5 +47,4 @@ val Typography = Typography(
     labelSmall = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
 )
 
-// Detalles "escritos a mano" (firma del ticket). No es un rol de M3.
 val HandwrittenStyle = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 26.sp)
