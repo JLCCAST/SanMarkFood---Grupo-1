@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.theme
+package com.equipo.sanmarkfood.restaurante.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.restaurante.R
 
 // Fuentes variables (Google Fonts, licencia OFL). El peso variable requiere Android 8+;
 // en Android 7 (minSdk 24) se usa el peso por defecto de cada fuente.
