@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.presentation.auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ fun VerificarCorreoScreen(
     LaunchedEffect(uiState.verificado) {
         if (uiState.verificado) onVerificado()
     }
+    BackHandler(onBack = onVolver)
 
     VerificarCorreoContenido(
         uiState = uiState,
