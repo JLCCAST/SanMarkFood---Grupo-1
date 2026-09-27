@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -11,6 +12,7 @@ import com.equipo.sanmarkfood.restaurante.R
 
 // Fuentes variables (Google Fonts, licencia OFL). El peso variable requiere Android 8+;
 // en Android 7 (minSdk 24) se usa el peso por defecto de cada fuente.
+@OptIn(ExperimentalTextApi::class)
 private fun variable(resId: Int, weight: Int) = Font(
     resId = resId,
     weight = FontWeight(weight),
