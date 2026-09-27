@@ -25,14 +25,7 @@ El detalle de capas, las convenciones de código y qué carpetas existen hoy est
 
 ## Diseño
 
-Las pantallas de las dos apps ya están diseñadas, revisadas y con sus decisiones de producto cerradas. **Antes de programar una pantalla, míralas** — incluyen los estados que hay que implementar (vacío, cargando, sin conexión, invitado, error):
-
-| Qué | Dónde |
-| --- | --- |
-| Prototipo navegable — App Comensal (46 pantallas) | https://claude.ai/artifact/HMEjQm4nBAiPRtMHUBFSeF (usar solo la página «Versión B») |
-| Prototipo navegable — App Restaurante + Administrador (29 pantallas) | https://claude.ai/artifact/7bxRDUe6815yRJrMqG1tDF |
-| Decisiones, paleta, tipografía y equivalencia con Material 3 | [`docs/handoff-diseno-comensal.md`](docs/handoff-diseno-comensal.md) |
-| Decisiones del restaurante y coherencia entre ambas apps | [`docs/handoff-diseno-restaurante.md`](docs/handoff-diseno-restaurante.md) |
+Las pantallas de las dos apps ya están diseñadas y con sus decisiones de producto cerradas: 46 pantallas del comensal y 29 del restaurante, incluidos los estados de vacío, cargando, sin conexión, invitado y error. **Los prototipos y la guía de diseño los comparte el equipo por separado** — pídeselos a Jose antes de programar una pantalla, porque ahí están los estados que hay que implementar.
 
 La paleta y la tipografía ya están implementadas en `ui/theme/` y `res/font/` de cada app (modo claro y oscuro). En las pantallas se usan **solo** vía `MaterialTheme.colorScheme` y `MaterialTheme.typography`.
 
