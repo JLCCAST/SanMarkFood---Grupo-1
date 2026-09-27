@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
+import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await
@@ -8,9 +9,11 @@ import javax.inject.Inject
 class AuthDataSource @Inject constructor(
     private val auth: FirebaseAuth
 ) {
-    suspend fun registrarYEnviarVerificacion(correo: String, contrasena: String) {
+    suspend fun registrarYEnviarVerificacion(correo: String, contrasena: String): String {
         val resultado = llamarFirebase { auth.createUserWithEmailAndPassword(correo, contrasena).await() }
-        resultado.user?.sendEmailVerification()
+        val usuario = resultado.user ?: throw ErrorAuth.Desconocido
+        usuario.sendEmailVerification()
+        return usuario.uid
     }
 
     suspend fun enviarVerificacion() {

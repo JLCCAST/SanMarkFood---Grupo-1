@@ -14,8 +14,12 @@
     <string name="error_correo_ya_registrado">Este correo ya tiene una cuenta en San Mark Food. Si es tu cuenta de comensal, usa otro correo para tu local.</string>
     <string name="error_correo_invalido">Revisa el correo: no parece válido.</string>
     <string name="error_correo_sin_verificar">Todavía no vemos tu correo confirmado. Abre el enlace que te enviamos y vuelve a intentarlo.</string>
+    <string name="error_cuenta_comensal">Esta cuenta es de comensal. Para pedir, usa la app San Mark Food; para tu local, crea una cuenta con otro correo.</string>
     <string name="error_demasiados_intentos">Hiciste muchos intentos seguidos. Espera unos minutos y vuelve a intentarlo.</string>
     <string name="error_desconocido">Algo salió mal. Inténtalo de nuevo.</string>
+
+    <!-- Arranque -->
+    <string name="arranque_reintentar">Reintentar</string>
 
     <!-- Inicio de sesión -->
     <string name="login_etiqueta">PARA RESTAURANTES</string>
@@ -59,5 +63,7 @@
     <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
     <string name="provisional_titulo">Tu cuenta está lista</string>
     <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
+    <string name="provisional_admin_titulo">Administración</string>
+    <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
     <string name="provisional_cerrar_sesion">Cerrar sesión</string>
 </resources>
