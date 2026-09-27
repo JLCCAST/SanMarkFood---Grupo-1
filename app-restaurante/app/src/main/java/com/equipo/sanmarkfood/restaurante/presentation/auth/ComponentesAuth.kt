@@ -152,6 +152,8 @@ fun MensajeError(error: ErrorAuth, modifier: Modifier = Modifier) {
 @StringRes
 private fun ErrorAuth.mensaje(): Int = when (this) {
     ErrorAuth.SinConexion -> R.string.error_sin_conexion
+    ErrorAuth.CamposVacios -> R.string.error_campos_vacios
+    ErrorAuth.CredencialesInvalidas -> R.string.error_credenciales_invalidas
     ErrorAuth.CorreoYaRegistrado -> R.string.error_correo_ya_registrado
     ErrorAuth.CorreoInvalido -> R.string.error_correo_invalido
     ErrorAuth.CorreoSinVerificar -> R.string.error_correo_sin_verificar

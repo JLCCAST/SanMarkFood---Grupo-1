@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -20,4 +21,12 @@ class AuthDataSource @Inject constructor(
         auth.currentUser?.reload()?.await()
         auth.currentUser?.isEmailVerified == true
     }
+
+    suspend fun iniciarSesion(correo: String, contrasena: String) {
+        llamarFirebase { auth.signInWithEmailAndPassword(correo, contrasena).await() }
+    }
+
+    fun usuarioActual(): FirebaseUser? = auth.currentUser
+
+    fun cerrarSesion() = auth.signOut()
 }

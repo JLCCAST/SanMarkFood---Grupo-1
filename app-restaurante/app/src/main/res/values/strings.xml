@@ -9,11 +9,24 @@
 
     <!-- Errores de la cuenta -->
     <string name="error_sin_conexion">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
+    <string name="error_campos_vacios">Ingresa tu correo y tu contraseña.</string>
+    <string name="error_credenciales_invalidas">El correo o la contraseña no son correctos.</string>
     <string name="error_correo_ya_registrado">Este correo ya tiene una cuenta en San Mark Food. Si es tu cuenta de comensal, usa otro correo para tu local.</string>
     <string name="error_correo_invalido">Revisa el correo: no parece válido.</string>
     <string name="error_correo_sin_verificar">Todavía no vemos tu correo confirmado. Abre el enlace que te enviamos y vuelve a intentarlo.</string>
     <string name="error_demasiados_intentos">Hiciste muchos intentos seguidos. Espera unos minutos y vuelve a intentarlo.</string>
     <string name="error_desconocido">Algo salió mal. Inténtalo de nuevo.</string>
+
+    <!-- Inicio de sesión -->
+    <string name="login_etiqueta">PARA RESTAURANTES</string>
+    <string name="login_marca">San Mark</string>
+    <string name="login_marca_acento">Food</string>
+    <string name="login_lema">Publica tu menú del día y recibe pedidos y reservas de los sanmarquinos.</string>
+    <string name="login_titulo">Inicia sesión</string>
+    <string name="login_iniciar_sesion">Iniciar sesión</string>
+    <string name="login_sesion_guardada">Tu sesión quedará iniciada en este celular. Puedes usar la misma cuenta en otro celular del local.</string>
+    <string name="login_sin_local">¿Tu local aún no está?</string>
+    <string name="login_registralo">Regístralo</string>
 
     <!-- Registro -->
     <string name="registro_paso">Paso 1 de 3 · Tu cuenta</string>
@@ -36,4 +49,5 @@
     <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
     <string name="provisional_titulo">Tu cuenta está lista</string>
     <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
+    <string name="provisional_cerrar_sesion">Cerrar sesión</string>
 </resources>

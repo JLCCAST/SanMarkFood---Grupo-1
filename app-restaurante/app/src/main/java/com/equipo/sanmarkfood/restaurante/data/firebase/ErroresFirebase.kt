@@ -21,6 +21,7 @@ private fun FirebaseException.aErrorAuth(): ErrorAuth = when (this) {
     is FirebaseAuthUserCollisionException -> ErrorAuth.CorreoYaRegistrado
     is FirebaseAuthException -> when (errorCode) {
         "ERROR_INVALID_EMAIL" -> ErrorAuth.CorreoInvalido
+        "ERROR_INVALID_CREDENTIAL", "ERROR_WRONG_PASSWORD", "ERROR_USER_NOT_FOUND" -> ErrorAuth.CredencialesInvalidas
         else -> ErrorAuth.Desconocido
     }
     else -> ErrorAuth.Desconocido
