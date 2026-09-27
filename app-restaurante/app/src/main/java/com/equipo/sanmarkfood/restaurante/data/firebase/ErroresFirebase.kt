@@ -3,6 +3,7 @@ package com.equipo.sanmarkfood.restaurante.data.firebase
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 
@@ -16,6 +17,7 @@ internal suspend fun <T> llamarFirebase(llamada: suspend () -> T): T =
 
 private fun FirebaseException.aErrorAuth(): ErrorAuth = when (this) {
     is FirebaseNetworkException -> ErrorAuth.SinConexion
+    is FirebaseTooManyRequestsException -> ErrorAuth.DemasiadosIntentos
     is FirebaseAuthUserCollisionException -> ErrorAuth.CorreoYaRegistrado
     is FirebaseAuthException -> when (errorCode) {
         "ERROR_INVALID_EMAIL" -> ErrorAuth.CorreoInvalido

@@ -7,7 +7,17 @@ import javax.inject.Inject
 class AuthDataSource @Inject constructor(
     private val auth: FirebaseAuth
 ) {
-    suspend fun registrar(correo: String, contrasena: String) {
-        llamarFirebase { auth.createUserWithEmailAndPassword(correo, contrasena).await() }
+    suspend fun registrarYEnviarVerificacion(correo: String, contrasena: String) {
+        val resultado = llamarFirebase { auth.createUserWithEmailAndPassword(correo, contrasena).await() }
+        resultado.user?.sendEmailVerification()
+    }
+
+    suspend fun enviarVerificacion() {
+        llamarFirebase { auth.currentUser?.sendEmailVerification()?.await() }
+    }
+
+    suspend fun correoVerificado(): Boolean = llamarFirebase {
+        auth.currentUser?.reload()?.await()
+        auth.currentUser?.isEmailVerified == true
     }
 }
