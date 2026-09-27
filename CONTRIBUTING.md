@@ -9,6 +9,7 @@ main            → siempre refleja el último estado presentable del proyecto
  └─ develop      → trabajo integrado del equipo; crece sin parar durante todo el semestre
      └─ feature/SCRUM-XX-descripcion-corta   → una rama por tarjeta de Jira
      └─ fix/SCRUM-XX-descripcion-corta       → correcciones de bugs
+     └─ chore/descripcion-corta              → mantenimiento del repo, sin tarjeta (ver 2.1)
 ```
 
 - **Nunca** se hace push directo a `main` ni a `develop`.
@@ -33,6 +34,22 @@ Ejemplos:
 ```
 
 El código `SCRUM-XX` es el ID de la tarjeta en Jira (board del proyecto: `SCRUM`) — así se puede rastrear cada commit hasta la planificación (y Jira, si está integrado con GitHub, enlaza automáticamente los commits a la tarjeta). Las historias de usuario del backlog (HU01, HU02, ...) deben cargarse como issues en ese board antes de nombrar ramas o commits, para que tengan su número `SCRUM-XX` real.
+
+### 2.1 Excepción: mantenimiento del repositorio
+
+Hay trabajo que **no pertenece a ninguna tarjeta** porque no implementa ninguna historia de usuario: documentación, `.gitignore`, plantillas, renombrar una carpeta, configuración del repo. Esos commits van **sin clave**, solo con el tipo:
+
+```
+docs: agrega convenciones de código y estado actual de la arquitectura
+chore: renombra apprestaurante a app-restaurante
+```
+
+Dos condiciones para usar la excepción:
+
+1. **No cambia el comportamiento de la app.** Si el commit toca código que ejecuta el usuario, pertenece a una HU y lleva su clave — aunque sea un cambio pequeño.
+2. **Va en su propio commit**, no mezclado con trabajo de una tarjeta. Si un mismo cambio de rama incluye las dos cosas, se parten en dos commits.
+
+Estos commits no aparecen en Jira (Jira solo ve lo que lleva `SCRUM-XX`), y está bien: la trazabilidad se exige sobre el trabajo planificado, no sobre el mantenimiento del repo.
 
 **Regla de oro:** cada integrante hace commit de su propio trabajo con su propia cuenta de GitHub. No se suben cambios de otra persona bajo tu usuario, ni se hacen commits masivos de "trabajo de todo el sprint" al final.
 

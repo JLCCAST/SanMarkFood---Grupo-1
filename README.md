@@ -17,10 +17,24 @@ El repo contiene **tres proyectos independientes** como carpetas hermanas (no un
 SanMarkFood---Grupo-1/
 ├── app-comensal/       # Proyecto Android independiente — App Comensal
 ├── app-restaurante/    # Proyecto Android independiente — App Restaurante + sección Administrador
-├── backend/            # Proyecto Kotlin/Ktor independiente — backend propio (Sprint 2)
-└── docs/
-    └── arquitectura-proyecto.md   # Detalle de capas MVVM por app
+├── backend/            # Proyecto Kotlin/Ktor independiente — backend propio (Sprint 2, aún no creado)
+└── docs/               # Diseño, planificación y documentación técnica
 ```
+
+El detalle de capas, las convenciones de código y qué carpetas existen hoy están en [`docs/arquitectura-proyecto.md`](docs/arquitectura-proyecto.md). **Léelo antes de crear tu primer paquete**, para que los tres escribamos la misma estructura.
+
+## Diseño
+
+Las pantallas de las dos apps ya están diseñadas, revisadas y con sus decisiones de producto cerradas. **Antes de programar una pantalla, míralas** — incluyen los estados que hay que implementar (vacío, cargando, sin conexión, invitado, error):
+
+| Qué | Dónde |
+| --- | --- |
+| Prototipo navegable — App Comensal (46 pantallas) | https://claude.ai/artifact/HMEjQm4nBAiPRtMHUBFSeF (usar solo la página «Versión B») |
+| Prototipo navegable — App Restaurante + Administrador (29 pantallas) | https://claude.ai/artifact/7bxRDUe6815yRJrMqG1tDF |
+| Decisiones, paleta, tipografía y equivalencia con Material 3 | [`docs/handoff-diseno-comensal.md`](docs/handoff-diseno-comensal.md) |
+| Decisiones del restaurante y coherencia entre ambas apps | [`docs/handoff-diseno-restaurante.md`](docs/handoff-diseno-restaurante.md) |
+
+La paleta y la tipografía ya están implementadas en `ui/theme/` y `res/font/` de cada app (modo claro y oscuro). En las pantallas se usan **solo** vía `MaterialTheme.colorScheme` y `MaterialTheme.typography`.
 
 ## Equipo
 
@@ -33,7 +47,7 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - [ ] Autenticación (Firebase Auth) — ambas apps + rol administrador
 - [ ] Mínimo 3 procesos de negocio (el proyecto cubre 6: gestión de restaurante, descubrimiento, reservas, pedidos, reseñas, moderación/admin)
 - [ ] Uso de herramientas Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions, Test Lab)
-- [ ] Material Design 3 con paleta de colores propia
+- [ ] Material Design 3 con paleta de colores propia — tema (colores, tipografía, modo oscuro) ya implementado; falta aplicarlo en pantallas
 - [ ] Arquitectura MVVM + Clean Code (`data` / `domain` / `presentation` en cada app)
 - [ ] Corrutinas + Retrofit (consumo del backend propio y de APIs externas)
 - [ ] WorkManager
