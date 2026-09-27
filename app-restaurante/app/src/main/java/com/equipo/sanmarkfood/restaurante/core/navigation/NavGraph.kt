@@ -5,7 +5,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.model.Rol
 import com.equipo.sanmarkfood.restaurante.presentation.auth.ArranqueScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen
@@ -37,11 +39,12 @@ fun RestauranteNavGraph() {
         composable<VerificarCorreo> {
             VerificarCorreoScreen(
                 onVolver = { navController.navegarLimpiando(InicioSesion) },
-                onVerificado = { navController.navegarLimpiando(PanelProvisional) },
+                onVerificado = { navController.navegarLimpiando(Arranque) },
             )
         }
-        composable<PanelProvisional> {
+        composable<PanelProvisional> { entrada ->
             PanelProvisionalScreen(
+                administrador = entrada.toRoute<PanelProvisional>().administrador,
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
@@ -51,7 +54,7 @@ fun RestauranteNavGraph() {
 private fun destinoDe(sesion: EstadoSesion): Any = when (sesion) {
     EstadoSesion.SinSesion -> InicioSesion
     is EstadoSesion.SinVerificar -> VerificarCorreo(sesion.correo)
-    EstadoSesion.Activa -> PanelProvisional
+    is EstadoSesion.Activa -> PanelProvisional(administrador = sesion.rol == Rol.ADMINISTRADOR)
 }
 
 private fun NavController.navegarLimpiando(ruta: Any) {

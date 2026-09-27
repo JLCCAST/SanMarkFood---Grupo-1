@@ -15,4 +15,4 @@ data object Registro
 data class VerificarCorreo(val correo: String)
 
 @Serializable
-data object PanelProvisional
+data class PanelProvisional(val administrador: Boolean)

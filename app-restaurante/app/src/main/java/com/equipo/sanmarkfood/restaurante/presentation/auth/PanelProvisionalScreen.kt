@@ -21,6 +21,7 @@ import com.equipo.sanmarkfood.restaurante.R
 
 @Composable
 fun PanelProvisionalScreen(
+    administrador: Boolean,
     onSesionCerrada: () -> Unit,
     viewModel: PanelProvisionalViewModel = hiltViewModel(),
 ) {
@@ -35,11 +36,15 @@ fun PanelProvisionalScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
         Text(
-            text = stringResource(R.string.provisional_titulo),
+            text = stringResource(
+                if (administrador) R.string.provisional_admin_titulo else R.string.provisional_titulo
+            ),
             style = MaterialTheme.typography.displaySmall,
         )
         Text(
-            text = stringResource(R.string.provisional_texto),
+            text = stringResource(
+                if (administrador) R.string.provisional_admin_texto else R.string.provisional_texto
+            ),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

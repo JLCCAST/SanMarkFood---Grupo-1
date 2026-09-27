@@ -2,17 +2,24 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (26 de setiembre de 2026)
+## Estado actual del código (27 de setiembre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
 **Ya existe:**
 
-- Los dos proyectos creados con la plantilla de Compose (`MainActivity` de ejemplo, Gradle configurado).
+- Los dos proyectos creados con la plantilla de Compose.
 - El tema Material 3 real en `ui/theme/` de cada app: `Color.kt`, `Type.kt` y `Theme.kt` con la paleta propia (guinda, ají, verde) en modo claro y oscuro, más las tres fuentes en `res/font/`. Sale del diseño ya cerrado, no es la plantilla de Android Studio.
+- **App Restaurante — HU01 (SCRUM-30) completa:** registro, verificación de correo, inicio de sesión persistente, recuperación de contraseña y rol de la cuenta, con sus estados de cargando, error y sin conexión. Con ella entraron `core/di/`, `core/navigation/`, `data/firebase/`, `data/repository/`, `domain/` (`model/`, `repository/`, `usecase/`) y `presentation/auth/`, y en su `build.gradle.kts` Hilt, Navigation Compose, Firebase Auth y Firestore.
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
-**Todavía no existe:** `core/`, `data/`, `domain/`, `presentation/`, `workers/`, `ai/` en ninguna de las dos apps, ni el proyecto `backend/`. Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
+**Todavía no existe:**
+
+- En `app-comensal`: nada fuera de `ui/theme/` (su `MainActivity` sigue siendo la de ejemplo), ni Hilt, Navigation, Firebase Auth o Firestore en su Gradle. Entran con HU05.
+- En `app-restaurante`: `core/util/`, `data/local/`, `data/remote/`, `workers/`, `ai/` y los paquetes de `presentation/` distintos de `auth/`. Después de iniciar sesión se abre una **pantalla provisional** (`PanelProvisionalScreen`), que se reemplaza con HU02 (local) y HU24 (administración).
+- El proyecto `backend/`.
+
+Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
 
 ## Árbol de carpetas (destino)
 
@@ -60,11 +67,11 @@ SanMarkFood---Grupo-1/
 │       ├── res/font/                        # las mismas tres fuentes ✔
 │       └── java/com/equipo/sanmarkfood/restaurante/
 │           ├── ui/theme/                    # mismo tema que el comensal ✔
-│           ├── core/                        # (misma estructura que app-comensal)
-│           ├── data/                        # (misma estructura que app-comensal)
-│           ├── domain/                      # (misma estructura que app-comensal)
+│           ├── core/                        # (misma estructura que app-comensal) — di/ y navigation/ ✔
+│           ├── data/                        # (misma estructura que app-comensal) — firebase/ y repository/ ✔
+│           ├── domain/                      # (misma estructura que app-comensal) — model/, repository/ y usecase/ ✔
 │           ├── presentation/
-│           │   ├── auth/
+│           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
 │           │   ├── gestion_restaurante/     # Proceso: Gestión de restaurante (perfil + carta + menú del día)
 │           │   ├── pedidos/                 # Proceso: Pedidos entrantes
 │           │   ├── reservas/                # Proceso: Reservas entrantes
@@ -90,7 +97,7 @@ SanMarkFood---Grupo-1/
 
 ✔ = ya está en el repositorio.
 
-`ui/theme/` queda **fuera de `core/`**, donde lo crea Android Studio y donde ya lo referencia `MainActivity`. Moverlo no aporta nada y obliga a tocar imports. `core/` es solo para lo transversal que todavía no existe: `di/`, `navigation/` y `util/`.
+`ui/theme/` queda **fuera de `core/`**, donde lo crea Android Studio y donde ya lo referencia `MainActivity`. Moverlo no aporta nada y obliga a tocar imports. `core/` es solo para lo transversal: `di/`, `navigation/` y `util/`.
 
 ## Por qué proyectos independientes y no un Gradle multi-módulo
 
@@ -113,12 +120,17 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 
 | Tema | Decisión | Por qué |
 | --- | --- | --- |
-| Inyección de dependencias | **Hilt** (con KSP), en las dos apps | Es el estándar de Google (guías de arquitectura, codelabs, *Now in Android*). Si falta declarar una dependencia, el proyecto no compila — el error aparece en el IDE y no como un crash en plena demo. |
-| Rol de la cuenta (SCRUM-60) | Documento `usuarios/{uid}` en Firestore con el campo `rol` (`comensal`, `restaurante` o `administrador`), protegido por **reglas de Firestore** | El proyecto está en el plan **Spark**, que no permite Cloud Functions. Las reglas impiden crear una cuenta como `administrador` y cambiar el rol después de creado. El administrador se asigna a mano desde la consola. Cuando exista el backend (HU07) se puede migrar a *custom claims* sin cambiar el modelo de datos. |
+| Inyección de dependencias | **Hilt** (con KSP), en las dos apps. Con AGP 9 hace falta Hilt 2.59 o superior | Es el estándar de Google (guías de arquitectura, codelabs, *Now in Android*). Si falta declarar una dependencia, el proyecto no compila — el error aparece en el IDE y no como un crash en plena demo. |
+| Navegación | **Navigation Compose con rutas tipadas**: cada ruta es un `@Serializable` en `core/navigation/Rutas.kt` (plugin `kotlin.serialization`) | Los argumentos (por ejemplo, el correo en `VerificarCorreo`) viajan con su tipo y el compilador avisa si falta uno. Es la forma recomendada desde Navigation 2.8. |
+| Rol de la cuenta (SCRUM-60) | Documento `usuarios/{uid}` en Firestore con los campos `rol` (`comensal`, `restaurante` o `administrador`), `correo` y `creadoEn`, protegido por **reglas de Firestore**. Cada app lo crea al registrarse con su rol; si una cuenta verificada no lo tiene (el registro se cortó a medias), la app lo crea al iniciar sesión | El proyecto está en el plan **Spark**, que no permite Cloud Functions. Las reglas impiden crear una cuenta como `administrador` y cambiar el rol después de creado. El administrador se asigna a mano desde la consola. Cuando exista el backend (HU07) se puede migrar a *custom claims* sin cambiar el modelo de datos. |
+| Cuentas entre las dos apps | **Un correo = una cuenta = un rol.** Al iniciar sesión, cada app rechaza las cuentas que no son suyas: la del restaurante cierra la sesión de un comensal, y la del comensal debe hacer lo mismo con restaurantes y administradores (HU05) | Las dos apps comparten el proyecto de Firebase: un correo es un solo usuario de Auth con un solo `usuarios/{uid}`, y las reglas congelan el rol. Quien sea comensal y dueño de un local usa dos correos. |
+| Arranque y sesión | La app arranca en `Arranque`, que lee la sesión guardada y navega según `EstadoSesion` (sin sesión, sin verificar, activa con su rol). Todo cambio de sesión —iniciar, verificar el correo, cerrar— limpia el historial de navegación | Firebase Auth guarda la sesión y Firestore deja el rol en caché, así que se entra directo, también sin conexión. Con el historial limpio, «atrás» nunca vuelve a una pantalla de antes de iniciar o cerrar sesión. |
 | Base de datos local | **Room** (SQLite) | Requisito del curso. Se usa para lo que debe funcionar sin conexión, empezando por el carrito del comensal (HU08). |
 | Lógica programada del lado servidor | Pendiente de decidir antes del Sprint 2 | Los rechazos automáticos de HU07 (pedido a los 10 min, reserva 60 min antes) no se pueden hacer con Cloud Functions en Spark. Los resolverá el backend de Ktor o habrá que replantearlos. |
 
 Las reglas de Firestore viven en la consola de Firebase (Firestore → Reglas). **Cada colección nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
+
+Las colecciones con datos reales (a partir de `restaurantes`, en HU02) deben exigir además `request.auth.token.email_verified == true`. La app ya no deja pasar a una cuenta sin verificar, pero es la regla la que lo garantiza en el servidor. Ojo: el token guardado no se entera de la verificación hasta que se refresca, así que después de «Ya lo confirmé» hay que pedir uno nuevo con `getIdToken(true)`.
 
 ## Convenciones de código
 
@@ -130,6 +142,8 @@ Para que el código de los tres integrantes se lea como si lo hubiera escrito un
 - **Casos de uso:** verbo + sustantivo + `UseCase` (`PublicarMenuDelDiaUseCase`), con una sola función pública (`operator fun invoke(...)`).
 - **Repositorios:** interfaz `MenuRepository` en `domain/repository/`, implementación `MenuRepositoryImpl` en `data/repository/`.
 - **Tres representaciones de un dato, nunca mezcladas:** `MenuDto` (red), `MenuEntity` (Room), `Menu` (dominio). El mapeo vive en `data/`; un DTO nunca llega a `presentation/`.
+- **Errores:** los casos de uso lanzan errores del dominio, una `sealed class` en `domain/model/` (por ejemplo `ErrorAuth`). `data/` traduce las excepciones de Firebase a esos errores (`data/firebase/ErroresFirebase.kt`) y `presentation/` los convierte en textos de `strings.xml`. Ninguna excepción de Firebase llega a un ViewModel.
+- **Navegación desde una pantalla:** la pantalla recibe lambdas (`onVolver`, `onSesionIniciada`) y no conoce las rutas; `core/navigation/NavGraph.kt` decide a dónde ir.
 - **Colores y tipografía solo desde el tema:** `MaterialTheme.colorScheme.primary`, `MaterialTheme.typography.titleLarge`. Ningún `Color(0xFF...)` ni `fontSize` suelto dentro de una pantalla — si falta un color, se agrega al esquema, no a la pantalla.
 - **Textos:** todos en español (Perú), moneda `S/`. Nada de strings escritos dentro de un Composable → `res/values/strings.xml`.
 - **Nombres en español, del dominio** (`Comensal`, `Reserva`, `MenuDelDia`); en inglés solo lo que impone el framework (`ViewModel`, `UseCase`, `Repository`, `Screen`).
@@ -141,7 +155,7 @@ Para que el código de los tres integrantes se lea como si lo hubiera escrito un
 3. `domain/`: modelo, interfaz de repositorio y caso de uso.
 4. `data/`: implementación del repositorio (Firestore / Retrofit / Room) y sus mappers.
 5. `presentation/<proceso>/`: `UiState`, `ViewModel`, `Screen`.
-6. Registrar la ruta en `core/navigation/` y el binding en `core/di/`.
+6. Registrar la ruta en `core/navigation/Rutas.kt` y `NavGraph.kt`, y el binding del repositorio en `core/di/`.
 
 Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está lista cuando todas pasan, no cuando compila.
 
@@ -149,11 +163,11 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 
 | Requisito del curso | Dónde va |
 | --- | --- |
-| Autenticación | `data/firebase/` + `presentation/auth/` en cada proyecto |
+| Autenticación | `data/firebase/` + `presentation/auth/` en cada proyecto — **hecha en `app-restaurante`** (HU01); falta `app-comensal` (HU05) |
 | Procesos de negocio (mín. 3, el proyecto cubre 6) | Un paquete por proceso dentro de `presentation/` de la app que corresponde + su `usecase` en `domain/` |
 | Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) |
 | Material Design | `ui/theme/` + `res/font/` de cada app — **ya hecho**, con paleta propia y modo oscuro |
-| MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` |
+| MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — ya en uso en `app-restaurante` desde HU01 |
 | Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — consumen tanto `backend/` (Ktor) como APIs externas (LLM, mapas) |
 | WorkManager | `workers/` en cada app |
 | SQLite | `data/local/` (Room) — mínimo en `app-comensal` (carrito, HU08) |
