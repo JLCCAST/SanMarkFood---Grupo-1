@@ -10,7 +10,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 
 - Los dos proyectos creados con la plantilla de Compose (`MainActivity` de ejemplo, Gradle configurado).
 - El tema Material 3 real en `ui/theme/` de cada app: `Color.kt`, `Type.kt` y `Theme.kt` con la paleta propia (guinda, ají, verde) en modo claro y oscuro, más las tres fuentes en `res/font/`. Sale del diseño ya cerrado, no es la plantilla de Android Studio.
-- Todo el diseño de pantallas, decidido y revisado: 46 tableros vigentes del comensal y 29 del restaurante. Ver «Documentos relacionados» al final.
+- Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:** `core/`, `data/`, `domain/`, `presentation/`, `workers/`, `ai/` en ninguna de las dos apps, ni el proyecto `backend/`. Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
 
@@ -25,7 +25,7 @@ SanMarkFood---Grupo-1/
 │       └── java/com/equipo/sanmarkfood/comensal/
 │           ├── ui/theme/                    # Color.kt, Type.kt, Theme.kt — Material Design 3 ✔
 │           ├── core/
-│           │   ├── di/                      # Módulos de Hilt/Koin
+│           │   ├── di/                      # Módulos de Hilt
 │           │   ├── navigation/              # NavGraph de Compose
 │           │   └── util/                    # Extensiones, helpers, Result wrapper
 │           ├── data/
@@ -109,6 +109,17 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 - `presentation/` solo tiene `ViewModel` (`StateFlow`) y `Composable`. Ningún ViewModel llama directo a Firestore/Retrofit — siempre pasa por un `usecase`.
 - `ai/` y `workers/` son transversales a las tres capas, pero su lógica pesada (llamar al LLM, procesar OCR) debe pasar por `domain/usecase/`, no vivir suelta dentro de esas carpetas.
 
+## Decisiones técnicas
+
+| Tema | Decisión | Por qué |
+| --- | --- | --- |
+| Inyección de dependencias | **Hilt** (con KSP), en las dos apps | Es el estándar de Google (guías de arquitectura, codelabs, *Now in Android*). Si falta declarar una dependencia, el proyecto no compila — el error aparece en el IDE y no como un crash en plena demo. |
+| Rol de la cuenta (SCRUM-60) | Documento `usuarios/{uid}` en Firestore con el campo `rol` (`comensal`, `restaurante` o `administrador`), protegido por **reglas de Firestore** | El proyecto está en el plan **Spark**, que no permite Cloud Functions. Las reglas impiden crear una cuenta como `administrador` y cambiar el rol después de creado. El administrador se asigna a mano desde la consola. Cuando exista el backend (HU07) se puede migrar a *custom claims* sin cambiar el modelo de datos. |
+| Base de datos local | **Room** (SQLite) | Requisito del curso. Se usa para lo que debe funcionar sin conexión, empezando por el carrito del comensal (HU08). |
+| Lógica programada del lado servidor | Pendiente de decidir antes del Sprint 2 | Los rechazos automáticos de HU07 (pedido a los 10 min, reserva 60 min antes) no se pueden hacer con Cloud Functions en Spark. Los resolverá el backend de Ktor o habrá que replantearlos. |
+
+Las reglas de Firestore viven en la consola de Firebase (Firestore → Reglas). **Cada colección nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
+
 ## Convenciones de código
 
 Para que el código de los tres integrantes se lea como si lo hubiera escrito una sola persona:
@@ -126,7 +137,7 @@ Para que el código de los tres integrantes se lea como si lo hubiera escrito un
 ## Cómo se agrega una pantalla nueva
 
 1. Tarjeta en Jira (`SCRUM-XX`) y rama `feature/SCRUM-XX-...` — ver [`CONTRIBUTING.md`](../CONTRIBUTING.md).
-2. Abrir la pantalla en el lienzo de diseño y leer su fila en el handoff. **Ahí están los estados obligatorios** (vacío, cargando, sin conexión, error, invitado) que ya se diseñaron: implementarlos todos, no solo el caso feliz.
+2. Abrir la pantalla en el prototipo del equipo. **Ahí están los estados obligatorios** (vacío, cargando, sin conexión, error, invitado) que ya se diseñaron: implementarlos todos, no solo el caso feliz.
 3. `domain/`: modelo, interfaz de repositorio y caso de uso.
 4. `data/`: implementación del repositorio (Firestore / Retrofit / Room) y sus mappers.
 5. `presentation/<proceso>/`: `UiState`, `ViewModel`, `Screen`.
@@ -155,9 +166,6 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 
 | Qué | Dónde |
 | --- | --- |
-| Diseño de la App Comensal: 46 pantallas, decisiones de producto cerradas, paleta y equivalencia con los roles de Material 3 | `docs/handoff-diseno-comensal.md` |
-| Diseño de la App Restaurante + Administrador: 29 pantallas y coherencia entre las dos apps | `docs/handoff-diseno-restaurante.md` |
-| Prototipo navegable del comensal | https://claude.ai/artifact/HMEjQm4nBAiPRtMHUBFSeF (usar solo la página «Versión B») |
-| Prototipo navegable del restaurante | https://claude.ai/artifact/7bxRDUe6815yRJrMqG1tDF |
+| Diseño de las dos apps: prototipos navegables, decisiones de producto, paleta y equivalencia con los roles de Material 3 | Material interno del equipo, fuera del repositorio — pedírselo a Jose |
 | Historias de usuario y criterios de aceptación | Jira `jlchuque.atlassian.net`, proyecto **SCRUM** (cada criterio es una subtarea) + `docs/SanMarkFood-Planificacion.xlsx` |
 | Ramas, formato de commits y Pull Requests | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |

@@ -7,16 +7,42 @@ El curso exige **evidenciar la participación individual de cada integrante** me
 ```
 main            → siempre refleja el último estado presentable del proyecto
  └─ develop      → trabajo integrado del equipo; crece sin parar durante todo el semestre
-     └─ feature/SCRUM-XX-descripcion-corta   → una rama por tarjeta de Jira
+     └─ feature/SCRUM-XX-descripcion-corta   → una rama por HISTORIA DE USUARIO
      └─ fix/SCRUM-XX-descripcion-corta       → correcciones de bugs
      └─ chore/descripcion-corta              → mantenimiento del repo, sin tarjeta (ver 2.1)
 ```
 
 - **Nunca** se hace push directo a `main` ni a `develop`.
-- Cada tarjeta de Jira (historia de usuario, tarea técnica) se trabaja en su propia rama `feature/SCRUM-XX-...`: se abre cuando empiezas la tarea, se mergea a `develop` cuando termina. Esto pasa continuamente, sin relación con sprints ni fechas del sílabo.
+- Cada **historia de usuario** se trabaja en su propia rama `feature/SCRUM-XX-...`: se abre cuando empiezas la HU, se mergea a `develop` cuando termina. Esto pasa continuamente, sin relación con sprints ni fechas del sílabo. Son ~26 ramas en todo el semestre, no una por criterio (ver 1.1).
 - `develop` se actualiza tarea por tarea, PR por PR, a lo largo de todo el semestre — no se acumula trabajo para mergear en bloque.
 - `main` se actualiza (`develop` → `main`) cuando hay que **mostrar** el proyecto (sustentaciones del sílabo). Es solo una foto del estado actual para el profesor — no significa que el equipo se detenga ahí. El trabajo en `develop` sigue exactamente igual antes y después de cada sustentación.
 - Si la tarea toca un solo módulo, puedes incluirlo en el nombre de rama para mayor claridad, ej. `feature/SCRUM-14-comensal-login`.
+
+### 1.1 La rama es la HU, el commit es el criterio
+
+En Jira, **cada HU es una historia y cada criterio de aceptación es una subtarea**. Los dos niveles se usan, pero en sitios distintos:
+
+| Nivel | Qué clave lleva | Cuántos hay |
+| --- | --- | --- |
+| Rama y Pull Request | la de la **HU** (la historia) | ~26 en todo el semestre |
+| Commit | la de la **subtarea** (el criterio) | los que haga falta |
+
+Ejemplo — HU19 (`SCRUM-37`) con sus criterios `SCRUM-157`, `SCRUM-158`, `SCRUM-159`:
+
+```
+feature/SCRUM-37-gestion-perfil-comensal
+ ├─ [SCRUM-157] feat: permite editar nombre y foto del perfil
+ ├─ [SCRUM-158] feat: agrega preferencias de notificación
+ └─ [SCRUM-159] feat: aplica el tema claro/oscuro del sistema
+```
+
+Un solo PR, una sola revisión, un solo merge — pero la historia queda enlazada a la rama y al PR, y **cada criterio queda enlazado a su commit**. Una rama por criterio daría más de cien ramas y ninguna sería revisable por separado.
+
+Tres reglas que salen de esto:
+
+- **La clave de la HU va en el nombre de la rama.** Una historia no hereda los commits de sus subtareas: si su clave no está en la rama o en el PR, su tarjeta se queda vacía.
+- **Si una HU es muy grande, pártela en varias ramas, pero todas con la clave de la HU** (`feature/SCRUM-33-ocr-camara`, `feature/SCRUM-33-revision-ia`). El criterio para partir: ¿esto se revisa y se mergea de una sentada?
+- **En el cuerpo del PR, lista las subtareas que cierra.** Así el revisor sabe qué criterios tiene que verificar.
 
 ## 2. Formato de commits
 
