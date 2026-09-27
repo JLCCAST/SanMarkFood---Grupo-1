@@ -2,33 +2,51 @@ package com.equipo.sanmarkfood.comensal.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.equipo.sanmarkfood.comensal.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+// Fuentes variables (Google Fonts, licencia OFL). El peso variable requiere Android 8+;
+// en Android 7 (minSdk 24) se usa el peso por defecto de cada fuente.
+private fun variable(resId: Int, weight: Int) = Font(
+    resId = resId,
+    weight = FontWeight(weight),
+    variationSettings = FontVariation.Settings(FontVariation.weight(weight))
 )
+
+val Bricolage = FontFamily(
+    variable(R.font.bricolage_grotesque, 600),
+    variable(R.font.bricolage_grotesque, 800),
+)
+
+val Figtree = FontFamily(
+    variable(R.font.figtree, 400),
+    variable(R.font.figtree, 500),
+    variable(R.font.figtree, 600),
+    variable(R.font.figtree, 700),
+)
+
+val Caveat = FontFamily(
+    variable(R.font.caveat, 700),
+)
+
+// Tamaños del prototipo (docs/handoff-diseno-comensal.md). Bricolage: títulos y precios; Figtree: texto.
+val Typography = Typography(
+    displaySmall = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp),
+    headlineSmall = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp),
+    titleLarge = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp, lineHeight = 27.sp, letterSpacing = (-0.5).sp),
+    titleMedium = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp),
+    titleSmall = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Bold, fontSize = 16.sp),
+    bodyLarge = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 22.sp),
+    bodyMedium = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
+    bodySmall = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp),
+    labelLarge = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
+    labelMedium = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.Bold, fontSize = 13.sp, letterSpacing = 1.sp),
+    labelSmall = TextStyle(fontFamily = Figtree, fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
+)
+
+// Detalles "escritos a mano" (firma del ticket). No es un rol de M3.
+val HandwrittenStyle = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 26.sp)
