@@ -9,4 +9,5 @@ interface AuthRepository {
     suspend fun iniciarSesion(correo: String, contrasena: String)
     suspend fun estadoSesion(): EstadoSesion
     fun cerrarSesion()
+    suspend fun enviarRecuperacion(correo: String)
 }

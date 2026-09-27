@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,10 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -60,8 +65,18 @@ fun InicioSesionScreen(
         onCambiarCorreo = viewModel::onCambiarCorreo,
         onCambiarContrasena = viewModel::onCambiarContrasena,
         onIniciarSesion = viewModel::onIniciarSesion,
+        onAbrirRecuperacion = viewModel::onAbrirRecuperacion,
         onRegistrarse = onRegistrarse,
     )
+    uiState.recuperacion?.let { recuperacion ->
+        PanelRecuperacion(
+            recuperacion = recuperacion,
+            correo = uiState.correo,
+            onCambiarCorreo = viewModel::onCambiarCorreo,
+            onEnviarEnlace = viewModel::onEnviarEnlace,
+            onCerrar = viewModel::onCerrarRecuperacion,
+        )
+    }
 }
 
 @Composable
@@ -70,6 +85,7 @@ private fun InicioSesionContenido(
     onCambiarCorreo: (String) -> Unit,
     onCambiarContrasena: (String) -> Unit,
     onIniciarSesion: () -> Unit,
+    onAbrirRecuperacion: () -> Unit,
     onRegistrarse: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
@@ -89,12 +105,21 @@ private fun InicioSesionContenido(
                     onValorChange = onCambiarCorreo,
                     ejemplo = stringResource(R.string.campo_correo_ejemplo),
                 )
-                CampoFormulario(
-                    etiqueta = stringResource(R.string.campo_contrasena),
-                    valor = uiState.contrasena,
-                    onValorChange = onCambiarContrasena,
-                    esContrasena = true,
-                )
+                Column {
+                    CampoFormulario(
+                        etiqueta = stringResource(R.string.campo_contrasena),
+                        valor = uiState.contrasena,
+                        onValorChange = onCambiarContrasena,
+                        esContrasena = true,
+                    )
+                    TextButton(
+                        onClick = onAbrirRecuperacion,
+                        modifier = Modifier.align(Alignment.End),
+                        contentPadding = PaddingValues(0.dp),
+                    ) {
+                        Text(text = stringResource(R.string.login_olvidaste), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
                 BotonPrincipal(
                     texto = stringResource(R.string.login_iniciar_sesion),
                     onClick = onIniciarSesion,
@@ -167,6 +192,65 @@ private fun CabeceraMarca() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PanelRecuperacion(
+    recuperacion: RecuperacionUiState,
+    correo: String,
+    onCambiarCorreo: (String) -> Unit,
+    onEnviarEnlace: () -> Unit,
+    onCerrar: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCerrar,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outline) },
+    ) {
+        Column(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.recuperar_titulo),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            if (recuperacion.enviado) {
+                Text(
+                    text = stringResource(R.string.recuperar_listo),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                BotonPrincipal(texto = stringResource(R.string.recuperar_entendido), onClick = onCerrar)
+            } else {
+                Text(
+                    text = stringResource(R.string.recuperar_explicacion),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                CampoFormulario(
+                    etiqueta = stringResource(R.string.recuperar_campo_correo),
+                    valor = correo,
+                    onValorChange = onCambiarCorreo,
+                    ejemplo = stringResource(R.string.campo_correo_ejemplo),
+                )
+                recuperacion.error?.let { MensajeError(error = it) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = onCerrar, modifier = Modifier.height(52.dp)) {
+                        Text(text = stringResource(R.string.recuperar_cancelar), style = MaterialTheme.typography.labelLarge)
+                    }
+                    BotonPrincipal(
+                        texto = stringResource(R.string.recuperar_enviar),
+                        onClick = onEnviarEnlace,
+                        modifier = Modifier.weight(1f),
+                        habilitado = correo.isNotBlank(),
+                        cargando = recuperacion.enviando,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun BarraDeEstadoSobreCabecera() {
     val vista = LocalView.current
@@ -189,6 +273,7 @@ private fun InicioSesionPreview() {
                 onCambiarCorreo = {},
                 onCambiarContrasena = {},
                 onIniciarSesion = {},
+                onAbrirRecuperacion = {},
                 onRegistrarse = {},
             )
         }

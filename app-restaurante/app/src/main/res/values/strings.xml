@@ -23,10 +23,20 @@
     <string name="login_marca_acento">Food</string>
     <string name="login_lema">Publica tu menú del día y recibe pedidos y reservas de los sanmarquinos.</string>
     <string name="login_titulo">Inicia sesión</string>
+    <string name="login_olvidaste">¿Olvidaste tu contraseña?</string>
     <string name="login_iniciar_sesion">Iniciar sesión</string>
     <string name="login_sesion_guardada">Tu sesión quedará iniciada en este celular. Puedes usar la misma cuenta en otro celular del local.</string>
     <string name="login_sin_local">¿Tu local aún no está?</string>
     <string name="login_registralo">Regístralo</string>
+
+    <!-- Recuperar contraseña -->
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_explicacion">Te enviaremos un enlace para crear una contraseña nueva.</string>
+    <string name="recuperar_campo_correo">Correo de tu cuenta</string>
+    <string name="recuperar_cancelar">Cancelar</string>
+    <string name="recuperar_enviar">Enviar enlace</string>
+    <string name="recuperar_listo">Listo. Si el correo está registrado, te llegará el enlace en unos minutos. Revisa también la carpeta de spam.</string>
+    <string name="recuperar_entendido">Entendido</string>
 
     <!-- Registro -->
     <string name="registro_paso">Paso 1 de 3 · Tu cuenta</string>
