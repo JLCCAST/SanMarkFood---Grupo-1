@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.theme
+package com.equipo.sanmarkfood.restaurante.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

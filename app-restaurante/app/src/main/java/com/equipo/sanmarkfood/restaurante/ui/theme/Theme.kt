@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.theme
+package com.equipo.sanmarkfood.restaurante.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -97,7 +97,7 @@ val MaterialTheme.extendedColors: ExtendedColors
     @Composable get() = LocalExtendedColors.current
 
 @Composable
-fun AppcomensalTheme(
+fun ApprestauranteTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
