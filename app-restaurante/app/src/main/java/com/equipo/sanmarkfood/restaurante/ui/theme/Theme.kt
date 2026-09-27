@@ -101,7 +101,6 @@ fun ApprestauranteTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // Sin color dinámico: en Android 12+ reemplazaría la paleta de marca (SCRUM-159).
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     CompositionLocalProvider(LocalExtendedColors provides ExtendedColors(pizarra = Pizarra)) {

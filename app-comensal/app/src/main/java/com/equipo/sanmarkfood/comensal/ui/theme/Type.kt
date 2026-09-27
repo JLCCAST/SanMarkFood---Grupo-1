@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.comensal.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -11,6 +12,7 @@ import com.equipo.sanmarkfood.comensal.R
 
 // Fuentes variables (Google Fonts, licencia OFL). El peso variable requiere Android 8+;
 // en Android 7 (minSdk 24) se usa el peso por defecto de cada fuente.
+@OptIn(ExperimentalTextApi::class)
 private fun variable(resId: Int, weight: Int) = Font(
     resId = resId,
     weight = FontWeight(weight),
@@ -35,6 +37,7 @@ val Caveat = FontFamily(
 
 // Tamaños del prototipo (docs/handoff-diseno-comensal.md). Bricolage: títulos y precios; Figtree: texto.
 val Typography = Typography(
+    displayMedium = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, lineHeight = 40.sp, letterSpacing = (-1).sp),
     displaySmall = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp),
     headlineSmall = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp),
     titleLarge = TextStyle(fontFamily = Bricolage, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp, lineHeight = 27.sp, letterSpacing = (-0.5).sp),
