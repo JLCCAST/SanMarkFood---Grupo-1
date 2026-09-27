@@ -1,23 +1,32 @@
 package com.equipo.sanmarkfood.restaurante.presentation.auth
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -28,6 +37,44 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
+
+@Composable
+fun CabeceraPaso(texto: String, pasoActual: Int, onVolver: () -> Unit) {
+    Row(
+        modifier = Modifier.height(64.dp).padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        IconButton(onClick = onVolver) {
+            Icon(
+                painter = painterResource(R.drawable.ic_volver),
+                contentDescription = stringResource(R.string.volver),
+            )
+        }
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    Row(
+        modifier = Modifier.padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        repeat(3) { indice ->
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(
+                        if (indice < pasoActual) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.outlineVariant
+                    ),
+            )
+        }
+    }
+}
 
 @Composable
 fun CampoFormulario(
@@ -107,5 +154,7 @@ private fun ErrorAuth.mensaje(): Int = when (this) {
     ErrorAuth.SinConexion -> R.string.error_sin_conexion
     ErrorAuth.CorreoYaRegistrado -> R.string.error_correo_ya_registrado
     ErrorAuth.CorreoInvalido -> R.string.error_correo_invalido
+    ErrorAuth.CorreoSinVerificar -> R.string.error_correo_sin_verificar
+    ErrorAuth.DemasiadosIntentos -> R.string.error_demasiados_intentos
     ErrorAuth.Desconocido -> R.string.error_desconocido
 }

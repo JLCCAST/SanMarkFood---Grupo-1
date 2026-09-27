@@ -8,7 +8,10 @@ class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource
 ) : AuthRepository {
 
-    override suspend fun registrar(correo: String, contrasena: String) {
-        authDataSource.registrar(correo, contrasena)
-    }
+    override suspend fun registrar(correo: String, contrasena: String) =
+        authDataSource.registrarYEnviarVerificacion(correo, contrasena)
+
+    override suspend fun enviarVerificacion() = authDataSource.enviarVerificacion()
+
+    override suspend fun correoVerificado(): Boolean = authDataSource.correoVerificado()
 }
