@@ -26,4 +26,6 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun cerrarSesion() = authDataSource.cerrarSesion()
+
+    override suspend fun enviarRecuperacion(correo: String) = authDataSource.enviarRecuperacion(correo)
 }

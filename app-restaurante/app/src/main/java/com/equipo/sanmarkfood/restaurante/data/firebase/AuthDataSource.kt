@@ -29,4 +29,8 @@ class AuthDataSource @Inject constructor(
     fun usuarioActual(): FirebaseUser? = auth.currentUser
 
     fun cerrarSesion() = auth.signOut()
+
+    suspend fun enviarRecuperacion(correo: String) {
+        llamarFirebase { auth.sendPasswordResetEmail(correo).await() }
+    }
 }

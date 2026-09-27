@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
 import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
 import com.equipo.sanmarkfood.restaurante.domain.usecase.IniciarSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.RecuperarContrasenaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,11 +20,19 @@ data class InicioSesionUiState(
     val cargando: Boolean = false,
     val error: ErrorAuth? = null,
     val sesion: EstadoSesion? = null,
+    val recuperacion: RecuperacionUiState? = null,
+)
+
+data class RecuperacionUiState(
+    val enviando: Boolean = false,
+    val enviado: Boolean = false,
+    val error: ErrorAuth? = null,
 )
 
 @HiltViewModel
 class InicioSesionViewModel @Inject constructor(
-    private val iniciarSesion: IniciarSesionUseCase
+    private val iniciarSesion: IniciarSesionUseCase,
+    private val recuperarContrasena: RecuperarContrasenaUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InicioSesionUiState())
@@ -45,6 +54,26 @@ class InicioSesionViewModel @Inject constructor(
                 _uiState.update { it.copy(cargando = false, sesion = sesion) }
             } catch (e: ErrorAuth) {
                 _uiState.update { it.copy(cargando = false, error = e) }
+            }
+        }
+    }
+
+    fun onAbrirRecuperacion() = _uiState.update { it.copy(recuperacion = RecuperacionUiState()) }
+
+    fun onCerrarRecuperacion() = _uiState.update { it.copy(recuperacion = null) }
+
+    fun onEnviarEnlace() {
+        val estado = _uiState.value
+        val recuperacion = estado.recuperacion ?: return
+        if (estado.correo.isBlank() || recuperacion.enviando) return
+
+        _uiState.update { it.copy(recuperacion = RecuperacionUiState(enviando = true)) }
+        viewModelScope.launch {
+            try {
+                recuperarContrasena(estado.correo)
+                _uiState.update { it.copy(recuperacion = RecuperacionUiState(enviado = true)) }
+            } catch (e: ErrorAuth) {
+                _uiState.update { it.copy(recuperacion = RecuperacionUiState(error = e)) }
             }
         }
     }
