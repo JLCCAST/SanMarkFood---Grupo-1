@@ -24,7 +24,11 @@ data class AuthUiState(
     val isLoggedIn: Boolean = false,
     val needsVerification: Boolean = false,
     val verificationEmail: String = "",
-    val resendCooldown: Int = 0
+    val resendCooldown: Int = 0,
+    // Recuperación de contraseña (SCRUM-82)
+    val resetLoading: Boolean = false,
+    val resetError: String? = null,
+    val resetEmailSent: Boolean = false
 )
 
 class AuthViewModel(
@@ -135,6 +139,32 @@ class AuthViewModel(
 
     fun clearError() = _uiState.update { it.copy(error = null) }
 
+    /** Botón "Enviar enlace" del diálogo de recuperar contraseña. */
+    fun sendPasswordReset(email: String) {
+        if (email.isBlank()) return setResetError("Escribe tu correo")
+        if (!isValidEmail(email)) return setResetError("Correo no válido")
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(resetLoading = true, resetError = null, resetEmailSent = false)
+            }
+            repository.sendPasswordReset(email.trim())
+                .onSuccess {
+                    _uiState.update { it.copy(resetLoading = false, resetEmailSent = true) }
+                }
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(resetLoading = false, resetError = mapResetError(e))
+                    }
+                }
+        }
+    }
+
+    /** Limpia el estado del diálogo de recuperación al abrirlo o cerrarlo. */
+    fun clearReset() = _uiState.update {
+        it.copy(resetLoading = false, resetError = null, resetEmailSent = false)
+    }
+
     private fun showVerification(email: String, startCooldown: Boolean) {
         _uiState.value = AuthUiState(needsVerification = true, verificationEmail = email)
         if (startCooldown) startCooldown()
@@ -156,6 +186,8 @@ class AuthViewModel(
 
     private fun setError(msg: String) = _uiState.update { it.copy(error = msg) }
 
+    private fun setResetError(msg: String) = _uiState.update { it.copy(resetError = msg) }
+
     private fun mapError(e: Throwable): String = when (e) {
         is FirebaseAuthUserCollisionException -> "Ya existe una cuenta con ese correo"
         is FirebaseAuthWeakPasswordException -> "La contraseña es muy débil"
@@ -164,5 +196,12 @@ class AuthViewModel(
         is FirebaseTooManyRequestsException -> "Demasiados intentos. Espera un momento e inténtalo de nuevo"
         is FirebaseNetworkException -> "Sin conexión a internet"
         else -> "Ocurrió un error. Inténtalo de nuevo"
+    }
+
+    /** Mensajes propios de la recuperación (no valen los de "contraseña incorrecta"). */
+    private fun mapResetError(e: Throwable): String = when (e) {
+        is FirebaseAuthInvalidUserException -> "No encontramos una cuenta con ese correo"
+        is FirebaseAuthInvalidCredentialsException -> "Correo no válido"
+        else -> mapError(e)
     }
 }

@@ -8,6 +8,11 @@ import kotlinx.coroutines.tasks.await
 class AuthRepository(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 ) {
+    init {
+        // Los correos que envía Firebase (verificación y recuperación) llegan en español.
+        auth.setLanguageCode("es")
+    }
+
     val currentUser: FirebaseUser? get() = auth.currentUser
 
     suspend fun register(name: String, email: String, password: String): Result<FirebaseUser> =
@@ -47,6 +52,13 @@ class AuthRepository(
             val user = auth.currentUser ?: error("No hay sesión activa")
             user.reload().await()
             auth.currentUser?.isEmailVerified == true
+        }
+
+    /** Envía el correo con el enlace para crear una nueva contraseña (SCRUM-82). */
+    suspend fun sendPasswordReset(email: String): Result<Unit> =
+        runCatching {
+            auth.sendPasswordResetEmail(email).await()
+            Unit
         }
 
     fun logout() = auth.signOut()
