@@ -5,7 +5,8 @@ import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import javax.inject.Inject
 
-class GuardarDatosLocalUseCase @Inject constructor(
+/** R7: guarda los datos corregidos de un local rechazado y lo devuelve a revisión. */
+class ReenviarARevisionUseCase @Inject constructor(
     private val restauranteRepository: RestauranteRepository
 ) {
     suspend operator fun invoke(
@@ -17,7 +18,7 @@ class GuardarDatosLocalUseCase @Inject constructor(
         portadaUrl: String?,
         logoUrl: String?,
     ) {
-        restauranteRepository.guardarDatos(
+        restauranteRepository.reenviarARevision(
             validarDatosLocal(nombre, categoria, direccion, ubicacion, telefono, portadaUrl, logoUrl)
         )
     }

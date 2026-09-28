@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -10,10 +9,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -61,7 +64,7 @@ import java.util.Locale
  * rechazaron y, hasta que HU09 traiga la bandeja de pedidos, un aviso cuando ya está aprobado.
  */
 @Composable
-fun EstadoLocal(restaurante: Restaurante, modifier: Modifier = Modifier) {
+fun EstadoLocal(restaurante: Restaurante, onCorregir: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -72,12 +75,12 @@ fun EstadoLocal(restaurante: Restaurante, modifier: Modifier = Modifier) {
         CabeceraLocal(restaurante.datos)
         when (restaurante.estado) {
             EstadoRestaurante.PENDIENTE -> TarjetaEnRevision()
-            EstadoRestaurante.RECHAZADO -> TarjetaRechazado(restaurante.rechazo)
+            EstadoRestaurante.RECHAZADO -> TarjetaRechazado(restaurante.rechazo, onCorregir)
             EstadoRestaurante.APROBADO -> TarjetaAprobado()
             // Un borrador no llega aquí: el arranque lo manda a terminar el alta.
             EstadoRestaurante.BORRADOR -> Unit
         }
-        if (restaurante.estado != EstadoRestaurante.APROBADO) ListaPreparacion(restaurante)
+        if (restaurante.estado != EstadoRestaurante.APROBADO) ListaPreparacion(restaurante, onCorregir)
     }
 }
 
@@ -113,7 +116,7 @@ private fun TarjetaEnRevision() {
 }
 
 @Composable
-private fun TarjetaRechazado(rechazo: Rechazo?) {
+private fun TarjetaRechazado(rechazo: Rechazo?, onCorregir: () -> Unit) {
     val indicacion = stringResource(R.string.estado_rechazado_texto)
     TarjetaEstado(
         etiqueta = stringResource(R.string.estado_rechazado),
@@ -121,6 +124,11 @@ private fun TarjetaRechazado(rechazo: Rechazo?) {
         texto = rechazo?.detalle?.let { stringResource(R.string.estado_rechazado_con_detalle, it, indicacion) } ?: indicacion,
         fondo = MaterialTheme.colorScheme.errorContainer,
         contenido = MaterialTheme.colorScheme.onErrorContainer,
+        accion = {
+            Button(onClick = onCorregir, modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(48.dp)) {
+                Text(text = stringResource(R.string.corregir_boton), style = MaterialTheme.typography.labelLarge)
+            }
+        },
     )
 }
 
@@ -144,6 +152,7 @@ private fun TarjetaEstado(
     fondo: Color,
     contenido: Color,
     marca: (@Composable () -> Unit)? = null,
+    accion: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier
@@ -162,6 +171,7 @@ private fun TarjetaEstado(
             Text(text = titulo, style = MaterialTheme.typography.headlineSmall)
             Text(text = texto, style = MaterialTheme.typography.bodyMedium)
         }
+        accion?.invoke()
     }
 }
 
@@ -184,7 +194,7 @@ private fun PuntoParpadeante() {
 }
 
 @Composable
-private fun ListaPreparacion(restaurante: Restaurante) {
+private fun ListaPreparacion(restaurante: Restaurante, onCorregir: () -> Unit) {
     val rechazado = restaurante.estado == EstadoRestaurante.RECHAZADO
     val horario = restaurante.horario
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -208,6 +218,8 @@ private fun ListaPreparacion(restaurante: Restaurante) {
                 }
             ),
             listo = !rechazado,
+            accion = if (rechazado) stringResource(R.string.corregir_accion) else null,
+            onAccion = onCorregir,
         )
         ItemPreparacion(
             titulo = stringResource(R.string.preparacion_horario),
@@ -229,7 +241,13 @@ private fun ListaPreparacion(restaurante: Restaurante) {
 }
 
 @Composable
-private fun ItemPreparacion(titulo: String, ayuda: String, listo: Boolean) {
+private fun ItemPreparacion(
+    titulo: String,
+    ayuda: String,
+    listo: Boolean,
+    accion: String? = null,
+    onAccion: () -> Unit = {},
+) {
     val estado = stringResource(if (listo) R.string.preparacion_listo else R.string.preparacion_pendiente)
     Row(
         modifier = Modifier
@@ -266,6 +284,19 @@ private fun ItemPreparacion(titulo: String, ayuda: String, listo: Boolean) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        if (accion != null) {
+            Button(
+                onClick = onAccion,
+                modifier = Modifier.height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                ),
+                contentPadding = PaddingValues(horizontal = 14.dp),
+            ) {
+                Text(text = accion, style = MaterialTheme.typography.labelLarge)
+            }
+        }
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
@@ -285,14 +316,6 @@ private fun resumenDias(horario: Horario): String {
         }
     }
     return partes.joinToString(", ").replaceFirstChar { it.titlecase(Locale.forLanguageTag("es-PE")) }
-}
-
-@StringRes
-private fun MotivoRechazo.titulo(): Int = when (this) {
-    MotivoRechazo.DATOS_INCOMPLETOS -> R.string.motivo_datos_incompletos
-    MotivoRechazo.DIRECCION_NO_VERIFICABLE -> R.string.motivo_direccion_no_verificable
-    MotivoRechazo.LOCAL_DUPLICADO -> R.string.motivo_local_duplicado
-    MotivoRechazo.OTRO -> R.string.motivo_otro
 }
 
 private val restauranteDeEjemplo = Restaurante(
@@ -316,7 +339,7 @@ private val restauranteDeEjemplo = Restaurante(
 private fun EnRevisionPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            EstadoLocal(restauranteDeEjemplo)
+            EstadoLocal(restauranteDeEjemplo, onCorregir = {})
         }
     }
 }
@@ -333,7 +356,8 @@ private fun RechazadoPreview() {
                         MotivoRechazo.DIRECCION_NO_VERIFICABLE,
                         "La dirección no coincide con el punto marcado en el mapa.",
                     ),
-                )
+                ),
+                onCorregir = {},
             )
         }
     }

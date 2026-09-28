@@ -185,6 +185,15 @@
     <string name="estado_aprobado_titulo">Tu local está aprobado</string>
     <string name="estado_aprobado_texto">Ya apareces en el mapa de San Mark Food. Aquí verás los pedidos que te hagan.</string>
 
+    <!-- Corregir y reenviar (R6 y R7, SCRUM-160) -->
+    <string name="corregir_titulo">Corregir y reenviar</string>
+    <string name="corregir_boton">Corregir y reenviar</string>
+    <string name="corregir_accion">Corregir</string>
+    <string name="corregir_reenviar">Guardar y reenviar a revisión</string>
+    <string name="corregir_motivo">MOTIVO DEL RECHAZO</string>
+    <string name="corregir_indicacion_direccion">Corrígela y vuelve a enviar.</string>
+    <string name="corregir_indicacion">Corrige lo necesario y vuelve a enviar.</string>
+
     <!-- Motivos de rechazo: los mismos textos que elige el administrador en A2 (HU24) -->
     <string name="motivo_datos_incompletos">Datos incompletos</string>
     <string name="motivo_direccion_no_verificable">No pudimos verificar la dirección</string>

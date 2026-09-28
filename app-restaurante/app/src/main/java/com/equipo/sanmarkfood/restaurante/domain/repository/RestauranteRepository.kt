@@ -28,6 +28,12 @@ interface RestauranteRepository {
     /** Guarda el horario y pasa el local de borrador a pendiente: desde ahí lo ve el administrador. */
     suspend fun enviarARevision(horario: Horario)
 
+    /**
+     * Guarda los datos corregidos de un local rechazado y lo pasa a pendiente. Para el administrador deja
+     * el rechazo como «anterior», marca el reenvío y anota qué campos cambiaron.
+     */
+    suspend fun reenviarARevision(datos: DatosLocal)
+
     /** Cambia el horario de un local que ya terminó el alta, sin tocar su estado. */
     suspend fun guardarHorario(horario: Horario)
 

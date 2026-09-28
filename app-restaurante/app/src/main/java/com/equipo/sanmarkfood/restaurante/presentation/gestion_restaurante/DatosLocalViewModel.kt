@@ -10,11 +10,14 @@ import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.Rechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.usecase.CerrarSesionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.GuardarDatosLocalUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.ObtenerRestauranteUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.ReenviarARevisionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.SubirFotoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +31,10 @@ data class DatosLocalUiState(
     val modo: ModoFormulario = ModoFormulario.ALTA,
     val cargando: Boolean = true,
     val errorCarga: ErrorRestaurante? = null,
+    /** Solo en R7: el motivo del rechazo que se muestra arriba del formulario. */
+    val rechazo: Rechazo? = null,
+    /** En R7, si rechazaron la dirección: se marca en rojo hasta que la cambien o muevan el punto. */
+    val direccionPorCorregir: Boolean = false,
     val portada: FotoUiState = FotoUiState(),
     val logo: FotoUiState = FotoUiState(),
     val nombre: String = "",
@@ -64,6 +71,7 @@ class DatosLocalViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val obtenerRestaurante: ObtenerRestauranteUseCase,
     private val guardarDatosLocal: GuardarDatosLocalUseCase,
+    private val reenviarARevision: ReenviarARevisionUseCase,
     private val subirFoto: SubirFotoUseCase,
     private val cerrarSesion: CerrarSesionUseCase,
 ) : ViewModel() {
@@ -88,8 +96,9 @@ class DatosLocalViewModel @Inject constructor(
     fun onElegirCategoria(categoria: CategoriaRestaurante) =
         cambiarCampo(CampoLocal.CATEGORIA) { it.copy(categoria = categoria) }
 
-    fun onCambiarDireccion(direccion: String) =
-        cambiarCampo(CampoLocal.DIRECCION) { it.copy(direccion = direccion.take(DatosLocal.MAX_DIRECCION)) }
+    fun onCambiarDireccion(direccion: String) = cambiarCampo(CampoLocal.DIRECCION) {
+        it.copy(direccion = direccion.take(DatosLocal.MAX_DIRECCION), direccionPorCorregir = false)
+    }
 
     fun onCambiarTelefono(telefono: String) =
         cambiarCampo(CampoLocal.TELEFONO) { it.copy(telefono = telefono.take(MAX_TELEFONO)) }
@@ -99,7 +108,7 @@ class DatosLocalViewModel @Inject constructor(
     fun onCancelarUbicacion() = _uiState.update { it.copy(eligiendoUbicacion = false) }
 
     fun onUbicacionElegida(ubicacion: Ubicacion) =
-        _uiState.update { it.copy(ubicacion = ubicacion, eligiendoUbicacion = false) }
+        _uiState.update { it.copy(ubicacion = ubicacion, eligiendoUbicacion = false, direccionPorCorregir = false) }
 
     // La foto se sube apenas se elige. Si falla, vuelve a verse la que ya estaba subida (o ninguna).
     // No se suben fotos mientras se guarda: al guardar se borran de Storage las que no se usan.
@@ -122,6 +131,8 @@ class DatosLocalViewModel @Inject constructor(
         }
     }
 
+    // En el alta y al editar solo guarda; en R7 guarda y reenvía a revisión, aunque no haya cambios:
+    // el arreglo pudo estar en el horario o en la carta.
     fun onContinuar() {
         val estado = _uiState.value
         if (estado.guardando || estado.subiendoFoto) return
@@ -129,14 +140,15 @@ class DatosLocalViewModel @Inject constructor(
         _uiState.update { it.copy(guardando = true, error = null) }
         viewModelScope.launch {
             try {
-                guardarDatosLocal(
-                    nombre = estado.nombre,
-                    categoria = estado.categoria,
-                    direccion = estado.direccion,
-                    ubicacion = estado.ubicacion,
-                    telefono = estado.telefono,
-                    portadaUrl = estado.portada.url,
-                    logoUrl = estado.logo.url,
+                val guardar = if (estado.modo == ModoFormulario.CORREGIR) reenviarARevision::invoke else guardarDatosLocal::invoke
+                guardar(
+                    estado.nombre,
+                    estado.categoria,
+                    estado.direccion,
+                    estado.ubicacion,
+                    estado.telefono,
+                    estado.portada.url,
+                    estado.logo.url,
                 )
                 _uiState.update { it.copy(guardando = false, guardado = true) }
             } catch (e: ErrorRestaurante.DatosInvalidos) {
@@ -172,13 +184,18 @@ class DatosLocalViewModel @Inject constructor(
         _uiState.update { it.copy(cargando = true, errorCarga = null) }
         viewModelScope.launch {
             try {
-                val datos = obtenerRestaurante()?.datos
+                val restaurante = obtenerRestaurante()
+                val datos = restaurante?.datos
                 _uiState.update { estado ->
                     if (datos == null) {
                         estado.copy(cargando = false)
                     } else {
+                        val corrigiendo = estado.modo == ModoFormulario.CORREGIR
                         estado.copy(
                             cargando = false,
+                            rechazo = restaurante.rechazo.takeIf { corrigiendo },
+                            direccionPorCorregir = corrigiendo &&
+                                restaurante.rechazo?.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE,
                             portada = FotoUiState(imagen = datos.portadaUrl, url = datos.portadaUrl),
                             logo = FotoUiState(imagen = datos.logoUrl, url = datos.logoUrl),
                             nombre = datos.nombre,

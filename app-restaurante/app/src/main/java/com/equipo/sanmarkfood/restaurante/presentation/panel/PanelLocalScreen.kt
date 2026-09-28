@@ -42,6 +42,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
 @Composable
 fun PanelLocalScreen(
     onEditarPerfil: () -> Unit,
+    onCorregir: () -> Unit,
     onEditarHorario: () -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
@@ -54,11 +55,13 @@ fun PanelLocalScreen(
     ) { relleno ->
         val contenido = Modifier.fillMaxSize().padding(relleno).consumeWindowInsets(relleno)
         val aprobado = uiState.restaurante?.estado == EstadoRestaurante.APROBADO
+        val rechazado = uiState.restaurante?.estado == EstadoRestaurante.RECHAZADO
         when (uiState.pestana) {
             PestanaPanel.PEDIDOS -> PestanaPedidos(
                 uiState = uiState,
                 onReintentar = viewModel::onReintentar,
                 onCambiarRecepcion = viewModel::onCambiarRecepcion,
+                onCorregir = onCorregir,
                 modifier = contenido,
             )
             PestanaPanel.RESERVAS -> PestanaProvisional(
@@ -81,7 +84,8 @@ fun PanelLocalScreen(
                 modifier = contenido,
             )
             PestanaPanel.NEGOCIO -> NegocioScreen(
-                onEditarPerfil = onEditarPerfil,
+                // Rechazado, cambiar los datos es corregirlos: termina en «Guardar y reenviar a revisión» (R7).
+                onEditarPerfil = if (rechazado) onCorregir else onEditarPerfil,
                 onEditarHorario = onEditarHorario,
                 onSesionCerrada = onSesionCerrada,
                 modifier = contenido,
@@ -95,6 +99,7 @@ private fun PestanaPedidos(
     uiState: PanelLocalUiState,
     onReintentar: () -> Unit,
     onCambiarRecepcion: (Boolean) -> Unit,
+    onCorregir: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val restaurante = uiState.restaurante
@@ -119,9 +124,9 @@ private fun PestanaPedidos(
                 error = uiState.errorPausa,
                 onCambiarRecepcion = onCambiarRecepcion,
             )
-            EstadoLocal(restaurante = restaurante, modifier = Modifier.weight(1f))
+            EstadoLocal(restaurante = restaurante, onCorregir = onCorregir, modifier = Modifier.weight(1f))
         }
-        else -> EstadoLocal(restaurante = restaurante, modifier = modifier)
+        else -> EstadoLocal(restaurante = restaurante, onCorregir = onCorregir, modifier = modifier)
     }
 }
 

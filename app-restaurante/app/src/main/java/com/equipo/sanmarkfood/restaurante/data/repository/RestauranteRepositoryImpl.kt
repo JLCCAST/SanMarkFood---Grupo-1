@@ -45,6 +45,12 @@ class RestauranteRepositoryImpl @Inject constructor(
         restaurantesDataSource.enviarARevision(uid, horario)
     }
 
+    override suspend fun reenviarARevision(datos: DatosLocal) {
+        val uid = uid()
+        if (!restaurantesDataSource.reenviarARevision(uid, datos)) throw ErrorRestaurante.Desconocido
+        borrarFotosSinUsar(uid, datos)
+    }
+
     override suspend fun guardarHorario(horario: Horario) {
         val uid = uid()
         if (!restaurantesDataSource.existeEnServidor(uid)) throw ErrorRestaurante.Desconocido

@@ -74,6 +74,37 @@ class RestaurantesDataSource @Inject constructor(
         }
     }
 
+    /**
+     * R7 (SCRUM-160). En una transacción, que además falla sin conexión en vez de quedar en espera:
+     * - guarda los datos corregidos y pasa el local de rechazado a pendiente;
+     * - copia el rechazo tal cual a rechazoAnterior, para que el administrador vea el motivo;
+     * - marca reenviado y anota en camposCorregidos qué campos cambiaron («Cambió desde entonces…» en A2).
+     * Devuelve false si el local ya no estaba rechazado.
+     */
+    suspend fun reenviarARevision(uid: String, datos: DatosLocal): Boolean =
+        llamarFirebaseRestaurante {
+            firestore.runTransaction { transaccion ->
+                val actual = transaccion.get(documento(uid))
+                if (actual.getString("estado") != EstadoRestaurante.RECHAZADO.valor()) return@runTransaction false
+
+                val corregidos = datos.aCampos()
+                val camposCorregidos = corregidos.filter { (campo, valor) -> actual.get(campo) != valor }.keys.toList()
+                transaccion.update(
+                    documento(uid),
+                    corregidos + mapOf(
+                        "estado" to EstadoRestaurante.PENDIENTE.valor(),
+                        "rechazo" to FieldValue.delete(),
+                        "rechazoAnterior" to (actual.get("rechazo") ?: FieldValue.delete()),
+                        "reenviado" to true,
+                        "camposCorregidos" to camposCorregidos,
+                        "enviadoEn" to FieldValue.serverTimestamp(),
+                        "actualizadoEn" to FieldValue.serverTimestamp(),
+                    ),
+                )
+                true
+            }.await()
+        }
+
     suspend fun cambiarPausa(uid: String, pausado: Boolean) {
         llamarFirebaseRestaurante {
             documento(uid).update(
