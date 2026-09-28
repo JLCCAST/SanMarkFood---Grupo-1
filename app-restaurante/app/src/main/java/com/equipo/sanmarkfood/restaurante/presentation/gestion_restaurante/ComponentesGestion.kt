@@ -33,6 +33,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Hora
+import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
 import java.util.Locale
 
 /** El logo del local, o la inicial de su nombre si no subió uno (el logo es opcional desde SCRUM-63). */
@@ -118,6 +119,14 @@ fun CategoriaRestaurante.etiqueta(): Int = when (this) {
     CategoriaRestaurante.MARINA -> R.string.categoria_marina
     CategoriaRestaurante.VEGETARIANA -> R.string.categoria_vegetariana
     CategoriaRestaurante.OTRA -> R.string.categoria_otra
+}
+
+@StringRes
+fun MotivoRechazo.titulo(): Int = when (this) {
+    MotivoRechazo.DATOS_INCOMPLETOS -> R.string.motivo_datos_incompletos
+    MotivoRechazo.DIRECCION_NO_VERIFICABLE -> R.string.motivo_direccion_no_verificable
+    MotivoRechazo.LOCAL_DUPLICADO -> R.string.motivo_local_duplicado
+    MotivoRechazo.OTRO -> R.string.motivo_otro
 }
 
 @StringRes

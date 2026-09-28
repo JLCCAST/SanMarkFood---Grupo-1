@@ -93,7 +93,8 @@ class HorarioLocalViewModel @Inject constructor(
                 val horario = Horario(estado.dias)
                 when (estado.modo) {
                     ModoFormulario.ALTA -> enviarARevision(horario)
-                    ModoFormulario.EDITAR -> guardarHorario(horario)
+                    // R4 no se abre para corregir (R7 es solo de los datos): el horario se corrige en O8.
+                    ModoFormulario.EDITAR, ModoFormulario.CORREGIR -> guardarHorario(horario)
                 }
                 _uiState.update { it.copy(guardando = false, guardado = true) }
             } catch (e: ErrorRestaurante.HorasInvalidas) {

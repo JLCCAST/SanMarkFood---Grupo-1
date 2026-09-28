@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -26,7 +28,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +41,8 @@ import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.Rechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
@@ -118,7 +124,12 @@ private fun DatosLocalContenido(
         if (alta) {
             CabeceraPaso(texto = stringResource(R.string.datos_local_paso), pasoActual = 2, onVolver = onVolver)
         } else {
-            CabeceraEdicion(titulo = stringResource(R.string.perfil_titulo), onVolver = onVolver)
+            CabeceraEdicion(
+                titulo = stringResource(
+                    if (uiState.modo == ModoFormulario.CORREGIR) R.string.corregir_titulo else R.string.perfil_titulo
+                ),
+                onVolver = onVolver,
+            )
         }
 
         val errorCarga = uiState.errorCarga
@@ -165,7 +176,13 @@ private fun DatosLocalContenido(
                 ) {
                     uiState.error?.let { MensajeErrorRestaurante(error = it) }
                     BotonPrincipal(
-                        texto = stringResource(if (alta) R.string.datos_local_continuar else R.string.editar_guardar),
+                        texto = stringResource(
+                            when (uiState.modo) {
+                                ModoFormulario.ALTA -> R.string.datos_local_continuar
+                                ModoFormulario.EDITAR -> R.string.editar_guardar
+                                ModoFormulario.CORREGIR -> R.string.corregir_reenviar
+                            }
+                        ),
                         onClick = onContinuar,
                         // Mientras sube una foto todavía no hay URL que guardar.
                         habilitado = !uiState.subiendoFoto,
@@ -189,7 +206,10 @@ private fun FormularioLocal(
 ) {
     val invalidos = uiState.camposInvalidos
 
-    // Como en el prototipo, el título y la explicación solo van en el alta; en O7 basta la cabecera.
+    // En R7 el motivo del rechazo va primero, para que se vea qué corregir.
+    uiState.rechazo?.let { AvisoMotivoRechazo(it) }
+
+    // Como en el prototipo, el título y la explicación solo van en el alta; en O7 y R7 basta la cabecera.
     if (uiState.modo == ModoFormulario.ALTA) {
         Text(
             text = stringResource(R.string.datos_local_titulo),
@@ -235,7 +255,7 @@ private fun FormularioLocal(
             tipoTeclado = KeyboardType.Text,
             capitalizacion = KeyboardCapitalization.Sentences,
             ejemplo = stringResource(R.string.datos_local_direccion_ejemplo),
-            esError = CampoLocal.DIRECCION in invalidos,
+            esError = CampoLocal.DIRECCION in invalidos || uiState.direccionPorCorregir,
             mensaje = if (CampoLocal.DIRECCION in invalidos) stringResource(R.string.datos_local_error_direccion) else null,
             colorMensaje = MaterialTheme.colorScheme.error,
         )
@@ -261,6 +281,33 @@ private fun FormularioLocal(
         colorMensaje = if (telefonoInvalido) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+// Aviso de R7 con el motivo que eligió el administrador, igual que la tarjeta de R6 pero más compacto.
+@Composable
+private fun AvisoMotivoRechazo(rechazo: Rechazo) {
+    val indicacion = stringResource(
+        if (rechazo.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE) R.string.corregir_indicacion_direccion
+        else R.string.corregir_indicacion
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.errorContainer)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        val color = MaterialTheme.colorScheme.onErrorContainer
+        Text(text = stringResource(R.string.corregir_motivo), style = MaterialTheme.typography.labelMedium, color = color)
+        Text(text = stringResource(rechazo.motivo.titulo()), style = MaterialTheme.typography.titleSmall, color = color)
+        Text(
+            text = rechazo.detalle?.let { stringResource(R.string.estado_rechazado_con_detalle, it, indicacion) } ?: indicacion,
+            style = MaterialTheme.typography.bodySmall,
+            color = color,
+        )
+    }
 }
 
 @Composable
