@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (27 de setiembre de 2026)
+## Estado actual del código (28 de setiembre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -11,12 +11,18 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 - Los dos proyectos creados con la plantilla de Compose.
 - El tema Material 3 real en `ui/theme/` de cada app: `Color.kt`, `Type.kt` y `Theme.kt` con la paleta propia (guinda, ají, verde) en modo claro y oscuro, más las tres fuentes en `res/font/`. Sale del diseño ya cerrado, no es la plantilla de Android Studio.
 - **App Restaurante — HU01 (SCRUM-30) completa:** registro, verificación de correo, inicio de sesión persistente, recuperación de contraseña y rol de la cuenta, con sus estados de cargando, error y sin conexión. Con ella entraron `core/di/`, `core/navigation/`, `data/firebase/`, `data/repository/`, `domain/` (`model/`, `repository/`, `usecase/`) y `presentation/auth/`, y en su `build.gradle.kts` Hilt, Navigation Compose, Firebase Auth y Firestore.
+- **App Restaurante — HU02 (SCRUM-31) completa:** alta del local en tres pasos (R3 datos, fotos y mapa; R4 horario), local en revisión con su estado en vivo (R5), rechazo con motivo y reenvío (R6, R7), edición del perfil y del horario (O7, O8) y pausa de pedidos. Con ella entraron:
+  - `presentation/gestion_restaurante/`: R3 a R7, O7 y O8. Las pantallas del alta se reutilizan para editar y para corregir con un `ModoFormulario` en la ruta.
+  - `presentation/panel/`: el panel del local con la barra inferior (Pedidos · Reservas · Menú · Reseñas · Negocio). Las pestañas que todavía no existen muestran un aviso provisional.
+  - `presentation/dashboard/`, solo con la sección «Tu local» de O6 (los indicadores son de HU13), y `presentation/pedidos/`, solo con la cabecera de O1 y su interruptor de pausa (la bandeja es de HU09).
+  - `data/local/LectorImagenes.kt`, que achica las fotos antes de subirlas, y en el Gradle Firebase Storage, Coil y Maps Compose.
+  - Las primeras pruebas unitarias, en `app/src/test/`: casos de uso probados con un repositorio falso.
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
 - En `app-comensal`: nada fuera de `ui/theme/` (su `MainActivity` sigue siendo la de ejemplo), ni Hilt, Navigation, Firebase Auth o Firestore en su Gradle. Entran con HU05.
-- En `app-restaurante`: `core/util/`, `data/local/`, `data/remote/`, `workers/`, `ai/` y los paquetes de `presentation/` distintos de `auth/`. Después de iniciar sesión se abre una **pantalla provisional** (`PanelProvisionalScreen`), que se reemplaza con HU02 (local) y HU24 (administración).
+- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/` y los paquetes `reservas/`, `resenas/` y `admin/` de `presentation/`. El administrador todavía entra a una **pantalla provisional** (`PanelProvisionalScreen`), que se reemplaza con HU24.
 - El proyecto `backend/`.
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
@@ -68,15 +74,16 @@ SanMarkFood---Grupo-1/
 │       └── java/com/equipo/sanmarkfood/restaurante/
 │           ├── ui/theme/                    # mismo tema que el comensal ✔
 │           ├── core/                        # (misma estructura que app-comensal) — di/ y navigation/ ✔
-│           ├── data/                        # (misma estructura que app-comensal) — firebase/ y repository/ ✔
+│           ├── data/                        # (misma estructura que app-comensal) — firebase/, repository/ ✔ y local/ (por ahora solo LectorImagenes) ✔
 │           ├── domain/                      # (misma estructura que app-comensal) — model/, repository/ y usecase/ ✔
 │           ├── presentation/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
-│           │   ├── gestion_restaurante/     # Proceso: Gestión de restaurante (perfil + carta + menú del día)
-│           │   ├── pedidos/                 # Proceso: Pedidos entrantes
+│           │   ├── panel/                   # Panel del local con la barra inferior; cada pestaña es de su proceso ✔
+│           │   ├── gestion_restaurante/     # Proceso: Gestión de restaurante (perfil + carta + menú del día) — perfil ✔ (HU02)
+│           │   ├── pedidos/                 # Proceso: Pedidos entrantes — cabecera de O1 con la pausa ✔ (HU02)
 │           │   ├── reservas/                # Proceso: Reservas entrantes
 │           │   ├── resenas/                 # Proceso: Gestión y respuesta a reseñas
-│           │   ├── dashboard/               # HU13 — dashboard del restaurante
+│           │   ├── dashboard/               # HU13 — dashboard del restaurante — sección «Tu local» ✔ (HU02)
 │           │   └── admin/                   # Proceso: Moderación y administración
 │           │       ├── aprobacion/          # HU24 — aprobación de restaurantes
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
@@ -122,15 +129,53 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | --- | --- | --- |
 | Inyección de dependencias | **Hilt** (con KSP), en las dos apps. Con AGP 9 hace falta Hilt 2.59 o superior | Es el estándar de Google (guías de arquitectura, codelabs, *Now in Android*). Si falta declarar una dependencia, el proyecto no compila — el error aparece en el IDE y no como un crash en plena demo. |
 | Navegación | **Navigation Compose con rutas tipadas**: cada ruta es un `@Serializable` en `core/navigation/Rutas.kt` (plugin `kotlin.serialization`) | Los argumentos (por ejemplo, el correo en `VerificarCorreo`) viajan con su tipo y el compilador avisa si falta uno. Es la forma recomendada desde Navigation 2.8. |
-| Rol de la cuenta (SCRUM-60) | Documento `usuarios/{uid}` en Firestore con los campos `rol` (`comensal`, `restaurante` o `administrador`), `correo` y `creadoEn`, protegido por **reglas de Firestore**. Cada app lo crea al registrarse con su rol; si una cuenta verificada no lo tiene (el registro se cortó a medias), la app lo crea al iniciar sesión | El proyecto está en el plan **Spark**, que no permite Cloud Functions. Las reglas impiden crear una cuenta como `administrador` y cambiar el rol después de creado. El administrador se asigna a mano desde la consola. Cuando exista el backend (HU07) se puede migrar a *custom claims* sin cambiar el modelo de datos. |
+| Rol de la cuenta (SCRUM-60) | Documento `usuarios/{uid}` en Firestore con los campos `rol` (`comensal`, `restaurante` o `administrador`), `correo` y `creadoEn`, protegido por **reglas de Firestore**. Cada app lo crea al registrarse con su rol; si una cuenta verificada no lo tiene (el registro se cortó a medias), la app lo crea al iniciar sesión | Cuando se decidió, el proyecto estaba en el plan **Spark**, que no permite Cloud Functions (desde HU02 está en Blaze; ver «Plan de Firebase»). Las reglas impiden crear una cuenta como `administrador` y cambiar el rol después de creado. El administrador se asigna a mano desde la consola. Cuando exista el backend (HU07) se puede migrar a *custom claims* sin cambiar el modelo de datos. |
 | Cuentas entre las dos apps | **Un correo = una cuenta = un rol.** Al iniciar sesión, cada app rechaza las cuentas que no son suyas: la del restaurante cierra la sesión de un comensal, y la del comensal debe hacer lo mismo con restaurantes y administradores (HU05) | Las dos apps comparten el proyecto de Firebase: un correo es un solo usuario de Auth con un solo `usuarios/{uid}`, y las reglas congelan el rol. Quien sea comensal y dueño de un local usa dos correos. |
 | Arranque y sesión | La app arranca en `Arranque`, que lee la sesión guardada y navega según `EstadoSesion` (sin sesión, sin verificar, activa con su rol). Todo cambio de sesión —iniciar, verificar el correo, cerrar— limpia el historial de navegación | Firebase Auth guarda la sesión y Firestore deja el rol en caché, así que se entra directo, también sin conexión. Con el historial limpio, «atrás» nunca vuelve a una pantalla de antes de iniciar o cerrar sesión. |
 | Base de datos local | **Room** (SQLite) | Requisito del curso. Se usa para lo que debe funcionar sin conexión, empezando por el carrito del comensal (HU08). |
-| Lógica programada del lado servidor | Pendiente de decidir antes del Sprint 2 | Los rechazos automáticos de HU07 (pedido a los 10 min, reserva 60 min antes) no se pueden hacer con Cloud Functions en Spark. Los resolverá el backend de Ktor o habrá que replantearlos. |
+| Lógica programada del lado servidor | Pendiente de decidir antes del Sprint 2 | Los rechazos automáticos de HU07 (pedido a los 10 min, reserva 60 min antes) necesitan correr en el servidor. Con el plan Blaze (desde HU02) ya se pueden hacer con Cloud Functions, además de con el backend de Ktor; falta elegir. |
+| Plan de Firebase (HU02) | **Blaze**, con la prueba gratuita de Google Cloud. El bucket de Storage está en `us-east1` | Desde febrero de 2026, Cloud Storage para Firebase exige Blaze. En `us-east1` el uso de Storage entra en la capa gratuita de Google Cloud. La prueba dura 90 días: al terminar hay que activar la cuenta de facturación o el proyecto vuelve a Spark y Storage deja de funcionar. Conviene tener una alerta de presupuesto. |
+| Local del restaurante (HU02) | Documento `restaurantes/{uid}`, con el mismo `uid` de la cuenta. Estados: `borrador` → `pendiente` → `aprobado` o `rechazado` (y de `rechazado` otra vez a `pendiente` al reenviar) | Una cuenta = un local: el `uid` como id lo garantiza sin consultas. Campos, estados y reglas en «El documento del local», más abajo. |
+| Estado del local en pantalla (HU02) | El panel escucha `restaurantes/{uid}` en vivo (*snapshot listener*) | Si el administrador aprueba o rechaza el local, la pantalla del restaurante cambia sola, sin reiniciar la app. |
+| Escrituras que no pueden quedar en espera (HU02) | Antes de guardar, una lectura al servidor (`Source.SERVER`); el reenvío de R7 usa una transacción | Sin conexión, Firestore deja las escrituras en espera sin fallar. Así la app muestra «Sin conexión» al instante, y una pausa de pedidos nunca aparenta haberse guardado. |
+| Fotos del local (HU02) | **Firebase Storage** + **Coil**. Se achican en el celular (portada de 1600 px, logo de 512 px, en JPEG). Cada subida tiene un nombre nuevo (`portada-<hora>.jpg`) y, al guardar, se borran las que ya no se usan | Cuidar la capa gratuita. Al sobrescribir un archivo, Storage cambia su URL de descarga y la URL guardada en Firestore dejaría de funcionar. Se eligen con el selector de fotos de Android, que no pide permisos. |
+| Mapa (HU02) | **Maps Compose** (`maps-compose`). La clave va en `local.properties` como `MAPS_API_KEY` y el Gradle la pasa al manifiesto | La clave no se sube al repositorio. Cada integrante agrega la suya; sin ella la app compila y abre, pero el mapa sale en blanco. |
+| Versiones fijadas (HU02) | Coil 3.4.0 y maps-compose 8.3.1 | Las versiones más nuevas traen `kotlin-stdlib` 2.4 y el proyecto compila con Kotlin 2.2.10, que no puede leerla. Para subirlas hay que actualizar Kotlin en todo el proyecto. |
 
-Las reglas de Firestore viven en la consola de Firebase (Firestore → Reglas). **Cada colección nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
+Las reglas de Firestore viven en la consola de Firebase (Firestore → Reglas), y las de Storage en Storage → Reglas. **Cada colección o carpeta nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
 
-Las colecciones con datos reales (a partir de `restaurantes`, en HU02) deben exigir además `request.auth.token.email_verified == true`. La app ya no deja pasar a una cuenta sin verificar, pero es la regla la que lo garantiza en el servidor. Ojo: el token guardado no se entera de la verificación hasta que se refresca, así que después de «Ya lo confirmé» hay que pedir uno nuevo con `getIdToken(true)`.
+Las colecciones con datos reales deben exigir además `request.auth.token.email_verified == true`, como ya lo hace `restaurantes` desde HU02. La app no deja pasar a una cuenta sin verificar, pero es la regla la que lo garantiza en el servidor. Ojo: el token guardado no se entera de la verificación hasta que se refresca. Por eso, después de «Ya lo confirmé» la app pide uno nuevo con `getIdToken(true)`, en `AuthDataSource.correoVerificado()`.
+
+## El documento del local (`restaurantes/{uid}`)
+
+Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la sección de administración (HU24) y la app del comensal (HU05 en adelante), así que estos nombres y valores son el contrato entre las tres partes.
+
+| Campo | Tipo | Lo escribe | Notas |
+| --- | --- | --- | --- |
+| `nombre`, `direccion` | texto | el local (R3, O7, R7) | Hasta 80 y 200 caracteres. |
+| `categoria` | texto | el local | `criolla`, `chifa`, `polleria`, `marina`, `vegetariana` u `otra`. |
+| `telefono` | texto | el local | Solo dígitos: celular de 9 que empieza con 9, fijo de Lima de 7, o fijo con código de ciudad (`01…`, `044…`). |
+| `ubicacion` | geopoint | el local | El punto elegido en el mapa. Empieza en la Ciudad Universitaria. |
+| `portadaUrl`, `logoUrl` | texto | el local | URL de descarga de Storage. La portada es obligatoria y el logo opcional: sin logo se muestra la inicial del nombre. |
+| `horario` | mapa | el local (R4, O8) | Claves `lun` a `dom`, cada una con `{ abierto, abre: "HH:mm", cierra: "HH:mm" }`. Un día cerrado conserva sus horas. |
+| `estado` | texto | el local: `borrador` → `pendiente` (R4) y `rechazado` → `pendiente` (R7). El administrador: `aprobado` o `rechazado` (HU24) | Un `borrador` todavía no es una solicitud: el administrador no lo ve. |
+| `rechazo` | mapa | el administrador (HU24) | `{ motivo, detalle }`, con `motivo` igual a `datos_incompletos`, `direccion_no_verificable`, `local_duplicado` u `otro`. El detalle es opcional, salvo con `otro`. |
+| `rechazoAnterior`, `reenviado`, `camposCorregidos` | mapa, booleano, lista | el local al reenviar (R7) | Para A1 y A2: el reenvío marcado, el motivo anterior (copia exacta de `rechazo`) y los campos que cambiaron, con los mismos nombres de esta tabla. |
+| `pausado` | booleano | el local (cabecera de O1) | Sin el campo, el local recibe pedidos. Si es `true`, el comensal lo ve «Cerrado por ahora». Rechazar en el servidor los pedidos a un local pausado es trabajo de quien cree los pedidos (HU07, HU08). |
+| `creadoEn`, `enviadoEn`, `actualizadoEn` | fecha | el local | Siempre la hora del servidor. `enviadoEn` es el último envío a revisión. |
+
+Qué garantizan las reglas de Firestore:
+- El dueño lee su local en cualquier estado; cualquier otro, solo si `estado == 'aprobado'`. Por eso las consultas del comensal tienen que filtrar con `where("estado", "==", "aprobado")`, o Firestore las rechaza.
+- El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos cinco:
+  - cambiar los datos y las fotos;
+  - enviar a revisión (de `borrador` a `pendiente`, con el horario);
+  - cambiar el horario;
+  - pausar o reanudar los pedidos (solo si está `aprobado`);
+  - reenviar después de un rechazo (de `rechazado` a `pendiente`).
+- Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
+- Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
+
+En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.
 
 ## Convenciones de código
 
@@ -144,6 +189,9 @@ Para que el código de los tres integrantes se lea como si lo hubiera escrito un
 - **Tres representaciones de un dato, nunca mezcladas:** `MenuDto` (red), `MenuEntity` (Room), `Menu` (dominio). El mapeo vive en `data/`; un DTO nunca llega a `presentation/`.
 - **Errores:** los casos de uso lanzan errores del dominio, una `sealed class` en `domain/model/` (por ejemplo `ErrorAuth`). `data/` traduce las excepciones de Firebase a esos errores (`data/firebase/ErroresFirebase.kt`) y `presentation/` los convierte en textos de `strings.xml`. Ninguna excepción de Firebase llega a un ViewModel.
 - **Navegación desde una pantalla:** la pantalla recibe lambdas (`onVolver`, `onSesionIniciada`) y no conoce las rutas; `core/navigation/NavGraph.kt` decide a dónde ir.
+- **Una pantalla, varios momentos:** si el diseño reutiliza una pantalla con un «modo» (alta, editar, corregir), se programa una sola, con el modo como argumento de la ruta (`DatosLocal(ModoFormulario.EDITAR)`), no copias. Así lo hacen R3/O7/R7 y R4/O8.
+- **Componentes compartidos:** lo que usan varias pantallas de un proceso va en un archivo del paquete, como `ComponentesAuth.kt` o `ComponentesGestion.kt`, no copiado en cada pantalla.
+- **Pruebas:** las reglas de los casos de uso se prueban en `app/src/test/` con un repositorio falso escrito en la misma prueba. No hace falta emulador ni Firebase.
 - **Colores y tipografía solo desde el tema:** `MaterialTheme.colorScheme.primary`, `MaterialTheme.typography.titleLarge`. Ningún `Color(0xFF...)` ni `fontSize` suelto dentro de una pantalla — si falta un color, se agrega al esquema, no a la pantalla.
 - **Textos:** todos en español (Perú), moneda `S/`. Nada de strings escritos dentro de un Composable → `res/values/strings.xml`.
 - **Nombres en español, del dominio** (`Comensal`, `Reserva`, `MenuDelDia`); en inglés solo lo que impone el framework (`ViewModel`, `UseCase`, `Repository`, `Screen`).
@@ -165,7 +213,7 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | --- | --- |
 | Autenticación | `data/firebase/` + `presentation/auth/` en cada proyecto — **hecha en `app-restaurante`** (HU01); falta `app-comensal` (HU05) |
 | Procesos de negocio (mín. 3, el proyecto cubre 6) | Un paquete por proceso dentro de `presentation/` de la app que corresponde + su `usecase` en `domain/` |
-| Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) |
+| Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) — en `app-restaurante` ya se usan Auth, Firestore y Storage |
 | Material Design | `ui/theme/` + `res/font/` de cada app — **ya hecho**, con paleta propia y modo oscuro |
 | MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — ya en uso en `app-restaurante` desde HU01 |
 | Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — consumen tanto `backend/` (Ktor) como APIs externas (LLM, mapas) |
