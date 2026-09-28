@@ -16,13 +16,15 @@ import java.util.Locale
 
 // Campos del documento restaurantes/{uid}. Los mismos nombres y valores los validan las reglas de Firestore.
 
-internal fun DatosLocal.aCampos(): Map<String, Any> = mapOf(
-    "nombre" to nombre,
-    "categoria" to categoria.valor(),
-    "direccion" to direccion,
-    "ubicacion" to GeoPoint(ubicacion.latitud, ubicacion.longitud),
-    "telefono" to telefono,
-)
+internal fun DatosLocal.aCampos(): Map<String, Any> = buildMap {
+    put("nombre", nombre)
+    put("categoria", categoria.valor())
+    put("direccion", direccion)
+    put("ubicacion", GeoPoint(ubicacion.latitud, ubicacion.longitud))
+    put("telefono", telefono)
+    portadaUrl?.let { put("portadaUrl", it) }
+    logoUrl?.let { put("logoUrl", it) }
+}
 
 internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
     if (!exists()) return null
@@ -35,6 +37,8 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
             direccion = getString("direccion").orEmpty(),
             ubicacion = Ubicacion(punto.latitude, punto.longitude),
             telefono = getString("telefono").orEmpty(),
+            portadaUrl = getString("portadaUrl"),
+            logoUrl = getString("logoUrl"),
         ),
         estado = EstadoRestaurante.entries.firstOrNull { it.valor() == getString("estado") }
             ?: throw ErrorRestaurante.Desconocido,

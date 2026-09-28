@@ -37,6 +37,7 @@ import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.auth.CabeceraPaso
@@ -76,6 +77,7 @@ fun DatosLocalScreen(
             scroll = scroll,
             onVolver = viewModel::onVolver,
             onReintentarCarga = viewModel::onReintentarCarga,
+            onFotoElegida = viewModel::onFotoElegida,
             onCambiarNombre = viewModel::onCambiarNombre,
             onElegirCategoria = viewModel::onElegirCategoria,
             onCambiarDireccion = viewModel::onCambiarDireccion,
@@ -92,6 +94,7 @@ private fun DatosLocalContenido(
     scroll: ScrollState,
     onVolver: () -> Unit,
     onReintentarCarga: () -> Unit,
+    onFotoElegida: (TipoFoto, String) -> Unit,
     onCambiarNombre: (String) -> Unit,
     onElegirCategoria: (CategoriaRestaurante) -> Unit,
     onCambiarDireccion: (String) -> Unit,
@@ -130,6 +133,7 @@ private fun DatosLocalContenido(
                 ) {
                     FormularioLocal(
                         uiState = uiState,
+                        onFotoElegida = onFotoElegida,
                         onCambiarNombre = onCambiarNombre,
                         onElegirCategoria = onElegirCategoria,
                         onCambiarDireccion = onCambiarDireccion,
@@ -147,6 +151,8 @@ private fun DatosLocalContenido(
                     BotonPrincipal(
                         texto = stringResource(R.string.datos_local_continuar),
                         onClick = onContinuar,
+                        // Mientras sube una foto todavía no hay URL que guardar.
+                        habilitado = !uiState.subiendoFoto,
                         cargando = uiState.guardando,
                     )
                 }
@@ -158,6 +164,7 @@ private fun DatosLocalContenido(
 @Composable
 private fun FormularioLocal(
     uiState: DatosLocalUiState,
+    onFotoElegida: (TipoFoto, String) -> Unit,
     onCambiarNombre: (String) -> Unit,
     onElegirCategoria: (CategoriaRestaurante) -> Unit,
     onCambiarDireccion: (String) -> Unit,
@@ -174,6 +181,14 @@ private fun FormularioLocal(
         text = stringResource(R.string.datos_local_subtitulo),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+
+    FotosLocal(
+        portada = uiState.portada,
+        logo = uiState.logo,
+        portadaFaltante = CampoLocal.PORTADA in invalidos,
+        habilitado = !uiState.guardando,
+        onFotoElegida = onFotoElegida,
     )
 
     CampoFormulario(
@@ -291,6 +306,7 @@ private fun DatosLocalPreview() {
                 scroll = rememberScrollState(),
                 onVolver = {},
                 onReintentarCarga = {},
+                onFotoElegida = { _, _ -> },
                 onCambiarNombre = {},
                 onElegirCategoria = {},
                 onCambiarDireccion = {},

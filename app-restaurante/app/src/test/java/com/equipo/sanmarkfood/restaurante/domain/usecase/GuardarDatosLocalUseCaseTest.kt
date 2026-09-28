@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import kotlinx.coroutines.runBlocking
@@ -23,18 +24,21 @@ class GuardarDatosLocalUseCaseTest {
             guardados = datos
         }
         override suspend fun enviarARevision(horario: Horario) = Unit
+        override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (Float) -> Unit) = ""
     }
 
     private val repositorio = RepositorioFalso()
     private val guardar = GuardarDatosLocalUseCase(repositorio)
 
-    private fun guardarConTelefono(telefono: String) = runBlocking {
+    private fun guardarConTelefono(telefono: String, portadaUrl: String? = PORTADA) = runBlocking {
         guardar(
             nombre = "  La Sazón de Doña Carmen ",
             categoria = CategoriaRestaurante.CRIOLLA,
             direccion = "Av. Venezuela 3450",
             ubicacion = Ubicacion.CiudadUniversitaria,
             telefono = telefono,
+            portadaUrl = portadaUrl,
+            logoUrl = null,
         )
     }
 
@@ -73,12 +77,31 @@ class GuardarDatosLocalUseCaseTest {
     @Test
     fun marcaTodosLosCamposVaciosALaVez() {
         val error = try {
-            runBlocking { guardar("  ", null, "", Ubicacion.CiudadUniversitaria, "") }
+            runBlocking { guardar("  ", null, "", Ubicacion.CiudadUniversitaria, "", portadaUrl = null, logoUrl = null) }
             null
         } catch (e: ErrorRestaurante.DatosInvalidos) {
             e
         }
         assertEquals(CampoLocal.entries.toSet(), error?.campos)
         assertNull(repositorio.guardados)
+    }
+
+    @Test
+    fun exigeLaPortadaPeroNoElLogo() {
+        val error = try {
+            guardarConTelefono("987654321", portadaUrl = null)
+            null
+        } catch (e: ErrorRestaurante.DatosInvalidos) {
+            e
+        }
+        assertEquals(setOf(CampoLocal.PORTADA), error?.campos)
+
+        guardarConTelefono("987654321")
+        assertEquals(PORTADA, repositorio.guardados!!.portadaUrl)
+        assertNull(repositorio.guardados!!.logoUrl)
+    }
+
+    private companion object {
+        const val PORTADA = "https://firebasestorage.googleapis.com/v0/b/prueba/o/restaurantes%2Fuid%2Fportada-1.jpg"
     }
 }

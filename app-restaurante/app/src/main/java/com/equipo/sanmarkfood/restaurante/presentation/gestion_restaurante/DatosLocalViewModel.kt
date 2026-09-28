@@ -6,10 +6,12 @@ import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.usecase.CerrarSesionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.GuardarDatosLocalUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.ObtenerRestauranteUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.SubirFotoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +23,8 @@ import javax.inject.Inject
 data class DatosLocalUiState(
     val cargando: Boolean = true,
     val errorCarga: ErrorRestaurante? = null,
+    val portada: FotoUiState = FotoUiState(),
+    val logo: FotoUiState = FotoUiState(),
     val nombre: String = "",
     val categoria: CategoriaRestaurante? = null,
     val direccion: String = "",
@@ -32,12 +36,27 @@ data class DatosLocalUiState(
     val error: ErrorRestaurante? = null,
     val guardado: Boolean = false,
     val sesionCerrada: Boolean = false,
-)
+) {
+    val subiendoFoto: Boolean get() = portada.subiendo || logo.subiendo
+}
+
+data class FotoUiState(
+    /** Lo que se ve: la foto elegida en el celular (mientras sube y después) o la URL ya guardada. */
+    val imagen: String? = null,
+    /** La foto ya subida a Storage: es la que se guarda al continuar. */
+    val url: String? = null,
+    /** Entre 0 y 1 mientras sube; null si no está subiendo. */
+    val progreso: Float? = null,
+    val error: ErrorRestaurante? = null,
+) {
+    val subiendo: Boolean get() = progreso != null
+}
 
 @HiltViewModel
 class DatosLocalViewModel @Inject constructor(
     private val obtenerRestaurante: ObtenerRestauranteUseCase,
     private val guardarDatosLocal: GuardarDatosLocalUseCase,
+    private val subirFoto: SubirFotoUseCase,
     private val cerrarSesion: CerrarSesionUseCase,
 ) : ViewModel() {
 
@@ -69,14 +88,43 @@ class DatosLocalViewModel @Inject constructor(
     fun onUbicacionElegida(ubicacion: Ubicacion) =
         _uiState.update { it.copy(ubicacion = ubicacion, eligiendoUbicacion = false) }
 
+    // La foto se sube apenas se elige. Si falla, vuelve a verse la que ya estaba subida (o ninguna).
+    // No se suben fotos mientras se guarda: al guardar se borran de Storage las que no se usan.
+    fun onFotoElegida(tipo: TipoFoto, imagenLocal: String) {
+        val estado = _uiState.value
+        if (estado.guardando || estado.foto(tipo).subiendo) return
+
+        // Elegir una portada corrige la marca de «falta la portada», igual que escribir en un campo.
+        if (tipo == TipoFoto.PORTADA) cambiarCampo(CampoLocal.PORTADA) { it }
+        cambiarFoto(tipo) { it.copy(imagen = imagenLocal, progreso = 0f, error = null) }
+        viewModelScope.launch {
+            try {
+                val url = subirFoto(tipo, imagenLocal) { fraccion ->
+                    cambiarFoto(tipo) { foto -> if (foto.subiendo) foto.copy(progreso = fraccion) else foto }
+                }
+                cambiarFoto(tipo) { it.copy(url = url, progreso = null) }
+            } catch (e: ErrorRestaurante) {
+                cambiarFoto(tipo) { it.copy(imagen = it.url, progreso = null, error = e) }
+            }
+        }
+    }
+
     fun onContinuar() {
         val estado = _uiState.value
-        if (estado.guardando) return
+        if (estado.guardando || estado.subiendoFoto) return
 
         _uiState.update { it.copy(guardando = true, error = null) }
         viewModelScope.launch {
             try {
-                guardarDatosLocal(estado.nombre, estado.categoria, estado.direccion, estado.ubicacion, estado.telefono)
+                guardarDatosLocal(
+                    nombre = estado.nombre,
+                    categoria = estado.categoria,
+                    direccion = estado.direccion,
+                    ubicacion = estado.ubicacion,
+                    telefono = estado.telefono,
+                    portadaUrl = estado.portada.url,
+                    logoUrl = estado.logo.url,
+                )
                 _uiState.update { it.copy(guardando = false, guardado = true) }
             } catch (e: ErrorRestaurante.DatosInvalidos) {
                 _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
@@ -107,6 +155,8 @@ class DatosLocalViewModel @Inject constructor(
                     } else {
                         estado.copy(
                             cargando = false,
+                            portada = FotoUiState(imagen = datos.portadaUrl, url = datos.portadaUrl),
+                            logo = FotoUiState(imagen = datos.logoUrl, url = datos.logoUrl),
                             nombre = datos.nombre,
                             categoria = datos.categoria,
                             direccion = datos.direccion,
@@ -127,6 +177,20 @@ class DatosLocalViewModel @Inject constructor(
             val invalidos = estado.camposInvalidos - campo
             val error = estado.error.takeUnless { it is ErrorRestaurante.DatosInvalidos && invalidos.isEmpty() }
             cambio(estado).copy(camposInvalidos = invalidos, error = error)
+        }
+    }
+
+    private fun DatosLocalUiState.foto(tipo: TipoFoto): FotoUiState = when (tipo) {
+        TipoFoto.PORTADA -> portada
+        TipoFoto.LOGO -> logo
+    }
+
+    private fun cambiarFoto(tipo: TipoFoto, cambio: (FotoUiState) -> FotoUiState) {
+        _uiState.update { estado ->
+            when (tipo) {
+                TipoFoto.PORTADA -> estado.copy(portada = cambio(estado.portada))
+                TipoFoto.LOGO -> estado.copy(logo = cambio(estado.logo))
+            }
         }
     }
 

@@ -80,6 +80,15 @@
     <string name="datos_local_error_direccion">Escribe la dirección de tu local.</string>
     <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos o un teléfono fijo.</string>
 
+    <!-- Fotos del local (HU02, SCRUM-63) -->
+    <string name="fotos_subir_portada">Subir foto de portada</string>
+    <string name="fotos_cambiar_portada">Cambiar portada</string>
+    <string name="fotos_logo">Logo</string>
+    <string name="fotos_subir_logo">Subir logo</string>
+    <string name="fotos_cambiar_logo">Cambiar logo</string>
+    <string name="fotos_subiendo">Subiendo foto</string>
+    <string name="fotos_error_portada">Sube una foto de portada de tu local.</string>
+
     <!-- Categorías del local -->
     <string name="categoria_criolla">Criolla</string>
     <string name="categoria_chifa">Chifa</string>
@@ -124,6 +133,7 @@
     <!-- Errores del local -->
     <string name="error_datos_invalidos">Revisa los datos marcados en rojo.</string>
     <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>
+    <string name="error_imagen_ilegible">No pudimos abrir esa imagen. Prueba con otra foto.</string>
     <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
 
     <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
