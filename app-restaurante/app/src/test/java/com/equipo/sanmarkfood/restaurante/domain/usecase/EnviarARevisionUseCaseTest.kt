@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Hora
 import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -21,6 +22,7 @@ class EnviarARevisionUseCaseTest {
         override suspend fun enviarARevision(horario: Horario) {
             enviado = horario
         }
+        override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (Float) -> Unit) = ""
     }
 
     private val repositorio = RepositorioFalso()

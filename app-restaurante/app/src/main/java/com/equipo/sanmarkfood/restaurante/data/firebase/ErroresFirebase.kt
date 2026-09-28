@@ -8,6 +8,7 @@ import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.storage.StorageException
 
 /** Ejecuta una llamada a Firebase y traduce sus excepciones. */
 internal suspend fun <T> llamarFirebase(llamada: suspend () -> T): T =
@@ -42,5 +43,7 @@ internal suspend fun <T> llamarFirebaseRestaurante(llamada: suspend () -> T): T 
 private fun FirebaseException.aErrorRestaurante(): ErrorRestaurante = when {
     this is FirebaseNetworkException -> ErrorRestaurante.SinConexion
     this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE -> ErrorRestaurante.SinConexion
+    // Storage no falla al instante sin conexión: reintenta hasta el límite de FirebaseModule.
+    this is StorageException && errorCode == StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> ErrorRestaurante.SinConexion
     else -> ErrorRestaurante.Desconocido
 }

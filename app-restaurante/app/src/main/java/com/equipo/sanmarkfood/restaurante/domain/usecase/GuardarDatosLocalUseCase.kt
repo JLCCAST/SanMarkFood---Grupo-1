@@ -17,9 +17,12 @@ class GuardarDatosLocalUseCase @Inject constructor(
         direccion: String,
         ubicacion: Ubicacion,
         telefono: String,
+        portadaUrl: String?,
+        logoUrl: String?,
     ) {
         val telefonoNormalizado = normalizarTelefono(telefono)
         val invalidos = buildSet {
+            if (portadaUrl.isNullOrBlank()) add(CampoLocal.PORTADA)
             if (nombre.isBlank() || nombre.trim().length > DatosLocal.MAX_NOMBRE) add(CampoLocal.NOMBRE)
             if (categoria == null) add(CampoLocal.CATEGORIA)
             if (direccion.isBlank() || direccion.trim().length > DatosLocal.MAX_DIRECCION) add(CampoLocal.DIRECCION)
@@ -36,6 +39,8 @@ class GuardarDatosLocalUseCase @Inject constructor(
                 direccion = direccion.trim(),
                 ubicacion = ubicacion,
                 telefono = telefonoNormalizado,
+                portadaUrl = portadaUrl,
+                logoUrl = logoUrl,
             )
         )
     }

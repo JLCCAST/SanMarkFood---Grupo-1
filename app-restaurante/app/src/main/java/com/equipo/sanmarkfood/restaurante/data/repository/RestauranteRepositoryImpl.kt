@@ -1,18 +1,23 @@
 package com.equipo.sanmarkfood.restaurante.data.repository
 
 import com.equipo.sanmarkfood.restaurante.data.firebase.AuthDataSource
+import com.equipo.sanmarkfood.restaurante.data.firebase.FotosDataSource
 import com.equipo.sanmarkfood.restaurante.data.firebase.RestaurantesDataSource
+import com.equipo.sanmarkfood.restaurante.data.local.LectorImagenes
 import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import javax.inject.Inject
 
 class RestauranteRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource,
     private val restaurantesDataSource: RestaurantesDataSource,
+    private val fotosDataSource: FotosDataSource,
+    private val lectorImagenes: LectorImagenes,
 ) : RestauranteRepository {
 
     override suspend fun obtener(): Restaurante? = restaurantesDataSource.leer(uid())
@@ -24,6 +29,7 @@ class RestauranteRepositoryImpl @Inject constructor(
         } else {
             restaurantesDataSource.crear(uid, datos, EstadoRestaurante.BORRADOR)
         }
+        borrarFotosSinUsar(uid, datos)
     }
 
     override suspend fun enviarARevision(horario: Horario) {
@@ -33,6 +39,34 @@ class RestauranteRepositoryImpl @Inject constructor(
         restaurantesDataSource.enviarARevision(uid, horario)
     }
 
+    override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (fraccion: Float) -> Unit): String {
+        val uid = uid()
+        val (prefijo, ladoMaximo) = when (tipo) {
+            TipoFoto.PORTADA -> "portada" to LADO_MAXIMO_PORTADA
+            TipoFoto.LOGO -> "logo" to LADO_MAXIMO_LOGO
+        }
+        val jpeg = lectorImagenes.leerComoJpeg(imagenLocal, ladoMaximo)
+        return fotosDataSource.subir(uid, "$prefijo-${System.currentTimeMillis()}.jpg", jpeg, alAvanzar)
+    }
+
+    // Quedan fotos sueltas al cambiar una ya guardada o al elegir otra antes de continuar. Si la limpieza
+    // falla no pasa nada: los datos ya se guardaron y se vuelve a intentar la próxima vez que se guarden.
+    private suspend fun borrarFotosSinUsar(uid: String, datos: DatosLocal) {
+        try {
+            val enUso = listOfNotNull(datos.portadaUrl, datos.logoUrl).map(fotosDataSource::nombreDeArchivo).toSet()
+            if (enUso.isNotEmpty()) fotosDataSource.borrarLasDemas(uid, enUso)
+        } catch (e: ErrorRestaurante) {
+            // Se reintenta al próximo guardado.
+        } catch (e: IllegalArgumentException) {
+            // Una URL que no es de este bucket: no se borra nada.
+        }
+    }
+
     // Cada cuenta tiene un solo local, guardado en restaurantes/{uid}.
     private fun uid(): String = authDataSource.usuarioActual()?.uid ?: throw ErrorRestaurante.Desconocido
+
+    private companion object {
+        const val LADO_MAXIMO_PORTADA = 1600
+        const val LADO_MAXIMO_LOGO = 512
+    }
 }
