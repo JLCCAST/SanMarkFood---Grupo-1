@@ -4,6 +4,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
@@ -21,6 +22,7 @@ class GuardarDatosLocalUseCaseTest {
         override suspend fun guardarDatos(datos: DatosLocal) {
             guardados = datos
         }
+        override suspend fun enviarARevision(horario: Horario) = Unit
     }
 
     private val repositorio = RepositorioFalso()

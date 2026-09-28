@@ -19,3 +19,6 @@ data class PanelProvisional(val administrador: Boolean)
 
 @Serializable
 data object DatosLocal
+
+@Serializable
+data object HorarioLocal
