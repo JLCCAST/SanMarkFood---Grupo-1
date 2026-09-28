@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ fun LoginScreen(
     onGoToRegister: () -> Unit,
     onSendPasswordReset: (email: String) -> Unit,
     onDismissReset: () -> Unit,
+    onExplore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.colorScheme
@@ -156,6 +158,16 @@ fun LoginScreen(
                 onClick = { onLogin(email, password) },
                 isLoading = state.isLoading
             )
+
+            // Exploración sin cuenta (SCRUM-154)
+            OutlinedButton(
+                onClick = onExplore,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+                Text("Explorar sin cuenta", fontWeight = FontWeight.Bold)
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
