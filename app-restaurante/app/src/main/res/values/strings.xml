@@ -60,6 +60,11 @@
     <string name="verificar_ya_confirme">Ya lo confirmé</string>
     <string name="verificar_reenviar">Reenviar enlace</string>
 
+    <!-- Datos del local (HU02) -->
+    <string name="datos_local_paso">Paso 2 de 3 · Tu local</string>
+    <string name="datos_local_titulo">¿Cómo te encuentran?</string>
+    <string name="datos_local_subtitulo">Estos datos se ven en el mapa y en la página de tu local.</string>
+
     <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
     <string name="provisional_titulo">Tu cuenta está lista</string>
     <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>

@@ -13,6 +13,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.RegistroScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScreen
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
 
 @Composable
 fun RestauranteNavGraph() {
@@ -48,12 +49,18 @@ fun RestauranteNavGraph() {
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
+        composable<DatosLocal> {
+            DatosLocalScreen(
+                onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
     }
 }
 
 private fun destinoDe(sesion: EstadoSesion): Any = when (sesion) {
     EstadoSesion.SinSesion -> InicioSesion
     is EstadoSesion.SinVerificar -> VerificarCorreo(sesion.correo)
+    EstadoSesion.SinLocal -> DatosLocal
     is EstadoSesion.Activa -> PanelProvisional(administrador = sesion.rol == Rol.ADMINISTRADOR)
 }
 

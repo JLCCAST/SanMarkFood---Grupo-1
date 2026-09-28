@@ -16,3 +16,6 @@ data class VerificarCorreo(val correo: String)
 
 @Serializable
 data class PanelProvisional(val administrador: Boolean)
+
+@Serializable
+data object DatosLocal
