@@ -64,6 +64,37 @@
     <string name="datos_local_paso">Paso 2 de 3 · Tu local</string>
     <string name="datos_local_titulo">¿Cómo te encuentran?</string>
     <string name="datos_local_subtitulo">Estos datos se ven en el mapa y en la página de tu local.</string>
+    <string name="datos_local_nombre">Nombre del local</string>
+    <string name="datos_local_categoria">Categoría</string>
+    <string name="datos_local_direccion">Dirección</string>
+    <string name="datos_local_direccion_ejemplo">Calle, número y referencia</string>
+    <string name="datos_local_mapa_descripcion">Ubicación del local en el mapa</string>
+    <string name="datos_local_mover_punto">Mover el punto</string>
+    <string name="datos_local_mapa_ayuda">Arrastra el punto hasta la puerta de tu local.</string>
+    <string name="datos_local_telefono">Teléfono del local</string>
+    <string name="datos_local_telefono_ejemplo">999 999 999</string>
+    <string name="datos_local_telefono_ayuda">Se muestra a los comensales para grupos grandes y consultas.</string>
+    <string name="datos_local_continuar">Continuar</string>
+    <string name="datos_local_error_nombre">Escribe el nombre de tu local.</string>
+    <string name="datos_local_error_categoria">Elige la categoría de tu local.</string>
+    <string name="datos_local_error_direccion">Escribe la dirección de tu local.</string>
+    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos o un teléfono fijo.</string>
+
+    <!-- Categorías del local -->
+    <string name="categoria_criolla">Criolla</string>
+    <string name="categoria_chifa">Chifa</string>
+    <string name="categoria_polleria">Pollería</string>
+    <string name="categoria_marina">Marina</string>
+    <string name="categoria_vegetariana">Vegetariana</string>
+    <string name="categoria_otra">Otra</string>
+
+    <!-- Selector de ubicación (se abre con «Mover el punto») -->
+    <string name="ubicacion_titulo">Ubica tu local</string>
+    <string name="ubicacion_ayuda">Mueve el mapa hasta que el punto quede en la puerta de tu local.</string>
+    <string name="ubicacion_confirmar">Usar esta ubicación</string>
+
+    <!-- Errores del local -->
+    <string name="error_datos_invalidos">Revisa los datos marcados en rojo.</string>
 
     <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
     <string name="provisional_titulo">Tu cuenta está lista</string>

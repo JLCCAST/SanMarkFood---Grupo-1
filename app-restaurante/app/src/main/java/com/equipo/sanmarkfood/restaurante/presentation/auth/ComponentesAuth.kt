@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -83,6 +84,8 @@ fun CampoFormulario(
     onValorChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     esContrasena: Boolean = false,
+    tipoTeclado: KeyboardType = if (esContrasena) KeyboardType.Password else KeyboardType.Email,
+    capitalizacion: KeyboardCapitalization = KeyboardCapitalization.None,
     ejemplo: String? = null,
     mensaje: String? = null,
     colorMensaje: Color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -99,9 +102,7 @@ fun CampoFormulario(
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             visualTransformation = if (esContrasena) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = if (esContrasena) KeyboardType.Password else KeyboardType.Email
-            ),
+            keyboardOptions = KeyboardOptions(capitalization = capitalizacion, keyboardType = tipoTeclado),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,

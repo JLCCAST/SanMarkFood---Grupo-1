@@ -5,6 +5,6 @@ sealed interface EstadoSesion {
     data class SinVerificar(val correo: String) : EstadoSesion
     data class Activa(val rol: Rol) : EstadoSesion
 
-    /** Cuenta de restaurante verificada que todavía no registra su local. */
+    /** Cuenta de restaurante verificada que todavía no termina el alta de su local (no existe o está en borrador). */
     data object SinLocal : EstadoSesion
 }

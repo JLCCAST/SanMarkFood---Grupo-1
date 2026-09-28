@@ -51,6 +51,8 @@ fun RestauranteNavGraph() {
         }
         composable<DatosLocal> {
             DatosLocalScreen(
+                // Provisional hasta SCRUM-62, que agrega el paso 3 (horario, R4).
+                onContinuar = { navController.navegarLimpiando(PanelProvisional(administrador = false)) },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
