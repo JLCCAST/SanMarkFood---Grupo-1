@@ -30,4 +30,7 @@ interface RestauranteRepository {
 
     /** Cambia el horario de un local que ya terminó el alta, sin tocar su estado. */
     suspend fun guardarHorario(horario: Horario)
+
+    /** Pausa o reanuda la recepción de pedidos nuevos de un local aprobado. */
+    suspend fun cambiarPausa(pausado: Boolean)
 }

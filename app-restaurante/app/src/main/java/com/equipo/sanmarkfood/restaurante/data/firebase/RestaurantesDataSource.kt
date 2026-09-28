@@ -74,6 +74,17 @@ class RestaurantesDataSource @Inject constructor(
         }
     }
 
+    suspend fun cambiarPausa(uid: String, pausado: Boolean) {
+        llamarFirebaseRestaurante {
+            documento(uid).update(
+                mapOf(
+                    "pausado" to pausado,
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
+        }
+    }
+
     suspend fun actualizarHorario(uid: String, horario: Horario) {
         llamarFirebaseRestaurante {
             documento(uid).update(

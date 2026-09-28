@@ -51,6 +51,14 @@ class RestauranteRepositoryImpl @Inject constructor(
         restaurantesDataSource.actualizarHorario(uid, horario)
     }
 
+    // La pausa sí tiene que llegar al servidor: si el local cree que pausó y no fue así, le siguen
+    // llegando pedidos. Por eso, sin conexión falla en vez de quedar en espera.
+    override suspend fun cambiarPausa(pausado: Boolean) {
+        val uid = uid()
+        if (!restaurantesDataSource.existeEnServidor(uid)) throw ErrorRestaurante.Desconocido
+        restaurantesDataSource.cambiarPausa(uid, pausado)
+    }
+
     override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (fraccion: Float) -> Unit): String {
         val uid = uid()
         val (prefijo, ladoMaximo) = when (tipo) {

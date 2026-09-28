@@ -46,6 +46,8 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
             ?: throw ErrorRestaurante.Desconocido,
         horario = (get("horario") as? Map<*, *>)?.aHorario(),
         rechazo = (get("rechazo") as? Map<*, *>)?.aRechazo(),
+        // Sin el campo, el local recibe pedidos: solo se escribe cuando el local pausa por primera vez.
+        pausado = getBoolean("pausado") ?: false,
     )
 }
 
