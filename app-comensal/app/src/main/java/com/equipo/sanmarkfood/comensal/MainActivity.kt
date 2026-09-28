@@ -75,7 +75,9 @@ private fun AuthGate(viewModel: AuthViewModel = viewModel()) {
             onGoToRegister = {
                 viewModel.clearError()
                 showRegister = true
-            }
+            },
+            onSendPasswordReset = viewModel::sendPasswordReset,
+            onDismissReset = viewModel::clearReset
         )
     }
 }
