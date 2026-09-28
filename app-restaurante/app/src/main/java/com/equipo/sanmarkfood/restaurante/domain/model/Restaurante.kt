@@ -7,4 +7,6 @@ data class Restaurante(
     val horario: Horario?,
     /** Solo cuando está rechazado: el motivo que eligió el administrador. */
     val rechazo: Rechazo?,
+    /** Pausa de pedidos (SCRUM-66): el local aprobado sigue en el mapa, pero como «Cerrado». */
+    val pausado: Boolean,
 )

@@ -308,6 +308,7 @@ private val restauranteDeEjemplo = Restaurante(
     estado = EstadoRestaurante.PENDIENTE,
     horario = Horario.PorDefecto,
     rechazo = null,
+    pausado = false,
 )
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)

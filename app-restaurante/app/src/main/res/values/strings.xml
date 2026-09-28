@@ -165,6 +165,14 @@
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
     <string name="provisional_menu">Aquí vas a cargar tu carta y publicar tu menú del día.</string>
 
+    <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
+    <string name="pedidos_titulo">Pedidos</string>
+    <string name="pedidos_recibiendo">Recibiendo</string>
+    <string name="pedidos_pausado">Pausado</string>
+    <string name="pedidos_recibir_descripcion">Recibir pedidos nuevos</string>
+    <string name="pedidos_pausado_titulo">Pausado.</string>
+    <string name="pedidos_pausado_texto">Tu local aparece como «Cerrado» y no recibe pedidos nuevos. Los que ya tienes siguen aquí.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>

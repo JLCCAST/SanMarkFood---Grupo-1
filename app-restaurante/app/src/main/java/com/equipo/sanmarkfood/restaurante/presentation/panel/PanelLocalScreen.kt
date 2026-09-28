@@ -32,6 +32,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.EstadoLocal
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.MensajeErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
 
 /**
  * Panel del local con la barra inferior del prototipo: Pedidos · Reservas · Menú · Reseñas · Negocio.
@@ -54,7 +55,12 @@ fun PanelLocalScreen(
         val contenido = Modifier.fillMaxSize().padding(relleno).consumeWindowInsets(relleno)
         val aprobado = uiState.restaurante?.estado == EstadoRestaurante.APROBADO
         when (uiState.pestana) {
-            PestanaPanel.PEDIDOS -> PestanaPedidos(uiState, onReintentar = viewModel::onReintentar, modifier = contenido)
+            PestanaPanel.PEDIDOS -> PestanaPedidos(
+                uiState = uiState,
+                onReintentar = viewModel::onReintentar,
+                onCambiarRecepcion = viewModel::onCambiarRecepcion,
+                modifier = contenido,
+            )
             PestanaPanel.RESERVAS -> PestanaProvisional(
                 icono = R.drawable.ic_reservas,
                 texto = stringResource(
@@ -85,7 +91,12 @@ fun PanelLocalScreen(
 }
 
 @Composable
-private fun PestanaPedidos(uiState: PanelLocalUiState, onReintentar: () -> Unit, modifier: Modifier = Modifier) {
+private fun PestanaPedidos(
+    uiState: PanelLocalUiState,
+    onReintentar: () -> Unit,
+    onCambiarRecepcion: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val restaurante = uiState.restaurante
     val error = uiState.error
     when {
@@ -99,6 +110,16 @@ private fun PestanaPedidos(uiState: PanelLocalUiState, onReintentar: () -> Unit,
         }
         restaurante == null -> Box(modifier = modifier, contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
+        }
+        // Solo un local aprobado puede pausar: mientras está en revisión no recibe pedidos de todas formas.
+        restaurante.estado == EstadoRestaurante.APROBADO -> Column(modifier = modifier) {
+            CabeceraPedidos(
+                recibiendo = !restaurante.pausado,
+                cambiando = uiState.cambiandoPausa,
+                error = uiState.errorPausa,
+                onCambiarRecepcion = onCambiarRecepcion,
+            )
+            EstadoLocal(restaurante = restaurante, modifier = Modifier.weight(1f))
         }
         else -> EstadoLocal(restaurante = restaurante, modifier = modifier)
     }

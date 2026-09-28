@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.usecase.CambiarPausaPedidosUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.ObservarRestauranteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -31,11 +32,14 @@ data class PanelLocalUiState(
     val pestana: PestanaPanel = PestanaPanel.PEDIDOS,
     val restaurante: Restaurante? = null,
     val error: ErrorRestaurante? = null,
+    val cambiandoPausa: Boolean = false,
+    val errorPausa: ErrorRestaurante? = null,
 )
 
 @HiltViewModel
 class PanelLocalViewModel @Inject constructor(
     private val observarRestaurante: ObservarRestauranteUseCase,
+    private val cambiarPausaPedidos: CambiarPausaPedidosUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PanelLocalUiState())
@@ -50,6 +54,22 @@ class PanelLocalViewModel @Inject constructor(
     fun onElegirPestana(pestana: PestanaPanel) = _uiState.update { it.copy(pestana = pestana) }
 
     fun onReintentar() = observar()
+
+    // El interruptor no cambia por su cuenta: muestra lo que dice el documento, que se escucha en vivo.
+    // Así, si la pausa no se guarda (sin conexión, por ejemplo), el interruptor no miente.
+    fun onCambiarRecepcion(recibir: Boolean) {
+        if (_uiState.value.cambiandoPausa) return
+
+        _uiState.update { it.copy(cambiandoPausa = true, errorPausa = null) }
+        viewModelScope.launch {
+            try {
+                cambiarPausaPedidos(pausado = !recibir)
+                _uiState.update { it.copy(cambiandoPausa = false) }
+            } catch (e: ErrorRestaurante) {
+                _uiState.update { it.copy(cambiandoPausa = false, errorPausa = e) }
+            }
+        }
+    }
 
     // El estado se escucha en vivo: si el administrador aprueba o rechaza el local, la pantalla cambia sola.
     private fun observar() {
