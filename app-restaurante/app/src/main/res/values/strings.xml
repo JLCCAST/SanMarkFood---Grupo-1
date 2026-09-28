@@ -130,6 +130,27 @@
     <string name="dia_sabado">Sábado</string>
     <string name="dia_domingo">Domingo</string>
 
+    <!-- Edición del perfil y del horario (HU02, SCRUM-64) -->
+    <string name="perfil_titulo">Perfil del local</string>
+    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
+    <string name="horario_editar_titulo">Horario de atención</string>
+    <string name="editar_guardar">Guardar cambios</string>
+    <string name="descartar_titulo">¿Descartar los cambios?</string>
+    <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
+    <string name="descartar_seguir">Seguir editando</string>
+    <string name="descartar_confirmar">Descartar</string>
+
+    <!-- Tu negocio (O6). Los indicadores y gráficos llegan con HU13. -->
+    <string name="negocio_titulo">Tu negocio</string>
+    <string name="negocio_tu_local">Tu local</string>
+    <string name="negocio_perfil">Perfil del local</string>
+    <string name="negocio_perfil_ayuda">Nombre, fotos, dirección y teléfono</string>
+    <!-- «Horario y reservas / Días de atención y cupo por franja» cuando HU12 agregue el cupo. -->
+    <string name="negocio_horario">Horario de atención</string>
+    <string name="negocio_horario_ayuda">Días y horas de atención</string>
+    <string name="negocio_cerrar_sesion">Cerrar sesión</string>
+    <string name="negocio_cerrar_sesion_ayuda">Podrás volver a entrar con tu correo</string>
+
     <!-- Errores del local -->
     <string name="error_datos_invalidos">Revisa los datos marcados en rojo.</string>
     <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>

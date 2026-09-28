@@ -1,11 +1,22 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -15,6 +26,44 @@ import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Hora
 import java.util.Locale
+
+/** Cabecera de las pantallas que editan algo ya guardado (O7, O8, selector de ubicación). */
+@Composable
+fun CabeceraEdicion(titulo: String, onVolver: () -> Unit) {
+    Row(
+        modifier = Modifier.height(64.dp).padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        IconButton(onClick = onVolver) {
+            Icon(
+                painter = painterResource(R.drawable.ic_volver),
+                contentDescription = stringResource(R.string.volver),
+            )
+        }
+        Text(text = titulo, style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+/** Se muestra al salir de O7 u O8 con cambios sin guardar. */
+@Composable
+fun DialogoDescartarCambios(onSeguirEditando: () -> Unit, onDescartar: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onSeguirEditando,
+        title = { Text(text = stringResource(R.string.descartar_titulo)) },
+        text = { Text(text = stringResource(R.string.descartar_texto)) },
+        confirmButton = {
+            TextButton(onClick = onDescartar) {
+                Text(text = stringResource(R.string.descartar_confirmar), color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onSeguirEditando) {
+                Text(text = stringResource(R.string.descartar_seguir))
+            }
+        },
+    )
+}
 
 @Composable
 fun MensajeErrorRestaurante(error: ErrorRestaurante, modifier: Modifier = Modifier) {
