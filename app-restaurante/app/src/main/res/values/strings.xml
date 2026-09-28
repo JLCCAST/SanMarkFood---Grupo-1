@@ -151,6 +151,68 @@
     <string name="negocio_cerrar_sesion">Cerrar sesión</string>
     <string name="negocio_cerrar_sesion_ayuda">Podrás volver a entrar con tu correo</string>
 
+    <!-- Panel del local: barra inferior -->
+    <string name="panel_pedidos">Pedidos</string>
+    <string name="panel_reservas">Reservas</string>
+    <string name="panel_menu">Menú</string>
+    <string name="panel_resenas">Reseñas</string>
+    <string name="panel_negocio">Negocio</string>
+
+    <!-- Pestañas que todavía no existen: las reemplazan HU03 (Menú), HU12 (Reservas) y HU21 (Reseñas) -->
+    <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
+    <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
+    <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
+    <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
+    <string name="provisional_menu">Aquí vas a cargar tu carta y publicar tu menú del día.</string>
+
+    <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
+    <string name="estado_categoria_direccion">%1$s · %2$s</string>
+    <string name="estado_en_revision">EN REVISIÓN</string>
+    <string name="estado_en_revision_titulo">Estamos revisando tu local</string>
+    <string name="estado_en_revision_texto">Aún no apareces en el mapa ni recibes pedidos o reservas. Te avisaremos apenas terminemos la revisión.</string>
+    <string name="estado_rechazado">REGISTRO RECHAZADO</string>
+    <string name="estado_rechazado_texto">Corrige tus datos y vuelve a enviarlos; tu carta y tu horario se conservan.</string>
+    <string name="estado_rechazado_con_detalle">«%1$s» %2$s</string>
+    <string name="estado_aprobado">APROBADO</string>
+    <string name="estado_aprobado_titulo">Tu local está aprobado</string>
+    <string name="estado_aprobado_texto">Ya apareces en el mapa de San Mark Food. Aquí verás los pedidos que te hagan.</string>
+
+    <!-- Motivos de rechazo: los mismos textos que elige el administrador en A2 (HU24) -->
+    <string name="motivo_datos_incompletos">Datos incompletos</string>
+    <string name="motivo_direccion_no_verificable">No pudimos verificar la dirección</string>
+    <string name="motivo_local_duplicado">Local duplicado</string>
+    <string name="motivo_otro">Revisa tu registro</string>
+
+    <!-- Lista de preparación de R5 -->
+    <string name="preparacion_titulo">Mientras tanto, deja todo listo</string>
+    <string name="preparacion_listo">Listo</string>
+    <string name="preparacion_pendiente">Pendiente</string>
+    <string name="preparacion_cuenta">Cuenta verificada</string>
+    <string name="preparacion_cuenta_ayuda">Tu correo está confirmado</string>
+    <string name="preparacion_datos">Datos del local</string>
+    <string name="preparacion_datos_ayuda">Nombre, categoría, dirección y fotos</string>
+    <string name="preparacion_datos_direccion">Revisa la dirección</string>
+    <string name="preparacion_datos_revisar">Revisa lo que te indicamos arriba</string>
+    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
+    <string name="preparacion_horario">Horario de atención</string>
+    <string name="preparacion_horario_falta">Aún no lo configuras</string>
+    <string name="preparacion_carta">Carta</string>
+    <string name="preparacion_carta_ayuda">Aún no tienes platos</string>
+    <string name="preparacion_menu">Menú del día</string>
+    <string name="preparacion_menu_ayuda">Opcional: publícalo cuando te aprueben</string>
+
+    <!-- Resumen de los días abiertos: «Lun a sáb», «Lun a vie, dom» -->
+    <string name="dias_todos">Todos los días</string>
+    <string name="dias_tramo">%1$s a %2$s</string>
+    <string name="dias_par">%1$s y %2$s</string>
+    <string name="dia_corto_lunes">lun</string>
+    <string name="dia_corto_martes">mar</string>
+    <string name="dia_corto_miercoles">mié</string>
+    <string name="dia_corto_jueves">jue</string>
+    <string name="dia_corto_viernes">vie</string>
+    <string name="dia_corto_sabado">sáb</string>
+    <string name="dia_corto_domingo">dom</string>
+
     <!-- Errores del local -->
     <string name="error_datos_invalidos">Revisa los datos marcados en rojo.</string>
     <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>

@@ -8,6 +8,8 @@ import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Hora
 import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.HorarioDia
+import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.Rechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.google.firebase.firestore.DocumentSnapshot
@@ -43,7 +45,23 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
         estado = EstadoRestaurante.entries.firstOrNull { it.valor() == getString("estado") }
             ?: throw ErrorRestaurante.Desconocido,
         horario = (get("horario") as? Map<*, *>)?.aHorario(),
+        rechazo = (get("rechazo") as? Map<*, *>)?.aRechazo(),
     )
+}
+
+// rechazo: { motivo: "direccion_no_verificable", detalle: "…" }. Lo escribe el administrador al rechazar
+// (A2, HU24): motivo es uno de los cuatro valores de abajo y detalle es opcional, salvo con «otro».
+// Un motivo desconocido se muestra como «otro», para no romper la pantalla del local.
+private fun Map<*, *>.aRechazo(): Rechazo = Rechazo(
+    motivo = MotivoRechazo.entries.firstOrNull { it.valor() == this["motivo"] } ?: MotivoRechazo.OTRO,
+    detalle = (this["detalle"] as? String)?.takeIf { it.isNotBlank() },
+)
+
+private fun MotivoRechazo.valor(): String = when (this) {
+    MotivoRechazo.DATOS_INCOMPLETOS -> "datos_incompletos"
+    MotivoRechazo.DIRECCION_NO_VERIFICABLE -> "direccion_no_verificable"
+    MotivoRechazo.LOCAL_DUPLICADO -> "local_duplicado"
+    MotivoRechazo.OTRO -> "otro"
 }
 
 // horario: { lun: { abierto: true, abre: "11:30", cierra: "16:00" }, mar: {…}, … dom: {…} }

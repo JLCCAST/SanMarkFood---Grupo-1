@@ -13,10 +13,10 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.RegistroScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScreen
-import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
+import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 
 @Composable
 fun RestauranteNavGraph() {
@@ -65,13 +65,13 @@ fun RestauranteNavGraph() {
         composable<HorarioLocal> { entrada ->
             val alta = entrada.toRoute<HorarioLocal>().modo == ModoFormulario.ALTA
             HorarioLocalScreen(
-                // Al terminar el alta: «Tu negocio» es provisional hasta SCRUM-65, que agrega R5.
-                onGuardado = { if (alta) navController.navegarLimpiando(Negocio) else navController.navigateUp() },
+                // Al enviar el alta a revisión se abre el panel, con R5 en «Pedidos».
+                onGuardado = { if (alta) navController.navegarLimpiando(PanelLocal) else navController.navigateUp() },
                 onSalir = { navController.navigateUp() },
             )
         }
-        composable<Negocio> {
-            NegocioScreen(
+        composable<PanelLocal> {
+            PanelLocalScreen(
                 onEditarPerfil = { navController.navigate(DatosLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
@@ -84,9 +84,8 @@ private fun destinoDe(sesion: EstadoSesion): Any = when (sesion) {
     EstadoSesion.SinSesion -> InicioSesion
     is EstadoSesion.SinVerificar -> VerificarCorreo(sesion.correo)
     EstadoSesion.SinLocal -> DatosLocal(ModoFormulario.ALTA)
-    // El local que terminó el alta entra a «Tu negocio» hasta que SCRUM-65 agregue R5 y la barra inferior.
     is EstadoSesion.Activa ->
-        if (sesion.rol == Rol.ADMINISTRADOR) PanelProvisional(administrador = true) else Negocio
+        if (sesion.rol == Rol.ADMINISTRADOR) PanelProvisional(administrador = true) else PanelLocal
 }
 
 private fun NavController.navegarLimpiando(ruta: Any) {

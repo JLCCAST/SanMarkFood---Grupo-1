@@ -8,6 +8,8 @@ import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -18,6 +20,7 @@ class EnviarARevisionUseCaseTest {
     private class RepositorioFalso : RestauranteRepository {
         var enviado: Horario? = null
         override suspend fun obtener(): Restaurante? = null
+        override fun observar(): Flow<Restaurante?> = emptyFlow()
         override suspend fun guardarDatos(datos: DatosLocal) = Unit
         override suspend fun enviarARevision(horario: Horario) {
             enviado = horario

@@ -27,6 +27,27 @@ data class Horario(val dias: Map<DiaSemana, HorarioDia>) {
         require(dias.keys == DiaSemana.entries.toSet()) { "El horario debe tener los siete días" }
     }
 
+    /**
+     * Los días abiertos agrupados en tramos seguidos, de lunes a domingo: lun–vie y dom abiertos
+     * da [(LUNES, VIERNES), (DOMINGO, DOMINGO)]. Sirve para resumirlo, como «Lun a vie, dom».
+     */
+    fun tramosAbiertos(): List<Pair<DiaSemana, DiaSemana>> {
+        val tramos = mutableListOf<Pair<DiaSemana, DiaSemana>>()
+        var inicio: DiaSemana? = null
+        for ((indice, dia) in DiaSemana.entries.withIndex()) {
+            val abierto = dias.getValue(dia).abierto
+            if (abierto && inicio == null) inicio = dia
+            val desde = inicio ?: continue
+            if (!abierto) {
+                tramos += desde to DiaSemana.entries[indice - 1]
+                inicio = null
+            } else if (indice == DiaSemana.entries.lastIndex) {
+                tramos += desde to dia
+            }
+        }
+        return tramos
+    }
+
     companion object {
         /** El horario con el que empieza R4, el mismo del prototipo. */
         val PorDefecto: Horario = run {
