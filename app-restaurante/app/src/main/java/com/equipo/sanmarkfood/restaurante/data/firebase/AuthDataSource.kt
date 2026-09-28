@@ -22,7 +22,10 @@ class AuthDataSource @Inject constructor(
 
     suspend fun correoVerificado(): Boolean = llamarFirebase {
         auth.currentUser?.reload()?.await()
-        auth.currentUser?.isEmailVerified == true
+        val verificado = auth.currentUser?.isEmailVerified == true
+        // Las reglas de Firestore leen email_verified del token, que no se entera hasta pedir uno nuevo.
+        if (verificado) auth.currentUser?.getIdToken(true)?.await()
+        verificado
     }
 
     suspend fun iniciarSesion(correo: String, contrasena: String) {
