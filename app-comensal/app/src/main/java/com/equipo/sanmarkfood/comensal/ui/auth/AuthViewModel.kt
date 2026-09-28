@@ -28,7 +28,9 @@ data class AuthUiState(
     // Recuperación de contraseña (SCRUM-82)
     val resetLoading: Boolean = false,
     val resetError: String? = null,
-    val resetEmailSent: Boolean = false
+    val resetEmailSent: Boolean = false,
+    // Exploración sin cuenta (SCRUM-154)
+    val isGuest: Boolean = false
 )
 
 class AuthViewModel(
@@ -163,6 +165,16 @@ class AuthViewModel(
     /** Limpia el estado del diálogo de recuperación al abrirlo o cerrarlo. */
     fun clearReset() = _uiState.update {
         it.copy(resetLoading = false, resetError = null, resetEmailSent = false)
+    }
+
+    /** Botón "Explorar sin cuenta": entra como invitado, sin usar Firebase. */
+    fun continueAsGuest() {
+        _uiState.value = AuthUiState(isGuest = true)
+    }
+
+    /** Sale del modo invitado y vuelve al flujo normal de login o registro. */
+    fun exitGuest() {
+        _uiState.value = AuthUiState()
     }
 
     private fun showVerification(email: String, startCooldown: Boolean) {
