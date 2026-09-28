@@ -14,6 +14,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScre
 import com.equipo.sanmarkfood.restaurante.presentation.auth.RegistroScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
 
 @Composable
 fun RestauranteNavGraph() {
@@ -51,9 +52,15 @@ fun RestauranteNavGraph() {
         }
         composable<DatosLocal> {
             DatosLocalScreen(
-                // Provisional hasta SCRUM-62, que agrega el paso 3 (horario, R4).
-                onContinuar = { navController.navegarLimpiando(PanelProvisional(administrador = false)) },
+                onContinuar = { navController.navigate(HorarioLocal) },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
+        composable<HorarioLocal> {
+            HorarioLocalScreen(
+                onVolver = { navController.navigateUp() },
+                // Provisional hasta SCRUM-65, que agrega «Local en revisión» (R5).
+                onEnviado = { navController.navegarLimpiando(PanelProvisional(administrador = false)) },
             )
         }
     }

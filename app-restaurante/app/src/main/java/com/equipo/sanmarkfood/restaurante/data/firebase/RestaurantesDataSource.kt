@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.restaurante.data.firebase
 
 import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,6 +38,19 @@ class RestaurantesDataSource @Inject constructor(
     suspend fun actualizarDatos(uid: String, datos: DatosLocal) {
         llamarFirebaseRestaurante {
             documento(uid).update(datos.aCampos() + ("actualizadoEn" to FieldValue.serverTimestamp())).await()
+        }
+    }
+
+    suspend fun enviarARevision(uid: String, horario: Horario) {
+        llamarFirebaseRestaurante {
+            documento(uid).update(
+                mapOf(
+                    "horario" to horario.aCampos(),
+                    "estado" to EstadoRestaurante.PENDIENTE.valor(),
+                    "enviadoEn" to FieldValue.serverTimestamp(),
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
         }
     }
 }

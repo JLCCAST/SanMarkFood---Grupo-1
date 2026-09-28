@@ -93,8 +93,38 @@
     <string name="ubicacion_ayuda">Mueve el mapa hasta que el punto quede en la puerta de tu local.</string>
     <string name="ubicacion_confirmar">Usar esta ubicación</string>
 
+    <!-- Horario del local (HU02) -->
+    <string name="horario_paso">Paso 3 de 3 · Horario</string>
+    <string name="horario_titulo">¿Cuándo atiendes?</string>
+    <string name="horario_atencion">Horario de atención</string>
+    <string name="horario_copiar_lunes">Copiar lunes a todos</string>
+    <string name="horario_rango">%1$s – %2$s</string>
+    <string name="horario_cerrado">Cerrado</string>
+    <string name="horario_cambiar">Cambiar horario</string>
+    <string name="horario_ayuda">Toca un horario para cambiar la hora de apertura y cierre.</string>
+    <string name="horario_enviar">Enviar a revisión</string>
+    <string name="horario_mientras_revisamos">Mientras revisamos tu local podrás cargar tu carta.</string>
+    <string name="horario_dialogo_abre">%1$s · Abre</string>
+    <string name="horario_dialogo_cierra">%1$s · Cierra</string>
+    <string name="horario_cancelar">Cancelar</string>
+    <string name="horario_siguiente">Siguiente</string>
+    <string name="horario_atras">Atrás</string>
+    <string name="horario_listo">Listo</string>
+    <string name="horario_cierre_antes">La hora de cierre tiene que ser después de la de apertura.</string>
+
+    <!-- Días de la semana -->
+    <string name="dia_lunes">Lunes</string>
+    <string name="dia_martes">Martes</string>
+    <string name="dia_miercoles">Miércoles</string>
+    <string name="dia_jueves">Jueves</string>
+    <string name="dia_viernes">Viernes</string>
+    <string name="dia_sabado">Sábado</string>
+    <string name="dia_domingo">Domingo</string>
+
     <!-- Errores del local -->
     <string name="error_datos_invalidos">Revisa los datos marcados en rojo.</string>
+    <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>
+    <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
 
     <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
     <string name="provisional_titulo">Tu cuenta está lista</string>
