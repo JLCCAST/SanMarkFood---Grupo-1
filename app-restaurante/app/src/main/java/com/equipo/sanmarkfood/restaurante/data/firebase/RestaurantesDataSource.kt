@@ -53,4 +53,15 @@ class RestaurantesDataSource @Inject constructor(
             ).await()
         }
     }
+
+    suspend fun actualizarHorario(uid: String, horario: Horario) {
+        llamarFirebaseRestaurante {
+            documento(uid).update(
+                mapOf(
+                    "horario" to horario.aCampos(),
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
+        }
+    }
 }

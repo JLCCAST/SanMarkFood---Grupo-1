@@ -46,7 +46,8 @@ import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
 @Composable
 fun DatosLocalScreen(
-    onContinuar: () -> Unit,
+    onGuardado: () -> Unit,
+    onSalir: () -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: DatosLocalViewModel = hiltViewModel(),
 ) {
@@ -55,13 +56,23 @@ fun DatosLocalScreen(
     LaunchedEffect(uiState.guardado) {
         if (uiState.guardado) {
             viewModel.onGuardadoAtendido()
-            onContinuar()
+            onGuardado()
         }
+    }
+    LaunchedEffect(uiState.salir) {
+        if (uiState.salir) onSalir()
     }
     LaunchedEffect(uiState.sesionCerrada) {
         if (uiState.sesionCerrada) onSesionCerrada()
     }
     BackHandler(enabled = !uiState.eligiendoUbicacion, onBack = viewModel::onVolver)
+
+    if (uiState.confirmandoDescarte) {
+        DialogoDescartarCambios(
+            onSeguirEditando = viewModel::onSeguirEditando,
+            onDescartar = viewModel::onDescartarCambios,
+        )
+    }
 
     // Fuera del formulario, para no perder el scroll al abrir y cerrar el selector de ubicación.
     val scroll = rememberScrollState()
@@ -102,8 +113,13 @@ private fun DatosLocalContenido(
     onCambiarTelefono: (String) -> Unit,
     onContinuar: () -> Unit,
 ) {
+    val alta = uiState.modo == ModoFormulario.ALTA
     Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-        CabeceraPaso(texto = stringResource(R.string.datos_local_paso), pasoActual = 2, onVolver = onVolver)
+        if (alta) {
+            CabeceraPaso(texto = stringResource(R.string.datos_local_paso), pasoActual = 2, onVolver = onVolver)
+        } else {
+            CabeceraEdicion(titulo = stringResource(R.string.perfil_titulo), onVolver = onVolver)
+        }
 
         val errorCarga = uiState.errorCarga
         when {
@@ -149,7 +165,7 @@ private fun DatosLocalContenido(
                 ) {
                     uiState.error?.let { MensajeErrorRestaurante(error = it) }
                     BotonPrincipal(
-                        texto = stringResource(R.string.datos_local_continuar),
+                        texto = stringResource(if (alta) R.string.datos_local_continuar else R.string.editar_guardar),
                         onClick = onContinuar,
                         // Mientras sube una foto todavía no hay URL que guardar.
                         habilitado = !uiState.subiendoFoto,
@@ -173,15 +189,18 @@ private fun FormularioLocal(
 ) {
     val invalidos = uiState.camposInvalidos
 
-    Text(
-        text = stringResource(R.string.datos_local_titulo),
-        style = MaterialTheme.typography.displaySmall,
-    )
-    Text(
-        text = stringResource(R.string.datos_local_subtitulo),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    // Como en el prototipo, el título y la explicación solo van en el alta; en O7 basta la cabecera.
+    if (uiState.modo == ModoFormulario.ALTA) {
+        Text(
+            text = stringResource(R.string.datos_local_titulo),
+            style = MaterialTheme.typography.displaySmall,
+        )
+        Text(
+            text = stringResource(R.string.datos_local_subtitulo),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 
     FotosLocal(
         portada = uiState.portada,

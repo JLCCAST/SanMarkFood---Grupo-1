@@ -39,6 +39,12 @@ class RestauranteRepositoryImpl @Inject constructor(
         restaurantesDataSource.enviarARevision(uid, horario)
     }
 
+    override suspend fun guardarHorario(horario: Horario) {
+        val uid = uid()
+        if (!restaurantesDataSource.existeEnServidor(uid)) throw ErrorRestaurante.Desconocido
+        restaurantesDataSource.actualizarHorario(uid, horario)
+    }
+
     override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (fraccion: Float) -> Unit): String {
         val uid = uid()
         val (prefijo, ladoMaximo) = when (tipo) {

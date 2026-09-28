@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.core.navigation
 
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,8 +18,14 @@ data class VerificarCorreo(val correo: String)
 @Serializable
 data class PanelProvisional(val administrador: Boolean)
 
+/** R3 en el alta; O7 «Perfil del local» al editar. */
 @Serializable
-data object DatosLocal
+data class DatosLocal(val modo: ModoFormulario)
 
+/** R4 en el alta; O8 «Horario» al editar. */
 @Serializable
-data object HorarioLocal
+data class HorarioLocal(val modo: ModoFormulario)
+
+/** O6 «Tu negocio». */
+@Serializable
+data object Negocio

@@ -1,7 +1,9 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -58,27 +61,39 @@ import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
 @Composable
 fun HorarioLocalScreen(
-    onVolver: () -> Unit,
-    onEnviado: () -> Unit,
+    onGuardado: () -> Unit,
+    onSalir: () -> Unit,
     viewModel: HorarioLocalViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.enviado) {
-        if (uiState.enviado) {
-            viewModel.onEnvioAtendido()
-            onEnviado()
+    LaunchedEffect(uiState.guardado) {
+        if (uiState.guardado) {
+            viewModel.onGuardadoAtendido()
+            onGuardado()
         }
     }
+    LaunchedEffect(uiState.salir) {
+        if (uiState.salir) onSalir()
+    }
+    BackHandler(onBack = viewModel::onVolver)
 
     HorarioLocalContenido(
         uiState = uiState,
-        onVolver = onVolver,
+        onVolver = viewModel::onVolver,
+        onReintentarCarga = viewModel::onReintentarCarga,
         onAlternarDia = viewModel::onAlternarDia,
         onEditarHoras = viewModel::onEditarHoras,
         onCopiarLunesATodos = viewModel::onCopiarLunesATodos,
-        onEnviarARevision = viewModel::onEnviarARevision,
+        onGuardar = viewModel::onGuardar,
     )
+
+    if (uiState.confirmandoDescarte) {
+        DialogoDescartarCambios(
+            onSeguirEditando = viewModel::onSeguirEditando,
+            onDescartar = viewModel::onDescartarCambios,
+        )
+    }
 
     uiState.diaEditando?.let { dia ->
         val horarioDia = uiState.dias.getValue(dia)
@@ -96,66 +111,119 @@ fun HorarioLocalScreen(
 private fun HorarioLocalContenido(
     uiState: HorarioLocalUiState,
     onVolver: () -> Unit,
+    onReintentarCarga: () -> Unit,
     onAlternarDia: (DiaSemana) -> Unit,
     onEditarHoras: (DiaSemana) -> Unit,
     onCopiarLunesATodos: () -> Unit,
-    onEnviarARevision: () -> Unit,
+    onGuardar: () -> Unit,
 ) {
+    val alta = uiState.modo == ModoFormulario.ALTA
     Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-        CabeceraPaso(texto = stringResource(R.string.horario_paso), pasoActual = 3, onVolver = onVolver)
+        if (alta) {
+            CabeceraPaso(texto = stringResource(R.string.horario_paso), pasoActual = 3, onVolver = onVolver)
+        } else {
+            CabeceraEdicion(titulo = stringResource(R.string.horario_editar_titulo), onVolver = onVolver)
+        }
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp)),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-        ) {
+        val errorCarga = uiState.errorCarga
+        when {
+            uiState.cargando -> Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+
+            errorCarga != null -> Column(
+                modifier = Modifier.weight(1f).fillMaxWidth().padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                MensajeErrorRestaurante(error = errorCarga)
+                BotonPrincipal(texto = stringResource(R.string.arranque_reintentar), onClick = onReintentarCarga)
+            }
+
+            else -> {
+                ListaHorario(
+                    uiState = uiState,
+                    onAlternarDia = onAlternarDia,
+                    onEditarHoras = onEditarHoras,
+                    onCopiarLunesATodos = onCopiarLunesATodos,
+                    modifier = Modifier.weight(1f),
+                )
+                PieHorario(uiState = uiState, onGuardar = onGuardar)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ListaHorario(
+    uiState: HorarioLocalUiState,
+    onAlternarDia: (DiaSemana) -> Unit,
+    onEditarHoras: (DiaSemana) -> Unit,
+    onCopiarLunesATodos: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 20.dp)),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+    ) {
+        // Como en el prototipo, el título solo va en el alta; en O8 basta la cabecera.
+        if (uiState.modo == ModoFormulario.ALTA) {
             Text(
                 text = stringResource(R.string.horario_titulo),
                 style = MaterialTheme.typography.displaySmall,
             )
-
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(text = stringResource(R.string.horario_atencion), style = MaterialTheme.typography.titleSmall)
-                    TextButton(onClick = onCopiarLunesATodos) {
-                        Text(text = stringResource(R.string.horario_copiar_lunes), style = MaterialTheme.typography.labelLarge)
-                    }
-                }
-                DiaSemana.entries.forEach { dia ->
-                    FilaDia(
-                        dia = dia,
-                        horarioDia = uiState.dias.getValue(dia),
-                        invalido = dia in uiState.diasInvalidos,
-                        onAlternar = { onAlternarDia(dia) },
-                        onEditar = { onEditarHoras(dia) },
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.horario_ayuda),
-                    modifier = Modifier.padding(top = 6.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
         }
 
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Column(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            uiState.error?.let { MensajeErrorRestaurante(error = it) }
-            BotonPrincipal(
-                texto = stringResource(R.string.horario_enviar),
-                onClick = onEnviarARevision,
-                cargando = uiState.enviando,
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = stringResource(R.string.horario_atencion), style = MaterialTheme.typography.titleSmall)
+                TextButton(onClick = onCopiarLunesATodos) {
+                    Text(text = stringResource(R.string.horario_copiar_lunes), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            DiaSemana.entries.forEach { dia ->
+                FilaDia(
+                    dia = dia,
+                    horarioDia = uiState.dias.getValue(dia),
+                    invalido = dia in uiState.diasInvalidos,
+                    onAlternar = { onAlternarDia(dia) },
+                    onEditar = { onEditarHoras(dia) },
+                )
+            }
+            Text(
+                text = stringResource(R.string.horario_ayuda),
+                modifier = Modifier.padding(top = 6.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@Composable
+private fun PieHorario(uiState: HorarioLocalUiState, onGuardar: () -> Unit) {
+    val alta = uiState.modo == ModoFormulario.ALTA
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    Column(
+        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        uiState.error?.let { MensajeErrorRestaurante(error = it) }
+        BotonPrincipal(
+            texto = stringResource(if (alta) R.string.horario_enviar else R.string.editar_guardar),
+            onClick = onGuardar,
+            cargando = uiState.guardando,
+        )
+        if (alta) {
             Text(
                 text = stringResource(R.string.horario_mientras_revisamos),
                 modifier = Modifier.fillMaxWidth(),
@@ -309,10 +377,11 @@ private fun HorarioLocalPreview() {
             HorarioLocalContenido(
                 uiState = HorarioLocalUiState(error = ErrorRestaurante.SinConexion),
                 onVolver = {},
+                onReintentarCarga = {},
                 onAlternarDia = {},
                 onEditarHoras = {},
                 onCopiarLunesATodos = {},
-                onEnviarARevision = {},
+                onGuardar = {},
             )
         }
     }

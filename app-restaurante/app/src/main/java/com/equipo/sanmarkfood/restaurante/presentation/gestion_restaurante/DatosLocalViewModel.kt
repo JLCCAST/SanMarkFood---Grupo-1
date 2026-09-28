@@ -1,7 +1,11 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+// La ruta se llama igual que el modelo de dominio DatosLocal, que también se usa aquí.
+import com.equipo.sanmarkfood.restaurante.core.navigation.DatosLocal as RutaDatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
@@ -21,6 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class DatosLocalUiState(
+    val modo: ModoFormulario = ModoFormulario.ALTA,
     val cargando: Boolean = true,
     val errorCarga: ErrorRestaurante? = null,
     val portada: FotoUiState = FotoUiState(),
@@ -35,6 +40,8 @@ data class DatosLocalUiState(
     val guardando: Boolean = false,
     val error: ErrorRestaurante? = null,
     val guardado: Boolean = false,
+    val confirmandoDescarte: Boolean = false,
+    val salir: Boolean = false,
     val sesionCerrada: Boolean = false,
 ) {
     val subiendoFoto: Boolean get() = portada.subiendo || logo.subiendo
@@ -54,14 +61,20 @@ data class FotoUiState(
 
 @HiltViewModel
 class DatosLocalViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val obtenerRestaurante: ObtenerRestauranteUseCase,
     private val guardarDatosLocal: GuardarDatosLocalUseCase,
     private val subirFoto: SubirFotoUseCase,
     private val cerrarSesion: CerrarSesionUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(DatosLocalUiState())
+    private val _uiState = MutableStateFlow(
+        DatosLocalUiState(modo = savedStateHandle.toRoute<RutaDatosLocal>().modo)
+    )
     val uiState: StateFlow<DatosLocalUiState> = _uiState.asStateFlow()
+
+    // Lo que había guardado al abrir la pantalla, para saber si al salir hay cambios que se perderían.
+    private var valoresGuardados: ValoresFormulario? = null
 
     init {
         cargarLocal()
@@ -137,12 +150,23 @@ class DatosLocalViewModel @Inject constructor(
     // Se marca como atendido para que, al volver desde el paso siguiente, no se navegue otra vez.
     fun onGuardadoAtendido() = _uiState.update { it.copy(guardado = false) }
 
-    // La cuenta ya está creada y verificada: volver al paso 1 no tiene sentido, así que
-    // «atrás» cierra la sesión. Al volver a entrar, el arranque trae de nuevo a este paso.
     fun onVolver() {
-        cerrarSesion()
-        _uiState.update { it.copy(sesionCerrada = true) }
+        val estado = _uiState.value
+        when {
+            // En el alta la cuenta ya está creada y verificada: volver al paso 1 no tiene sentido, así que
+            // «atrás» cierra la sesión. Al volver a entrar, el arranque trae de nuevo a este paso.
+            estado.modo == ModoFormulario.ALTA -> {
+                cerrarSesion()
+                _uiState.update { it.copy(sesionCerrada = true) }
+            }
+            estado.hayCambios() -> _uiState.update { it.copy(confirmandoDescarte = true) }
+            else -> _uiState.update { it.copy(salir = true) }
+        }
     }
+
+    fun onSeguirEditando() = _uiState.update { it.copy(confirmandoDescarte = false) }
+
+    fun onDescartarCambios() = _uiState.update { it.copy(confirmandoDescarte = false, salir = true) }
 
     private fun cargarLocal() {
         _uiState.update { it.copy(cargando = true, errorCarga = null) }
@@ -165,6 +189,7 @@ class DatosLocalViewModel @Inject constructor(
                         )
                     }
                 }
+                valoresGuardados = _uiState.value.valores()
             } catch (e: ErrorRestaurante) {
                 _uiState.update { it.copy(cargando = false, errorCarga = e) }
             }
@@ -179,6 +204,22 @@ class DatosLocalViewModel @Inject constructor(
             cambio(estado).copy(camposInvalidos = invalidos, error = error)
         }
     }
+
+    private data class ValoresFormulario(
+        val nombre: String,
+        val categoria: CategoriaRestaurante?,
+        val direccion: String,
+        val ubicacion: Ubicacion,
+        val telefono: String,
+        val portadaUrl: String?,
+        val logoUrl: String?,
+    )
+
+    private fun DatosLocalUiState.valores() =
+        ValoresFormulario(nombre, categoria, direccion, ubicacion, telefono, portada.url, logo.url)
+
+    // Una foto a medio subir también cuenta: si se sale, se pierde.
+    private fun DatosLocalUiState.hayCambios(): Boolean = subiendoFoto || valores() != valoresGuardados
 
     private fun DatosLocalUiState.foto(tipo: TipoFoto): FotoUiState = when (tipo) {
         TipoFoto.PORTADA -> portada

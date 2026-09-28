@@ -13,8 +13,10 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.RegistroScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScreen
+import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
 
 @Composable
 fun RestauranteNavGraph() {
@@ -50,17 +52,29 @@ fun RestauranteNavGraph() {
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
-        composable<DatosLocal> {
+        composable<DatosLocal> { entrada ->
+            val alta = entrada.toRoute<DatosLocal>().modo == ModoFormulario.ALTA
             DatosLocalScreen(
-                onContinuar = { navController.navigate(HorarioLocal) },
+                onGuardado = {
+                    if (alta) navController.navigate(HorarioLocal(ModoFormulario.ALTA)) else navController.navigateUp()
+                },
+                onSalir = { navController.navigateUp() },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
-        composable<HorarioLocal> {
+        composable<HorarioLocal> { entrada ->
+            val alta = entrada.toRoute<HorarioLocal>().modo == ModoFormulario.ALTA
             HorarioLocalScreen(
-                onVolver = { navController.navigateUp() },
-                // Provisional hasta SCRUM-65, que agrega «Local en revisión» (R5).
-                onEnviado = { navController.navegarLimpiando(PanelProvisional(administrador = false)) },
+                // Al terminar el alta: «Tu negocio» es provisional hasta SCRUM-65, que agrega R5.
+                onGuardado = { if (alta) navController.navegarLimpiando(Negocio) else navController.navigateUp() },
+                onSalir = { navController.navigateUp() },
+            )
+        }
+        composable<Negocio> {
+            NegocioScreen(
+                onEditarPerfil = { navController.navigate(DatosLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
+                onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
+                onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
     }
@@ -69,8 +83,10 @@ fun RestauranteNavGraph() {
 private fun destinoDe(sesion: EstadoSesion): Any = when (sesion) {
     EstadoSesion.SinSesion -> InicioSesion
     is EstadoSesion.SinVerificar -> VerificarCorreo(sesion.correo)
-    EstadoSesion.SinLocal -> DatosLocal
-    is EstadoSesion.Activa -> PanelProvisional(administrador = sesion.rol == Rol.ADMINISTRADOR)
+    EstadoSesion.SinLocal -> DatosLocal(ModoFormulario.ALTA)
+    // El local que terminó el alta entra a «Tu negocio» hasta que SCRUM-65 agregue R5 y la barra inferior.
+    is EstadoSesion.Activa ->
+        if (sesion.rol == Rol.ADMINISTRADOR) PanelProvisional(administrador = true) else Negocio
 }
 
 private fun NavController.navegarLimpiando(ruta: Any) {

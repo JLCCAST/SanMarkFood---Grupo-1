@@ -23,4 +23,7 @@ interface RestauranteRepository {
 
     /** Guarda el horario y pasa el local de borrador a pendiente: desde ahí lo ve el administrador. */
     suspend fun enviarARevision(horario: Horario)
+
+    /** Cambia el horario de un local que ya terminó el alta, sin tocar su estado. */
+    suspend fun guardarHorario(horario: Horario)
 }
