@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pin del mapa del prototipo (R3). El círculo interior es un hueco, así Icon() lo tiñe de una sola vez. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="26dp"
+    android:height="34dp"
+    android:viewportWidth="26"
+    android:viewportHeight="34">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M13,34C4,25 0,20 0,13A13,13 0,0 1,26 13C26,20 22,25 13,34ZM8.5,13A4.5,4.5 0,1 0,17.5 13A4.5,4.5 0,1 0,8.5 13Z" />
+</vector>

@@ -13,6 +13,10 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.RegistroScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScreen
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
+import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 
 @Composable
 fun RestauranteNavGraph() {
@@ -48,13 +52,41 @@ fun RestauranteNavGraph() {
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
+        composable<DatosLocal> { entrada ->
+            val alta = entrada.toRoute<DatosLocal>().modo == ModoFormulario.ALTA
+            DatosLocalScreen(
+                onGuardado = {
+                    if (alta) navController.navigate(HorarioLocal(ModoFormulario.ALTA)) else navController.navigateUp()
+                },
+                onSalir = { navController.navigateUp() },
+                onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
+        composable<HorarioLocal> { entrada ->
+            val alta = entrada.toRoute<HorarioLocal>().modo == ModoFormulario.ALTA
+            HorarioLocalScreen(
+                // Al enviar el alta a revisión se abre el panel, con R5 en «Pedidos».
+                onGuardado = { if (alta) navController.navegarLimpiando(PanelLocal) else navController.navigateUp() },
+                onSalir = { navController.navigateUp() },
+            )
+        }
+        composable<PanelLocal> {
+            PanelLocalScreen(
+                onEditarPerfil = { navController.navigate(DatosLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
+                onCorregir = { navController.navigate(DatosLocal(ModoFormulario.CORREGIR)) { launchSingleTop = true } },
+                onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
+                onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
     }
 }
 
 private fun destinoDe(sesion: EstadoSesion): Any = when (sesion) {
     EstadoSesion.SinSesion -> InicioSesion
     is EstadoSesion.SinVerificar -> VerificarCorreo(sesion.correo)
-    is EstadoSesion.Activa -> PanelProvisional(administrador = sesion.rol == Rol.ADMINISTRADOR)
+    EstadoSesion.SinLocal -> DatosLocal(ModoFormulario.ALTA)
+    is EstadoSesion.Activa ->
+        if (sesion.rol == Rol.ADMINISTRADOR) PanelProvisional(administrador = true) else PanelLocal
 }
 
 private fun NavController.navegarLimpiando(ruta: Any) {
