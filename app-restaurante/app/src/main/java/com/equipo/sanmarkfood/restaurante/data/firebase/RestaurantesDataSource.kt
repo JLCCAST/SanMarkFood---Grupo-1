@@ -1,6 +1,11 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
+import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -9,6 +14,29 @@ class RestaurantesDataSource @Inject constructor(
 ) {
     private fun documento(uid: String) = firestore.collection("restaurantes").document(uid)
 
-    suspend fun existe(uid: String): Boolean =
-        llamarFirebase { documento(uid).get().await().exists() }
+    suspend fun leer(uid: String): Restaurante? =
+        llamarFirebaseRestaurante { documento(uid).get().await().aRestaurante() }
+
+    // Pregunta al servidor y no a la caché: sin conexión una escritura no falla, se queda esperando,
+    // así que esta lectura es la que avisa que no hay internet antes de guardar.
+    suspend fun existeEnServidor(uid: String): Boolean =
+        llamarFirebaseRestaurante { documento(uid).get(Source.SERVER).await().exists() }
+
+    suspend fun crear(uid: String, datos: DatosLocal, estado: EstadoRestaurante) {
+        llamarFirebaseRestaurante {
+            documento(uid).set(
+                datos.aCampos() + mapOf(
+                    "estado" to estado.valor(),
+                    "creadoEn" to FieldValue.serverTimestamp(),
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
+        }
+    }
+
+    suspend fun actualizarDatos(uid: String, datos: DatosLocal) {
+        llamarFirebaseRestaurante {
+            documento(uid).update(datos.aCampos() + ("actualizadoEn" to FieldValue.serverTimestamp())).await()
+        }
+    }
 }

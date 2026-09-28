@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -28,4 +29,18 @@ private fun FirebaseException.aErrorAuth(): ErrorAuth = when (this) {
         else -> ErrorAuth.Desconocido
     }
     else -> ErrorAuth.Desconocido
+}
+
+/** Como [llamarFirebase], para los datos del local (HU02). */
+internal suspend fun <T> llamarFirebaseRestaurante(llamada: suspend () -> T): T =
+    try {
+        llamada()
+    } catch (e: FirebaseException) {
+        throw e.aErrorRestaurante()
+    }
+
+private fun FirebaseException.aErrorRestaurante(): ErrorRestaurante = when {
+    this is FirebaseNetworkException -> ErrorRestaurante.SinConexion
+    this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE -> ErrorRestaurante.SinConexion
+    else -> ErrorRestaurante.Desconocido
 }
