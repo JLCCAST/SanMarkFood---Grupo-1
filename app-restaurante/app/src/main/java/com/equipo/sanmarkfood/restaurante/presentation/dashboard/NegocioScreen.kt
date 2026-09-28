@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,14 +33,15 @@ import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
 /**
- * O6 «Tu negocio». Por ahora solo tiene la sección «Tu local» (HU02): los indicadores y gráficos
- * llegan con HU13, y la barra inferior con R5 (SCRUM-65).
+ * O6 «Tu negocio», la pestaña Negocio del panel. Por ahora solo tiene la sección «Tu local» (HU02):
+ * los indicadores y gráficos llegan con HU13.
  */
 @Composable
 fun NegocioScreen(
     onEditarPerfil: () -> Unit,
     onEditarHorario: () -> Unit,
     onSesionCerrada: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: NegocioViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -54,6 +54,7 @@ fun NegocioScreen(
         onEditarPerfil = onEditarPerfil,
         onEditarHorario = onEditarHorario,
         onCerrarSesion = viewModel::onCerrarSesion,
+        modifier = modifier,
     )
 }
 
@@ -62,11 +63,12 @@ private fun NegocioContenido(
     onEditarPerfil: () -> Unit,
     onEditarHorario: () -> Unit,
     onCerrarSesion: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    // Los bordes de la pantalla los maneja el Scaffold del panel.
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),

@@ -4,10 +4,14 @@ import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
+import kotlinx.coroutines.flow.Flow
 
 interface RestauranteRepository {
     /** El local de la cuenta, o null si todavía no lo registra. */
     suspend fun obtener(): Restaurante?
+
+    /** El local de la cuenta en tiempo real: emite otra vez cada vez que cambia (por ejemplo, al aprobarlo). */
+    fun observar(): Flow<Restaurante?>
 
     /**
      * Si el local todavía no existe, lo crea en borrador; si ya existe, solo cambia estos datos.

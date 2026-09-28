@@ -9,6 +9,8 @@ import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -20,6 +22,7 @@ class GuardarDatosLocalUseCaseTest {
     private class RepositorioFalso : RestauranteRepository {
         var guardados: DatosLocal? = null
         override suspend fun obtener(): Restaurante? = null
+        override fun observar(): Flow<Restaurante?> = emptyFlow()
         override suspend fun guardarDatos(datos: DatosLocal) {
             guardados = datos
         }

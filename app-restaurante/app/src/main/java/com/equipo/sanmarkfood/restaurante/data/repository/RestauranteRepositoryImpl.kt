@@ -11,6 +11,9 @@ import com.equipo.sanmarkfood.restaurante.domain.model.Horario
 import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class RestauranteRepositoryImpl @Inject constructor(
@@ -21,6 +24,9 @@ class RestauranteRepositoryImpl @Inject constructor(
 ) : RestauranteRepository {
 
     override suspend fun obtener(): Restaurante? = restaurantesDataSource.leer(uid())
+
+    // Dentro de flow {} para que, si no hay sesión, el error llegue a quien recolecta y no a quien llama.
+    override fun observar(): Flow<Restaurante?> = flow { emitAll(restaurantesDataSource.observar(uid())) }
 
     override suspend fun guardarDatos(datos: DatosLocal) {
         val uid = uid()

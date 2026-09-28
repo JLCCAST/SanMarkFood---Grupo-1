@@ -1,10 +1,14 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -14,18 +18,49 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.Hora
 import java.util.Locale
+
+/** El logo del local, o la inicial de su nombre si no subió uno (el logo es opcional desde SCRUM-63). */
+@Composable
+fun LogoLocal(logoUrl: String?, nombre: String, tamano: Dp, radio: Dp, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(tamano)
+            .clip(RoundedCornerShape(radio))
+            .background(MaterialTheme.colorScheme.secondaryContainer),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (logoUrl != null) {
+            AsyncImage(
+                model = logoUrl,
+                contentDescription = null,
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            Text(
+                text = nombre.trim().take(1).uppercase(Locale.forLanguageTag("es-PE")),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+        }
+    }
+}
 
 /** Cabecera de las pantallas que editan algo ya guardado (O7, O8, selector de ubicación). */
 @Composable
@@ -94,6 +129,17 @@ fun DiaSemana.nombre(): Int = when (this) {
     DiaSemana.VIERNES -> R.string.dia_viernes
     DiaSemana.SABADO -> R.string.dia_sabado
     DiaSemana.DOMINGO -> R.string.dia_domingo
+}
+
+@StringRes
+fun DiaSemana.nombreCorto(): Int = when (this) {
+    DiaSemana.LUNES -> R.string.dia_corto_lunes
+    DiaSemana.MARTES -> R.string.dia_corto_martes
+    DiaSemana.MIERCOLES -> R.string.dia_corto_miercoles
+    DiaSemana.JUEVES -> R.string.dia_corto_jueves
+    DiaSemana.VIERNES -> R.string.dia_corto_viernes
+    DiaSemana.SABADO -> R.string.dia_corto_sabado
+    DiaSemana.DOMINGO -> R.string.dia_corto_domingo
 }
 
 fun Hora.texto(): String = "%02d:%02d".format(Locale.ROOT, hora, minuto)
