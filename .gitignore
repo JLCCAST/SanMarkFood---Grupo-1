@@ -1,12 +1,18 @@
 # Gradle files
 .gradle/
 build/
+.kotlin/
 
 # Local configuration file (sdk path, etc)
 local.properties
 
 # Log/OS Files
 *.log
+
+# Documentación de trabajo del equipo (se comparte fuera del repo)
+/CLAUDE.md
+docs/handoff-diseno-*.md
+docs/*.kt
 
 # Android Studio generated files and folders
 captures/

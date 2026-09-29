@@ -1,0 +1,245 @@
+<resources>
+    <string name="app_name">app-restaurante</string>
+
+    <!-- Comunes -->
+    <string name="volver">Volver</string>
+    <string name="campo_correo">Correo electrónico</string>
+    <string name="campo_correo_ejemplo">tu@correo.com</string>
+    <string name="campo_contrasena">Contraseña</string>
+
+    <!-- Errores de la cuenta -->
+    <string name="error_sin_conexion">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
+    <string name="error_campos_vacios">Ingresa tu correo y tu contraseña.</string>
+    <string name="error_credenciales_invalidas">El correo o la contraseña no son correctos.</string>
+    <string name="error_correo_ya_registrado">Este correo ya tiene una cuenta en San Mark Food. Si es tu cuenta de comensal, usa otro correo para tu local.</string>
+    <string name="error_correo_invalido">Revisa el correo: no parece válido.</string>
+    <string name="error_correo_sin_verificar">Todavía no vemos tu correo confirmado. Abre el enlace que te enviamos y vuelve a intentarlo.</string>
+    <string name="error_cuenta_comensal">Esta cuenta es de comensal. Para pedir, usa la app San Mark Food; para tu local, crea una cuenta con otro correo.</string>
+    <string name="error_demasiados_intentos">Hiciste muchos intentos seguidos. Espera unos minutos y vuelve a intentarlo.</string>
+    <string name="error_desconocido">Algo salió mal. Inténtalo de nuevo.</string>
+
+    <!-- Arranque -->
+    <string name="arranque_reintentar">Reintentar</string>
+
+    <!-- Inicio de sesión -->
+    <string name="login_etiqueta">PARA RESTAURANTES</string>
+    <string name="login_marca">San Mark</string>
+    <string name="login_marca_acento">Food</string>
+    <string name="login_lema">Publica tu menú del día y recibe pedidos y reservas de los sanmarquinos.</string>
+    <string name="login_titulo">Inicia sesión</string>
+    <string name="login_olvidaste">¿Olvidaste tu contraseña?</string>
+    <string name="login_iniciar_sesion">Iniciar sesión</string>
+    <string name="login_sesion_guardada">Tu sesión quedará iniciada en este celular. Puedes usar la misma cuenta en otro celular del local.</string>
+    <string name="login_sin_local">¿Tu local aún no está?</string>
+    <string name="login_registralo">Regístralo</string>
+
+    <!-- Recuperar contraseña -->
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_explicacion">Te enviaremos un enlace para crear una contraseña nueva.</string>
+    <string name="recuperar_campo_correo">Correo de tu cuenta</string>
+    <string name="recuperar_cancelar">Cancelar</string>
+    <string name="recuperar_enviar">Enviar enlace</string>
+    <string name="recuperar_listo">Listo. Si el correo está registrado, te llegará el enlace en unos minutos. Revisa también la carpeta de spam.</string>
+    <string name="recuperar_entendido">Entendido</string>
+
+    <!-- Registro -->
+    <string name="registro_paso">Paso 1 de 3 · Tu cuenta</string>
+    <string name="registro_titulo">Crea la cuenta de tu local</string>
+    <string name="registro_subtitulo">Cada cuenta es para un solo local. Luego completarás sus datos y el horario.</string>
+    <string name="registro_repetir_contrasena">Repite la contraseña</string>
+    <string name="registro_minimo_caracteres">Mínimo 8 caracteres</string>
+    <string name="registro_contrasena_valida">Contraseña válida</string>
+    <string name="registro_no_coinciden">Las contraseñas no coinciden.</string>
+    <string name="registro_crear_cuenta">Crear cuenta</string>
+
+    <!-- Verificación de correo -->
+    <string name="verificar_titulo">Confirma tu correo</string>
+    <string name="verificar_enviamos">Enviamos un enlace a %1$s. Ábrelo para activar la cuenta de tu local.</string>
+    <string name="verificar_no_llego">¿No llegó? Revisa la carpeta de spam o pide otro enlace.</string>
+    <string name="verificar_reenviado">Te enviamos un enlace nuevo.</string>
+    <string name="verificar_ya_confirme">Ya lo confirmé</string>
+    <string name="verificar_reenviar">Reenviar enlace</string>
+
+    <!-- Datos del local (HU02) -->
+    <string name="datos_local_paso">Paso 2 de 3 · Tu local</string>
+    <string name="datos_local_titulo">¿Cómo te encuentran?</string>
+    <string name="datos_local_subtitulo">Estos datos se ven en el mapa y en la página de tu local.</string>
+    <string name="datos_local_nombre">Nombre del local</string>
+    <string name="datos_local_categoria">Categoría</string>
+    <string name="datos_local_direccion">Dirección</string>
+    <string name="datos_local_direccion_ejemplo">Calle, número y referencia</string>
+    <string name="datos_local_mapa_descripcion">Ubicación del local en el mapa</string>
+    <string name="datos_local_mover_punto">Mover el punto</string>
+    <string name="datos_local_mapa_ayuda">Arrastra el punto hasta la puerta de tu local.</string>
+    <string name="datos_local_telefono">Teléfono del local</string>
+    <string name="datos_local_telefono_ejemplo">999 999 999</string>
+    <string name="datos_local_telefono_ayuda">Se muestra a los comensales para grupos grandes y consultas.</string>
+    <string name="datos_local_continuar">Continuar</string>
+    <string name="datos_local_error_nombre">Escribe el nombre de tu local.</string>
+    <string name="datos_local_error_categoria">Elige la categoría de tu local.</string>
+    <string name="datos_local_error_direccion">Escribe la dirección de tu local.</string>
+    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos o un teléfono fijo.</string>
+
+    <!-- Fotos del local (HU02, SCRUM-63) -->
+    <string name="fotos_subir_portada">Subir foto de portada</string>
+    <string name="fotos_cambiar_portada">Cambiar portada</string>
+    <string name="fotos_logo">Logo</string>
+    <string name="fotos_subir_logo">Subir logo</string>
+    <string name="fotos_cambiar_logo">Cambiar logo</string>
+    <string name="fotos_subiendo">Subiendo foto</string>
+    <string name="fotos_error_portada">Sube una foto de portada de tu local.</string>
+
+    <!-- Categorías del local -->
+    <string name="categoria_criolla">Criolla</string>
+    <string name="categoria_chifa">Chifa</string>
+    <string name="categoria_polleria">Pollería</string>
+    <string name="categoria_marina">Marina</string>
+    <string name="categoria_vegetariana">Vegetariana</string>
+    <string name="categoria_otra">Otra</string>
+
+    <!-- Selector de ubicación (se abre con «Mover el punto») -->
+    <string name="ubicacion_titulo">Ubica tu local</string>
+    <string name="ubicacion_ayuda">Mueve el mapa hasta que el punto quede en la puerta de tu local.</string>
+    <string name="ubicacion_confirmar">Usar esta ubicación</string>
+
+    <!-- Horario del local (HU02) -->
+    <string name="horario_paso">Paso 3 de 3 · Horario</string>
+    <string name="horario_titulo">¿Cuándo atiendes?</string>
+    <string name="horario_atencion">Horario de atención</string>
+    <string name="horario_copiar_lunes">Copiar lunes a todos</string>
+    <string name="horario_rango">%1$s – %2$s</string>
+    <string name="horario_cerrado">Cerrado</string>
+    <string name="horario_cambiar">Cambiar horario</string>
+    <string name="horario_ayuda">Toca un horario para cambiar la hora de apertura y cierre.</string>
+    <string name="horario_enviar">Enviar a revisión</string>
+    <string name="horario_mientras_revisamos">Mientras revisamos tu local podrás cargar tu carta.</string>
+    <string name="horario_dialogo_abre">%1$s · Abre</string>
+    <string name="horario_dialogo_cierra">%1$s · Cierra</string>
+    <string name="horario_cancelar">Cancelar</string>
+    <string name="horario_siguiente">Siguiente</string>
+    <string name="horario_atras">Atrás</string>
+    <string name="horario_listo">Listo</string>
+    <string name="horario_cierre_antes">La hora de cierre tiene que ser después de la de apertura.</string>
+
+    <!-- Días de la semana -->
+    <string name="dia_lunes">Lunes</string>
+    <string name="dia_martes">Martes</string>
+    <string name="dia_miercoles">Miércoles</string>
+    <string name="dia_jueves">Jueves</string>
+    <string name="dia_viernes">Viernes</string>
+    <string name="dia_sabado">Sábado</string>
+    <string name="dia_domingo">Domingo</string>
+
+    <!-- Edición del perfil y del horario (HU02, SCRUM-64) -->
+    <string name="perfil_titulo">Perfil del local</string>
+    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
+    <string name="horario_editar_titulo">Horario de atención</string>
+    <string name="editar_guardar">Guardar cambios</string>
+    <string name="descartar_titulo">¿Descartar los cambios?</string>
+    <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
+    <string name="descartar_seguir">Seguir editando</string>
+    <string name="descartar_confirmar">Descartar</string>
+
+    <!-- Tu negocio (O6). Los indicadores y gráficos llegan con HU13. -->
+    <string name="negocio_titulo">Tu negocio</string>
+    <string name="negocio_tu_local">Tu local</string>
+    <string name="negocio_perfil">Perfil del local</string>
+    <string name="negocio_perfil_ayuda">Nombre, fotos, dirección y teléfono</string>
+    <!-- «Horario y reservas / Días de atención y cupo por franja» cuando HU12 agregue el cupo. -->
+    <string name="negocio_horario">Horario de atención</string>
+    <string name="negocio_horario_ayuda">Días y horas de atención</string>
+    <string name="negocio_cerrar_sesion">Cerrar sesión</string>
+    <string name="negocio_cerrar_sesion_ayuda">Podrás volver a entrar con tu correo</string>
+
+    <!-- Panel del local: barra inferior -->
+    <string name="panel_pedidos">Pedidos</string>
+    <string name="panel_reservas">Reservas</string>
+    <string name="panel_menu">Menú</string>
+    <string name="panel_resenas">Reseñas</string>
+    <string name="panel_negocio">Negocio</string>
+
+    <!-- Pestañas que todavía no existen: las reemplazan HU03 (Menú), HU12 (Reservas) y HU21 (Reseñas) -->
+    <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
+    <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
+    <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
+    <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
+    <string name="provisional_menu">Aquí vas a cargar tu carta y publicar tu menú del día.</string>
+
+    <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
+    <string name="pedidos_titulo">Pedidos</string>
+    <string name="pedidos_recibiendo">Recibiendo</string>
+    <string name="pedidos_pausado">Pausado</string>
+    <string name="pedidos_recibir_descripcion">Recibir pedidos nuevos</string>
+    <string name="pedidos_pausado_titulo">Pausado.</string>
+    <string name="pedidos_pausado_texto">Tu local aparece como «Cerrado» y no recibe pedidos nuevos. Los que ya tienes siguen aquí.</string>
+
+    <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
+    <string name="estado_categoria_direccion">%1$s · %2$s</string>
+    <string name="estado_en_revision">EN REVISIÓN</string>
+    <string name="estado_en_revision_titulo">Estamos revisando tu local</string>
+    <string name="estado_en_revision_texto">Aún no apareces en el mapa ni recibes pedidos o reservas. Te avisaremos apenas terminemos la revisión.</string>
+    <string name="estado_rechazado">REGISTRO RECHAZADO</string>
+    <string name="estado_rechazado_texto">Corrige tus datos y vuelve a enviarlos; tu carta y tu horario se conservan.</string>
+    <string name="estado_rechazado_con_detalle">«%1$s» %2$s</string>
+    <string name="estado_aprobado">APROBADO</string>
+    <string name="estado_aprobado_titulo">Tu local está aprobado</string>
+    <string name="estado_aprobado_texto">Ya apareces en el mapa de San Mark Food. Aquí verás los pedidos que te hagan.</string>
+
+    <!-- Corregir y reenviar (R6 y R7, SCRUM-160) -->
+    <string name="corregir_titulo">Corregir y reenviar</string>
+    <string name="corregir_boton">Corregir y reenviar</string>
+    <string name="corregir_accion">Corregir</string>
+    <string name="corregir_reenviar">Guardar y reenviar a revisión</string>
+    <string name="corregir_motivo">MOTIVO DEL RECHAZO</string>
+    <string name="corregir_indicacion_direccion">Corrígela y vuelve a enviar.</string>
+    <string name="corregir_indicacion">Corrige lo necesario y vuelve a enviar.</string>
+
+    <!-- Motivos de rechazo: los mismos textos que elige el administrador en A2 (HU24) -->
+    <string name="motivo_datos_incompletos">Datos incompletos</string>
+    <string name="motivo_direccion_no_verificable">No pudimos verificar la dirección</string>
+    <string name="motivo_local_duplicado">Local duplicado</string>
+    <string name="motivo_otro">Revisa tu registro</string>
+
+    <!-- Lista de preparación de R5 -->
+    <string name="preparacion_titulo">Mientras tanto, deja todo listo</string>
+    <string name="preparacion_listo">Listo</string>
+    <string name="preparacion_pendiente">Pendiente</string>
+    <string name="preparacion_cuenta">Cuenta verificada</string>
+    <string name="preparacion_cuenta_ayuda">Tu correo está confirmado</string>
+    <string name="preparacion_datos">Datos del local</string>
+    <string name="preparacion_datos_ayuda">Nombre, categoría, dirección y fotos</string>
+    <string name="preparacion_datos_direccion">Revisa la dirección</string>
+    <string name="preparacion_datos_revisar">Revisa lo que te indicamos arriba</string>
+    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
+    <string name="preparacion_horario">Horario de atención</string>
+    <string name="preparacion_horario_falta">Aún no lo configuras</string>
+    <string name="preparacion_carta">Carta</string>
+    <string name="preparacion_carta_ayuda">Aún no tienes platos</string>
+    <string name="preparacion_menu">Menú del día</string>
+    <string name="preparacion_menu_ayuda">Opcional: publícalo cuando te aprueben</string>
+
+    <!-- Resumen de los días abiertos: «Lun a sáb», «Lun a vie, dom» -->
+    <string name="dias_todos">Todos los días</string>
+    <string name="dias_tramo">%1$s a %2$s</string>
+    <string name="dias_par">%1$s y %2$s</string>
+    <string name="dia_corto_lunes">lun</string>
+    <string name="dia_corto_martes">mar</string>
+    <string name="dia_corto_miercoles">mié</string>
+    <string name="dia_corto_jueves">jue</string>
+    <string name="dia_corto_viernes">vie</string>
+    <string name="dia_corto_sabado">sáb</string>
+    <string name="dia_corto_domingo">dom</string>
+
+    <!-- Errores del local -->
+    <string name="error_datos_invalidos">Revisa los datos marcados en rojo.</string>
+    <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>
+    <string name="error_imagen_ilegible">No pudimos abrir esa imagen. Prueba con otra foto.</string>
+    <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
+
+    <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
+    <string name="provisional_titulo">Tu cuenta está lista</string>
+    <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
+    <string name="provisional_admin_titulo">Administración</string>
+    <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
+    <string name="provisional_cerrar_sesion">Cerrar sesión</string>
+</resources>
