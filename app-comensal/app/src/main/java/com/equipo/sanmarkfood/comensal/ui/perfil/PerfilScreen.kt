@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -209,6 +210,17 @@ fun PerfilScreen(
             onEliminar = viewModel::eliminarDireccion
         )
 
+        SeccionNotificaciones(
+            notificarReservas = state.comensal.notificarReservas,
+            notificarResenas = state.comensal.notificarResenas,
+            onReservasChange = {
+                viewModel.actualizarPreferenciasNotificacion(it, state.comensal.notificarResenas)
+            },
+            onResenasChange = {
+                viewModel.actualizarPreferenciasNotificacion(state.comensal.notificarReservas, it)
+            }
+        )
+
         OutlinedButton(
             onClick = onCerrarSesion,
             modifier = Modifier
@@ -307,6 +319,86 @@ private fun SeccionDirecciones(
             ) {
                 Text("Agregar dirección", fontWeight = FontWeight.SemiBold)
             }
+        }
+    }
+}
+
+@Composable
+private fun SeccionNotificaciones(
+    notificarReservas: Boolean,
+    notificarResenas: Boolean,
+    onReservasChange: (Boolean) -> Unit,
+    onResenasChange: (Boolean) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = "Notificaciones",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        NotificacionItem(
+            titulo = "Reservas",
+            descripcion = "Avisos de confirmación y recordatorios de tus reservas",
+            checked = notificarReservas,
+            onCheckedChange = onReservasChange
+        )
+        NotificacionItem(
+            titulo = "Reseñas",
+            descripcion = "Avisos para calificar tu experiencia luego de visitar un restaurante",
+            checked = notificarResenas,
+            onCheckedChange = onResenasChange
+        )
+        NotificacionItem(
+            titulo = "Pedido en curso",
+            descripcion = "Siempre activas: te avisan el estado de un pedido que ya hiciste",
+            checked = true,
+            onCheckedChange = {},
+            habilitado = false
+        )
+    }
+}
+
+@Composable
+private fun NotificacionItem(
+    titulo: String,
+    descripcion: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    habilitado: Boolean = true
+) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = colors.surfaceContainerHigh
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = descripcion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                enabled = habilitado
+            )
         }
     }
 }
