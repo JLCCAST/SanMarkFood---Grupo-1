@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.equipo.sanmarkfood.comensal.data.Direccion
 import com.equipo.sanmarkfood.comensal.ui.auth.AuthTextField
 import com.equipo.sanmarkfood.comensal.ui.auth.ErrorMessage
 import com.equipo.sanmarkfood.comensal.ui.auth.PrimaryButton
@@ -200,6 +202,13 @@ fun PerfilScreen(
             isLoading = state.isLoading
         )
 
+        // Las direcciones se guardan al instante, sin pulsar "Guardar cambios".
+        SeccionDirecciones(
+            direcciones = state.comensal.direcciones,
+            onAgregar = viewModel::agregarDireccion,
+            onEliminar = viewModel::eliminarDireccion
+        )
+
         OutlinedButton(
             onClick = onCerrarSesion,
             modifier = Modifier
@@ -208,6 +217,135 @@ fun PerfilScreen(
             shape = CircleShape
         ) {
             Text("Cerrar sesión", fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+private fun SeccionDirecciones(
+    direcciones: List<Direccion>,
+    onAgregar: (Direccion) -> Unit,
+    onEliminar: (Direccion) -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    var mostrarFormulario by rememberSaveable { mutableStateOf(false) }
+    var etiqueta by rememberSaveable { mutableStateOf("") }
+    var direccionTexto by rememberSaveable { mutableStateOf("") }
+
+    // Cuando la lista cambia (se guardó o se eliminó una dirección) se cierra el formulario.
+    LaunchedEffect(direcciones.size) {
+        mostrarFormulario = false
+        etiqueta = ""
+        direccionTexto = ""
+    }
+
+    val puedeAgregar = etiqueta.isNotBlank() && direccionTexto.isNotBlank()
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = "Direcciones frecuentes",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        if (direcciones.isEmpty() && !mostrarFormulario) {
+            Text(
+                text = "Aún no tienes direcciones guardadas. Agrega una para pedir más rápido.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant
+            )
+        }
+
+        direcciones.forEach { direccion ->
+            DireccionItem(direccion = direccion, onEliminar = { onEliminar(direccion) })
+        }
+
+        if (mostrarFormulario) {
+            AuthTextField(
+                label = "Etiqueta",
+                value = etiqueta,
+                onValueChange = { etiqueta = it.take(30) },
+                placeholder = "Casa, Trabajo, Universidad"
+            )
+            AuthTextField(
+                label = "Dirección",
+                value = direccionTexto,
+                onValueChange = { direccionTexto = it.take(150) },
+                placeholder = "Av. Venezuela 1234, Lima",
+                imeAction = ImeAction.Done
+            )
+            PrimaryButton(
+                text = "Guardar dirección",
+                onClick = {
+                    onAgregar(
+                        Direccion(
+                            etiqueta = etiqueta.trim(),
+                            direccionTexto = direccionTexto.trim()
+                        )
+                    )
+                },
+                enabled = puedeAgregar,
+                isLoading = false
+            )
+            TextButton(
+                onClick = {
+                    mostrarFormulario = false
+                    etiqueta = ""
+                    direccionTexto = ""
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Cancelar")
+            }
+        } else {
+            OutlinedButton(
+                onClick = { mostrarFormulario = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = CircleShape
+            ) {
+                Text("Agregar dirección", fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DireccionItem(
+    direccion: Direccion,
+    onEliminar: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = colors.surfaceContainerHigh
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, top = 8.dp, end = 4.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = direccion.etiqueta,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = direccion.direccionTexto,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant
+                )
+            }
+            TextButton(onClick = onEliminar) {
+                Text("Eliminar", color = colors.error)
+            }
         }
     }
 }
