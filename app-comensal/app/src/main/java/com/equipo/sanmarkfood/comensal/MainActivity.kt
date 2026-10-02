@@ -29,6 +29,7 @@ import com.equipo.sanmarkfood.comensal.ui.auth.AuthViewModel
 import com.equipo.sanmarkfood.comensal.ui.auth.LoginScreen
 import com.equipo.sanmarkfood.comensal.ui.auth.RegisterScreen
 import com.equipo.sanmarkfood.comensal.ui.auth.EmailVerificationScreen
+import com.equipo.sanmarkfood.comensal.ui.home.HomeScaffold
 import com.equipo.sanmarkfood.comensal.ui.theme.AppcomensalTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,7 +55,7 @@ private fun AuthGate(viewModel: AuthViewModel = viewModel()) {
     var showRegister by rememberSaveable { mutableStateOf(false) }
 
     when {
-        state.isLoggedIn -> LoggedInPlaceholder(onLogout = viewModel::logout)
+        state.isLoggedIn -> HomeScaffold(onLogout = viewModel::logout)
 
         state.needsVerification -> EmailVerificationScreen(
             state = state,
@@ -94,26 +95,6 @@ private fun AuthGate(viewModel: AuthViewModel = viewModel()) {
             onDismissReset = viewModel::clearReset,
             onExplore = viewModel::continueAsGuest
         )
-    }
-}
-
-// Temporal: sirve para probar el flujo hasta que exista la pantalla de inicio.
-@Composable
-private fun LoggedInPlaceholder(onLogout: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Sesión iniciada",
-            style = MaterialTheme.typography.headlineSmall
-        )
-        OutlinedButton(onClick = onLogout, modifier = Modifier.padding(top = 16.dp)) {
-            Text("Cerrar sesión")
-        }
     }
 }
 
