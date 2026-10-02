@@ -46,8 +46,7 @@ fun HomeScaffold(
         modifier = modifier,
         bottomBar = {
             Column {
-                // Línea fina que separa el contenido de la barra, como en el Figma.
-                HorizontalDivider(color = colors.outlineVariant)
+                HorizontalDivider(thickness = 1.dp, color = colors.outline)
                 NavigationBar(containerColor = colors.surface) {
                     Pestana.entries.forEachIndexed { index, pestana ->
                         NavigationBarItem(
