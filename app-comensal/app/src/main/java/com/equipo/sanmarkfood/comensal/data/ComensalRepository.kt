@@ -5,6 +5,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class ComensalRepository(
@@ -24,6 +27,18 @@ class ComensalRepository(
             documento(uid).get().await().toObject(Comensal::class.java)
                 ?: Comensal(uid = uid)
         }
+
+    fun observarPerfil(uid: String): Flow<Comensal> = callbackFlow {
+        val listener = documento(uid).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            val comensal = snapshot?.toObject(Comensal::class.java) ?: Comensal(uid = uid)
+            trySend(comensal)
+        }
+        awaitClose { listener.remove() }
+    }
 
     suspend fun actualizarPerfil(
         uid: String,

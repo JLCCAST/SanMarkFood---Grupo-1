@@ -8,9 +8,11 @@ import com.equipo.sanmarkfood.comensal.data.Comensal
 import com.equipo.sanmarkfood.comensal.data.ComensalRepository
 import com.equipo.sanmarkfood.comensal.data.Direccion
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -44,6 +46,9 @@ class ComensalViewModel(
     // Cuenta cuyos datos están en pantalla; sirve para no mostrar datos de otra cuenta.
     private var uidCargado: String? = null
 
+    // Escucha activa del perfil en Firestore; se cancela si cambia de cuenta.
+    private var perfilJob: Job? = null
+
     // Datos de solo lectura que vienen de Firebase Auth.
     val correo: String
         get() = auth.currentUser?.email.orEmpty()
@@ -62,21 +67,23 @@ class ComensalViewModel(
             return SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("es-PE")).format(Date(millis))
         }
 
+
     fun cargarPerfil() {
         val currentUid = uid ?: return
-        if (uidCargado != currentUid) {
-            uidCargado = currentUid
-            _uiState.value = PerfilUiState()
-        }
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.obtenerPerfil(currentUid)
-                .onSuccess { comensal ->
-                    _uiState.update { it.copy(comensal = comensal, isLoading = false) }
-                }
-                .onFailure { e ->
+        if (uidCargado == currentUid && perfilJob?.isActive == true) return
+
+        uidCargado = currentUid
+        _uiState.value = PerfilUiState(isLoading = true)
+
+        perfilJob?.cancel()
+        perfilJob = viewModelScope.launch {
+            repository.observarPerfil(currentUid)
+                .catch { e ->
                     Log.e(TAG, "cargarPerfil", e)
                     _uiState.update { it.copy(isLoading = false, error = "No se pudo cargar tu perfil") }
+                }
+                .collect { comensal ->
+                    _uiState.update { it.copy(comensal = comensal, isLoading = false, error = null) }
                 }
         }
     }
@@ -87,13 +94,7 @@ class ComensalViewModel(
             _uiState.update { it.copy(isLoading = true, error = null, guardadoExitoso = false) }
             repository.actualizarPerfil(currentUid, nombre, telefono)
                 .onSuccess {
-                    _uiState.update {
-                        it.copy(
-                            comensal = it.comensal.copy(nombre = nombre, telefono = telefono),
-                            isLoading = false,
-                            guardadoExitoso = true
-                        )
-                    }
+                    _uiState.update { it.copy(isLoading = false, guardadoExitoso = true) }
                 }
                 .onFailure { e ->
                     Log.e(TAG, "actualizarDatos", e)
@@ -109,12 +110,7 @@ class ComensalViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             repository.actualizarDirecciones(currentUid, nuevasDirecciones)
                 .onSuccess {
-                    _uiState.update {
-                        it.copy(
-                            comensal = it.comensal.copy(direcciones = nuevasDirecciones),
-                            isLoading = false
-                        )
-                    }
+                    _uiState.update { it.copy(isLoading = false) }
                 }
                 .onFailure {
                     _uiState.update { it.copy(isLoading = false, error = "No se pudo guardar la dirección") }
@@ -127,9 +123,6 @@ class ComensalViewModel(
         val nuevasDirecciones = _uiState.value.comensal.direcciones - direccion
         viewModelScope.launch {
             repository.actualizarDirecciones(currentUid, nuevasDirecciones)
-                .onSuccess {
-                    _uiState.update { it.copy(comensal = it.comensal.copy(direcciones = nuevasDirecciones)) }
-                }
                 .onFailure { setError("No se pudo eliminar la dirección") }
         }
     }
@@ -138,16 +131,6 @@ class ComensalViewModel(
         val currentUid = uid ?: return
         viewModelScope.launch {
             repository.actualizarPreferenciasNotificacion(currentUid, notificarReservas, notificarResenas)
-                .onSuccess {
-                    _uiState.update {
-                        it.copy(
-                            comensal = it.comensal.copy(
-                                notificarReservas = notificarReservas,
-                                notificarResenas = notificarResenas
-                            )
-                        )
-                    }
-                }
                 .onFailure { setError("No se pudieron guardar las preferencias") }
         }
     }
@@ -160,9 +143,7 @@ class ComensalViewModel(
                 .onSuccess { url ->
                     repository.actualizarFoto(currentUid, url)
                         .onSuccess {
-                            _uiState.update {
-                                it.copy(comensal = it.comensal.copy(fotoUrl = url), subiendoFoto = false)
-                            }
+                            _uiState.update { it.copy(subiendoFoto = false) }
                         }
                         .onFailure { e ->
                             Log.e(TAG, "actualizarFoto", e)
@@ -180,6 +161,11 @@ class ComensalViewModel(
 
     private fun setError(msg: String) =
         _uiState.update { it.copy(isLoading = false, subiendoFoto = false, error = msg) }
+
+    override fun onCleared() {
+        super.onCleared()
+        perfilJob?.cancel()
+    }
 
     private companion object {
         const val TAG = "ComensalVM"
