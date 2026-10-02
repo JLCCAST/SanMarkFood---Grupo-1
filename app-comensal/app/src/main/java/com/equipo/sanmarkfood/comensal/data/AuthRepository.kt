@@ -3,10 +3,13 @@ package com.equipo.sanmarkfood.comensal.data
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     init {
         // Los correos que envía Firebase (verificación y recuperación) llegan en español.
@@ -20,9 +23,6 @@ class AuthRepository(
             val user = auth.createUserWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo crear el usuario")
 
-            // Si alguno de estos dos pasos falla, la cuenta ya existe: no debe
-            // fallar el registro. El nombre se puede completar después y el
-            // correo de verificación se puede reenviar desde la pantalla.
             runCatching {
                 val profile = UserProfileChangeRequest.Builder()
                     .setDisplayName(name)
@@ -30,9 +30,21 @@ class AuthRepository(
                 user.updateProfile(profile).await()
             }
             runCatching { user.sendEmailVerification().await() }
+            runCatching { crearDocumentoUsuario(user, email) }
 
             user
         }
+
+    // Las reglas de Firestore exigen que usuarios/{uid} lleve el rol al crearse.
+    private suspend fun crearDocumentoUsuario(user: FirebaseUser, email: String) {
+        firestore.collection("usuarios").document(user.uid).set(
+            mapOf(
+                "correo" to email,
+                "rol" to "comensal",
+                "creadoEn" to FieldValue.serverTimestamp()
+            )
+        ).await()
+    }
 
     suspend fun login(email: String, password: String): Result<FirebaseUser> =
         runCatching {
@@ -51,7 +63,12 @@ class AuthRepository(
         runCatching {
             val user = auth.currentUser ?: error("No hay sesión activa")
             user.reload().await()
-            auth.currentUser?.isEmailVerified == true
+            val verificado = auth.currentUser?.isEmailVerified == true
+
+            if (verificado) {
+                auth.currentUser?.getIdToken(true)?.await()
+            }
+            verificado
         }
 
     /** Envía el correo con el enlace para crear una nueva contraseña (SCRUM-82). */
