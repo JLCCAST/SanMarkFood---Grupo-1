@@ -24,7 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.equipo.sanmarkfood.comensal.ui.auth.AuthViewModel
 import com.equipo.sanmarkfood.comensal.ui.auth.LoginScreen
 import com.equipo.sanmarkfood.comensal.ui.auth.RegisterScreen
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AuthGate(viewModel: AuthViewModel = viewModel()) {
+private fun AuthGate(viewModel: AuthViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsState()
     var showRegister by rememberSaveable { mutableStateOf(false) }
 

@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class AuthUiState(
     val isLoading: Boolean = false,
@@ -34,10 +36,11 @@ data class AuthUiState(
     val isGuest: Boolean = false
 )
 
-class AuthViewModel(
-    private val repository: AuthRepository = AuthRepository(),
-    private val validarCorreo: ValidarCorreoUseCase = ValidarCorreoUseCase(),
-    private val validarContrasenaRegistro: ValidarContrasenaRegistroUseCase = ValidarContrasenaRegistroUseCase()
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val repository: AuthRepository,
+    private val validarCorreo: ValidarCorreoUseCase,
+    private val validarContrasenaRegistro: ValidarContrasenaRegistroUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(initialState())
