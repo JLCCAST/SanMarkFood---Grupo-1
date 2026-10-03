@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation("androidx.compose.material:material-icons-core")
     implementation("com.google.dagger:hilt-android:2.60.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     ksp("com.google.dagger:hilt-compiler:2.60.1")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
