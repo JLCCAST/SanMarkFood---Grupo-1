@@ -47,9 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.comensal.data.Direccion
-import com.equipo.sanmarkfood.comensal.ui.auth.AuthTextField
-import com.equipo.sanmarkfood.comensal.ui.auth.ErrorMessage
-import com.equipo.sanmarkfood.comensal.ui.auth.PrimaryButton
+import com.equipo.sanmarkfood.comensal.presentation.auth.AuthTextField
+import com.equipo.sanmarkfood.comensal.presentation.auth.ErrorMessage
+import com.equipo.sanmarkfood.comensal.presentation.auth.PrimaryButton
 import kotlinx.coroutines.delay
 
 @Composable

@@ -15,8 +15,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -25,10 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.equipo.sanmarkfood.comensal.ui.auth.AuthViewModel
-import com.equipo.sanmarkfood.comensal.ui.auth.LoginScreen
-import com.equipo.sanmarkfood.comensal.ui.auth.RegisterScreen
-import com.equipo.sanmarkfood.comensal.ui.auth.EmailVerificationScreen
+import com.equipo.sanmarkfood.comensal.presentation.auth.EstadoSesion
+import com.equipo.sanmarkfood.comensal.presentation.auth.InicioSesionScreen
+import com.equipo.sanmarkfood.comensal.presentation.auth.RegistroScreen
+import com.equipo.sanmarkfood.comensal.presentation.auth.SesionViewModel
+import com.equipo.sanmarkfood.comensal.presentation.auth.VerificacionCorreoScreen
 import com.equipo.sanmarkfood.comensal.ui.home.HomeScaffold
 import com.equipo.sanmarkfood.comensal.ui.theme.AppcomensalTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,59 +53,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AuthGate(viewModel: AuthViewModel = hiltViewModel()) {
-    val state by viewModel.uiState.collectAsState()
-    var showRegister by rememberSaveable { mutableStateOf(false) }
+private fun AuthGate(viewModel: SesionViewModel = hiltViewModel()) {
+    val sesion by viewModel.estado.collectAsState()
+    var mostrarRegistro by rememberSaveable { mutableStateOf(false) }
 
-    when {
-        state.isLoggedIn -> HomeScaffold(onLogout = viewModel::logout)
+    when (val actual = sesion) {
+        EstadoSesion.Autenticado -> HomeScaffold(onLogout = viewModel::cerrarSesion)
 
-        state.needsVerification -> EmailVerificationScreen(
-            state = state,
-            onCheckVerified = viewModel::checkVerified,
-            onResend = viewModel::resendVerification,
-            onChangeEmail = viewModel::changeEmail
-        )
+        is EstadoSesion.PorVerificar -> VerificacionCorreoScreen(correo = actual.correo)
 
-        state.isGuest -> GuestPlaceholder(
-            onCreateAccount = {
-                viewModel.exitGuest()
-                showRegister = true
+        EstadoSesion.Invitado -> InvitadoPlaceholder(
+            onCrearCuenta = {
+                viewModel.salirDeInvitado()
+                mostrarRegistro = true
             },
-            onLogin = {
-                viewModel.exitGuest()
-                showRegister = false
+            onIniciarSesion = {
+                viewModel.salirDeInvitado()
+                mostrarRegistro = false
             }
         )
 
-        showRegister -> RegisterScreen(
-            state = state,
-            onRegister = viewModel::register,
-            onGoToLogin = {
-                viewModel.clearError()
-                showRegister = false
-            }
-        )
-
-        else -> LoginScreen(
-            state = state,
-            onLogin = viewModel::login,
-            onGoToRegister = {
-                viewModel.clearError()
-                showRegister = true
-            },
-            onSendPasswordReset = viewModel::sendPasswordReset,
-            onDismissReset = viewModel::clearReset,
-            onExplore = viewModel::continueAsGuest
-        )
+        EstadoSesion.SinSesion -> if (mostrarRegistro) {
+            RegistroScreen(onIrAInicioSesion = { mostrarRegistro = false })
+        } else {
+            InicioSesionScreen(onIrARegistro = { mostrarRegistro = true })
+        }
     }
 }
 
 // Temporal: se reemplazará por el mapa, los menús y las reseñas cuando existan.
 @Composable
-private fun GuestPlaceholder(
-    onCreateAccount: () -> Unit,
-    onLogin: () -> Unit
+private fun InvitadoPlaceholder(
+    onCrearCuenta: () -> Unit,
+    onIniciarSesion: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -125,10 +106,10 @@ private fun GuestPlaceholder(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        Button(onClick = onCreateAccount, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onCrearCuenta, modifier = Modifier.fillMaxWidth()) {
             Text("Crear cuenta")
         }
-        OutlinedButton(onClick = onLogin, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = onIniciarSesion, modifier = Modifier.fillMaxWidth()) {
             Text("Iniciar sesión")
         }
     }

@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.auth
+package com.equipo.sanmarkfood.comensal.presentation.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,17 +38,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun LoginScreen(
-    state: AuthUiState,
-    onLogin: (email: String, password: String) -> Unit,
-    onGoToRegister: () -> Unit,
-    onSendPasswordReset: (email: String) -> Unit,
-    onDismissReset: () -> Unit,
-    onExplore: () -> Unit,
-    modifier: Modifier = Modifier
+fun InicioSesionScreen(
+    onIrARegistro: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: InicioSesionViewModel = hiltViewModel(),
+    recuperarViewModel: RecuperarContrasenaViewModel = hiltViewModel()
 ) {
+    val state by viewModel.uiState.collectAsState()
+    val recuperarState by recuperarViewModel.uiState.collectAsState()
+
     val colors = MaterialTheme.colorScheme
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -57,7 +59,7 @@ fun LoginScreen(
     var resetEmail by rememberSaveable { mutableStateOf("") }
     val closeReset: () -> Unit = {
         showReset = false
-        onDismissReset()
+        recuperarViewModel.limpiar()
     }
 
     val emailMissing = state.error != null && email.isBlank()
@@ -135,14 +137,14 @@ fun LoginScreen(
                 value = password,
                 onValueChange = { password = it },
                 imeAction = ImeAction.Done,
-                onImeAction = { onLogin(email, password) },
+                onImeAction = { viewModel.login(email, password) },
                 isError = passwordMissing
             )
 
             // Enlace para recuperar la contraseña (SCRUM-82)
             TextButton(
                 onClick = {
-                    onDismissReset()
+                    recuperarViewModel.limpiar()
                     resetEmail = email
                     showReset = true
                 },
@@ -155,13 +157,13 @@ fun LoginScreen(
 
             PrimaryButton(
                 text = "Iniciar sesión",
-                onClick = { onLogin(email, password) },
+                onClick = { viewModel.login(email, password) },
                 isLoading = state.isLoading
             )
 
             // Exploración sin cuenta (SCRUM-154)
             OutlinedButton(
-                onClick = onExplore,
+                onClick = viewModel::continuarComoInvitado,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
@@ -181,7 +183,12 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     color = colors.onSurfaceVariant
                 )
-                TextButton(onClick = onGoToRegister) {
+                TextButton(
+                    onClick = {
+                        viewModel.limpiarError()
+                        onIrARegistro()
+                    }
+                ) {
                     Text("Crea tu cuenta", fontWeight = FontWeight.Bold)
                 }
             }
@@ -194,7 +201,7 @@ fun LoginScreen(
             title = { Text("Recuperar contraseña") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (state.resetEmailSent) {
+                    if (recuperarState.enlaceEnviado) {
                         Text(
                             "Si el correo está registrado, te enviamos un enlace para " +
                                     "crear una nueva contraseña. Revisa también la carpeta de spam.",
@@ -212,26 +219,26 @@ fun LoginScreen(
                             onValueChange = { resetEmail = it },
                             placeholder = "tu@correo.com",
                             keyboardType = KeyboardType.Email,
-                            isError = state.resetError != null
+                            isError = recuperarState.error != null
                         )
-                        state.resetError?.let { ErrorMessage(it) }
+                        recuperarState.error?.let { ErrorMessage(it) }
                     }
                 }
             },
             confirmButton = {
-                if (state.resetEmailSent) {
+                if (recuperarState.enlaceEnviado) {
                     TextButton(onClick = closeReset) { Text("Entendido") }
                 } else {
                     TextButton(
-                        onClick = { onSendPasswordReset(resetEmail) },
-                        enabled = !state.resetLoading
+                        onClick = { recuperarViewModel.sendPasswordReset(resetEmail) },
+                        enabled = !recuperarState.isLoading
                     ) {
-                        Text(if (state.resetLoading) "Enviando..." else "Enviar enlace")
+                        Text(if (recuperarState.isLoading) "Enviando..." else "Enviar enlace")
                     }
                 }
             },
             dismissButton = {
-                if (!state.resetEmailSent) {
+                if (!recuperarState.enlaceEnviado) {
                     TextButton(onClick = closeReset) { Text("Cancelar") }
                 }
             }

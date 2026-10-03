@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.auth
+package com.equipo.sanmarkfood.comensal.presentation.auth
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,14 +37,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun RegisterScreen(
-    state: AuthUiState,
-    onRegister: (name: String, email: String, password: String, acceptedTerms: Boolean) -> Unit,
-    onGoToLogin: () -> Unit,
-    modifier: Modifier = Modifier
+fun RegistroScreen(
+    onIrAInicioSesion: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: RegistroViewModel = hiltViewModel()
 ) {
+    val state by viewModel.uiState.collectAsState()
+
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -59,7 +62,12 @@ fun RegisterScreen(
             !state.isLoading
 
     fun submit() {
-        if (canSubmit) onRegister(name, email, password, acceptedTerms)
+        if (canSubmit) viewModel.register(name, email, password, acceptedTerms)
+    }
+
+    val volverAInicioSesion: () -> Unit = {
+        viewModel.limpiarError()
+        onIrAInicioSesion()
     }
 
     Column(
@@ -70,7 +78,7 @@ fun RegisterScreen(
             .imePadding()
     ) {
         IconButton(
-            onClick = onGoToLogin,
+            onClick = volverAInicioSesion,
             modifier = Modifier
                 .padding(start = 4.dp, top = 8.dp)
                 .semantics { contentDescription = "Volver a iniciar sesión" }
@@ -154,7 +162,7 @@ fun RegisterScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                TextButton(onClick = onGoToLogin) {
+                TextButton(onClick = volverAInicioSesion) {
                     Text("Inicia sesión", fontWeight = FontWeight.Bold)
                 }
             }
