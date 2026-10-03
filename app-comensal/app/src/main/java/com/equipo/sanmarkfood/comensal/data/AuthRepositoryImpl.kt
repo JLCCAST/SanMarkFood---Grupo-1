@@ -6,19 +6,31 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class AuthRepository(
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-) {
+interface AuthRepository {
+    val currentUser: FirebaseUser?
+    suspend fun register(name: String, email: String, password: String): Result<FirebaseUser>
+    suspend fun login(email: String, password: String): Result<FirebaseUser>
+    suspend fun sendVerification(): Result<Unit>
+    suspend fun reloadAndCheckVerified(): Result<Boolean>
+    suspend fun sendPasswordReset(email: String): Result<Unit>
+    fun logout()
+}
+
+class AuthRepositoryImpl @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
+) : AuthRepository {
+
     init {
         // Los correos que envía Firebase (verificación y recuperación) llegan en español.
         auth.setLanguageCode("es")
     }
 
-    val currentUser: FirebaseUser? get() = auth.currentUser
+    override val currentUser: FirebaseUser? get() = auth.currentUser
 
-    suspend fun register(name: String, email: String, password: String): Result<FirebaseUser> =
+    override suspend fun register(name: String, email: String, password: String): Result<FirebaseUser> =
         runCatching {
             val user = auth.createUserWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo crear el usuario")
@@ -46,20 +58,20 @@ class AuthRepository(
         ).await()
     }
 
-    suspend fun login(email: String, password: String): Result<FirebaseUser> =
+    override suspend fun login(email: String, password: String): Result<FirebaseUser> =
         runCatching {
             auth.signInWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo iniciar sesión")
         }
 
-    suspend fun sendVerification(): Result<Unit> =
+    override suspend fun sendVerification(): Result<Unit> =
         runCatching {
             val user = auth.currentUser ?: error("No hay sesión activa")
             user.sendEmailVerification().await()
             Unit
         }
 
-    suspend fun reloadAndCheckVerified(): Result<Boolean> =
+    override suspend fun reloadAndCheckVerified(): Result<Boolean> =
         runCatching {
             val user = auth.currentUser ?: error("No hay sesión activa")
             user.reload().await()
@@ -72,11 +84,11 @@ class AuthRepository(
         }
 
     /** Envía el correo con el enlace para crear una nueva contraseña (SCRUM-82). */
-    suspend fun sendPasswordReset(email: String): Result<Unit> =
+    override suspend fun sendPasswordReset(email: String): Result<Unit> =
         runCatching {
             auth.sendPasswordResetEmail(email).await()
             Unit
         }
 
-    fun logout() = auth.signOut()
+    override fun logout() = auth.signOut()
 }
