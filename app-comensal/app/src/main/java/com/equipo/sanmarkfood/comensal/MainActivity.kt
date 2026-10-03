@@ -31,7 +31,9 @@ import com.equipo.sanmarkfood.comensal.ui.auth.RegisterScreen
 import com.equipo.sanmarkfood.comensal.ui.auth.EmailVerificationScreen
 import com.equipo.sanmarkfood.comensal.ui.home.HomeScaffold
 import com.equipo.sanmarkfood.comensal.ui.theme.AppcomensalTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
