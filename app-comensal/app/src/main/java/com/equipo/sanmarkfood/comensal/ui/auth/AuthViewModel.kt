@@ -1,9 +1,10 @@
 package com.equipo.sanmarkfood.comensal.ui.auth
 
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.data.AuthRepository
+import com.equipo.sanmarkfood.comensal.domain.ValidarContrasenaRegistroUseCase
+import com.equipo.sanmarkfood.comensal.domain.ValidarCorreoUseCase
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -34,7 +35,9 @@ data class AuthUiState(
 )
 
 class AuthViewModel(
-    private val repository: AuthRepository = AuthRepository()
+    private val repository: AuthRepository = AuthRepository(),
+    private val validarCorreo: ValidarCorreoUseCase = ValidarCorreoUseCase(),
+    private val validarContrasenaRegistro: ValidarContrasenaRegistroUseCase = ValidarContrasenaRegistroUseCase()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(initialState())
@@ -54,12 +57,10 @@ class AuthViewModel(
     fun register(name: String, email: String, password: String, acceptedTerms: Boolean) {
         val problem = when {
             name.isBlank() -> "Escribe tu nombre"
-            !isValidEmail(email) -> "Correo no válido"
-            password.length < 8 -> "La contraseña debe tener al menos 8 caracteres"
-            password.none { it.isDigit() } -> "La contraseña debe incluir al menos un número"
-            !acceptedTerms -> "Debes aceptar los términos y la política de privacidad"
-            else -> null
-        }
+            !validarCorreo(email) -> "Correo no válido"
+            else -> validarContrasenaRegistro(password)
+        } ?: if (!acceptedTerms) "Debes aceptar los términos y la política de privacidad" else null
+
         if (problem != null) return setError(problem)
 
         viewModelScope.launch {
@@ -74,7 +75,7 @@ class AuthViewModel(
         if (email.isBlank() || password.isEmpty()) {
             return setError("Ingresa tu correo y tu contraseña.")
         }
-        if (!isValidEmail(email)) return setError("Correo no válido")
+        if (!validarCorreo(email)) return setError("Correo no válido")
 
         viewModelScope.launch {
             _uiState.value = AuthUiState(isLoading = true)
@@ -144,7 +145,7 @@ class AuthViewModel(
     /** Botón "Enviar enlace" del diálogo de recuperar contraseña. */
     fun sendPasswordReset(email: String) {
         if (email.isBlank()) return setResetError("Escribe tu correo")
-        if (!isValidEmail(email)) return setResetError("Correo no válido")
+        if (!validarCorreo(email)) return setResetError("Correo no válido")
 
         viewModelScope.launch {
             _uiState.update {
@@ -192,9 +193,6 @@ class AuthViewModel(
             _uiState.update { it.copy(resendCooldown = 0) }
         }
     }
-
-    private fun isValidEmail(email: String): Boolean =
-        Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
 
     private fun setError(msg: String) = _uiState.update { it.copy(error = msg) }
 
