@@ -37,7 +37,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
 
 @Composable
 fun CabeceraPaso(texto: String, pasoActual: Int, onVolver: () -> Unit) {

@@ -5,10 +5,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
-import com.equipo.sanmarkfood.restaurante.domain.usecase.CambiarPausaPedidosUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.ObservarRestauranteUseCase
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.CambiarPausaPedidosUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ObservarRestauranteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

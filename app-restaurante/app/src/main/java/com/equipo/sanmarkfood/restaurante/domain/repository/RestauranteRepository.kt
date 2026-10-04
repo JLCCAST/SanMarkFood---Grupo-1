@@ -1,9 +1,9 @@
 package com.equipo.sanmarkfood.restaurante.domain.repository
 
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.Horario
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.TipoFoto
 import kotlinx.coroutines.flow.Flow
 
 interface RestauranteRepository {

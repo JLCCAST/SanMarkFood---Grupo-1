@@ -1,7 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException

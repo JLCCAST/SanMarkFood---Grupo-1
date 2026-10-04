@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Hora
-import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Hora
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
 import java.util.Locale
 
 /** El logo del local, o la inicial de su nombre si no subió uno (el logo es opcional desde SCRUM-63). */

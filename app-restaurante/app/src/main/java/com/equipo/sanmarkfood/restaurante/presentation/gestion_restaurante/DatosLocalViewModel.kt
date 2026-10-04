@@ -6,19 +6,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 // La ruta se llama igual que el modelo de dominio DatosLocal, que también se usa aquí.
 import com.equipo.sanmarkfood.restaurante.core.navigation.DatosLocal as RutaDatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.CampoLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
-import com.equipo.sanmarkfood.restaurante.domain.model.Rechazo
-import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
-import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
-import com.equipo.sanmarkfood.restaurante.domain.usecase.CerrarSesionUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.GuardarDatosLocalUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.ObtenerRestauranteUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.ReenviarARevisionUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.SubirFotoUseCase
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CampoLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.TipoFoto
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.CerrarSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.GuardarDatosLocalUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ObtenerRestauranteUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ReenviarARevisionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.SubirFotoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

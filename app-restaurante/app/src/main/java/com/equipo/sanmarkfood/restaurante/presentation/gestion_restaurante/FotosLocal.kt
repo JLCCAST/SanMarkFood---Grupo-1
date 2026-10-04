@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.TipoFoto
 
 /**
  * Portada con el logo encima, como en R3. Cada una abre el selector de fotos de Android, que no pide

@@ -2,10 +2,10 @@ package com.equipo.sanmarkfood.restaurante.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
-import com.equipo.sanmarkfood.restaurante.domain.usecase.IniciarSesionUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.RecuperarContrasenaUseCase
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.IniciarSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.RecuperarContrasenaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

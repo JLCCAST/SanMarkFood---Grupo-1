@@ -2,9 +2,9 @@ package com.equipo.sanmarkfood.restaurante.data.repository
 
 import com.equipo.sanmarkfood.restaurante.data.firebase.AuthDataSource
 import com.equipo.sanmarkfood.restaurante.data.firebase.UsuariosDataSource
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
-import com.equipo.sanmarkfood.restaurante.domain.model.Rol
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.Rol
 import com.equipo.sanmarkfood.restaurante.domain.repository.AuthRepository
 import javax.inject.Inject
 

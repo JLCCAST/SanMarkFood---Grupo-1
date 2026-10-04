@@ -1,10 +1,10 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Horario
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source

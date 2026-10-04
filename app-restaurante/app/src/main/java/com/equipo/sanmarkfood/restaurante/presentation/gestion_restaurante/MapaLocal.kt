@@ -32,7 +32,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.CameraPosition

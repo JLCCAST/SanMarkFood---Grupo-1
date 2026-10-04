@@ -6,8 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
-import com.equipo.sanmarkfood.restaurante.domain.model.Rol
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.Rol
 import com.equipo.sanmarkfood.restaurante.presentation.auth.ArranqueScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen

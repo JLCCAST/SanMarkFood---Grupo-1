@@ -1,6 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await

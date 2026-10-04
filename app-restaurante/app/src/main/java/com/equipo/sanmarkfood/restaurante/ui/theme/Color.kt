@@ -65,10 +65,10 @@ val DarkOutline = Color(0xFF9C907E)
 val DarkOutlineVariant = Color(0xFF4A4238)
 val DarkSurfaceDim = Color(0xFF171309)
 val DarkSurfaceBright = Color(0xFF3E392C)
-val DarkSurfaceContainerLowest = Color(0xFF120E05)
+val DarkSurfaceContainerLowest = Color(0xFF211C17) // tarjetas: un poco más claras que el fondo, como en el prototipo
 val DarkSurfaceContainerLow = Color(0xFF1F1B10)
 val DarkSurfaceContainer = Color(0xFF2B251F)
-val DarkSurfaceContainerHigh = Color(0xFF2E2A1E)
+val DarkSurfaceContainerHigh = Color(0xFF332C25)
 val DarkSurfaceContainerHighest = Color(0xFF393428)
 val DarkInverseSurface = Color(0xFFEBE1CF)
 val DarkInverseOnSurface = Color(0xFF353024)
@@ -77,3 +77,10 @@ val DarkSurfaceTint = Color(0xFFFFB2B9)
 val DarkScrim = Color(0xFF000000)
 
 val Pizarra = Color(0xFF23332C)
+
+// Superficies que siguen oscuras en los dos temas: cabecera del menú del día y aviso de pedido en curso.
+val LightSuperficieFija = Color(0xFF1E1B16)
+val LightSobreSuperficieFija = Color(0xFFF7F0E4)
+val DarkSuperficieFija = Color(0xFF0F0C09)
+val DarkSobreSuperficieFija = Color(0xFFEDE3D3)
+val SobreSuperficieFijaTenue = Color(0xFFCFC6B6)

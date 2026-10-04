@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.EstadoLocal

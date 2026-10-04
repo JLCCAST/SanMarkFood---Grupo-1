@@ -47,15 +47,15 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Horario
-import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
-import com.equipo.sanmarkfood.restaurante.domain.model.Rechazo
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import java.util.Locale
 
