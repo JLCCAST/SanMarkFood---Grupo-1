@@ -41,6 +41,15 @@ class MenuDataSource @Inject constructor(
 
     fun observarPlatos(uid: String): Flow<List<Plato>> = observar(platos(uid)) { it.aPlato() }
 
+    suspend fun leerPlato(uid: String, id: String): Plato? =
+        llamarFirebaseMenu {
+            val documento = platos(uid).document(id).get().await()
+            if (documento.exists()) documento.aPlato() else null
+        }
+
+    suspend fun existePlatoEnServidor(uid: String, id: String): Boolean =
+        llamarFirebaseMenu { platos(uid).document(id).get(Source.SERVER).await().exists() }
+
     fun nuevoIdPlato(uid: String): String = platos(uid).document().id
 
     suspend fun crearPlato(uid: String, id: String, datos: DatosPlato, fotoUrl: String?) {
@@ -53,6 +62,20 @@ class MenuDataSource @Inject constructor(
         llamarFirebaseMenu { platos(uid).document(id).set(campos).await() }
     }
 
+    suspend fun actualizarPlato(uid: String, id: String, datos: DatosPlato, fotoNueva: String?) {
+        val campos = buildMap {
+            putAll(datos.aCampos())
+            if (datos.descripcion == null) put("descripcion", FieldValue.delete())
+            fotoNueva?.let { put("fotoUrl", it) }
+            put("actualizadoEn", FieldValue.serverTimestamp())
+        }
+        llamarFirebaseMenu { platos(uid).document(id).update(campos).await() }
+    }
+
+    suspend fun eliminarPlato(uid: String, id: String) {
+        llamarFirebaseMenu { platos(uid).document(id).delete().await() }
+    }
+
     suspend fun leerPrecios(uid: String): List<Int> =
         llamarFirebaseMenu {
             platos(uid).get(Source.SERVER).await().documents.mapNotNull { it.getLong("precio")?.toInt() }
@@ -63,6 +86,17 @@ class MenuDataSource @Inject constructor(
             restaurante(uid).update(
                 mapOf(
                     "rangoCarta" to mapOf("min" to min, "max" to max),
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
+        }
+    }
+
+    suspend fun quitarRangoCarta(uid: String) {
+        llamarFirebaseMenu {
+            restaurante(uid).update(
+                mapOf(
+                    "rangoCarta" to FieldValue.delete(),
                     "actualizadoEn" to FieldValue.serverTimestamp(),
                 )
             ).await()

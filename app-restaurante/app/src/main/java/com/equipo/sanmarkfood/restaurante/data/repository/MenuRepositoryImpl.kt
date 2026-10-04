@@ -32,11 +32,28 @@ class MenuRepositoryImpl @Inject constructor(
 
     override fun observarPlatos(): Flow<List<Plato>> = flow { emitAll(menuDataSource.observarPlatos(uid())) }
 
+    override suspend fun obtenerPlato(id: String): Plato? = menuDataSource.leerPlato(uid(), id)
+
     override suspend fun crearPlato(datos: DatosPlato, fotoLocal: String?) {
         val uid = uid()
         val id = menuDataSource.nuevoIdPlato(uid)
         val fotoUrl = fotoLocal?.let { subirFotoPlato(uid, id, it) }
         menuDataSource.crearPlato(uid, id, datos, fotoUrl)
+        actualizarRangoCarta(uid)
+    }
+
+    override suspend fun actualizarPlato(plato: Plato, datos: DatosPlato, fotoLocal: String?) {
+        val uid = uid()
+        val fotoNueva = fotoLocal?.let { subirFotoPlato(uid, plato.id, it) }
+        menuDataSource.actualizarPlato(uid, plato.id, datos, fotoNueva)
+        if (fotoNueva != null) plato.fotoUrl?.let { borrarFoto(it) }
+        actualizarRangoCarta(uid)
+    }
+
+    override suspend fun eliminarPlato(plato: Plato) {
+        val uid = uid()
+        if (menuDataSource.existePlatoEnServidor(uid, plato.id)) menuDataSource.eliminarPlato(uid, plato.id)
+        plato.fotoUrl?.let { borrarFoto(it) }
         actualizarRangoCarta(uid)
     }
 
@@ -49,10 +66,22 @@ class MenuRepositoryImpl @Inject constructor(
         return fotosDataSource.subirFotoPlato(uid, "$platoId-${System.currentTimeMillis()}.jpg", jpeg)
     }
 
+    private suspend fun borrarFoto(url: String) {
+        try {
+            fotosDataSource.borrarFotoPlato(url)
+        } catch (e: ErrorMenu) {
+        } catch (e: IllegalArgumentException) {
+        }
+    }
+
     private suspend fun actualizarRangoCarta(uid: String) {
         try {
             val precios = menuDataSource.leerPrecios(uid)
-            if (precios.isNotEmpty()) menuDataSource.guardarRangoCarta(uid, precios.min(), precios.max())
+            if (precios.isEmpty()) {
+                menuDataSource.quitarRangoCarta(uid)
+            } else {
+                menuDataSource.guardarRangoCarta(uid, precios.min(), precios.max())
+            }
         } catch (e: ErrorMenu) {
         }
     }

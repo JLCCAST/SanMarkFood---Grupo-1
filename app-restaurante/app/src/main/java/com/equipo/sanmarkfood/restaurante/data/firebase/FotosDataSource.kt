@@ -21,6 +21,10 @@ class FotosDataSource @Inject constructor(
     suspend fun subirFotoPlato(uid: String, nombre: String, jpeg: ByteArray): String =
         llamarFirebaseMenu { subirA(carpeta(uid).child("platos").child(nombre), jpeg, alAvanzar = {}) }
 
+    suspend fun borrarFotoPlato(url: String) {
+        llamarFirebaseMenu { storage.getReferenceFromUrl(url).delete().await() }
+    }
+
     private suspend fun subirA(referencia: StorageReference, jpeg: ByteArray, alAvanzar: (Float) -> Unit): String {
         val metadatos = StorageMetadata.Builder().setContentType("image/jpeg").build()
         val tarea = referencia.putBytes(jpeg, metadatos)

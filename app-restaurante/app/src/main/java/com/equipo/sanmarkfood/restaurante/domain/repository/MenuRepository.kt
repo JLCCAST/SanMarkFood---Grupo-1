@@ -14,5 +14,11 @@ interface MenuRepository {
 
     fun observarPlatos(): Flow<List<Plato>>
 
+    suspend fun obtenerPlato(id: String): Plato?
+
     suspend fun crearPlato(datos: DatosPlato, fotoLocal: String?)
+
+    suspend fun actualizarPlato(plato: Plato, datos: DatosPlato, fotoLocal: String?)
+
+    suspend fun eliminarPlato(plato: Plato)
 }
