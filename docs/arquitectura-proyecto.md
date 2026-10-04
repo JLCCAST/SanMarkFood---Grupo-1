@@ -18,6 +18,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - `data/local/LectorImagenes.kt`, que achica las fotos antes de subirlas, y en el Gradle Firebase Storage, Coil y Maps Compose.
   - Las primeras pruebas unitarias, en `app/src/test/`: casos de uso probados con un repositorio falso.
 - **App Restaurante — carpetas por proceso (acuerdo del 3 oct):** `domain/model/` y `domain/usecase/` se dividieron en carpetas por proceso (`auth/`, `gestion_restaurante/` y, en casos de uso, `pedidos/`), con los mismos nombres que `presentation/`. Las pruebas siguen la misma división.
+- **App Restaurante — HU03 (SCRUM-32) en curso:** con SCRUM-69 (categorías) entraron `domain/model/menu/` (`Categoria`, `ErrorMenu`), `MenuRepository`, `domain/usecase/menu/` (`ObservarCategoriasUseCase`, `CrearCategoriaUseCase`) y, en `data/`, `MenuDataSource` y `MenuRepositoryImpl`. Todavía sin pantallas: M7 (la carta) y M8 (alta de plato, con el chip «+ Nueva categoría») llegan con el alta de plato (SCRUM-67), porque en el diseño las categorías solo se ven y se crean ahí.
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
@@ -78,9 +79,9 @@ SanMarkFood---Grupo-1/
 │           ├── core/                        # (misma estructura que app-comensal) — di/ y navigation/ ✔
 │           ├── data/                        # (misma estructura que app-comensal) — firebase/, repository/ ✔ y local/ (por ahora solo LectorImagenes) ✔
 │           ├── domain/
-│           │   ├── model/                   # auth/ y gestion_restaurante/ ✔
-│           │   ├── repository/              # AuthRepository y RestauranteRepository ✔
-│           │   └── usecase/                 # auth/, gestion_restaurante/ y pedidos/ ✔
+│           │   ├── model/                   # auth/, gestion_restaurante/ y menu/ ✔
+│           │   ├── repository/              # AuthRepository, RestauranteRepository y MenuRepository ✔
+│           │   └── usecase/                 # auth/, gestion_restaurante/, menu/ y pedidos/ ✔
 │           ├── presentation/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
 │           │   ├── panel/                   # Panel del local con la barra inferior; cada pestaña es de su proceso ✔
@@ -218,17 +219,62 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 
 Qué garantizan las reglas de Firestore:
 - El dueño lee su local en cualquier estado; cualquier otro, solo si `estado == 'aprobado'`. Por eso las consultas del comensal tienen que filtrar con `where("estado", "==", "aprobado")`, o Firestore las rechaza.
-- El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos cinco:
+- El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos seis:
   - cambiar los datos y las fotos;
   - enviar a revisión (de `borrador` a `pendiente`, con el horario);
   - cambiar el horario;
   - pausar o reanudar los pedidos (solo si está `aprobado`);
-  - reenviar después de un rechazo (de `rechazado` a `pendiente`).
+  - reenviar después de un rechazo (de `rechazado` a `pendiente`);
+  - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
-- **Pendiente (acuerdo del 3 oct):** un sexto cambio que solo toque `menuHoy`, `rangoCarta` y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta), y que el cambio de horario acepte `cupoPorFranja`.
+- **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
 - Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.
+
+## La carta y el menú del día (HU03)
+
+Los escribe la app del restaurante (HU03) y los lee también la del comensal (HU06 en adelante), así que estos nombres son el contrato entre las dos. Viven dentro del local, en `restaurantes/{uid}/categorias`, `platos` y `menus`.
+
+**`categorias/{id}`** (id automático)
+
+| Campo | Tipo | Notas |
+| --- | --- | --- |
+| `nombre` | texto | De 1 a 40 caracteres. La app no deja crear dos con el mismo nombre, sin importar mayúsculas. |
+| `orden` | entero | Posición en la carta. La categoría nueva va al final. |
+
+**`platos/{id}`** (id automático)
+
+| Campo | Tipo | Notas |
+| --- | --- | --- |
+| `nombre` | texto | De 1 a 80 caracteres. |
+| `descripcion` | texto | Opcional, hasta 300 caracteres. |
+| `precio` | entero | En céntimos, de 1 a 100000 (de S/ 0.01 a S/ 1000.00). |
+| `categoriaId` | texto | El id de una categoría del mismo local. |
+| `fotoUrl` | texto | Opcional. URL de descarga de la foto en Storage. |
+| `agotadoEl` | texto | Opcional, `"AAAA-MM-DD"`: el día en que se marcó agotado. Cómo se usa se define en SCRUM-70. |
+| `creadoEn`, `actualizadoEn` | fecha | Hora del servidor. |
+
+**`menus/{AAAA-MM-DD}`** (el id es la fecha: un menú por día)
+
+| Campo | Tipo | Notas |
+| --- | --- | --- |
+| `precio` | entero | En céntimos. |
+| `entradas`, `segundos` | listas | Las opciones del día. La forma de cada opción se define con SCRUM-148. |
+| `refresco`, `postre` | — | Lo que incluye el menú. Se define con SCRUM-148. |
+| `horaFin` | texto | `"HH:mm"`, hasta qué hora se sirve. |
+| `estado` | texto | `publicado` o `terminado` («Terminar menú de hoy» y «Reabrir»). |
+| `origen` | texto | `ayer`, `cero` o `ia`: cómo se armó. |
+| `publicadoEn`, `actualizadoEn` | fecha | Hora del servidor. |
+
+Qué garantizan las reglas de Firestore:
+- Leer la carta y los menús: el dueño siempre; cualquier otro, solo si el local está `aprobado`. Eso incluye al comensal invitado sin cuenta.
+- Escribir: solo el dueño con la cuenta verificada, de rol `restaurante` y con su local ya creado.
+- `categorias` acepta solo `nombre` y `orden`.
+- Los menús no se borran, porque «copiar el de ayer» los necesita.
+- `menuHoy` y `rangoCarta` del local son copias que la app actualiza junto con el menú y los platos (ver «El documento del local»).
+
+En Storage, las fotos de los platos van en `restaurantes/{uid}/platos/<platoId>-<hora>.jpg`. Solo las sube el dueño, de rol `restaurante`; se aceptan JPEG de menos de 2 MB y el dueño puede borrarlas (al cambiar la foto o eliminar el plato).
 
 ## Convenciones de código
 
