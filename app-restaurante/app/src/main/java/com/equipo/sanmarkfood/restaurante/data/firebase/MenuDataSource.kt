@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.EstadoMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import com.google.firebase.firestore.DocumentSnapshot
@@ -72,10 +73,22 @@ class MenuDataSource @Inject constructor(
         val campos = buildMap {
             putAll(datos.aCampos())
             if (datos.descripcion == null) put("descripcion", FieldValue.delete())
+            if (datos.agotadoEl == null) put("agotadoEl", FieldValue.delete())
             fotoNueva?.let { put("fotoUrl", it) }
             put("actualizadoEn", FieldValue.serverTimestamp())
         }
         llamarFirebaseMenu { platos(uid).document(id).update(campos).await() }
+    }
+
+    suspend fun cambiarAgotadoPlato(uid: String, id: String, agotadoEl: String?) {
+        llamarFirebaseMenu {
+            platos(uid).document(id).update(
+                mapOf(
+                    "agotadoEl" to (agotadoEl ?: FieldValue.delete()),
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
+        }
     }
 
     suspend fun eliminarPlato(uid: String, id: String) {
@@ -154,6 +167,21 @@ class MenuDataSource @Inject constructor(
                 true
             }.await()
         }
+
+    suspend fun existeMenuEnServidor(uid: String, fecha: String): Boolean =
+        llamarFirebaseMenu { menu(uid, fecha).get(Source.SERVER).await().exists() }
+
+    suspend fun guardarOpcionesMenu(uid: String, fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>) {
+        llamarFirebaseMenu {
+            menu(uid, fecha).update(
+                mapOf(
+                    "entradas" to entradas.map { it.aCampos() },
+                    "segundos" to segundos.map { it.aCampos() },
+                    "actualizadoEn" to FieldValue.serverTimestamp(),
+                )
+            ).await()
+        }
+    }
 
     private fun <T> observar(consulta: Query, mapear: (DocumentSnapshot) -> T): Flow<List<T>> = callbackFlow {
         val registro = consulta.addSnapshotListener { foto, error ->

@@ -6,6 +6,8 @@ enum class EstadoMenu { PUBLICADO, TERMINADO }
 
 enum class OrigenMenu { AYER, CERO, IA }
 
+enum class TipoOpcion { ENTRADA, SEGUNDO }
+
 data class OpcionMenu(val nombre: String, val agotado: Boolean)
 
 data class DatosMenu(

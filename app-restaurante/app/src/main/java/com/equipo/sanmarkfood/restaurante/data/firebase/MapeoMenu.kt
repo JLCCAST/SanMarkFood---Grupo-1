@@ -22,6 +22,7 @@ internal fun DatosPlato.aCampos(): Map<String, Any> = buildMap {
     descripcion?.let { put("descripcion", it) }
     put("precio", precio)
     put("categoriaId", categoriaId)
+    agotadoEl?.let { put("agotadoEl", it) }
 }
 
 internal fun DocumentSnapshot.aPlato(): Plato = Plato(
@@ -31,6 +32,7 @@ internal fun DocumentSnapshot.aPlato(): Plato = Plato(
         descripcion = getString("descripcion"),
         precio = getLong("precio")?.toInt() ?: throw ErrorMenu.Desconocido,
         categoriaId = getString("categoriaId") ?: throw ErrorMenu.Desconocido,
+        agotadoEl = getString("agotadoEl"),
     ),
     fotoUrl = getString("fotoUrl"),
 )
@@ -44,7 +46,7 @@ internal fun DatosMenu.aCampos(): Map<String, Any> = buildMap {
     put("horaFin", horaFin)
 }
 
-private fun OpcionMenu.aCampos(): Map<String, Any> = mapOf("nombre" to nombre, "agotado" to agotado)
+internal fun OpcionMenu.aCampos(): Map<String, Any> = mapOf("nombre" to nombre, "agotado" to agotado)
 
 internal fun DocumentSnapshot.aMenuDelDia(): MenuDelDia = MenuDelDia(
     fecha = id,

@@ -5,6 +5,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
@@ -35,6 +36,8 @@ class CrearCategoriaUseCaseTest {
         override suspend fun eliminarPlato(plato: Plato) = Unit
         override fun observarMenu(fecha: String): Flow<MenuDelDia?> = emptyFlow()
         override suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu) = Unit
+        override suspend fun cambiarAgotadoPlato(platoId: String, agotadoEl: String?) = Unit
+        override suspend fun guardarOpcionesMenu(fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>) = Unit
     }
 
     private val repositorio = RepositorioFalso()

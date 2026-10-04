@@ -10,6 +10,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
@@ -60,11 +61,23 @@ class MenuRepositoryImpl @Inject constructor(
         actualizarRangoCarta(uid)
     }
 
+    override suspend fun cambiarAgotadoPlato(platoId: String, agotadoEl: String?) {
+        val uid = uid()
+        if (!menuDataSource.existePlatoEnServidor(uid, platoId)) throw ErrorMenu.Desconocido
+        menuDataSource.cambiarAgotadoPlato(uid, platoId, agotadoEl)
+    }
+
     override fun observarMenu(fecha: String): Flow<MenuDelDia?> =
         flow { emitAll(menuDataSource.observarMenu(uid(), fecha)) }
 
     override suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu) {
         if (!menuDataSource.publicarMenu(uid(), fecha, datos, origen)) throw ErrorMenu.MenuYaPublicado
+    }
+
+    override suspend fun guardarOpcionesMenu(fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>) {
+        val uid = uid()
+        if (!menuDataSource.existeMenuEnServidor(uid, fecha)) throw ErrorMenu.Desconocido
+        menuDataSource.guardarOpcionesMenu(uid, fecha, entradas, segundos)
     }
 
     private suspend fun subirFotoPlato(uid: String, platoId: String, imagenLocal: String): String {

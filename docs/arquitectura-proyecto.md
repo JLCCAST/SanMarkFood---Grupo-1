@@ -257,7 +257,7 @@ Los escribe la app del restaurante (HU03) y los lee también la del comensal (HU
 | `precio` | entero | En céntimos, de 1 a 100000 (de S/ 0.01 a S/ 1000.00). |
 | `categoriaId` | texto | El id de una categoría del mismo local. |
 | `fotoUrl` | texto | Opcional. URL de descarga de la foto en Storage. |
-| `agotadoEl` | texto | Opcional, `"AAAA-MM-DD"`: el día en que se marcó agotado. Cómo se usa se define en SCRUM-70. |
+| `agotadoEl` | texto | Opcional, `"AAAA-MM-DD"` en hora de Lima: el día en que se marcó agotado. El plato está agotado solo si esa fecha es hoy, así que al día siguiente vuelve solo a estar disponible. Si el local lo vuelve a marcar disponible el mismo día, el campo se quita. |
 | `creadoEn`, `actualizadoEn` | fecha | Hora del servidor. |
 
 **`menus/{AAAA-MM-DD}`** (el id es la fecha: un menú por día)

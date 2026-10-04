@@ -14,8 +14,9 @@ class CrearPlatoUseCase @Inject constructor(
         precio: String,
         categoriaId: String?,
         fotoLocal: String?,
+        disponible: Boolean = true,
     ) {
-        val datos = validarPlato(nombre, descripcion, precio, categoriaId)
+        val datos = validarPlato(nombre, descripcion, precio, categoriaId, disponible)
         if (menuRepository.leerCategorias().none { it.id == datos.categoriaId }) {
             throw ErrorMenu.DatosPlatoInvalidos(setOf(CampoPlato.CATEGORIA))
         }

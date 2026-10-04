@@ -5,6 +5,7 @@ data class DatosPlato(
     val descripcion: String?,
     val precio: Int,
     val categoriaId: String,
+    val agotadoEl: String? = null,
 ) {
     companion object {
         const val MAX_NOMBRE = 80

@@ -3,6 +3,7 @@ package com.equipo.sanmarkfood.restaurante.domain.usecase.menu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.CampoPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
 import java.math.BigDecimal
 
 internal fun validarPlato(
@@ -10,6 +11,7 @@ internal fun validarPlato(
     descripcion: String,
     precio: String,
     categoriaId: String?,
+    disponible: Boolean,
 ): DatosPlato {
     val centimos = centimosDe(precio)
     val invalidos = buildSet {
@@ -27,6 +29,7 @@ internal fun validarPlato(
         descripcion = descripcion.trim().ifEmpty { null },
         precio = centimos,
         categoriaId = categoriaId,
+        agotadoEl = if (disponible) null else fechaDeHoy(),
     )
 }
 
