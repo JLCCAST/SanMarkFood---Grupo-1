@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.domain.model.menu
 
+import java.util.Date
+
 enum class EstadoMenu { PUBLICADO, TERMINADO }
 
 enum class OrigenMenu { AYER, CERO, IA }
@@ -25,4 +27,5 @@ data class MenuDelDia(
     val datos: DatosMenu,
     val estado: EstadoMenu,
     val origen: OrigenMenu,
+    val publicadoEn: Date?,
 )

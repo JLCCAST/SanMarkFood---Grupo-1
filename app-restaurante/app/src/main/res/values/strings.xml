@@ -158,18 +158,50 @@
     <string name="panel_resenas">Reseñas</string>
     <string name="panel_negocio">Negocio</string>
 
-    <!-- Pestañas que todavía no existen: las reemplazan HU03 (Menú de hoy), HU12 (Reservas) y HU21 (Reseñas) -->
+    <!-- Pestañas que todavía no existen: las reemplazan HU12 (Reservas) y HU21 (Reseñas) -->
     <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
     <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
     <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
-    <string name="provisional_menu_hoy">Aquí vas a publicar tu menú del día.</string>
 
     <!-- Menú: cabecera con «Menú de hoy» y «Carta» (M1 y M7, HU03) -->
     <string name="menu_titulo">Menú</string>
     <string name="menu_hoy">Menú de hoy</string>
     <string name="menu_carta">Carta</string>
     <string name="precio_soles">S/ %1$s</string>
+
+    <!-- Menú de hoy (M1 y la tarjeta del menú publicado, HU03). «Foto de la pizarra» llega con HU04 y «Copiar el de ayer» con SCRUM-161. -->
+    <string name="menu_hoy_sin_publicar_titulo">Aún no publicas el menú de hoy</string>
+    <string name="menu_hoy_sin_publicar_texto">Los comensales ven «El menú de hoy aún no se publica» en tu local. Elige cómo empezar:</string>
+    <string name="menu_hoy_de_cero">Empezar de cero</string>
+    <string name="menu_hoy_de_cero_ayuda">Escribe las opciones una por una</string>
+    <string name="menu_hoy_vale_hoy">El menú vale solo para hoy y se cierra a la hora de fin que elijas.</string>
+    <string name="menu_hoy_publicado_a">Publicado %1$s · se sirve hasta las %2$s</string>
+    <string name="menu_hoy_se_sirve_hasta">Se sirve hasta las %1$s</string>
+    <string name="menu_entradas">ENTRADAS</string>
+    <string name="menu_segundos">SEGUNDOS</string>
+    <string name="menu_incluye">Incluye: %1$s</string>
+    <string name="menu_incluye_dos">Incluye: %1$s y %2$s</string>
+
+    <!-- Armar el menú de hoy (M5, HU03) -->
+    <string name="armar_cerrar">Cerrar sin publicar</string>
+    <string name="armar_precio">Precio del menú</string>
+    <string name="armar_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 14.00.</string>
+    <string name="armar_entradas">ENTRADAS · EL COMENSAL ELIGE 1</string>
+    <string name="armar_segundos">SEGUNDOS · EL COMENSAL ELIGE 1</string>
+    <string name="armar_agregar_entrada">Agregar entrada</string>
+    <string name="armar_agregar_segundo">Agregar segundo</string>
+    <string name="armar_sin_entradas">Agrega al menos una entrada.</string>
+    <string name="armar_sin_segundos">Agrega al menos un segundo.</string>
+    <string name="armar_quitar">Quitar %1$s</string>
+    <string name="armar_refresco">Refresco incluido</string>
+    <string name="armar_refresco_ejemplo">Ej.: chicha morada</string>
+    <string name="armar_postre">Postre incluido</string>
+    <string name="armar_postre_ejemplo">Ej.: mazamorra</string>
+    <string name="armar_se_sirve_hasta">Se sirve hasta</string>
+    <string name="armar_publicar">Publicar menú de hoy</string>
+    <string name="armar_falta">Falta el precio, una entrada o un segundo</string>
+    <string name="armar_vence">Se publica ahora y vence a las %1$s</string>
 
     <!-- Carta (M7, HU03) -->
     <string name="carta_sin_platos">Sin platos</string>

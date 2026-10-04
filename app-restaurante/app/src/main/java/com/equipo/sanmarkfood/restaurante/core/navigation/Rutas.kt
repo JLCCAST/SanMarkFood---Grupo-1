@@ -32,3 +32,6 @@ data object PanelLocal
 
 @Serializable
 data class Plato(val platoId: String? = null)
+
+@Serializable
+data object ArmarMenu

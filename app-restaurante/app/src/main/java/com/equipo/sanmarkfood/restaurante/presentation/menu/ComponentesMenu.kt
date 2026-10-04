@@ -11,10 +11,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -26,10 +30,14 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun CabeceraMenu(
@@ -94,9 +102,55 @@ private fun SelectorSeccion(actual: SeccionMenu, onElegir: (SeccionMenu) -> Unit
 }
 
 @Composable
+fun CampoPrecio(
+    etiqueta: String,
+    valor: String,
+    onValorChange: (String) -> Unit,
+    esError: Boolean,
+    mensajeError: String,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(text = etiqueta, modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelLarge)
+            OutlinedTextField(
+                value = valor,
+                onValueChange = onValorChange,
+                modifier = Modifier.width(150.dp),
+                textStyle = MaterialTheme.typography.titleMedium,
+                prefix = { Text(text = stringResource(R.string.plato_moneda), style = MaterialTheme.typography.titleMedium) },
+                placeholder = { Text(text = stringResource(R.string.plato_precio_ejemplo)) },
+                isError = esError,
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    errorContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                ),
+            )
+        }
+        if (esError) {
+            Text(text = mensajeError, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+    }
+}
+
+@Composable
 fun precioTexto(centimos: Int): String = stringResource(R.string.precio_soles, precioEnSoles(centimos))
 
 fun precioEnSoles(centimos: Int): String = "%d.%02d".format(Locale.ROOT, centimos / 100, centimos % 100)
+
+fun textoFecha(fecha: String): String {
+    val dia = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).parse(fecha) ?: return fecha
+    val espanol = Locale.forLanguageTag("es-PE")
+    return SimpleDateFormat("EEEE d 'de' MMMM", espanol).format(dia).replaceFirstChar { it.titlecase(espanol) }
+}
+
+fun textoHora(momento: Date): String =
+    SimpleDateFormat("H:mm", Locale.ROOT)
+        .apply { timeZone = TimeZone.getTimeZone("America/Lima") }
+        .format(momento)
 
 @Composable
 fun MensajeErrorMenu(error: ErrorMenu, modifier: Modifier = Modifier) {

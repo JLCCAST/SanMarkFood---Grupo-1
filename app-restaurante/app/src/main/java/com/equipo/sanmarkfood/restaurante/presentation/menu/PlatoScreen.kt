@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,8 +28,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -216,9 +212,11 @@ private fun ColumnScope.FormularioPlato(
         )
 
         CampoPrecio(
+            etiqueta = stringResource(R.string.plato_precio),
             valor = uiState.precio,
             onValorChange = onCambiarPrecio,
             esError = CampoPlato.PRECIO in invalidos,
+            mensajeError = stringResource(R.string.plato_error_precio),
         )
 
         SelectorCategoriaPlato(
@@ -310,43 +308,6 @@ private fun FotoPlato(imagen: String?, habilitado: Boolean, onFotoElegida: (Stri
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun CampoPrecio(valor: String, onValorChange: (String) -> Unit, esError: Boolean) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                text = stringResource(R.string.plato_precio),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.labelLarge,
-            )
-            OutlinedTextField(
-                value = valor,
-                onValueChange = onValorChange,
-                modifier = Modifier.width(150.dp),
-                textStyle = MaterialTheme.typography.titleMedium,
-                prefix = { Text(text = stringResource(R.string.plato_moneda), style = MaterialTheme.typography.titleMedium) },
-                placeholder = { Text(text = stringResource(R.string.plato_precio_ejemplo)) },
-                isError = esError,
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    errorContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                ),
-            )
-        }
-        if (esError) {
-            Text(
-                text = stringResource(R.string.plato_error_precio),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-            )
         }
     }
 }

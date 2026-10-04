@@ -58,6 +58,7 @@ internal fun DocumentSnapshot.aMenuDelDia(): MenuDelDia = MenuDelDia(
     ),
     estado = EstadoMenu.entries.firstOrNull { it.valor() == getString("estado") } ?: throw ErrorMenu.Desconocido,
     origen = OrigenMenu.entries.firstOrNull { it.valor() == getString("origen") } ?: throw ErrorMenu.Desconocido,
+    publicadoEn = getTimestamp("publicadoEn", DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)?.toDate(),
 )
 
 private fun opcionesDe(valor: Any?): List<OpcionMenu> =

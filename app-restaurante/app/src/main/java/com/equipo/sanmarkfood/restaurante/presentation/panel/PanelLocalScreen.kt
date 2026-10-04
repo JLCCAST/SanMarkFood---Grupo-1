@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,15 +32,15 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.EstadoLocal
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.MensajeErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.presentation.menu.CabeceraMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.CartaScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.MenuHoyScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
 
 /**
  * Panel del local con la barra inferior del prototipo: Pedidos · Reservas · Menú · Reseñas · Negocio.
- * Por ahora «Pedidos» muestra el estado del local (R5), «Menú» la carta (M7) y «Negocio» la sección
- * «Tu local» de O6; lo demás muestra un aviso hasta que lleguen HU03 (Menú de hoy), HU09, HU12 y HU21.
+ * Por ahora «Pedidos» muestra el estado del local (R5), «Menú» el menú de hoy (M1) y la carta (M7), y
+ * «Negocio» la sección «Tu local» de O6; lo demás muestra un aviso hasta que lleguen HU09, HU12 y HU21.
  */
 @Composable
 fun PanelLocalScreen(
@@ -50,6 +49,7 @@ fun PanelLocalScreen(
     onEditarHorario: () -> Unit,
     onAgregarPlato: () -> Unit,
     onAbrirPlato: (platoId: String) -> Unit,
+    onArmarMenu: () -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -79,18 +79,11 @@ fun PanelLocalScreen(
                 modifier = contenido,
             )
             PestanaPanel.MENU -> when (uiState.seccionMenu) {
-                SeccionMenu.HOY -> Column(modifier = contenido) {
-                    CabeceraMenu(
-                        seccion = SeccionMenu.HOY,
-                        detalle = null,
-                        onElegirSeccion = viewModel::onElegirSeccionMenu,
-                    )
-                    PestanaProvisional(
-                        icono = R.drawable.ic_menu,
-                        texto = stringResource(R.string.provisional_menu_hoy),
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                    )
-                }
+                SeccionMenu.HOY -> MenuHoyScreen(
+                    onElegirSeccion = viewModel::onElegirSeccionMenu,
+                    onEmpezarDeCero = onArmarMenu,
+                    modifier = contenido,
+                )
                 SeccionMenu.CARTA -> CartaScreen(
                     onElegirSeccion = viewModel::onElegirSeccionMenu,
                     onAgregarPlato = onAgregarPlato,
