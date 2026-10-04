@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -97,6 +98,7 @@ fun PlatoScreen(
         onCambiarDescripcion = viewModel::onCambiarDescripcion,
         onCambiarPrecio = viewModel::onCambiarPrecio,
         onElegirCategoria = viewModel::onElegirCategoria,
+        onCambiarDisponible = viewModel::onCambiarDisponible,
         onNuevaCategoria = viewModel::onNuevaCategoria,
         onReintentarCategorias = viewModel::onReintentarCategorias,
         onGuardar = viewModel::onGuardar,
@@ -114,6 +116,7 @@ private fun PlatoContenido(
     onCambiarDescripcion: (String) -> Unit,
     onCambiarPrecio: (String) -> Unit,
     onElegirCategoria: (String) -> Unit,
+    onCambiarDisponible: (Boolean) -> Unit,
     onNuevaCategoria: () -> Unit,
     onReintentarCategorias: () -> Unit,
     onGuardar: () -> Unit,
@@ -156,6 +159,7 @@ private fun PlatoContenido(
                 onCambiarDescripcion = onCambiarDescripcion,
                 onCambiarPrecio = onCambiarPrecio,
                 onElegirCategoria = onElegirCategoria,
+                onCambiarDisponible = onCambiarDisponible,
                 onNuevaCategoria = onNuevaCategoria,
                 onReintentarCategorias = onReintentarCategorias,
                 onGuardar = onGuardar,
@@ -172,6 +176,7 @@ private fun ColumnScope.FormularioPlato(
     onCambiarDescripcion: (String) -> Unit,
     onCambiarPrecio: (String) -> Unit,
     onElegirCategoria: (String) -> Unit,
+    onCambiarDisponible: (Boolean) -> Unit,
     onNuevaCategoria: () -> Unit,
     onReintentarCategorias: () -> Unit,
     onGuardar: () -> Unit,
@@ -229,6 +234,8 @@ private fun ColumnScope.FormularioPlato(
             onNueva = onNuevaCategoria,
             onReintentar = onReintentarCategorias,
         )
+
+        BloqueDisponibleHoy(disponible = uiState.disponible, habilitado = !uiState.ocupado, onCambiar = onCambiarDisponible)
     }
 
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -242,6 +249,35 @@ private fun ColumnScope.FormularioPlato(
             onClick = onGuardar,
             habilitado = !uiState.eliminando,
             cargando = uiState.guardando,
+        )
+    }
+}
+
+@Composable
+private fun BloqueDisponibleHoy(disponible: Boolean, habilitado: Boolean, onCambiar: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = stringResource(R.string.plato_disponible_hoy), style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = stringResource(R.string.plato_disponible_ayuda),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        InterruptorDisponible(
+            disponible = disponible,
+            onCambiar = onCambiar,
+            descripcion = stringResource(R.string.plato_disponible_hoy),
+            habilitado = habilitado,
         )
     }
 }
@@ -449,6 +485,7 @@ private fun PlatoPreview() {
                 onCambiarDescripcion = {},
                 onCambiarPrecio = {},
                 onElegirCategoria = {},
+                onCambiarDisponible = {},
                 onNuevaCategoria = {},
                 onReintentarCategorias = {},
                 onGuardar = {},

@@ -10,6 +10,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CrearCategoriaUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CrearPlatoUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.EditarPlatoUseCase
@@ -36,6 +37,7 @@ data class PlatoUiState(
     val descripcion: String = "",
     val precio: String = "",
     val categoriaId: String? = null,
+    val disponible: Boolean = true,
     val categorias: List<Categoria>? = null,
     val errorCategorias: ErrorMenu? = null,
     val nuevaCategoria: NuevaCategoriaUiState? = null,
@@ -97,6 +99,8 @@ class PlatoViewModel @Inject constructor(
     fun onElegirCategoria(categoriaId: String) =
         cambiarCampo(CampoPlato.CATEGORIA) { it.copy(categoriaId = categoriaId) }
 
+    fun onCambiarDisponible(disponible: Boolean) = _uiState.update { it.copy(disponible = disponible) }
+
     fun onGuardar() {
         val estado = _uiState.value
         if (estado.ocupado || (estado.editando && estado.plato == null)) return
@@ -106,9 +110,24 @@ class PlatoViewModel @Inject constructor(
             try {
                 val plato = estado.plato
                 if (plato == null) {
-                    crearPlato(estado.nombre, estado.descripcion, estado.precio, estado.categoriaId, estado.fotoLocal)
+                    crearPlato(
+                        nombre = estado.nombre,
+                        descripcion = estado.descripcion,
+                        precio = estado.precio,
+                        categoriaId = estado.categoriaId,
+                        fotoLocal = estado.fotoLocal,
+                        disponible = estado.disponible,
+                    )
                 } else {
-                    editarPlato(plato, estado.nombre, estado.descripcion, estado.precio, estado.categoriaId, estado.fotoLocal)
+                    editarPlato(
+                        plato = plato,
+                        nombre = estado.nombre,
+                        descripcion = estado.descripcion,
+                        precio = estado.precio,
+                        categoriaId = estado.categoriaId,
+                        fotoLocal = estado.fotoLocal,
+                        disponible = estado.disponible,
+                    )
                 }
                 _uiState.update { it.copy(guardando = false, terminado = true) }
             } catch (e: ErrorMenu.DatosPlatoInvalidos) {
@@ -178,6 +197,7 @@ class PlatoViewModel @Inject constructor(
                         descripcion = plato.datos.descripcion.orEmpty(),
                         precio = precioEnSoles(plato.datos.precio),
                         categoriaId = plato.datos.categoriaId,
+                        disponible = plato.datos.agotadoEl != fechaDeHoy(),
                     )
                 }
             } catch (e: ErrorMenu) {

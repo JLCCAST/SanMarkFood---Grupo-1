@@ -65,6 +65,7 @@ fun CartaScreen(
         onElegirSeccion = onElegirSeccion,
         onAgregarPlato = onAgregarPlato,
         onAbrirPlato = onAbrirPlato,
+        onCambiarDisponible = viewModel::onCambiarDisponible,
         onReintentar = viewModel::onReintentar,
         modifier = modifier,
     )
@@ -76,6 +77,7 @@ private fun CartaContenido(
     onElegirSeccion: (SeccionMenu) -> Unit,
     onAgregarPlato: () -> Unit,
     onAbrirPlato: (platoId: String) -> Unit,
+    onCambiarDisponible: (Plato, Boolean) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -94,6 +96,9 @@ private fun CartaContenido(
             Icon(painter = painterResource(R.drawable.ic_agregar), contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(6.dp))
             Text(text = stringResource(R.string.carta_agregar_plato), style = MaterialTheme.typography.labelLarge)
+        }
+        uiState.errorDisponibilidad?.let {
+            MensajeErrorMenu(error = it, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp))
         }
 
         when {
@@ -118,7 +123,15 @@ private fun CartaContenido(
             ) {
                 secciones.forEach { seccion ->
                     item(key = "categoria-${seccion.categoria.id}") { TituloSeccion(seccion) }
-                    items(seccion.platos, key = { it.id }) { plato -> FilaPlato(plato, onAbrir = { onAbrirPlato(plato.id) }) }
+                    items(seccion.platos, key = { it.id }) { plato ->
+                        FilaPlato(
+                            plato = plato,
+                            agotado = plato.datos.agotadoEl == uiState.hoy,
+                            cambiando = plato.id in uiState.cambiando,
+                            onAbrir = { onAbrirPlato(plato.id) },
+                            onCambiarDisponible = { disponible -> onCambiarDisponible(plato, disponible) },
+                        )
+                    }
                 }
             }
         }
@@ -179,39 +192,64 @@ private fun TituloSeccion(seccion: SeccionCarta) {
 }
 
 @Composable
-private fun FilaPlato(plato: Plato, onAbrir: () -> Unit) {
+private fun FilaPlato(
+    plato: Plato,
+    agotado: Boolean,
+    cambiando: Boolean,
+    onAbrir: () -> Unit,
+    onCambiarDisponible: (Boolean) -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 60.dp)
-            .clickable(role = Role.Button, onClick = onAbrir)
-            .padding(vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                .weight(1f)
+                .clickable(role = Role.Button, onClick = onAbrir)
+                .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            plato.fotoUrl?.let {
-                AsyncImage(
-                    model = it,
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.Crop,
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
+                plato.fotoUrl?.let {
+                    AsyncImage(
+                        model = it,
+                        contentDescription = null,
+                        modifier = Modifier.matchParentSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = plato.datos.nombre,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (agotado) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(
+                        R.string.carta_precio_estado,
+                        precioTexto(plato.datos.precio),
+                        stringResource(if (agotado) R.string.agotado_hoy else R.string.disponible),
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = plato.datos.nombre, style = MaterialTheme.typography.labelLarge)
-            Text(
-                text = precioTexto(plato.datos.precio),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        InterruptorDisponible(
+            disponible = !agotado,
+            onCambiar = onCambiarDisponible,
+            descripcion = stringResource(R.string.disponible_descripcion, plato.datos.nombre),
+            habilitado = !cambiando,
+        )
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
@@ -247,6 +285,7 @@ private fun CartaPreview() {
                 onElegirSeccion = {},
                 onAgregarPlato = {},
                 onAbrirPlato = {},
+                onCambiarDisponible = { _, _ -> },
                 onReintentar = {},
             )
         }
@@ -263,6 +302,7 @@ private fun CartaVaciaPreview() {
                 onElegirSeccion = {},
                 onAgregarPlato = {},
                 onAbrirPlato = {},
+                onCambiarDisponible = { _, _ -> },
                 onReintentar = {},
             )
         }

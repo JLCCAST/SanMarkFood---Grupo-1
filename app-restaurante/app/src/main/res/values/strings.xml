@@ -203,6 +203,15 @@
     <string name="armar_falta">Falta el precio, una entrada o un segundo</string>
     <string name="armar_vence">Se publica ahora y vence a las %1$s</string>
 
+    <!-- Disponible o agotado (SCRUM-70): en la carta, en el plato y en las opciones del menú de hoy -->
+    <string name="disponible">Disponible</string>
+    <string name="agotado">Agotado</string>
+    <string name="agotado_hoy">Agotado hoy</string>
+    <string name="disponible_descripcion">Disponible: %1$s</string>
+    <string name="carta_precio_estado">%1$s · %2$s</string>
+    <string name="plato_disponible_hoy">Disponible hoy</string>
+    <string name="plato_disponible_ayuda">Apágalo si se acabó; vuelve a estar disponible mañana</string>
+
     <!-- Carta (M7, HU03) -->
     <string name="carta_sin_platos">Sin platos</string>
     <string name="carta_resumen">%1$s · %2$s</string>

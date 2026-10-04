@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CambiarDisponibilidadOpcionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObservarMenuDeHoyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -21,11 +23,14 @@ data class MenuHoyUiState(
     val cargando: Boolean = true,
     val menu: MenuDelDia? = null,
     val error: ErrorMenu? = null,
+    val cambiandoOpcion: Boolean = false,
+    val errorOpcion: ErrorMenu? = null,
 )
 
 @HiltViewModel
 class MenuHoyViewModel @Inject constructor(
     private val observarMenuDeHoy: ObservarMenuDeHoyUseCase,
+    private val cambiarDisponibilidadOpcion: CambiarDisponibilidadOpcionUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MenuHoyUiState())
@@ -38,6 +43,22 @@ class MenuHoyViewModel @Inject constructor(
     }
 
     fun onReintentar() = observar()
+
+    fun onCambiarDisponible(tipo: TipoOpcion, indice: Int, disponible: Boolean) {
+        val estado = _uiState.value
+        val menu = estado.menu ?: return
+        if (estado.cambiandoOpcion) return
+
+        _uiState.update { it.copy(cambiandoOpcion = true, errorOpcion = null) }
+        viewModelScope.launch {
+            try {
+                cambiarDisponibilidadOpcion(menu, tipo, indice, disponible)
+            } catch (e: ErrorMenu) {
+                _uiState.update { it.copy(errorOpcion = e) }
+            }
+            _uiState.update { it.copy(cambiandoOpcion = false) }
+        }
+    }
 
     private fun observar() {
         observacion?.cancel()

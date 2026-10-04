@@ -19,6 +19,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -134,6 +137,27 @@ fun CampoPrecio(
             Text(text = mensajeError, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         }
     }
+}
+
+@Composable
+fun InterruptorDisponible(
+    disponible: Boolean,
+    onCambiar: (Boolean) -> Unit,
+    descripcion: String,
+    habilitado: Boolean = true,
+) {
+    Switch(
+        checked = disponible,
+        onCheckedChange = onCambiar,
+        modifier = Modifier.semantics { contentDescription = descripcion },
+        enabled = habilitado,
+        colors = SwitchDefaults.colors(
+            checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+            checkedBorderColor = MaterialTheme.colorScheme.tertiary,
+            checkedThumbColor = MaterialTheme.colorScheme.onTertiary,
+            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
+    )
 }
 
 @Composable

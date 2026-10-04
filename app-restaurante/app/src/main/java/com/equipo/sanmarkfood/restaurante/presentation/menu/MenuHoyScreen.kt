@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -39,6 +40,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.EstadoMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
@@ -57,6 +59,7 @@ fun MenuHoyScreen(
         uiState = uiState,
         onElegirSeccion = onElegirSeccion,
         onEmpezarDeCero = onEmpezarDeCero,
+        onCambiarDisponible = viewModel::onCambiarDisponible,
         onReintentar = viewModel::onReintentar,
         modifier = modifier,
     )
@@ -67,6 +70,7 @@ private fun MenuHoyContenido(
     uiState: MenuHoyUiState,
     onElegirSeccion: (SeccionMenu) -> Unit,
     onEmpezarDeCero: () -> Unit,
+    onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,8 +104,13 @@ private fun MenuHoyContenido(
 
             menu == null -> MenuSinPublicar(onEmpezarDeCero = onEmpezarDeCero, modifier = contenido)
 
-            else -> Column(modifier = contenido) {
-                TarjetaMenu(menu)
+            else -> Column(modifier = contenido, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                uiState.errorOpcion?.let { MensajeErrorMenu(error = it) }
+                TarjetaMenu(
+                    menu = menu,
+                    cambiando = uiState.cambiandoOpcion,
+                    onCambiarDisponible = onCambiarDisponible,
+                )
             }
         }
     }
@@ -168,7 +177,11 @@ private fun OpcionInicio(@DrawableRes icono: Int, titulo: String, ayuda: String,
 }
 
 @Composable
-private fun TarjetaMenu(menu: MenuDelDia) {
+private fun TarjetaMenu(
+    menu: MenuDelDia,
+    cambiando: Boolean,
+    onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
+) {
     val forma = RoundedCornerShape(18.dp)
     val datos = menu.datos
     Column(
@@ -205,8 +218,18 @@ private fun TarjetaMenu(menu: MenuDelDia) {
                 color = MaterialTheme.colorScheme.secondary,
             )
         }
-        GrupoOpciones(titulo = stringResource(R.string.menu_entradas), opciones = datos.entradas)
-        GrupoOpciones(titulo = stringResource(R.string.menu_segundos), opciones = datos.segundos)
+        GrupoOpciones(
+            titulo = stringResource(R.string.menu_entradas),
+            opciones = datos.entradas,
+            cambiando = cambiando,
+            onCambiarDisponible = { indice, disponible -> onCambiarDisponible(TipoOpcion.ENTRADA, indice, disponible) },
+        )
+        GrupoOpciones(
+            titulo = stringResource(R.string.menu_segundos),
+            opciones = datos.segundos,
+            cambiando = cambiando,
+            onCambiarDisponible = { indice, disponible -> onCambiarDisponible(TipoOpcion.SEGUNDO, indice, disponible) },
+        )
         textoIncluye(datos)?.let {
             Text(
                 text = it,
@@ -219,7 +242,12 @@ private fun TarjetaMenu(menu: MenuDelDia) {
 }
 
 @Composable
-private fun GrupoOpciones(titulo: String, opciones: List<OpcionMenu>) {
+private fun GrupoOpciones(
+    titulo: String,
+    opciones: List<OpcionMenu>,
+    cambiando: Boolean,
+    onCambiarDisponible: (indice: Int, disponible: Boolean) -> Unit,
+) {
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 4.dp)) {
         Text(
             text = titulo,
@@ -227,9 +255,32 @@ private fun GrupoOpciones(titulo: String, opciones: List<OpcionMenu>) {
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
         )
-        opciones.forEach { opcion ->
-            Box(modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), contentAlignment = Alignment.CenterStart) {
-                Text(text = opcion.nombre, style = MaterialTheme.typography.titleSmall)
+        opciones.forEachIndexed { indice, opcion ->
+            Row(
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = opcion.nombre,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            textDecoration = if (opcion.agotado) TextDecoration.LineThrough else TextDecoration.None,
+                        ),
+                        color = if (opcion.agotado) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(if (opcion.agotado) R.string.agotado else R.string.disponible),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                InterruptorDisponible(
+                    disponible = !opcion.agotado,
+                    onCambiar = { disponible -> onCambiarDisponible(indice, disponible) },
+                    descripcion = stringResource(R.string.disponible_descripcion, opcion.nombre),
+                    habilitado = !cambiando,
+                )
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
         }
@@ -255,6 +306,7 @@ private fun MenuSinPublicarPreview() {
                 uiState = MenuHoyUiState(fecha = "2026-10-05", cargando = false),
                 onElegirSeccion = {},
                 onEmpezarDeCero = {},
+                onCambiarDisponible = { _, _, _ -> },
                 onReintentar = {},
             )
         }
@@ -288,6 +340,7 @@ private fun MenuPublicadoPreview() {
                 ),
                 onElegirSeccion = {},
                 onEmpezarDeCero = {},
+                onCambiarDisponible = { _, _, _ -> },
                 onReintentar = {},
             )
         }
