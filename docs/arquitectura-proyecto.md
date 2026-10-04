@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (3 de octubre de 2026)
+## Estado actual del código (4 de octubre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -18,14 +18,15 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - `data/local/LectorImagenes.kt`, que achica las fotos antes de subirlas, y en el Gradle Firebase Storage, Coil y Maps Compose.
   - Las primeras pruebas unitarias, en `app/src/test/`: casos de uso probados con un repositorio falso.
 - **App Restaurante — carpetas por proceso (acuerdo del 3 oct):** `domain/model/` y `domain/usecase/` se dividieron en carpetas por proceso (`auth/`, `gestion_restaurante/` y, en casos de uso, `pedidos/`), con los mismos nombres que `presentation/`. Las pruebas siguen la misma división.
-- **App Restaurante — HU03 (SCRUM-32) en curso:**
+- **App Restaurante — HU03 (SCRUM-32) completa:**
   - SCRUM-69 (categorías): `domain/model/menu/`, `MenuRepository`, `domain/usecase/menu/` y, en `data/`, `MenuDataSource` y `MenuRepositoryImpl`.
   - SCRUM-67 (alta de plato): `presentation/menu/` con la pestaña Menú del panel (cabecera «Menú de hoy · Carta»), M7 (la carta agrupada por categoría) y M8 (alta de plato, con su foto y el chip «+ Nueva categoría»). La foto del plato se sube a Storage al guardar y, después de cada plato, se recalcula `rangoCarta`. En R5, el ítem «Carta» tiene el botón «Cargar» y su estado real.
   - SCRUM-68 (editar y eliminar): al tocar un plato en M7 se abre M8 en modo edición (la ruta `Plato` lleva su id), con el botón de eliminar y su confirmación. Al cambiar la foto o eliminar el plato se borra la foto vieja de Storage, y `rangoCarta` se recalcula, o se quita si la carta queda vacía.
   - SCRUM-148 (publicar el menú del día): M1 «Menú de hoy» (sin publicar, con «Empezar de cero», y la tarjeta del menú publicado) y M5 para armarlo: precio, entradas y segundos, refresco y postre, y la hora de fin, que por defecto es 15:00.
   - SCRUM-70 (disponible / agotado): interruptor verde en cada plato de M7 y en cada opción del menú publicado, que se aplica al instante, y el bloque «Disponible hoy» en M8, que se guarda con el plato.
   - SCRUM-161, primera parte: «Copiar el de ayer» en M1. Aparece solo si ayer se publicó un menú, y abre M5 con ese menú cargado. Al publicarlo queda con `origen: "ayer"` y con todas sus opciones disponibles.
-  - Todavía falta: «Foto de la pizarra» en M1 y «Escanear carta» en M7 (HU04), y «Editar», «Terminar» y «Reabrir» en el menú publicado (SCRUM-161).
+  - SCRUM-161, segunda parte: en el menú publicado, la hora de fin («Se sirve hasta»), «Editar menú» (abre M5 con lo publicado y conserva las opciones agotadas), «Terminar menú de hoy» con su confirmación y «Reabrir». Cada cambio actualiza también `menuHoy`, así que el comensal ve «Menú agotado» apenas el local lo termina.
+  - Queda para HU04: «Foto de la pizarra» en M1 y «Escanear carta» en M7.
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
@@ -93,7 +94,7 @@ SanMarkFood---Grupo-1/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
 │           │   ├── panel/                   # Panel del local con la barra inferior; cada pestaña es de su proceso ✔
 │           │   ├── gestion_restaurante/     # Proceso: Gestión de restaurante (perfil, horario y estado del local) ✔ (HU02)
-│           │   ├── menu/                    # Proceso: Carta y menú del día (HU03, HU04) — carta y alta de plato ✔
+│           │   ├── menu/                    # Proceso: Carta y menú del día (HU03, HU04) — HU03 ✔
 │           │   ├── pedidos/                 # Proceso: Pedidos entrantes — cabecera de O1 con la pausa ✔ (HU02)
 │           │   ├── reservas/                # Proceso: Reservas entrantes
 │           │   ├── resenas/                 # Proceso: Gestión y respuesta a reseñas

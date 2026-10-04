@@ -139,6 +139,46 @@ fun CampoPrecio(
     }
 }
 
+private val HORAS_FIN = listOf("14:00", "14:30", "15:00", "15:30", "16:00")
+
+@Composable
+fun SelectorHoraFin(elegida: String, onElegir: (String) -> Unit, habilitado: Boolean = true) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(text = stringResource(R.string.armar_se_sirve_hasta), style = MaterialTheme.typography.titleSmall)
+        Row(modifier = Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            HORAS_FIN.forEach { hora ->
+                val seleccionada = hora == elegida
+                val forma = RoundedCornerShape(10.dp)
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                        .clip(forma)
+                        .border(
+                            1.5.dp,
+                            if (seleccionada) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.outline,
+                            forma,
+                        )
+                        .then(if (seleccionada) Modifier.background(MaterialTheme.colorScheme.inverseSurface) else Modifier)
+                        .selectable(
+                            selected = seleccionada,
+                            enabled = habilitado,
+                            role = Role.RadioButton,
+                            onClick = { onElegir(hora) },
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = hora,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (seleccionada) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun InterruptorDisponible(
     disponible: Boolean,

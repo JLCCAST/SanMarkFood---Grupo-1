@@ -184,6 +184,15 @@
     <string name="menu_segundos">SEGUNDOS</string>
     <string name="menu_incluye">Incluye: %1$s</string>
     <string name="menu_incluye_dos">Incluye: %1$s y %2$s</string>
+    <string name="menu_hoy_terminado_titulo">Terminaste el menú de hoy.</string>
+    <string name="menu_hoy_terminado_texto">Los comensales ven «Menú agotado».</string>
+    <string name="menu_hoy_reabrir">Reabrir</string>
+    <string name="menu_hoy_editar">Editar menú</string>
+    <string name="menu_hoy_terminar">Terminar menú de hoy</string>
+    <string name="terminar_titulo">¿Terminar el menú de hoy?</string>
+    <string name="terminar_texto">Nadie más podrá pedirlo hoy; los comensales verán «Menú agotado». Los pedidos que ya recibiste siguen igual.</string>
+    <string name="terminar_volver">Volver</string>
+    <string name="terminar_confirmar">Terminar menú</string>
 
     <!-- Armar el menú de hoy (M5, HU03) -->
     <string name="armar_cerrar">Cerrar sin publicar</string>
@@ -205,6 +214,7 @@
     <string name="armar_publicar">Publicar menú de hoy</string>
     <string name="armar_falta">Falta el precio, una entrada o un segundo</string>
     <string name="armar_vence">Se publica ahora y vence a las %1$s</string>
+    <string name="armar_conservan">Los pedidos que ya recibiste conservan su precio.</string>
 
     <!-- Disponible o agotado (SCRUM-70): en la carta, en el plato y en las opciones del menú de hoy -->
     <string name="disponible">Disponible</string>

@@ -7,21 +7,27 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,13 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.EstadoMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
@@ -55,11 +66,18 @@ fun MenuHoyScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    if (uiState.confirmandoTerminar) {
+        DialogoTerminarMenu(onTerminar = viewModel::onConfirmarTerminar, onVolver = viewModel::onCancelarTerminar)
+    }
+
     MenuHoyContenido(
         uiState = uiState,
         onElegirSeccion = onElegirSeccion,
         onArmarMenu = onArmarMenu,
         onCambiarDisponible = viewModel::onCambiarDisponible,
+        onElegirHoraFin = viewModel::onElegirHoraFin,
+        onTerminar = viewModel::onTerminar,
+        onReabrir = viewModel::onReabrir,
         onReintentar = viewModel::onReintentar,
         modifier = modifier,
     )
@@ -71,6 +89,9 @@ private fun MenuHoyContenido(
     onElegirSeccion: (SeccionMenu) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
+    onElegirHoraFin: (String) -> Unit,
+    onTerminar: () -> Unit,
+    onReabrir: () -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -104,14 +125,17 @@ private fun MenuHoyContenido(
 
             menu == null -> MenuSinPublicar(menuDeAyer = uiState.menuDeAyer, onArmarMenu = onArmarMenu, modifier = contenido)
 
-            else -> Column(modifier = contenido, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                uiState.errorOpcion?.let { MensajeErrorMenu(error = it) }
-                TarjetaMenu(
-                    menu = menu,
-                    cambiando = uiState.cambiandoOpcion,
-                    onCambiarDisponible = onCambiarDisponible,
-                )
-            }
+            else -> MenuPublicado(
+                menu = menu,
+                guardando = uiState.guardando,
+                error = uiState.errorGuardar,
+                onCambiarDisponible = onCambiarDisponible,
+                onElegirHoraFin = onElegirHoraFin,
+                onEditar = { onArmarMenu(ModoArmarMenu.EDITAR) },
+                onTerminar = onTerminar,
+                onReabrir = onReabrir,
+                modifier = contenido,
+            )
         }
     }
 }
@@ -196,8 +220,105 @@ private fun OpcionInicio(@DrawableRes icono: Int, titulo: String, ayuda: String,
 }
 
 @Composable
+private fun MenuPublicado(
+    menu: MenuDelDia,
+    guardando: Boolean,
+    error: ErrorMenu?,
+    onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
+    onElegirHoraFin: (String) -> Unit,
+    onEditar: () -> Unit,
+    onTerminar: () -> Unit,
+    onReabrir: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val terminado = menu.estado == EstadoMenu.TERMINADO
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        error?.let { MensajeErrorMenu(error = it) }
+        if (terminado) AvisoMenuTerminado(habilitado = !guardando, onReabrir = onReabrir)
+        TarjetaMenu(
+            menu = menu,
+            terminado = terminado,
+            cambiando = guardando,
+            onCambiarDisponible = onCambiarDisponible,
+        )
+        SelectorHoraFin(elegida = menu.datos.horaFin, onElegir = onElegirHoraFin, habilitado = !guardando)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = onEditar,
+                modifier = Modifier.weight(1f).height(48.dp),
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.onSurface),
+                contentPadding = PaddingValues(horizontal = 8.dp),
+            ) {
+                Text(text = stringResource(R.string.menu_hoy_editar), style = MaterialTheme.typography.labelLarge)
+            }
+            val puedeTerminar = !terminado && !guardando
+            OutlinedButton(
+                onClick = onTerminar,
+                enabled = puedeTerminar,
+                modifier = Modifier.weight(1f).height(48.dp),
+                border = BorderStroke(
+                    1.5.dp,
+                    if (puedeTerminar) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant,
+                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                contentPadding = PaddingValues(horizontal = 8.dp),
+            ) {
+                Text(text = stringResource(R.string.menu_hoy_terminar), style = MaterialTheme.typography.labelLarge)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AvisoMenuTerminado(habilitado: Boolean, onReabrir: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(start = 14.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(stringResource(R.string.menu_hoy_terminado_titulo))
+                }
+                append(" ")
+                append(stringResource(R.string.menu_hoy_terminado_texto))
+            },
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        TextButton(onClick = onReabrir, enabled = habilitado) {
+            Text(text = stringResource(R.string.menu_hoy_reabrir))
+        }
+    }
+}
+
+@Composable
+private fun DialogoTerminarMenu(onTerminar: () -> Unit, onVolver: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onVolver,
+        title = { Text(text = stringResource(R.string.terminar_titulo)) },
+        text = { Text(text = stringResource(R.string.terminar_texto)) },
+        confirmButton = {
+            TextButton(onClick = onTerminar) {
+                Text(text = stringResource(R.string.terminar_confirmar), color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onVolver) {
+                Text(text = stringResource(R.string.terminar_volver))
+            }
+        },
+    )
+}
+
+@Composable
 private fun TarjetaMenu(
     menu: MenuDelDia,
+    terminado: Boolean,
     cambiando: Boolean,
     onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
 ) {
@@ -240,12 +361,14 @@ private fun TarjetaMenu(
         GrupoOpciones(
             titulo = stringResource(R.string.menu_entradas),
             opciones = datos.entradas,
+            terminado = terminado,
             cambiando = cambiando,
             onCambiarDisponible = { indice, disponible -> onCambiarDisponible(TipoOpcion.ENTRADA, indice, disponible) },
         )
         GrupoOpciones(
             titulo = stringResource(R.string.menu_segundos),
             opciones = datos.segundos,
+            terminado = terminado,
             cambiando = cambiando,
             onCambiarDisponible = { indice, disponible -> onCambiarDisponible(TipoOpcion.SEGUNDO, indice, disponible) },
         )
@@ -264,6 +387,7 @@ private fun TarjetaMenu(
 private fun GrupoOpciones(
     titulo: String,
     opciones: List<OpcionMenu>,
+    terminado: Boolean,
     cambiando: Boolean,
     onCambiarDisponible: (indice: Int, disponible: Boolean) -> Unit,
 ) {
@@ -275,6 +399,7 @@ private fun GrupoOpciones(
             color = MaterialTheme.colorScheme.primary,
         )
         opciones.forEachIndexed { indice, opcion ->
+            val agotado = opcion.agotado || terminado
             Row(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -284,21 +409,21 @@ private fun GrupoOpciones(
                     Text(
                         text = opcion.nombre,
                         style = MaterialTheme.typography.titleSmall.copy(
-                            textDecoration = if (opcion.agotado) TextDecoration.LineThrough else TextDecoration.None,
+                            textDecoration = if (agotado) TextDecoration.LineThrough else TextDecoration.None,
                         ),
-                        color = if (opcion.agotado) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                        color = if (agotado) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = stringResource(if (opcion.agotado) R.string.agotado else R.string.disponible),
+                        text = stringResource(if (agotado) R.string.agotado else R.string.disponible),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 InterruptorDisponible(
-                    disponible = !opcion.agotado,
+                    disponible = !agotado,
                     onCambiar = { disponible -> onCambiarDisponible(indice, disponible) },
                     descripcion = stringResource(R.string.disponible_descripcion, opcion.nombre),
-                    habilitado = !cambiando,
+                    habilitado = !cambiando && !terminado,
                 )
             }
             HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
@@ -326,6 +451,9 @@ private fun MenuSinPublicarPreview() {
                 onElegirSeccion = {},
                 onArmarMenu = {},
                 onCambiarDisponible = { _, _, _ -> },
+                onElegirHoraFin = {},
+                onTerminar = {},
+                onReabrir = {},
                 onReintentar = {},
             )
         }
@@ -360,6 +488,9 @@ private fun MenuPublicadoPreview() {
                 onElegirSeccion = {},
                 onArmarMenu = {},
                 onCambiarDisponible = { _, _, _ -> },
+                onElegirHoraFin = {},
+                onTerminar = {},
+                onReabrir = {},
                 onReintentar = {},
             )
         }

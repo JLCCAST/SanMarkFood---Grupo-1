@@ -7,8 +7,11 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CambiarDisponibilidadOpcionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CambiarHoraFinUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObservarMenuDeHoyUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObtenerMenuDeAyerUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ReabrirMenuDelDiaUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.TerminarMenuDelDiaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +28,9 @@ data class MenuHoyUiState(
     val menu: MenuDelDia? = null,
     val error: ErrorMenu? = null,
     val menuDeAyer: MenuDelDia? = null,
-    val cambiandoOpcion: Boolean = false,
-    val errorOpcion: ErrorMenu? = null,
+    val guardando: Boolean = false,
+    val errorGuardar: ErrorMenu? = null,
+    val confirmandoTerminar: Boolean = false,
 )
 
 @HiltViewModel
@@ -34,6 +38,9 @@ class MenuHoyViewModel @Inject constructor(
     private val observarMenuDeHoy: ObservarMenuDeHoyUseCase,
     private val cambiarDisponibilidadOpcion: CambiarDisponibilidadOpcionUseCase,
     private val obtenerMenuDeAyer: ObtenerMenuDeAyerUseCase,
+    private val cambiarHoraFin: CambiarHoraFinUseCase,
+    private val terminarMenuDelDia: TerminarMenuDelDiaUseCase,
+    private val reabrirMenuDelDia: ReabrirMenuDelDiaUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MenuHoyUiState())
@@ -48,19 +55,35 @@ class MenuHoyViewModel @Inject constructor(
 
     fun onReintentar() = observar()
 
-    fun onCambiarDisponible(tipo: TipoOpcion, indice: Int, disponible: Boolean) {
+    fun onCambiarDisponible(tipo: TipoOpcion, indice: Int, disponible: Boolean) =
+        guardar { menu -> cambiarDisponibilidadOpcion(menu, tipo, indice, disponible) }
+
+    fun onElegirHoraFin(hora: String) = guardar { menu -> cambiarHoraFin(menu, hora) }
+
+    fun onTerminar() = _uiState.update { it.copy(confirmandoTerminar = true) }
+
+    fun onCancelarTerminar() = _uiState.update { it.copy(confirmandoTerminar = false) }
+
+    fun onConfirmarTerminar() {
+        _uiState.update { it.copy(confirmandoTerminar = false) }
+        guardar { menu -> terminarMenuDelDia(menu) }
+    }
+
+    fun onReabrir() = guardar { menu -> reabrirMenuDelDia(menu) }
+
+    private fun guardar(cambio: suspend (MenuDelDia) -> Unit) {
         val estado = _uiState.value
         val menu = estado.menu ?: return
-        if (estado.cambiandoOpcion) return
+        if (estado.guardando) return
 
-        _uiState.update { it.copy(cambiandoOpcion = true, errorOpcion = null) }
+        _uiState.update { it.copy(guardando = true, errorGuardar = null) }
         viewModelScope.launch {
             try {
-                cambiarDisponibilidadOpcion(menu, tipo, indice, disponible)
+                cambio(menu)
             } catch (e: ErrorMenu) {
-                _uiState.update { it.copy(errorOpcion = e) }
+                _uiState.update { it.copy(errorGuardar = e) }
             }
-            _uiState.update { it.copy(cambiandoOpcion = false) }
+            _uiState.update { it.copy(guardando = false) }
         }
     }
 

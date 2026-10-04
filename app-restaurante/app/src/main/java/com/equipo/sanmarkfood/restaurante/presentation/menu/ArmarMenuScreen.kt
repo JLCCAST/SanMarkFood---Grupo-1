@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,8 +50,6 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.CampoMenu
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
-
-private val HORAS_FIN = listOf("14:00", "14:30", "15:00", "15:30", "16:00")
 
 @Composable
 fun ArmarMenuScreen(
@@ -206,14 +201,17 @@ private fun ArmarMenuContenido(
         ) {
             uiState.error?.let { MensajeErrorMenu(error = it) }
             BotonPrincipal(
-                texto = stringResource(R.string.armar_publicar),
+                texto = stringResource(if (uiState.editando) R.string.editar_guardar else R.string.armar_publicar),
                 onClick = onPublicar,
                 habilitado = uiState.completo,
                 cargando = uiState.publicando,
             )
             Text(
-                text = if (uiState.completo) stringResource(R.string.armar_vence, uiState.horaFin)
-                else stringResource(R.string.armar_falta),
+                text = when {
+                    !uiState.completo -> stringResource(R.string.armar_falta)
+                    uiState.editando -> stringResource(R.string.armar_conservan)
+                    else -> stringResource(R.string.armar_vence, uiState.horaFin)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -330,39 +328,6 @@ private fun FilaOpcion(nombre: String, onQuitar: () -> Unit) {
                 modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-@Composable
-private fun SelectorHoraFin(elegida: String, onElegir: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = stringResource(R.string.armar_se_sirve_hasta), style = MaterialTheme.typography.titleSmall)
-        Row(modifier = Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            HORAS_FIN.forEach { hora ->
-                val seleccionada = hora == elegida
-                val forma = RoundedCornerShape(10.dp)
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp)
-                        .clip(forma)
-                        .border(
-                            1.5.dp,
-                            if (seleccionada) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.outline,
-                            forma,
-                        )
-                        .then(if (seleccionada) Modifier.background(MaterialTheme.colorScheme.inverseSurface) else Modifier)
-                        .selectable(selected = seleccionada, role = Role.RadioButton, onClick = { onElegir(hora) }),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = hora,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (seleccionada) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
         }
     }
 }
