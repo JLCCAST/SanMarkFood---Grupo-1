@@ -158,12 +158,65 @@
     <string name="panel_resenas">Reseñas</string>
     <string name="panel_negocio">Negocio</string>
 
-    <!-- Pestañas que todavía no existen: las reemplazan HU03 (Menú), HU12 (Reservas) y HU21 (Reseñas) -->
+    <!-- Pestañas que todavía no existen: las reemplazan HU03 (Menú de hoy), HU12 (Reservas) y HU21 (Reseñas) -->
     <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
     <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
     <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
-    <string name="provisional_menu">Aquí vas a cargar tu carta y publicar tu menú del día.</string>
+    <string name="provisional_menu_hoy">Aquí vas a publicar tu menú del día.</string>
+
+    <!-- Menú: cabecera con «Menú de hoy» y «Carta» (M1 y M7, HU03) -->
+    <string name="menu_titulo">Menú</string>
+    <string name="menu_hoy">Menú de hoy</string>
+    <string name="menu_carta">Carta</string>
+    <string name="precio_soles">S/ %1$s</string>
+
+    <!-- Carta (M7, HU03) -->
+    <string name="carta_sin_platos">Sin platos</string>
+    <string name="carta_resumen">%1$s · %2$s</string>
+    <plurals name="carta_platos">
+        <item quantity="one">%d plato</item>
+        <item quantity="other">%d platos</item>
+    </plurals>
+    <plurals name="carta_categorias">
+        <item quantity="one">%d categoría</item>
+        <item quantity="other">%d categorías</item>
+    </plurals>
+    <string name="carta_agregar_plato">Agregar plato</string>
+    <string name="carta_vacia_titulo">Tu carta está vacía</string>
+    <!-- Con HU04 vuelve al texto del prototipo, que ofrece también la foto de la carta con IA. -->
+    <string name="carta_vacia_texto">Agrega tus platos uno por uno.</string>
+
+    <!-- Alta de plato (M8, HU03) -->
+    <string name="plato_nuevo_titulo">Nuevo plato</string>
+    <string name="plato_agregar_foto">Agregar foto</string>
+    <string name="plato_cambiar_foto">Cambiar foto</string>
+    <string name="plato_nombre">Nombre</string>
+    <string name="plato_nombre_ejemplo">Ej.: Lomo saltado</string>
+    <string name="plato_descripcion">Descripción</string>
+    <string name="plato_descripcion_ejemplo">Ingredientes y acompañamientos</string>
+    <string name="plato_precio">Precio</string>
+    <string name="plato_moneda">S/</string>
+    <string name="plato_precio_ejemplo">0.00</string>
+    <string name="plato_categoria">Categoría</string>
+    <string name="plato_nueva_categoria">+ Nueva categoría</string>
+    <string name="plato_guardar">Guardar plato</string>
+    <string name="plato_error_nombre">Escribe el nombre del plato.</string>
+    <string name="plato_error_descripcion">La descripción puede tener hasta 300 caracteres.</string>
+    <string name="plato_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 24.50.</string>
+    <string name="plato_error_categoria">Elige una categoría o crea una nueva.</string>
+    <string name="plato_reintentar">Reintentar</string>
+
+    <!-- Nueva categoría (desde M8) -->
+    <string name="categoria_nueva_titulo">Nueva categoría</string>
+    <string name="categoria_nombre">Nombre</string>
+    <string name="categoria_nombre_ejemplo">Ej.: Bebidas</string>
+    <string name="categoria_crear">Crear</string>
+    <string name="categoria_cancelar">Cancelar</string>
+
+    <!-- Errores de la carta -->
+    <string name="error_nombre_categoria">Escribe un nombre de hasta 40 caracteres.</string>
+    <string name="error_categoria_repetida">Ya tienes una categoría con ese nombre.</string>
 
     <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
     <string name="pedidos_titulo">Pedidos</string>
@@ -215,6 +268,11 @@
     <string name="preparacion_horario_falta">Aún no lo configuras</string>
     <string name="preparacion_carta">Carta</string>
     <string name="preparacion_carta_ayuda">Aún no tienes platos</string>
+    <string name="preparacion_carta_cargar">Cargar</string>
+    <plurals name="preparacion_carta_platos">
+        <item quantity="one">%d plato en tu carta</item>
+        <item quantity="other">%d platos en tu carta</item>
+    </plurals>
     <string name="preparacion_menu">Menú del día</string>
     <string name="preparacion_menu_ayuda">Opcional: publícalo cuando te aprueben</string>
 

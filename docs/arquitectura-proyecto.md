@@ -18,14 +18,17 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - `data/local/LectorImagenes.kt`, que achica las fotos antes de subirlas, y en el Gradle Firebase Storage, Coil y Maps Compose.
   - Las primeras pruebas unitarias, en `app/src/test/`: casos de uso probados con un repositorio falso.
 - **App Restaurante — carpetas por proceso (acuerdo del 3 oct):** `domain/model/` y `domain/usecase/` se dividieron en carpetas por proceso (`auth/`, `gestion_restaurante/` y, en casos de uso, `pedidos/`), con los mismos nombres que `presentation/`. Las pruebas siguen la misma división.
-- **App Restaurante — HU03 (SCRUM-32) en curso:** con SCRUM-69 (categorías) entraron `domain/model/menu/` (`Categoria`, `ErrorMenu`), `MenuRepository`, `domain/usecase/menu/` (`ObservarCategoriasUseCase`, `CrearCategoriaUseCase`) y, en `data/`, `MenuDataSource` y `MenuRepositoryImpl`. Todavía sin pantallas: M7 (la carta) y M8 (alta de plato, con el chip «+ Nueva categoría») llegan con el alta de plato (SCRUM-67), porque en el diseño las categorías solo se ven y se crean ahí.
+- **App Restaurante — HU03 (SCRUM-32) en curso:**
+  - SCRUM-69 (categorías): `domain/model/menu/`, `MenuRepository`, `domain/usecase/menu/` y, en `data/`, `MenuDataSource` y `MenuRepositoryImpl`.
+  - SCRUM-67 (alta de plato): `presentation/menu/` con la pestaña Menú del panel (cabecera «Menú de hoy · Carta»), M7 (la carta agrupada por categoría) y M8 (alta de plato, con su foto y el chip «+ Nueva categoría»). La foto del plato se sube a Storage al guardar y, después de cada plato, se recalcula `rangoCarta`. En R5, el ítem «Carta» tiene el botón «Cargar» y su estado real.
+  - Todavía provisional: «Menú de hoy» (SCRUM-148). M7 no tiene «Escanear carta» (HU04) ni los interruptores de disponible (SCRUM-70), y sus platos aún no se abren para editarlos (SCRUM-68).
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
 - En `app-comensal`: las capas de esta arquitectura (ver arriba) y todo lo que no es HU05.
-- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/` y los paquetes `menu/`, `reservas/`, `resenas/` y `admin/` de `presentation/`. El administrador todavía entra a una **pantalla provisional** (`PanelProvisionalScreen`), que se reemplaza con HU24.
+- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/` y los paquetes `reservas/`, `resenas/` y `admin/` de `presentation/`. El administrador todavía entra a una **pantalla provisional** (`PanelProvisionalScreen`), que se reemplaza con HU24.
 - La carpeta `functions/`, con las Cloud Functions (HU07).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
@@ -86,7 +89,7 @@ SanMarkFood---Grupo-1/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
 │           │   ├── panel/                   # Panel del local con la barra inferior; cada pestaña es de su proceso ✔
 │           │   ├── gestion_restaurante/     # Proceso: Gestión de restaurante (perfil, horario y estado del local) ✔ (HU02)
-│           │   ├── menu/                    # Proceso: Carta y menú del día (HU03, HU04)
+│           │   ├── menu/                    # Proceso: Carta y menú del día (HU03, HU04) — carta y alta de plato ✔
 │           │   ├── pedidos/                 # Proceso: Pedidos entrantes — cabecera de O1 con la pausa ✔ (HU02)
 │           │   ├── reservas/                # Proceso: Reservas entrantes
 │           │   ├── resenas/                 # Proceso: Gestión y respuesta a reseñas
@@ -274,7 +277,9 @@ Qué garantizan las reglas de Firestore:
 - Los menús no se borran, porque «copiar el de ayer» los necesita.
 - `menuHoy` y `rangoCarta` del local son copias que la app actualiza junto con el menú y los platos (ver «El documento del local»).
 
-En Storage, las fotos de los platos van en `restaurantes/{uid}/platos/<platoId>-<hora>.jpg`. Solo las sube el dueño, de rol `restaurante`; se aceptan JPEG de menos de 2 MB y el dueño puede borrarlas (al cambiar la foto o eliminar el plato).
+En Storage, las fotos de los platos van en `restaurantes/{uid}/platos/<platoId>-<hora>.jpg`. Solo las sube el dueño, de rol `restaurante`; se aceptan JPEG de menos de 2 MB y el dueño puede borrarlas (al cambiar la foto o eliminar el plato). La app las achica a 1024 px y las sube recién al guardar el plato, así que un alta abandonada no deja fotos sueltas. El id del plato se genera antes de subir la foto, porque va en su nombre.
+
+`rangoCarta` se recalcula después de guardar cada plato, leyendo los precios del servidor. Si ese paso falla, el plato igual queda guardado y el rango se corrige en el siguiente guardado.
 
 ## Convenciones de código
 

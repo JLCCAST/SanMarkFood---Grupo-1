@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -64,7 +65,13 @@ import java.util.Locale
  * rechazaron y, hasta que HU09 traiga la bandeja de pedidos, un aviso cuando ya está aprobado.
  */
 @Composable
-fun EstadoLocal(restaurante: Restaurante, onCorregir: () -> Unit, modifier: Modifier = Modifier) {
+fun EstadoLocal(
+    restaurante: Restaurante,
+    platosEnCarta: Int,
+    onCorregir: () -> Unit,
+    onCargarCarta: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -80,7 +87,9 @@ fun EstadoLocal(restaurante: Restaurante, onCorregir: () -> Unit, modifier: Modi
             // Un borrador no llega aquí: el arranque lo manda a terminar el alta.
             EstadoRestaurante.BORRADOR -> Unit
         }
-        if (restaurante.estado != EstadoRestaurante.APROBADO) ListaPreparacion(restaurante, onCorregir)
+        if (restaurante.estado != EstadoRestaurante.APROBADO) {
+            ListaPreparacion(restaurante, platosEnCarta, onCorregir, onCargarCarta)
+        }
     }
 }
 
@@ -194,7 +203,12 @@ private fun PuntoParpadeante() {
 }
 
 @Composable
-private fun ListaPreparacion(restaurante: Restaurante, onCorregir: () -> Unit) {
+private fun ListaPreparacion(
+    restaurante: Restaurante,
+    platosEnCarta: Int,
+    onCorregir: () -> Unit,
+    onCargarCarta: () -> Unit,
+) {
     val rechazado = restaurante.estado == EstadoRestaurante.RECHAZADO
     val horario = restaurante.horario
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -226,11 +240,14 @@ private fun ListaPreparacion(restaurante: Restaurante, onCorregir: () -> Unit) {
             ayuda = horario?.let { resumenDias(it) } ?: stringResource(R.string.preparacion_horario_falta),
             listo = horario != null,
         )
-        // HU03 agrega el botón «Cargar» y el estado real de la carta.
+        val sinPlatos = platosEnCarta == 0
         ItemPreparacion(
             titulo = stringResource(R.string.preparacion_carta),
-            ayuda = stringResource(R.string.preparacion_carta_ayuda),
-            listo = false,
+            ayuda = if (sinPlatos) stringResource(R.string.preparacion_carta_ayuda)
+            else pluralStringResource(R.plurals.preparacion_carta_platos, platosEnCarta, platosEnCarta),
+            listo = !sinPlatos,
+            accion = if (sinPlatos) stringResource(R.string.preparacion_carta_cargar) else null,
+            onAccion = onCargarCarta,
         )
         ItemPreparacion(
             titulo = stringResource(R.string.preparacion_menu),
@@ -339,7 +356,7 @@ private val restauranteDeEjemplo = Restaurante(
 private fun EnRevisionPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            EstadoLocal(restauranteDeEjemplo, onCorregir = {})
+            EstadoLocal(restauranteDeEjemplo, platosEnCarta = 0, onCorregir = {}, onCargarCarta = {})
         }
     }
 }
@@ -357,7 +374,9 @@ private fun RechazadoPreview() {
                         "La dirección no coincide con el punto marcado en el mapa.",
                     ),
                 ),
+                platosEnCarta = 0,
                 onCorregir = {},
+                onCargarCarta = {},
             )
         }
     }

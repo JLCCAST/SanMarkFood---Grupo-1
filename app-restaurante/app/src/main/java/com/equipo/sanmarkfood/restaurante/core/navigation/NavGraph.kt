@@ -16,6 +16,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScree
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
+import com.equipo.sanmarkfood.restaurante.presentation.menu.PlatoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 
 @Composable
@@ -75,7 +76,14 @@ fun RestauranteNavGraph() {
                 onEditarPerfil = { navController.navigate(DatosLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onCorregir = { navController.navigate(DatosLocal(ModoFormulario.CORREGIR)) { launchSingleTop = true } },
                 onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
+                onAgregarPlato = { navController.navigate(Plato()) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
+        composable<Plato> {
+            PlatoScreen(
+                onVolver = { navController.navigateUp() },
+                onGuardado = { navController.navigateUp() },
             )
         }
     }

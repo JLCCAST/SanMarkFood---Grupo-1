@@ -212,7 +212,7 @@ private fun BoxScope.ProgresoSubida(progreso: Float, tamano: Dp) {
     }
 }
 
-private fun Modifier.bordePunteado(color: Color, radio: Dp): Modifier = drawBehind {
+internal fun Modifier.bordePunteado(color: Color, radio: Dp): Modifier = drawBehind {
     val grosor = 1.5.dp.toPx()
     drawRoundRect(
         color = color,

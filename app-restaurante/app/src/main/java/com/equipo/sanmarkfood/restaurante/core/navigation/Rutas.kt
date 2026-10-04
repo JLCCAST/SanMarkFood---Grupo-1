@@ -29,3 +29,6 @@ data class HorarioLocal(val modo: ModoFormulario)
 /** Panel del local con la barra inferior: R5 en «Pedidos» y O6 en «Negocio», por ahora. */
 @Serializable
 data object PanelLocal
+
+@Serializable
+data class Plato(val platoId: String? = null)

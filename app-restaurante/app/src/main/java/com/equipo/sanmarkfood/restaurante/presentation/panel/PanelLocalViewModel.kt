@@ -7,8 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.CambiarPausaPedidosUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ObservarRestauranteUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObservarCartaUseCase
+import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,16 +33,19 @@ enum class PestanaPanel(@param:DrawableRes val icono: Int, @param:StringRes val 
 /** Mientras [restaurante] y [error] son null, se está leyendo el local por primera vez. */
 data class PanelLocalUiState(
     val pestana: PestanaPanel = PestanaPanel.PEDIDOS,
+    val seccionMenu: SeccionMenu = SeccionMenu.HOY,
     val restaurante: Restaurante? = null,
     val error: ErrorRestaurante? = null,
     val cambiandoPausa: Boolean = false,
     val errorPausa: ErrorRestaurante? = null,
+    val platosEnCarta: Int = 0,
 )
 
 @HiltViewModel
 class PanelLocalViewModel @Inject constructor(
     private val observarRestaurante: ObservarRestauranteUseCase,
     private val cambiarPausaPedidos: CambiarPausaPedidosUseCase,
+    private val observarCarta: ObservarCartaUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PanelLocalUiState())
@@ -49,9 +55,14 @@ class PanelLocalViewModel @Inject constructor(
 
     init {
         observar()
+        contarPlatos()
     }
 
     fun onElegirPestana(pestana: PestanaPanel) = _uiState.update { it.copy(pestana = pestana) }
+
+    fun onElegirSeccionMenu(seccion: SeccionMenu) = _uiState.update { it.copy(seccionMenu = seccion) }
+
+    fun onCargarCarta() = _uiState.update { it.copy(pestana = PestanaPanel.MENU, seccionMenu = SeccionMenu.CARTA) }
 
     fun onReintentar() = observar()
 
@@ -86,6 +97,14 @@ class PanelLocalViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun contarPlatos() {
+        viewModelScope.launch {
+            observarCarta()
+                .catch { e -> if (e !is ErrorMenu) throw e }
+                .collect { secciones -> _uiState.update { it.copy(platosEnCarta = secciones.sumOf { s -> s.platos.size }) } }
         }
     }
 }

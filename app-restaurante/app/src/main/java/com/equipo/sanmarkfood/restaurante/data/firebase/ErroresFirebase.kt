@@ -59,5 +59,6 @@ internal suspend fun <T> llamarFirebaseMenu(llamada: suspend () -> T): T =
 internal fun FirebaseException.aErrorMenu(): ErrorMenu = when {
     this is FirebaseNetworkException -> ErrorMenu.SinConexion
     this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE -> ErrorMenu.SinConexion
+    this is StorageException && errorCode == StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> ErrorMenu.SinConexion
     else -> ErrorMenu.Desconocido
 }

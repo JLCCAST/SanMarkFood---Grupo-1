@@ -1,7 +1,9 @@
 package com.equipo.sanmarkfood.restaurante.domain.usecase.menu
 
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -23,6 +25,8 @@ class CrearCategoriaUseCaseTest {
         }
         override suspend fun crearCategoria(nombre: String, orden: Int): Categoria =
             Categoria(id = "nueva", nombre = nombre, orden = orden).also { creada = it }
+        override fun observarPlatos(): Flow<List<Plato>> = emptyFlow()
+        override suspend fun crearPlato(datos: DatosPlato, fotoLocal: String?) = Unit
     }
 
     private val repositorio = RepositorioFalso()

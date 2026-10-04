@@ -90,6 +90,7 @@ fun CampoFormulario(
     mensaje: String? = null,
     colorMensaje: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     esError: Boolean = false,
+    minLineas: Int = 1,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(text = etiqueta, style = MaterialTheme.typography.labelLarge)
@@ -99,7 +100,8 @@ fun CampoFormulario(
             modifier = Modifier.fillMaxWidth(),
             placeholder = ejemplo?.let { { Text(it) } },
             isError = esError,
-            singleLine = true,
+            singleLine = minLineas == 1,
+            minLines = minLineas,
             shape = RoundedCornerShape(12.dp),
             visualTransformation = if (esContrasena) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(capitalization = capitalizacion, keyboardType = tipoTeclado),
