@@ -89,9 +89,27 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Immutable
-data class ExtendedColors(val pizarra: Color)
+data class ExtendedColors(
+    val pizarra: Color,
+    // Superficies que siguen oscuras en los dos temas: cabecera del menú del día y aviso de pedido en curso.
+    val superficieFija: Color,
+    val sobreSuperficieFija: Color,
+    val sobreSuperficieFijaTenue: Color,
+)
 
-private val LocalExtendedColors = staticCompositionLocalOf { ExtendedColors(pizarra = Pizarra) }
+private val LightExtendedColors = ExtendedColors(
+    pizarra = Pizarra,
+    superficieFija = LightSuperficieFija,
+    sobreSuperficieFija = LightSobreSuperficieFija,
+    sobreSuperficieFijaTenue = SobreSuperficieFijaTenue,
+)
+
+private val DarkExtendedColors = LightExtendedColors.copy(
+    superficieFija = DarkSuperficieFija,
+    sobreSuperficieFija = DarkSobreSuperficieFija,
+)
+
+private val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }
 
 val MaterialTheme.extendedColors: ExtendedColors
     @Composable get() = LocalExtendedColors.current
@@ -103,8 +121,9 @@ fun AppcomensalTheme(
 ) {
     // Sin color dinámico: en Android 12+ reemplazaría la paleta de marca (SCRUM-159).
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val extendedColors = if (darkTheme) DarkExtendedColors else LightExtendedColors
 
-    CompositionLocalProvider(LocalExtendedColors provides ExtendedColors(pizarra = Pizarra)) {
+    CompositionLocalProvider(LocalExtendedColors provides extendedColors) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

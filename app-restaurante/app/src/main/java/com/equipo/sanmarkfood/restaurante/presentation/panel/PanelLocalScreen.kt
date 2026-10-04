@@ -27,23 +27,30 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.EstadoLocal
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.MensajeErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.presentation.menu.CartaScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.MenuHoyScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
+import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
 
 /**
  * Panel del local con la barra inferior del prototipo: Pedidos · Reservas · Menú · Reseñas · Negocio.
- * Por ahora «Pedidos» muestra el estado del local (R5) y «Negocio» la sección «Tu local» de O6; las
- * demás pestañas muestran un aviso hasta que lleguen HU03 (Menú), HU09 (Pedidos), HU12 y HU21.
+ * Por ahora «Pedidos» muestra el estado del local (R5), «Menú» el menú de hoy (M1) y la carta (M7), y
+ * «Negocio» la sección «Tu local» de O6; lo demás muestra un aviso hasta que lleguen HU09, HU12 y HU21.
  */
 @Composable
 fun PanelLocalScreen(
     onEditarPerfil: () -> Unit,
     onCorregir: () -> Unit,
     onEditarHorario: () -> Unit,
+    onAgregarPlato: () -> Unit,
+    onAbrirPlato: (platoId: String) -> Unit,
+    onArmarMenu: (ModoArmarMenu) -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -62,6 +69,7 @@ fun PanelLocalScreen(
                 onReintentar = viewModel::onReintentar,
                 onCambiarRecepcion = viewModel::onCambiarRecepcion,
                 onCorregir = onCorregir,
+                onCargarCarta = viewModel::onCargarCarta,
                 modifier = contenido,
             )
             PestanaPanel.RESERVAS -> PestanaProvisional(
@@ -71,11 +79,19 @@ fun PanelLocalScreen(
                 ),
                 modifier = contenido,
             )
-            PestanaPanel.MENU -> PestanaProvisional(
-                icono = R.drawable.ic_menu,
-                texto = stringResource(R.string.provisional_menu),
-                modifier = contenido,
-            )
+            PestanaPanel.MENU -> when (uiState.seccionMenu) {
+                SeccionMenu.HOY -> MenuHoyScreen(
+                    onElegirSeccion = viewModel::onElegirSeccionMenu,
+                    onArmarMenu = onArmarMenu,
+                    modifier = contenido,
+                )
+                SeccionMenu.CARTA -> CartaScreen(
+                    onElegirSeccion = viewModel::onElegirSeccionMenu,
+                    onAgregarPlato = onAgregarPlato,
+                    onAbrirPlato = onAbrirPlato,
+                    modifier = contenido,
+                )
+            }
             PestanaPanel.RESENAS -> PestanaProvisional(
                 icono = R.drawable.ic_resenas,
                 texto = stringResource(
@@ -100,6 +116,7 @@ private fun PestanaPedidos(
     onReintentar: () -> Unit,
     onCambiarRecepcion: (Boolean) -> Unit,
     onCorregir: () -> Unit,
+    onCargarCarta: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val restaurante = uiState.restaurante
@@ -124,9 +141,21 @@ private fun PestanaPedidos(
                 error = uiState.errorPausa,
                 onCambiarRecepcion = onCambiarRecepcion,
             )
-            EstadoLocal(restaurante = restaurante, onCorregir = onCorregir, modifier = Modifier.weight(1f))
+            EstadoLocal(
+                restaurante = restaurante,
+                platosEnCarta = uiState.platosEnCarta,
+                onCorregir = onCorregir,
+                onCargarCarta = onCargarCarta,
+                modifier = Modifier.weight(1f),
+            )
         }
-        else -> EstadoLocal(restaurante = restaurante, onCorregir = onCorregir, modifier = modifier)
+        else -> EstadoLocal(
+            restaurante = restaurante,
+            platosEnCarta = uiState.platosEnCarta,
+            onCorregir = onCorregir,
+            onCargarCarta = onCargarCarta,
+            modifier = modifier,
+        )
     }
 }
 

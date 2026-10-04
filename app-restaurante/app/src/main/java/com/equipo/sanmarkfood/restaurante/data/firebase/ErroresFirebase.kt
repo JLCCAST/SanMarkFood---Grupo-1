@@ -1,7 +1,8 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -46,4 +47,18 @@ internal fun FirebaseException.aErrorRestaurante(): ErrorRestaurante = when {
     // Storage no falla al instante sin conexión: reintenta hasta el límite de FirebaseModule.
     this is StorageException && errorCode == StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> ErrorRestaurante.SinConexion
     else -> ErrorRestaurante.Desconocido
+}
+
+internal suspend fun <T> llamarFirebaseMenu(llamada: suspend () -> T): T =
+    try {
+        llamada()
+    } catch (e: FirebaseException) {
+        throw e.aErrorMenu()
+    }
+
+internal fun FirebaseException.aErrorMenu(): ErrorMenu = when {
+    this is FirebaseNetworkException -> ErrorMenu.SinConexion
+    this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE -> ErrorMenu.SinConexion
+    this is StorageException && errorCode == StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> ErrorMenu.SinConexion
+    else -> ErrorMenu.Desconocido
 }

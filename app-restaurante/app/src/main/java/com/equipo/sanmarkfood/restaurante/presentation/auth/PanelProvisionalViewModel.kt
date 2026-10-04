@@ -1,7 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.presentation.auth
 
 import androidx.lifecycle.ViewModel
-import com.equipo.sanmarkfood.restaurante.domain.usecase.CerrarSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.CerrarSesionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

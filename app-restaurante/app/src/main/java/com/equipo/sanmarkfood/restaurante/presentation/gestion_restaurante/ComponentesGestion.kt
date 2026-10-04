@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,11 +30,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Hora
-import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Hora
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
 import java.util.Locale
 
 /** El logo del local, o la inicial de su nombre si no subió uno (el logo es opcional desde SCRUM-63). */
@@ -65,9 +66,9 @@ fun LogoLocal(logoUrl: String?, nombre: String, tamano: Dp, radio: Dp, modifier:
 
 /** Cabecera de las pantallas que editan algo ya guardado (O7, O8, selector de ubicación). */
 @Composable
-fun CabeceraEdicion(titulo: String, onVolver: () -> Unit) {
+fun CabeceraEdicion(titulo: String, onVolver: () -> Unit, accion: @Composable () -> Unit = {}) {
     Row(
-        modifier = Modifier.height(64.dp).padding(horizontal = 4.dp),
+        modifier = Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -77,7 +78,8 @@ fun CabeceraEdicion(titulo: String, onVolver: () -> Unit) {
                 contentDescription = stringResource(R.string.volver),
             )
         }
-        Text(text = titulo, style = MaterialTheme.typography.titleMedium)
+        Text(text = titulo, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+        accion()
     }
 }
 

@@ -6,8 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
-import com.equipo.sanmarkfood.restaurante.domain.model.Rol
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.Rol
 import com.equipo.sanmarkfood.restaurante.presentation.auth.ArranqueScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.PanelProvisionalScreen
@@ -16,6 +16,8 @@ import com.equipo.sanmarkfood.restaurante.presentation.auth.VerificarCorreoScree
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.DatosLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ArmarMenuScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.PlatoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 
 @Composable
@@ -75,7 +77,22 @@ fun RestauranteNavGraph() {
                 onEditarPerfil = { navController.navigate(DatosLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onCorregir = { navController.navigate(DatosLocal(ModoFormulario.CORREGIR)) { launchSingleTop = true } },
                 onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
+                onAgregarPlato = { navController.navigate(Plato()) { launchSingleTop = true } },
+                onAbrirPlato = { platoId -> navController.navigate(Plato(platoId)) { launchSingleTop = true } },
+                onArmarMenu = { modo -> navController.navigate(ArmarMenu(modo)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
+        composable<ArmarMenu> {
+            ArmarMenuScreen(
+                onCerrar = { navController.navigateUp() },
+                onPublicado = { navController.navigateUp() },
+            )
+        }
+        composable<Plato> {
+            PlatoScreen(
+                onVolver = { navController.navigateUp() },
+                onTerminado = { navController.navigateUp() },
             )
         }
     }

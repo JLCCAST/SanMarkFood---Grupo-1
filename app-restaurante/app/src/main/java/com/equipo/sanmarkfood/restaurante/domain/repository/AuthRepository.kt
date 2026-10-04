@@ -1,6 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.domain.repository
 
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
 
 interface AuthRepository {
     suspend fun registrar(correo: String, contrasena: String)

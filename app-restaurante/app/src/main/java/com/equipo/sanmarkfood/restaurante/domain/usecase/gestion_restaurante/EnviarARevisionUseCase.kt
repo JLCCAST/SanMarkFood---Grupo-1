@@ -1,0 +1,14 @@
+package com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante
+
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
+import javax.inject.Inject
+
+class EnviarARevisionUseCase @Inject constructor(
+    private val restauranteRepository: RestauranteRepository
+) {
+    suspend operator fun invoke(horario: Horario) {
+        validarHorario(horario)
+        restauranteRepository.enviarARevision(horario)
+    }
+}
