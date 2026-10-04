@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.presentation.menu
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,7 @@ import java.util.Locale
 fun CartaScreen(
     onElegirSeccion: (SeccionMenu) -> Unit,
     onAgregarPlato: () -> Unit,
+    onAbrirPlato: (platoId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CartaViewModel = hiltViewModel(),
 ) {
@@ -61,6 +64,7 @@ fun CartaScreen(
         uiState = uiState,
         onElegirSeccion = onElegirSeccion,
         onAgregarPlato = onAgregarPlato,
+        onAbrirPlato = onAbrirPlato,
         onReintentar = viewModel::onReintentar,
         modifier = modifier,
     )
@@ -71,6 +75,7 @@ private fun CartaContenido(
     uiState: CartaUiState,
     onElegirSeccion: (SeccionMenu) -> Unit,
     onAgregarPlato: () -> Unit,
+    onAbrirPlato: (platoId: String) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -113,7 +118,7 @@ private fun CartaContenido(
             ) {
                 secciones.forEach { seccion ->
                     item(key = "categoria-${seccion.categoria.id}") { TituloSeccion(seccion) }
-                    items(seccion.platos, key = { it.id }) { plato -> FilaPlato(plato) }
+                    items(seccion.platos, key = { it.id }) { plato -> FilaPlato(plato, onAbrir = { onAbrirPlato(plato.id) }) }
                 }
             }
         }
@@ -174,9 +179,13 @@ private fun TituloSeccion(seccion: SeccionCarta) {
 }
 
 @Composable
-private fun FilaPlato(plato: Plato) {
+private fun FilaPlato(plato: Plato, onAbrir: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).padding(vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 60.dp)
+            .clickable(role = Role.Button, onClick = onAbrir)
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -237,6 +246,7 @@ private fun CartaPreview() {
                 ),
                 onElegirSeccion = {},
                 onAgregarPlato = {},
+                onAbrirPlato = {},
                 onReintentar = {},
             )
         }
@@ -252,6 +262,7 @@ private fun CartaVaciaPreview() {
                 uiState = CartaUiState(secciones = emptyList()),
                 onElegirSeccion = {},
                 onAgregarPlato = {},
+                onAbrirPlato = {},
                 onReintentar = {},
             )
         }

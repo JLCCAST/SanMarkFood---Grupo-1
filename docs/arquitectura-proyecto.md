@@ -21,7 +21,8 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 - **App Restaurante — HU03 (SCRUM-32) en curso:**
   - SCRUM-69 (categorías): `domain/model/menu/`, `MenuRepository`, `domain/usecase/menu/` y, en `data/`, `MenuDataSource` y `MenuRepositoryImpl`.
   - SCRUM-67 (alta de plato): `presentation/menu/` con la pestaña Menú del panel (cabecera «Menú de hoy · Carta»), M7 (la carta agrupada por categoría) y M8 (alta de plato, con su foto y el chip «+ Nueva categoría»). La foto del plato se sube a Storage al guardar y, después de cada plato, se recalcula `rangoCarta`. En R5, el ítem «Carta» tiene el botón «Cargar» y su estado real.
-  - Todavía provisional: «Menú de hoy» (SCRUM-148). M7 no tiene «Escanear carta» (HU04) ni los interruptores de disponible (SCRUM-70), y sus platos aún no se abren para editarlos (SCRUM-68).
+  - SCRUM-68 (editar y eliminar): al tocar un plato en M7 se abre M8 en modo edición (la ruta `Plato` lleva su id), con el botón de eliminar y su confirmación. Al cambiar la foto o eliminar el plato se borra la foto vieja de Storage, y `rangoCarta` se recalcula, o se quita si la carta queda vacía.
+  - Todavía provisional: «Menú de hoy» (SCRUM-148). M7 no tiene «Escanear carta» (HU04) ni los interruptores de disponible (SCRUM-70).
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
@@ -279,7 +280,7 @@ Qué garantizan las reglas de Firestore:
 
 En Storage, las fotos de los platos van en `restaurantes/{uid}/platos/<platoId>-<hora>.jpg`. Solo las sube el dueño, de rol `restaurante`; se aceptan JPEG de menos de 2 MB y el dueño puede borrarlas (al cambiar la foto o eliminar el plato). La app las achica a 1024 px y las sube recién al guardar el plato, así que un alta abandonada no deja fotos sueltas. El id del plato se genera antes de subir la foto, porque va en su nombre.
 
-`rangoCarta` se recalcula después de guardar cada plato, leyendo los precios del servidor. Si ese paso falla, el plato igual queda guardado y el rango se corrige en el siguiente guardado.
+`rangoCarta` se recalcula después de crear, editar o eliminar un plato, leyendo los precios del servidor; si la carta queda sin platos, el campo se quita (la regla `cambiaCarta()` lo permite). Si ese paso falla, el plato igual queda guardado y el rango se corrige en el siguiente cambio. Lo mismo pasa al borrar la foto vieja de un plato: si falla, queda suelta en Storage, sin afectar la carta.
 
 ## Convenciones de código
 

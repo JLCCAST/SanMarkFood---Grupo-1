@@ -189,6 +189,12 @@
 
     <!-- Alta de plato (M8, HU03) -->
     <string name="plato_nuevo_titulo">Nuevo plato</string>
+    <string name="plato_editar_titulo">Editar plato</string>
+    <string name="plato_eliminar">Eliminar plato</string>
+    <string name="eliminar_plato_titulo">¿Eliminar %1$s?</string>
+    <string name="eliminar_plato_texto">Dejará de verse en tu carta. Los pedidos y reseñas anteriores lo seguirán mostrando. Si solo se acabó hoy, márcalo como agotado.</string>
+    <string name="eliminar_plato_volver">Volver</string>
+    <string name="eliminar_plato_confirmar">Eliminar</string>
     <string name="plato_agregar_foto">Agregar foto</string>
     <string name="plato_cambiar_foto">Cambiar foto</string>
     <string name="plato_nombre">Nombre</string>

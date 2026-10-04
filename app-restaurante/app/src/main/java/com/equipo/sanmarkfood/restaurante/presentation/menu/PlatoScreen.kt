@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -63,13 +65,21 @@ import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 @Composable
 fun PlatoScreen(
     onVolver: () -> Unit,
-    onGuardado: () -> Unit,
+    onTerminado: () -> Unit,
     viewModel: PlatoViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.guardado) {
-        if (uiState.guardado) onGuardado()
+    LaunchedEffect(uiState.terminado) {
+        if (uiState.terminado) onTerminado()
+    }
+
+    if (uiState.confirmandoEliminacion) {
+        DialogoEliminarPlato(
+            nombre = uiState.plato?.datos?.nombre.orEmpty(),
+            onEliminar = viewModel::onConfirmarEliminacion,
+            onVolver = viewModel::onCancelarEliminacion,
+        )
     }
 
     uiState.nuevaCategoria?.let { dialogo ->
@@ -84,6 +94,8 @@ fun PlatoScreen(
     PlatoContenido(
         uiState = uiState,
         onVolver = onVolver,
+        onEliminar = viewModel::onEliminar,
+        onReintentarCarga = viewModel::onReintentarCarga,
         onFotoElegida = viewModel::onFotoElegida,
         onCambiarNombre = viewModel::onCambiarNombre,
         onCambiarDescripcion = viewModel::onCambiarDescripcion,
@@ -99,6 +111,66 @@ fun PlatoScreen(
 private fun PlatoContenido(
     uiState: PlatoUiState,
     onVolver: () -> Unit,
+    onEliminar: () -> Unit,
+    onReintentarCarga: () -> Unit,
+    onFotoElegida: (String) -> Unit,
+    onCambiarNombre: (String) -> Unit,
+    onCambiarDescripcion: (String) -> Unit,
+    onCambiarPrecio: (String) -> Unit,
+    onElegirCategoria: (String) -> Unit,
+    onNuevaCategoria: () -> Unit,
+    onReintentarCategorias: () -> Unit,
+    onGuardar: () -> Unit,
+) {
+    val errorCarga = uiState.errorCarga
+    Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+        CabeceraEdicion(
+            titulo = stringResource(if (uiState.editando) R.string.plato_editar_titulo else R.string.plato_nuevo_titulo),
+            onVolver = onVolver,
+        ) {
+            if (uiState.plato != null) {
+                IconButton(onClick = onEliminar, enabled = !uiState.ocupado) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_eliminar),
+                        contentDescription = stringResource(R.string.plato_eliminar),
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
+
+        when {
+            uiState.cargando -> Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+
+            errorCarga != null -> Column(
+                modifier = Modifier.weight(1f).fillMaxWidth().padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                MensajeErrorMenu(error = errorCarga)
+                BotonPrincipal(texto = stringResource(R.string.arranque_reintentar), onClick = onReintentarCarga)
+            }
+
+            else -> FormularioPlato(
+                uiState = uiState,
+                onFotoElegida = onFotoElegida,
+                onCambiarNombre = onCambiarNombre,
+                onCambiarDescripcion = onCambiarDescripcion,
+                onCambiarPrecio = onCambiarPrecio,
+                onElegirCategoria = onElegirCategoria,
+                onNuevaCategoria = onNuevaCategoria,
+                onReintentarCategorias = onReintentarCategorias,
+                onGuardar = onGuardar,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.FormularioPlato(
+    uiState: PlatoUiState,
     onFotoElegida: (String) -> Unit,
     onCambiarNombre: (String) -> Unit,
     onCambiarDescripcion: (String) -> Unit,
@@ -109,74 +181,90 @@ private fun PlatoContenido(
     onGuardar: () -> Unit,
 ) {
     val invalidos = uiState.camposInvalidos
-    Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-        CabeceraEdicion(titulo = stringResource(R.string.plato_nuevo_titulo), onVolver = onVolver)
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .verticalScroll(rememberScrollState())
+            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        FotoPlato(imagen = uiState.foto, habilitado = !uiState.ocupado, onFotoElegida = onFotoElegida)
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-        ) {
-            FotoPlato(imagen = uiState.fotoLocal, habilitado = !uiState.guardando, onFotoElegida = onFotoElegida)
+        CampoFormulario(
+            etiqueta = stringResource(R.string.plato_nombre),
+            valor = uiState.nombre,
+            onValorChange = onCambiarNombre,
+            tipoTeclado = KeyboardType.Text,
+            capitalizacion = KeyboardCapitalization.Sentences,
+            ejemplo = stringResource(R.string.plato_nombre_ejemplo),
+            esError = CampoPlato.NOMBRE in invalidos,
+            mensaje = if (CampoPlato.NOMBRE in invalidos) stringResource(R.string.plato_error_nombre) else null,
+            colorMensaje = MaterialTheme.colorScheme.error,
+        )
 
-            CampoFormulario(
-                etiqueta = stringResource(R.string.plato_nombre),
-                valor = uiState.nombre,
-                onValorChange = onCambiarNombre,
-                tipoTeclado = KeyboardType.Text,
-                capitalizacion = KeyboardCapitalization.Sentences,
-                ejemplo = stringResource(R.string.plato_nombre_ejemplo),
-                esError = CampoPlato.NOMBRE in invalidos,
-                mensaje = if (CampoPlato.NOMBRE in invalidos) stringResource(R.string.plato_error_nombre) else null,
-                colorMensaje = MaterialTheme.colorScheme.error,
-            )
+        CampoFormulario(
+            etiqueta = stringResource(R.string.plato_descripcion),
+            valor = uiState.descripcion,
+            onValorChange = onCambiarDescripcion,
+            tipoTeclado = KeyboardType.Text,
+            capitalizacion = KeyboardCapitalization.Sentences,
+            ejemplo = stringResource(R.string.plato_descripcion_ejemplo),
+            minLineas = 3,
+            esError = CampoPlato.DESCRIPCION in invalidos,
+            mensaje = if (CampoPlato.DESCRIPCION in invalidos) stringResource(R.string.plato_error_descripcion) else null,
+            colorMensaje = MaterialTheme.colorScheme.error,
+        )
 
-            CampoFormulario(
-                etiqueta = stringResource(R.string.plato_descripcion),
-                valor = uiState.descripcion,
-                onValorChange = onCambiarDescripcion,
-                tipoTeclado = KeyboardType.Text,
-                capitalizacion = KeyboardCapitalization.Sentences,
-                ejemplo = stringResource(R.string.plato_descripcion_ejemplo),
-                minLineas = 3,
-                esError = CampoPlato.DESCRIPCION in invalidos,
-                mensaje = if (CampoPlato.DESCRIPCION in invalidos) stringResource(R.string.plato_error_descripcion) else null,
-                colorMensaje = MaterialTheme.colorScheme.error,
-            )
+        CampoPrecio(
+            valor = uiState.precio,
+            onValorChange = onCambiarPrecio,
+            esError = CampoPlato.PRECIO in invalidos,
+        )
 
-            CampoPrecio(
-                valor = uiState.precio,
-                onValorChange = onCambiarPrecio,
-                esError = CampoPlato.PRECIO in invalidos,
-            )
-
-            SelectorCategoriaPlato(
-                categorias = uiState.categorias,
-                error = uiState.errorCategorias,
-                elegida = uiState.categoriaId,
-                esError = CampoPlato.CATEGORIA in invalidos,
-                habilitado = !uiState.guardando,
-                onElegir = onElegirCategoria,
-                onNueva = onNuevaCategoria,
-                onReintentar = onReintentarCategorias,
-            )
-        }
-
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            uiState.error?.let { MensajeErrorMenu(error = it) }
-            BotonPrincipal(
-                texto = stringResource(R.string.plato_guardar),
-                onClick = onGuardar,
-                cargando = uiState.guardando,
-            )
-        }
+        SelectorCategoriaPlato(
+            categorias = uiState.categorias,
+            error = uiState.errorCategorias,
+            elegida = uiState.categoriaId,
+            esError = CampoPlato.CATEGORIA in invalidos,
+            habilitado = !uiState.ocupado,
+            onElegir = onElegirCategoria,
+            onNueva = onNuevaCategoria,
+            onReintentar = onReintentarCategorias,
+        )
     }
+
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    Column(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        uiState.error?.let { MensajeErrorMenu(error = it) }
+        BotonPrincipal(
+            texto = stringResource(R.string.plato_guardar),
+            onClick = onGuardar,
+            habilitado = !uiState.eliminando,
+            cargando = uiState.guardando,
+        )
+    }
+}
+
+@Composable
+private fun DialogoEliminarPlato(nombre: String, onEliminar: () -> Unit, onVolver: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onVolver,
+        title = { Text(text = stringResource(R.string.eliminar_plato_titulo, nombre)) },
+        text = { Text(text = stringResource(R.string.eliminar_plato_texto)) },
+        confirmButton = {
+            TextButton(onClick = onEliminar) {
+                Text(text = stringResource(R.string.eliminar_plato_confirmar), color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onVolver) {
+                Text(text = stringResource(R.string.eliminar_plato_volver))
+            }
+        },
+    )
 }
 
 @Composable
@@ -393,6 +481,8 @@ private fun PlatoPreview() {
                     categorias = listOf(Categoria("p", "Platos", 0), Categoria("b", "Bebidas", 1)),
                 ),
                 onVolver = {},
+                onEliminar = {},
+                onReintentarCarga = {},
                 onFotoElegida = {},
                 onCambiarNombre = {},
                 onCambiarDescripcion = {},

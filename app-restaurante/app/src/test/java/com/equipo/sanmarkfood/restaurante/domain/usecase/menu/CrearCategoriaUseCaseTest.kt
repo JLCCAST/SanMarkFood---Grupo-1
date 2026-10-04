@@ -26,7 +26,10 @@ class CrearCategoriaUseCaseTest {
         override suspend fun crearCategoria(nombre: String, orden: Int): Categoria =
             Categoria(id = "nueva", nombre = nombre, orden = orden).also { creada = it }
         override fun observarPlatos(): Flow<List<Plato>> = emptyFlow()
+        override suspend fun obtenerPlato(id: String): Plato? = null
         override suspend fun crearPlato(datos: DatosPlato, fotoLocal: String?) = Unit
+        override suspend fun actualizarPlato(plato: Plato, datos: DatosPlato, fotoLocal: String?) = Unit
+        override suspend fun eliminarPlato(plato: Plato) = Unit
     }
 
     private val repositorio = RepositorioFalso()

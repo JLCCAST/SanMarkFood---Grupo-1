@@ -77,13 +77,14 @@ fun RestauranteNavGraph() {
                 onCorregir = { navController.navigate(DatosLocal(ModoFormulario.CORREGIR)) { launchSingleTop = true } },
                 onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onAgregarPlato = { navController.navigate(Plato()) { launchSingleTop = true } },
+                onAbrirPlato = { platoId -> navController.navigate(Plato(platoId)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
         composable<Plato> {
             PlatoScreen(
                 onVolver = { navController.navigateUp() },
-                onGuardado = { navController.navigateUp() },
+                onTerminado = { navController.navigateUp() },
             )
         }
     }

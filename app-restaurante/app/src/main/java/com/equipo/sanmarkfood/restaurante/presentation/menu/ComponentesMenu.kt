@@ -94,8 +94,9 @@ private fun SelectorSeccion(actual: SeccionMenu, onElegir: (SeccionMenu) -> Unit
 }
 
 @Composable
-fun precioTexto(centimos: Int): String =
-    stringResource(R.string.precio_soles, "%d.%02d".format(Locale.ROOT, centimos / 100, centimos % 100))
+fun precioTexto(centimos: Int): String = stringResource(R.string.precio_soles, precioEnSoles(centimos))
+
+fun precioEnSoles(centimos: Int): String = "%d.%02d".format(Locale.ROOT, centimos / 100, centimos % 100)
 
 @Composable
 fun MensajeErrorMenu(error: ErrorMenu, modifier: Modifier = Modifier) {
