@@ -3,6 +3,7 @@ package com.equipo.sanmarkfood.restaurante.domain.repository
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.EstadoMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
@@ -33,6 +34,8 @@ interface MenuRepository {
     suspend fun leerMenu(fecha: String): MenuDelDia?
 
     suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu)
+
+    suspend fun actualizarMenu(fecha: String, datos: DatosMenu, estado: EstadoMenu)
 
     suspend fun guardarOpcionesMenu(fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>)
 }

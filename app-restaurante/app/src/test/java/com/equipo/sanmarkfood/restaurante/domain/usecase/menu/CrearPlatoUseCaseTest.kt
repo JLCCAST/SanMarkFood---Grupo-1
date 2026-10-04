@@ -5,6 +5,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.EstadoMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OpcionMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
@@ -35,6 +36,7 @@ class CrearPlatoUseCaseTest {
         override suspend fun leerMenu(fecha: String): MenuDelDia? = null
         override suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu) = Unit
         override suspend fun cambiarAgotadoPlato(platoId: String, agotadoEl: String?) = Unit
+        override suspend fun actualizarMenu(fecha: String, datos: DatosMenu, estado: EstadoMenu) = Unit
         override suspend fun guardarOpcionesMenu(fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>) = Unit
     }
 

@@ -148,31 +148,46 @@ class MenuDataSource @Inject constructor(
             firestore.runTransaction { transaccion ->
                 if (transaccion.get(menu(uid, fecha)).exists()) return@runTransaction false
 
-                val estado = EstadoMenu.PUBLICADO.valor()
                 transaccion.set(
                     menu(uid, fecha),
                     datos.aCampos() + mapOf(
-                        "estado" to estado,
+                        "estado" to EstadoMenu.PUBLICADO.valor(),
                         "origen" to origen.valor(),
                         "publicadoEn" to FieldValue.serverTimestamp(),
                         "actualizadoEn" to FieldValue.serverTimestamp(),
                     ),
                 )
-                transaccion.update(
-                    restaurante(uid),
-                    mapOf(
-                        "menuHoy" to mapOf(
-                            "fecha" to fecha,
-                            "precio" to datos.precio,
-                            "horaFin" to datos.horaFin,
-                            "estado" to estado,
-                        ),
-                        "actualizadoEn" to FieldValue.serverTimestamp(),
-                    ),
-                )
+                transaccion.update(restaurante(uid), cambioMenuHoy(fecha, datos, EstadoMenu.PUBLICADO))
                 true
             }.await()
         }
+
+    suspend fun actualizarMenu(uid: String, fecha: String, datos: DatosMenu, estado: EstadoMenu) {
+        val camposMenu = buildMap {
+            putAll(datos.aCampos())
+            if (datos.refresco == null) put("refresco", FieldValue.delete())
+            if (datos.postre == null) put("postre", FieldValue.delete())
+            put("estado", estado.valor())
+            put("actualizadoEn", FieldValue.serverTimestamp())
+        }
+        llamarFirebaseMenu {
+            firestore.batch()
+                .update(menu(uid, fecha), camposMenu)
+                .update(restaurante(uid), cambioMenuHoy(fecha, datos, estado))
+                .commit()
+                .await()
+        }
+    }
+
+    private fun cambioMenuHoy(fecha: String, datos: DatosMenu, estado: EstadoMenu): Map<String, Any> = mapOf(
+        "menuHoy" to mapOf(
+            "fecha" to fecha,
+            "precio" to datos.precio,
+            "horaFin" to datos.horaFin,
+            "estado" to estado.valor(),
+        ),
+        "actualizadoEn" to FieldValue.serverTimestamp(),
+    )
 
     suspend fun existeMenuEnServidor(uid: String, fecha: String): Boolean =
         llamarFirebaseMenu { menu(uid, fecha).get(Source.SERVER).await().exists() }
