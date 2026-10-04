@@ -1,8 +1,12 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.EstadoMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
@@ -23,6 +27,8 @@ class MenuDataSource @Inject constructor(
     private fun categorias(uid: String) = restaurante(uid).collection("categorias")
 
     private fun platos(uid: String) = restaurante(uid).collection("platos")
+
+    private fun menu(uid: String, fecha: String) = restaurante(uid).collection("menus").document(fecha)
 
     fun observarCategorias(uid: String): Flow<List<Categoria>> =
         observar(categorias(uid).orderBy("orden")) { it.aCategoria() }
@@ -102,6 +108,52 @@ class MenuDataSource @Inject constructor(
             ).await()
         }
     }
+
+    fun observarMenu(uid: String, fecha: String): Flow<MenuDelDia?> = callbackFlow {
+        val registro = menu(uid, fecha).addSnapshotListener { foto, error ->
+            if (error != null) {
+                close(error.aErrorMenu())
+                return@addSnapshotListener
+            }
+            try {
+                trySend(if (foto != null && foto.exists()) foto.aMenuDelDia() else null)
+            } catch (e: ErrorMenu) {
+                close(e)
+            }
+        }
+        awaitClose { registro.remove() }
+    }
+
+    suspend fun publicarMenu(uid: String, fecha: String, datos: DatosMenu, origen: OrigenMenu): Boolean =
+        llamarFirebaseMenu {
+            firestore.runTransaction { transaccion ->
+                if (transaccion.get(menu(uid, fecha)).exists()) return@runTransaction false
+
+                val estado = EstadoMenu.PUBLICADO.valor()
+                transaccion.set(
+                    menu(uid, fecha),
+                    datos.aCampos() + mapOf(
+                        "estado" to estado,
+                        "origen" to origen.valor(),
+                        "publicadoEn" to FieldValue.serverTimestamp(),
+                        "actualizadoEn" to FieldValue.serverTimestamp(),
+                    ),
+                )
+                transaccion.update(
+                    restaurante(uid),
+                    mapOf(
+                        "menuHoy" to mapOf(
+                            "fecha" to fecha,
+                            "precio" to datos.precio,
+                            "horaFin" to datos.horaFin,
+                            "estado" to estado,
+                        ),
+                        "actualizadoEn" to FieldValue.serverTimestamp(),
+                    ),
+                )
+                true
+            }.await()
+        }
 
     private fun <T> observar(consulta: Query, mapear: (DocumentSnapshot) -> T): Flow<List<T>> = callbackFlow {
         val registro = consulta.addSnapshotListener { foto, error ->

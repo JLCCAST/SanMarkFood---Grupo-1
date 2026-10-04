@@ -223,6 +223,8 @@
     <!-- Errores de la carta -->
     <string name="error_nombre_categoria">Escribe un nombre de hasta 40 caracteres.</string>
     <string name="error_categoria_repetida">Ya tienes una categoría con ese nombre.</string>
+    <string name="error_datos_menu">Falta el precio, una entrada o un segundo.</string>
+    <string name="error_menu_ya_publicado">El menú de hoy ya está publicado.</string>
 
     <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
     <string name="pedidos_titulo">Pedidos</string>

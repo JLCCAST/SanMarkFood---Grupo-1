@@ -6,8 +6,11 @@ import com.equipo.sanmarkfood.restaurante.data.firebase.MenuDataSource
 import com.equipo.sanmarkfood.restaurante.data.local.LectorImagenes
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +58,13 @@ class MenuRepositoryImpl @Inject constructor(
         if (menuDataSource.existePlatoEnServidor(uid, plato.id)) menuDataSource.eliminarPlato(uid, plato.id)
         plato.fotoUrl?.let { borrarFoto(it) }
         actualizarRangoCarta(uid)
+    }
+
+    override fun observarMenu(fecha: String): Flow<MenuDelDia?> =
+        flow { emitAll(menuDataSource.observarMenu(uid(), fecha)) }
+
+    override suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu) {
+        if (!menuDataSource.publicarMenu(uid(), fecha, datos, origen)) throw ErrorMenu.MenuYaPublicado
     }
 
     private suspend fun subirFotoPlato(uid: String, platoId: String, imagenLocal: String): String {

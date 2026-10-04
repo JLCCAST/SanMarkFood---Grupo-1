@@ -30,7 +30,7 @@ internal fun validarPlato(
     )
 }
 
-private fun centimosDe(texto: String): Int? {
+internal fun centimosDe(texto: String): Int? {
     val soles = texto.trim().replace(',', '.').toBigDecimalOrNull() ?: return null
     if (soles.scale() > 2) return null
 

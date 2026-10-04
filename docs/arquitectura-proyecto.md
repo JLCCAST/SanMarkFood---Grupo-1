@@ -264,9 +264,9 @@ Los escribe la app del restaurante (HU03) y los lee también la del comensal (HU
 | Campo | Tipo | Notas |
 | --- | --- | --- |
 | `precio` | entero | En céntimos. |
-| `entradas`, `segundos` | listas | Las opciones del día. La forma de cada opción se define con SCRUM-148. |
-| `refresco`, `postre` | — | Lo que incluye el menú. Se define con SCRUM-148. |
-| `horaFin` | texto | `"HH:mm"`, hasta qué hora se sirve. |
+| `entradas`, `segundos` | listas | Las opciones del día, cada una `{ nombre, agotado }`. El comensal elige una de cada lista. `agotado` empieza en `false` y lo cambia SCRUM-70. |
+| `refresco`, `postre` | texto | Opcionales: lo que incluye el menú («Chicha morada», «Mazamorra»). |
+| `horaFin` | texto | `"HH:mm"`, hasta qué hora se sirve. Por defecto `"15:00"`. |
 | `estado` | texto | `publicado` o `terminado` («Terminar menú de hoy» y «Reabrir»). |
 | `origen` | texto | `ayer`, `cero` o `ia`: cómo se armó. |
 | `publicadoEn`, `actualizadoEn` | fecha | Hora del servidor. |
@@ -279,6 +279,8 @@ Qué garantizan las reglas de Firestore:
 - `menuHoy` y `rangoCarta` del local son copias que la app actualiza junto con el menú y los platos (ver «El documento del local»).
 
 En Storage, las fotos de los platos van en `restaurantes/{uid}/platos/<platoId>-<hora>.jpg`. Solo las sube el dueño, de rol `restaurante`; se aceptan JPEG de menos de 2 MB y el dueño puede borrarlas (al cambiar la foto o eliminar el plato). La app las achica a 1024 px y las sube recién al guardar el plato, así que un alta abandonada no deja fotos sueltas. El id del plato se genera antes de subir la foto, porque va en su nombre.
+
+El menú del día se publica en una transacción, que falla sin conexión en vez de quedar en espera. La transacción guarda `menus/{fecha}` y su copia `menuHoy` en el local, juntas, y no pisa un menú que ya exista para esa fecha. La fecha es la de hoy en hora de Lima. La app del comensal tiene que comparar `menuHoy.fecha` con su propia fecha de hoy: el campo no se borra solo al cambiar el día.
 
 `rangoCarta` se recalcula después de crear, editar o eliminar un plato, leyendo los precios del servidor; si la carta queda sin platos, el campo se quita (la regla `cambiaCarta()` lo permite). Si ese paso falla, el plato igual queda guardado y el rango se corrige en el siguiente cambio. Lo mismo pasa al borrar la foto vieja de un plato: si falla, queda suelta en Storage, sin afectar la carta.
 

@@ -114,6 +114,8 @@ private fun ErrorMenu.mensaje(): Int = when (this) {
     ErrorMenu.NombreCategoriaInvalido -> R.string.error_nombre_categoria
     ErrorMenu.CategoriaRepetida -> R.string.error_categoria_repetida
     is ErrorMenu.DatosPlatoInvalidos -> R.string.error_datos_invalidos
+    is ErrorMenu.DatosMenuInvalidos -> R.string.error_datos_menu
+    ErrorMenu.MenuYaPublicado -> R.string.error_menu_ya_publicado
     ErrorMenu.ImagenIlegible -> R.string.error_imagen_ilegible
     ErrorMenu.Desconocido -> R.string.error_desconocido
 }

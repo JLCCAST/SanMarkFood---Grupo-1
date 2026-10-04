@@ -1,7 +1,10 @@
 package com.equipo.sanmarkfood.restaurante.domain.repository
 
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Categoria
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosPlato
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.MenuDelDia
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.Plato
 import kotlinx.coroutines.flow.Flow
 
@@ -21,4 +24,8 @@ interface MenuRepository {
     suspend fun actualizarPlato(plato: Plato, datos: DatosPlato, fotoLocal: String?)
 
     suspend fun eliminarPlato(plato: Plato)
+
+    fun observarMenu(fecha: String): Flow<MenuDelDia?>
+
+    suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu)
 }
