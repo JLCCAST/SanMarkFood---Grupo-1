@@ -5,9 +5,15 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.data.Comensal
-import com.equipo.sanmarkfood.comensal.data.ComensalRepository
 import com.equipo.sanmarkfood.comensal.data.Direccion
+import com.equipo.sanmarkfood.comensal.domain.ActualizarDatosPerfilUseCase
+import com.equipo.sanmarkfood.comensal.domain.ActualizarPreferenciasNotificacionUseCase
+import com.equipo.sanmarkfood.comensal.domain.AgregarDireccionUseCase
+import com.equipo.sanmarkfood.comensal.domain.EliminarDireccionUseCase
+import com.equipo.sanmarkfood.comensal.domain.ObservarPerfilUseCase
+import com.equipo.sanmarkfood.comensal.domain.SubirFotoPerfilUseCase
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +24,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 data class PerfilUiState(
     val comensal: Comensal = Comensal(),
@@ -32,9 +39,15 @@ data class PerfilUiState(
         get() = comensal.nombre.isBlank() || comensal.telefono.isBlank()
 }
 
-class ComensalViewModel(
-    private val repository: ComensalRepository = ComensalRepository(),
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+@HiltViewModel
+class ComensalViewModel @Inject constructor(
+    private val observarPerfil: ObservarPerfilUseCase,
+    private val actualizarDatosPerfil: ActualizarDatosPerfilUseCase,
+    private val subirFotoPerfil: SubirFotoPerfilUseCase,
+    private val agregarDireccionUseCase: AgregarDireccionUseCase,
+    private val eliminarDireccionUseCase: EliminarDireccionUseCase,
+    private val actualizarPreferencias: ActualizarPreferenciasNotificacionUseCase,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PerfilUiState())
@@ -67,7 +80,6 @@ class ComensalViewModel(
             return SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("es-PE")).format(Date(millis))
         }
 
-
     fun cargarPerfil() {
         val currentUid = uid ?: return
         if (uidCargado == currentUid && perfilJob?.isActive == true) return
@@ -77,7 +89,7 @@ class ComensalViewModel(
 
         perfilJob?.cancel()
         perfilJob = viewModelScope.launch {
-            repository.observarPerfil(currentUid)
+            observarPerfil(currentUid)
                 .catch { e ->
                     Log.e(TAG, "cargarPerfil", e)
                     _uiState.update { it.copy(isLoading = false, error = "No se pudo cargar tu perfil") }
@@ -92,7 +104,7 @@ class ComensalViewModel(
         val currentUid = uid ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, guardadoExitoso = false) }
-            repository.actualizarPerfil(currentUid, nombre, telefono)
+            actualizarDatosPerfil(currentUid, nombre, telefono)
                 .onSuccess {
                     _uiState.update { it.copy(isLoading = false, guardadoExitoso = true) }
                 }
@@ -105,14 +117,15 @@ class ComensalViewModel(
 
     fun agregarDireccion(direccion: Direccion) {
         val currentUid = uid ?: return
-        val nuevasDirecciones = _uiState.value.comensal.direcciones + direccion
+        val actuales = _uiState.value.comensal.direcciones
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.actualizarDirecciones(currentUid, nuevasDirecciones)
+            agregarDireccionUseCase(currentUid, actuales, direccion)
                 .onSuccess {
                     _uiState.update { it.copy(isLoading = false) }
                 }
-                .onFailure {
+                .onFailure { e ->
+                    Log.e(TAG, "agregarDireccion", e)
                     _uiState.update { it.copy(isLoading = false, error = "No se pudo guardar la dirección") }
                 }
         }
@@ -120,18 +133,24 @@ class ComensalViewModel(
 
     fun eliminarDireccion(direccion: Direccion) {
         val currentUid = uid ?: return
-        val nuevasDirecciones = _uiState.value.comensal.direcciones - direccion
+        val actuales = _uiState.value.comensal.direcciones
         viewModelScope.launch {
-            repository.actualizarDirecciones(currentUid, nuevasDirecciones)
-                .onFailure { setError("No se pudo eliminar la dirección") }
+            eliminarDireccionUseCase(currentUid, actuales, direccion)
+                .onFailure { e ->
+                    Log.e(TAG, "eliminarDireccion", e)
+                    setError("No se pudo eliminar la dirección")
+                }
         }
     }
 
     fun actualizarPreferenciasNotificacion(notificarReservas: Boolean, notificarResenas: Boolean) {
         val currentUid = uid ?: return
         viewModelScope.launch {
-            repository.actualizarPreferenciasNotificacion(currentUid, notificarReservas, notificarResenas)
-                .onFailure { setError("No se pudieron guardar las preferencias") }
+            actualizarPreferencias(currentUid, notificarReservas, notificarResenas)
+                .onFailure { e ->
+                    Log.e(TAG, "actualizarPreferenciasNotificacion", e)
+                    setError("No se pudieron guardar las preferencias")
+                }
         }
     }
 
@@ -139,16 +158,9 @@ class ComensalViewModel(
         val currentUid = uid ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(subiendoFoto = true, error = null) }
-            repository.subirFoto(currentUid, uri)
-                .onSuccess { url ->
-                    repository.actualizarFoto(currentUid, url)
-                        .onSuccess {
-                            _uiState.update { it.copy(subiendoFoto = false) }
-                        }
-                        .onFailure { e ->
-                            Log.e(TAG, "actualizarFoto", e)
-                            setError("No se pudo guardar la foto")
-                        }
+            subirFotoPerfil(currentUid, uri)
+                .onSuccess {
+                    _uiState.update { it.copy(subiendoFoto = false) }
                 }
                 .onFailure { e ->
                     Log.e(TAG, "subirFoto", e)

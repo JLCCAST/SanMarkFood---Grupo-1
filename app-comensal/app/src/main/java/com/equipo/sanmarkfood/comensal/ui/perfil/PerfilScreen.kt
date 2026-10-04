@@ -44,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.comensal.data.Direccion
 import com.equipo.sanmarkfood.comensal.presentation.auth.AuthTextField
@@ -56,7 +56,7 @@ import kotlinx.coroutines.delay
 fun PerfilScreen(
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ComensalViewModel = viewModel()
+    viewModel: ComensalViewModel = hiltViewModel()
 ) {
     val colors = MaterialTheme.colorScheme
     val state by viewModel.uiState.collectAsState()
