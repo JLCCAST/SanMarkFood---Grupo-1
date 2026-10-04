@@ -24,7 +24,8 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - SCRUM-68 (editar y eliminar): al tocar un plato en M7 se abre M8 en modo edición (la ruta `Plato` lleva su id), con el botón de eliminar y su confirmación. Al cambiar la foto o eliminar el plato se borra la foto vieja de Storage, y `rangoCarta` se recalcula, o se quita si la carta queda vacía.
   - SCRUM-148 (publicar el menú del día): M1 «Menú de hoy» (sin publicar, con «Empezar de cero», y la tarjeta del menú publicado) y M5 para armarlo: precio, entradas y segundos, refresco y postre, y la hora de fin, que por defecto es 15:00.
   - SCRUM-70 (disponible / agotado): interruptor verde en cada plato de M7 y en cada opción del menú publicado, que se aplica al instante, y el bloque «Disponible hoy» en M8, que se guarda con el plato.
-  - Todavía falta: en M1, «Foto de la pizarra» (HU04) y «Copiar el de ayer» (SCRUM-161) están ocultos. La tarjeta del menú no tiene «Editar» ni «Terminar» (SCRUM-161). M7 no tiene «Escanear carta» (HU04).
+  - SCRUM-161, primera parte: «Copiar el de ayer» en M1. Aparece solo si ayer se publicó un menú, y abre M5 con ese menú cargado. Al publicarlo queda con `origen: "ayer"` y con todas sus opciones disponibles.
+  - Todavía falta: «Foto de la pizarra» en M1 y «Escanear carta» en M7 (HU04), y «Editar», «Terminar» y «Reabrir» en el menú publicado (SCRUM-161).
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 

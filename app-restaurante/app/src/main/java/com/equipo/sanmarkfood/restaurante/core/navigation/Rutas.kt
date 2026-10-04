@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.core.navigation
 
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,4 +35,4 @@ data object PanelLocal
 data class Plato(val platoId: String? = null)
 
 @Serializable
-data object ArmarMenu
+data class ArmarMenu(val modo: ModoArmarMenu)

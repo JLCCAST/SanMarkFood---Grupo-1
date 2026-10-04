@@ -137,6 +137,12 @@ class MenuDataSource @Inject constructor(
         awaitClose { registro.remove() }
     }
 
+    suspend fun leerMenu(uid: String, fecha: String): MenuDelDia? =
+        llamarFirebaseMenu {
+            val documento = menu(uid, fecha).get().await()
+            if (documento.exists()) documento.aMenuDelDia() else null
+        }
+
     suspend fun publicarMenu(uid: String, fecha: String, datos: DatosMenu, origen: OrigenMenu): Boolean =
         llamarFirebaseMenu {
             firestore.runTransaction { transaccion ->

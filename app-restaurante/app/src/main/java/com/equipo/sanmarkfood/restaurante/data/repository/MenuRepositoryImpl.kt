@@ -70,6 +70,8 @@ class MenuRepositoryImpl @Inject constructor(
     override fun observarMenu(fecha: String): Flow<MenuDelDia?> =
         flow { emitAll(menuDataSource.observarMenu(uid(), fecha)) }
 
+    override suspend fun leerMenu(fecha: String): MenuDelDia? = menuDataSource.leerMenu(uid(), fecha)
+
     override suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu) {
         if (!menuDataSource.publicarMenu(uid(), fecha, datos, origen)) throw ErrorMenu.MenuYaPublicado
     }

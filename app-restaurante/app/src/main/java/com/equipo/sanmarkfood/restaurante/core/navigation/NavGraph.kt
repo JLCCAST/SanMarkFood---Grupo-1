@@ -79,7 +79,7 @@ fun RestauranteNavGraph() {
                 onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onAgregarPlato = { navController.navigate(Plato()) { launchSingleTop = true } },
                 onAbrirPlato = { platoId -> navController.navigate(Plato(platoId)) { launchSingleTop = true } },
-                onArmarMenu = { navController.navigate(ArmarMenu) { launchSingleTop = true } },
+                onArmarMenu = { modo -> navController.navigate(ArmarMenu(modo)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }

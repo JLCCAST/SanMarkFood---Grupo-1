@@ -34,6 +34,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.Estad
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.MensajeErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.presentation.menu.CartaScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.MenuHoyScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
 
@@ -49,7 +50,7 @@ fun PanelLocalScreen(
     onEditarHorario: () -> Unit,
     onAgregarPlato: () -> Unit,
     onAbrirPlato: (platoId: String) -> Unit,
-    onArmarMenu: () -> Unit,
+    onArmarMenu: (ModoArmarMenu) -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -81,7 +82,7 @@ fun PanelLocalScreen(
             PestanaPanel.MENU -> when (uiState.seccionMenu) {
                 SeccionMenu.HOY -> MenuHoyScreen(
                     onElegirSeccion = viewModel::onElegirSeccionMenu,
-                    onEmpezarDeCero = onArmarMenu,
+                    onArmarMenu = onArmarMenu,
                     modifier = contenido,
                 )
                 SeccionMenu.CARTA -> CartaScreen(

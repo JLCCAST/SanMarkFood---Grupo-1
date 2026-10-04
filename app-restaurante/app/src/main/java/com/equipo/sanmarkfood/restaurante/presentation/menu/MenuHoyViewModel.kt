@@ -8,6 +8,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CambiarDisponibilidadOpcionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObservarMenuDeHoyUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObtenerMenuDeAyerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ data class MenuHoyUiState(
     val cargando: Boolean = true,
     val menu: MenuDelDia? = null,
     val error: ErrorMenu? = null,
+    val menuDeAyer: MenuDelDia? = null,
     val cambiandoOpcion: Boolean = false,
     val errorOpcion: ErrorMenu? = null,
 )
@@ -31,6 +33,7 @@ data class MenuHoyUiState(
 class MenuHoyViewModel @Inject constructor(
     private val observarMenuDeHoy: ObservarMenuDeHoyUseCase,
     private val cambiarDisponibilidadOpcion: CambiarDisponibilidadOpcionUseCase,
+    private val obtenerMenuDeAyer: ObtenerMenuDeAyerUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MenuHoyUiState())
@@ -40,6 +43,7 @@ class MenuHoyViewModel @Inject constructor(
 
     init {
         observar()
+        cargarMenuDeAyer()
     }
 
     fun onReintentar() = observar()
@@ -57,6 +61,16 @@ class MenuHoyViewModel @Inject constructor(
                 _uiState.update { it.copy(errorOpcion = e) }
             }
             _uiState.update { it.copy(cambiandoOpcion = false) }
+        }
+    }
+
+    private fun cargarMenuDeAyer() {
+        viewModelScope.launch {
+            try {
+                val menuDeAyer = obtenerMenuDeAyer()
+                _uiState.update { it.copy(menuDeAyer = menuDeAyer) }
+            } catch (e: ErrorMenu) {
+            }
         }
     }
 

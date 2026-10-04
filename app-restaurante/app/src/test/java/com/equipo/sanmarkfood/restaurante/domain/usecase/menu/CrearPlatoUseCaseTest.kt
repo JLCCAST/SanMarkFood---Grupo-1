@@ -32,6 +32,7 @@ class CrearPlatoUseCaseTest {
         override suspend fun actualizarPlato(plato: Plato, datos: DatosPlato, fotoLocal: String?) = Unit
         override suspend fun eliminarPlato(plato: Plato) = Unit
         override fun observarMenu(fecha: String): Flow<MenuDelDia?> = emptyFlow()
+        override suspend fun leerMenu(fecha: String): MenuDelDia? = null
         override suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu) = Unit
         override suspend fun cambiarAgotadoPlato(platoId: String, agotadoEl: String?) = Unit
         override suspend fun guardarOpcionesMenu(fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>) = Unit

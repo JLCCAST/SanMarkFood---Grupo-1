@@ -30,6 +30,8 @@ interface MenuRepository {
 
     fun observarMenu(fecha: String): Flow<MenuDelDia?>
 
+    suspend fun leerMenu(fecha: String): MenuDelDia?
+
     suspend fun publicarMenu(fecha: String, datos: DatosMenu, origen: OrigenMenu)
 
     suspend fun guardarOpcionesMenu(fecha: String, entradas: List<OpcionMenu>, segundos: List<OpcionMenu>)

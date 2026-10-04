@@ -1,12 +1,16 @@
 package com.equipo.sanmarkfood.restaurante.presentation.menu
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.equipo.sanmarkfood.restaurante.core.navigation.ArmarMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.CampoMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.DatosMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObtenerMenuDeAyerUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.PublicarMenuDelDiaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +22,9 @@ import javax.inject.Inject
 
 data class ArmarMenuUiState(
     val fecha: String = fechaDeHoy(),
+    val cargando: Boolean = false,
+    val errorCarga: ErrorMenu? = null,
+    val copiadoDeAyer: Boolean = false,
     val precio: String = "",
     val entradas: List<String> = emptyList(),
     val nuevaEntrada: String = "",
@@ -36,11 +43,19 @@ data class ArmarMenuUiState(
 
 @HiltViewModel
 class ArmarMenuViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val obtenerMenuDeAyer: ObtenerMenuDeAyerUseCase,
     private val publicarMenuDelDia: PublicarMenuDelDiaUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ArmarMenuUiState())
     val uiState: StateFlow<ArmarMenuUiState> = _uiState.asStateFlow()
+
+    init {
+        if (savedStateHandle.toRoute<ArmarMenu>().modo == ModoArmarMenu.COPIAR_AYER) copiarMenuDeAyer()
+    }
+
+    fun onReintentarCarga() = copiarMenuDeAyer()
 
     fun onCambiarPrecio(precio: String) =
         cambiarCampo(CampoMenu.PRECIO) { it.copy(precio = precio.take(MAX_PRECIO)) }
@@ -91,13 +106,40 @@ class ArmarMenuViewModel @Inject constructor(
                     refresco = estado.refresco,
                     postre = estado.postre,
                     horaFin = estado.horaFin,
-                    origen = OrigenMenu.CERO,
+                    origen = if (estado.copiadoDeAyer) OrigenMenu.AYER else OrigenMenu.CERO,
                 )
                 _uiState.update { it.copy(publicando = false, publicado = true) }
             } catch (e: ErrorMenu.DatosMenuInvalidos) {
                 _uiState.update { it.copy(publicando = false, camposInvalidos = e.campos, error = e) }
             } catch (e: ErrorMenu) {
                 _uiState.update { it.copy(publicando = false, error = e) }
+            }
+        }
+    }
+
+    private fun copiarMenuDeAyer() {
+        _uiState.update { it.copy(cargando = true, errorCarga = null) }
+        viewModelScope.launch {
+            try {
+                val datos = obtenerMenuDeAyer()?.datos
+                _uiState.update { estado ->
+                    if (datos == null) {
+                        estado.copy(cargando = false)
+                    } else {
+                        estado.copy(
+                            cargando = false,
+                            copiadoDeAyer = true,
+                            precio = precioEnSoles(datos.precio),
+                            entradas = datos.entradas.map { it.nombre },
+                            segundos = datos.segundos.map { it.nombre },
+                            refresco = datos.refresco.orEmpty(),
+                            postre = datos.postre.orEmpty(),
+                            horaFin = datos.horaFin,
+                        )
+                    }
+                }
+            } catch (e: ErrorMenu) {
+                _uiState.update { it.copy(cargando = false, errorCarga = e) }
             }
         }
     }

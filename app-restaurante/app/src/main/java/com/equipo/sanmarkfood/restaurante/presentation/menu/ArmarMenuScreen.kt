@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -70,6 +71,7 @@ fun ArmarMenuScreen(
     ArmarMenuContenido(
         uiState = uiState,
         onCerrar = onCerrar,
+        onReintentarCarga = viewModel::onReintentarCarga,
         onCambiarPrecio = viewModel::onCambiarPrecio,
         onCambiarNuevaEntrada = viewModel::onCambiarNuevaEntrada,
         onAgregarEntrada = viewModel::onAgregarEntrada,
@@ -88,6 +90,7 @@ fun ArmarMenuScreen(
 private fun ArmarMenuContenido(
     uiState: ArmarMenuUiState,
     onCerrar: () -> Unit,
+    onReintentarCarga: () -> Unit,
     onCambiarPrecio: (String) -> Unit,
     onCambiarNuevaEntrada: (String) -> Unit,
     onAgregarEntrada: () -> Unit,
@@ -104,6 +107,23 @@ private fun ArmarMenuContenido(
     Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
         CabeceraArmarMenu(fecha = uiState.fecha, onCerrar = onCerrar)
 
+        val errorCarga = uiState.errorCarga
+        if (uiState.cargando || errorCarga != null) {
+            Column(
+                modifier = Modifier.weight(1f).fillMaxWidth().padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                if (errorCarga != null) {
+                    MensajeErrorMenu(error = errorCarga)
+                    BotonPrincipal(texto = stringResource(R.string.arranque_reintentar), onClick = onReintentarCarga)
+                } else {
+                    CircularProgressIndicator()
+                }
+            }
+            return@Column
+        }
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -111,6 +131,18 @@ private fun ArmarMenuContenido(
                 .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
+            if (uiState.copiadoDeAyer) {
+                Text(
+                    text = stringResource(R.string.armar_copiado),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
             CampoPrecio(
                 etiqueta = stringResource(R.string.armar_precio),
                 valor = uiState.precio,
@@ -349,6 +381,7 @@ private fun ArmarMenuPreview() {
                     refresco = "Chicha morada",
                 ),
                 onCerrar = {},
+                onReintentarCarga = {},
                 onCambiarPrecio = {},
                 onCambiarNuevaEntrada = {},
                 onAgregarEntrada = {},

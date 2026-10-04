@@ -49,7 +49,7 @@ import java.util.Date
 @Composable
 fun MenuHoyScreen(
     onElegirSeccion: (SeccionMenu) -> Unit,
-    onEmpezarDeCero: () -> Unit,
+    onArmarMenu: (ModoArmarMenu) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MenuHoyViewModel = hiltViewModel(),
 ) {
@@ -58,7 +58,7 @@ fun MenuHoyScreen(
     MenuHoyContenido(
         uiState = uiState,
         onElegirSeccion = onElegirSeccion,
-        onEmpezarDeCero = onEmpezarDeCero,
+        onArmarMenu = onArmarMenu,
         onCambiarDisponible = viewModel::onCambiarDisponible,
         onReintentar = viewModel::onReintentar,
         modifier = modifier,
@@ -69,7 +69,7 @@ fun MenuHoyScreen(
 private fun MenuHoyContenido(
     uiState: MenuHoyUiState,
     onElegirSeccion: (SeccionMenu) -> Unit,
-    onEmpezarDeCero: () -> Unit,
+    onArmarMenu: (ModoArmarMenu) -> Unit,
     onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
@@ -102,7 +102,7 @@ private fun MenuHoyContenido(
                 CircularProgressIndicator()
             }
 
-            menu == null -> MenuSinPublicar(onEmpezarDeCero = onEmpezarDeCero, modifier = contenido)
+            menu == null -> MenuSinPublicar(menuDeAyer = uiState.menuDeAyer, onArmarMenu = onArmarMenu, modifier = contenido)
 
             else -> Column(modifier = contenido, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 uiState.errorOpcion?.let { MensajeErrorMenu(error = it) }
@@ -117,7 +117,11 @@ private fun MenuHoyContenido(
 }
 
 @Composable
-private fun MenuSinPublicar(onEmpezarDeCero: () -> Unit, modifier: Modifier = Modifier) {
+private fun MenuSinPublicar(
+    menuDeAyer: MenuDelDia?,
+    onArmarMenu: (ModoArmarMenu) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(text = stringResource(R.string.menu_hoy_sin_publicar_titulo), style = MaterialTheme.typography.headlineSmall)
@@ -127,11 +131,19 @@ private fun MenuSinPublicar(onEmpezarDeCero: () -> Unit, modifier: Modifier = Mo
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        if (menuDeAyer != null) {
+            OpcionInicio(
+                icono = R.drawable.ic_copiar,
+                titulo = stringResource(R.string.menu_hoy_copiar),
+                ayuda = resumenMenu(menuDeAyer.datos),
+                onClick = { onArmarMenu(ModoArmarMenu.COPIAR_AYER) },
+            )
+        }
         OpcionInicio(
             icono = R.drawable.ic_agregar,
             titulo = stringResource(R.string.menu_hoy_de_cero),
             ayuda = stringResource(R.string.menu_hoy_de_cero_ayuda),
-            onClick = onEmpezarDeCero,
+            onClick = { onArmarMenu(ModoArmarMenu.CERO) },
         )
         Text(
             text = stringResource(R.string.menu_hoy_vale_hoy),
@@ -139,6 +151,13 @@ private fun MenuSinPublicar(onEmpezarDeCero: () -> Unit, modifier: Modifier = Mo
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+}
+
+@Composable
+private fun resumenMenu(datos: DatosMenu): String {
+    val nombres = (datos.entradas + datos.segundos).map { it.nombre }
+    val opciones = nombres.take(3).joinToString(", ") + if (nombres.size > 3) "…" else ""
+    return stringResource(R.string.menu_hoy_copiar_ayuda, opciones, precioTexto(datos.precio))
 }
 
 @Composable
@@ -305,7 +324,7 @@ private fun MenuSinPublicarPreview() {
             MenuHoyContenido(
                 uiState = MenuHoyUiState(fecha = "2026-10-05", cargando = false),
                 onElegirSeccion = {},
-                onEmpezarDeCero = {},
+                onArmarMenu = {},
                 onCambiarDisponible = { _, _, _ -> },
                 onReintentar = {},
             )
@@ -339,7 +358,7 @@ private fun MenuPublicadoPreview() {
                     ),
                 ),
                 onElegirSeccion = {},
-                onEmpezarDeCero = {},
+                onArmarMenu = {},
                 onCambiarDisponible = { _, _, _ -> },
                 onReintentar = {},
             )

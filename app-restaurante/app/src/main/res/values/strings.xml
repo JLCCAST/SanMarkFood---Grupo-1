@@ -170,9 +170,11 @@
     <string name="menu_carta">Carta</string>
     <string name="precio_soles">S/ %1$s</string>
 
-    <!-- Menú de hoy (M1 y la tarjeta del menú publicado, HU03). «Foto de la pizarra» llega con HU04 y «Copiar el de ayer» con SCRUM-161. -->
+    <!-- Menú de hoy (M1 y la tarjeta del menú publicado, HU03). «Foto de la pizarra» llega con HU04. -->
     <string name="menu_hoy_sin_publicar_titulo">Aún no publicas el menú de hoy</string>
     <string name="menu_hoy_sin_publicar_texto">Los comensales ven «El menú de hoy aún no se publica» en tu local. Elige cómo empezar:</string>
+    <string name="menu_hoy_copiar">Copiar el de ayer</string>
+    <string name="menu_hoy_copiar_ayuda">%1$s · %2$s</string>
     <string name="menu_hoy_de_cero">Empezar de cero</string>
     <string name="menu_hoy_de_cero_ayuda">Escribe las opciones una por una</string>
     <string name="menu_hoy_vale_hoy">El menú vale solo para hoy y se cierra a la hora de fin que elijas.</string>
@@ -185,6 +187,7 @@
 
     <!-- Armar el menú de hoy (M5, HU03) -->
     <string name="armar_cerrar">Cerrar sin publicar</string>
+    <string name="armar_copiado">Copiamos el menú de ayer. Cambia lo que haga falta y publícalo.</string>
     <string name="armar_precio">Precio del menú</string>
     <string name="armar_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 14.00.</string>
     <string name="armar_entradas">ENTRADAS · EL COMENSAL ELIGE 1</string>
