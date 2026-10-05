@@ -362,4 +362,7 @@
     <string name="provisional_admin_titulo">Administración</string>
     <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
     <string name="provisional_cerrar_sesion">Cerrar sesión</string>
+
+    <string name="admin_titulo">Sección de Administración</string>
+    <string name="admin_cerrar_sesion">Cerrar sesión</string>
 </resources>
