@@ -27,14 +27,17 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - SCRUM-161, primera parte: «Copiar el de ayer» en M1. Aparece solo si ayer se publicó un menú, y abre M5 con ese menú cargado. Al publicarlo queda con `origen: "ayer"` y con todas sus opciones disponibles.
   - SCRUM-161, segunda parte: en el menú publicado, la hora de fin («Se sirve hasta»), «Editar menú» (abre M5 con lo publicado y conserva las opciones agotadas), «Terminar menú de hoy» con su confirmación y «Reabrir». Cada cambio actualiza también `menuHoy`, así que el comensal ve «Menú agotado» apenas el local lo termina.
   - Queda para HU04: «Foto de la pizarra» en M1 y «Escanear carta» en M7.
-- **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`, que por ahora solo tiene el título «Sección de Administración» y «Cerrar sesión». La sección completa (A1 a A4, con la cabecera pizarra y la barra Solicitudes · Reportes · Métricas) entra con HU24.
+- **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`: la sección de administración, con la cabecera pizarra («ADMINISTRACIÓN» y «Salir») y la barra Solicitudes · Reportes · Métricas.
+- **App Restaurante — HU24 (SCRUM-35), en curso:**
+  - SCRUM-76 (solicitudes pendientes): `domain/model/admin/`, `SolicitudesRepository`, `domain/usecase/admin/` y, en `data/`, `SolicitudesDataSource` y `SolicitudesRepositoryImpl`. A1 vive en `presentation/admin/aprobacion/`: escucha en vivo los locales en `pendiente`, de la solicitud más reciente a la más antigua, con la etiqueta «Nuevo» o «Reenviado», el rechazo anterior y la cantidad de platos (un `count()` al servidor por local). La pestaña Solicitudes muestra cuántas hay; Reportes y Métricas muestran un aviso provisional hasta HU25 y HU26.
+  - Quedan SCRUM-77 (A2, aprobar o rechazar, y los filtros «Aprobados» y «Rechazados» de A1) y SCRUM-78 (el aviso al local, que necesita las Cloud Functions de HU07).
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
 - En `app-comensal`: las capas de esta arquitectura (ver arriba) y todo lo que no es HU05.
-- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `aprobacion/`, `moderacion/` y `dashboard_global/`.
+- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
 - La carpeta `functions/`, con las Cloud Functions (HU07).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
@@ -88,9 +91,9 @@ SanMarkFood---Grupo-1/
 │           ├── core/                        # (misma estructura que app-comensal) — di/ y navigation/ ✔
 │           ├── data/                        # (misma estructura que app-comensal) — firebase/, repository/ ✔ y local/ (por ahora solo LectorImagenes) ✔
 │           ├── domain/
-│           │   ├── model/                   # auth/, gestion_restaurante/ y menu/ ✔
-│           │   ├── repository/              # AuthRepository, RestauranteRepository y MenuRepository ✔
-│           │   └── usecase/                 # auth/, gestion_restaurante/, menu/ y pedidos/ ✔
+│           │   ├── model/                   # admin/, auth/, gestion_restaurante/ y menu/ ✔
+│           │   ├── repository/              # AuthRepository, RestauranteRepository, MenuRepository y SolicitudesRepository ✔
+│           │   └── usecase/                 # admin/, auth/, gestion_restaurante/, menu/ y pedidos/ ✔
 │           ├── presentation/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
 │           │   ├── panel/                   # Panel del local con la barra inferior; cada pestaña es de su proceso ✔
@@ -101,7 +104,7 @@ SanMarkFood---Grupo-1/
 │           │   ├── resenas/                 # Proceso: Gestión y respuesta a reseñas
 │           │   ├── dashboard/               # HU13 — dashboard del restaurante — sección «Tu local» ✔ (HU02)
 │           │   └── admin/                   # Proceso: Moderación y administración — acceso del administrador ✔ (HU23)
-│           │       ├── aprobacion/          # HU24 — aprobación de restaurantes
+│           │       ├── aprobacion/          # HU24 — aprobación de restaurantes — solicitudes pendientes ✔ (SCRUM-76)
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
 │           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma
 │           ├── workers/                     # WorkManager (sync de pedidos entrantes, HU09)
@@ -237,7 +240,7 @@ Qué garantizan las reglas de Firestore:
   - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
 - **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
-- Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
+- El administrador lee cualquier local y sus platos (SCRUM-76): la función `esAdministrador()` (rol `administrador` en `usuarios/{uid}` y correo verificado) se suma con `||` a la lectura de `restaurantes/{uid}` y de `platos`. Sus escrituras (aprobar y rechazar) quedan para SCRUM-77.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.
 
