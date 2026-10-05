@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.IniciarSesionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.RecuperarContrasenaUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.RegistrarDispositivoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,7 @@ data class RecuperacionUiState(
 class InicioSesionViewModel @Inject constructor(
     private val iniciarSesion: IniciarSesionUseCase,
     private val recuperarContrasena: RecuperarContrasenaUseCase,
+    private val registrarDispositivo: RegistrarDispositivoUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InicioSesionUiState())
@@ -51,6 +53,7 @@ class InicioSesionViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val sesion = iniciarSesion(estado.correo, estado.contrasena)
+                registrarDispositivo(sesion)
                 _uiState.update { it.copy(cargando = false, sesion = sesion) }
             } catch (e: ErrorAuth) {
                 _uiState.update { it.copy(cargando = false, error = e) }

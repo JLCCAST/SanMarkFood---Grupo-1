@@ -1,11 +1,13 @@
 package com.equipo.sanmarkfood.restaurante.core.di
 
 import com.equipo.sanmarkfood.restaurante.data.repository.AuthRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MenuRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.RevisionRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.SolicitudesRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.domain.repository.AuthRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.RevisionRepository
@@ -39,4 +41,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindRevisionRepository(impl: RevisionRepositoryImpl): RevisionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDispositivosRepository(impl: DispositivosRepositoryImpl): DispositivosRepository
 }
