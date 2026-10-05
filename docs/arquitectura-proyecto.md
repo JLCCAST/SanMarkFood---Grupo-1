@@ -30,7 +30,8 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 - **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`: la sección de administración, con la cabecera pizarra («ADMINISTRACIÓN» y «Salir») y la barra Solicitudes · Reportes · Métricas.
 - **App Restaurante — HU24 (SCRUM-35), en curso:**
   - SCRUM-76 (solicitudes pendientes): `domain/model/admin/`, `SolicitudesRepository`, `domain/usecase/admin/` y, en `data/`, `SolicitudesDataSource` y `SolicitudesRepositoryImpl`. A1 vive en `presentation/admin/aprobacion/`: escucha en vivo los locales en `pendiente`, de la solicitud más reciente a la más antigua, con la etiqueta «Nuevo» o «Reenviado», el rechazo anterior y la cantidad de platos (un `count()` al servidor por local). La pestaña Solicitudes muestra cuántas hay; Reportes y Métricas muestran un aviso provisional hasta HU25 y HU26.
-  - Quedan SCRUM-77 (A2, aprobar o rechazar, y los filtros «Aprobados» y «Rechazados» de A1) y SCRUM-78 (el aviso al local, que necesita las Cloud Functions de HU07).
+  - SCRUM-77 (aprobar o rechazar): A2 (`RevisarSolicitudScreen`, ruta `RevisarSolicitud(uid)`) se abre al tocar una tarjeta de A1. Muestra el local en vivo (portada, logo, correo de la cuenta, el rechazo anterior con los campos corregidos, dirección, teléfono, horario, platos y categorías, y el mapa), con «Rechazar» y «Aprobar» mientras está `pendiente`. Rechazar abre la hoja «Rechazar el registro»: uno o más motivos con casillas y un detalle, obligatorio si se marca «Otro». La decisión la escriben `RevisionRepository` y `RevisionDataSource` en una transacción que solo aplica si el local sigue `pendiente` (si no, «Esta solicitud ya fue revisada»). A1 tiene los filtros «Pendientes (n)», «Aprobados» y «Rechazados»; los revisados van de la última decisión a la primera, con «aprobado el …» o «rechazado el …».
+  - Queda SCRUM-78 (el aviso al local, que necesita las Cloud Functions de HU07). Mientras tanto, el local ve el resultado en su app porque escucha su documento en vivo (R5 y R6).
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
@@ -92,7 +93,7 @@ SanMarkFood---Grupo-1/
 │           ├── data/                        # (misma estructura que app-comensal) — firebase/, repository/ ✔ y local/ (por ahora solo LectorImagenes) ✔
 │           ├── domain/
 │           │   ├── model/                   # admin/, auth/, gestion_restaurante/ y menu/ ✔
-│           │   ├── repository/              # AuthRepository, RestauranteRepository, MenuRepository y SolicitudesRepository ✔
+│           │   ├── repository/              # AuthRepository, RestauranteRepository, MenuRepository, SolicitudesRepository y RevisionRepository ✔
 │           │   └── usecase/                 # admin/, auth/, gestion_restaurante/, menu/ y pedidos/ ✔
 │           ├── presentation/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
@@ -104,7 +105,7 @@ SanMarkFood---Grupo-1/
 │           │   ├── resenas/                 # Proceso: Gestión y respuesta a reseñas
 │           │   ├── dashboard/               # HU13 — dashboard del restaurante — sección «Tu local» ✔ (HU02)
 │           │   └── admin/                   # Proceso: Moderación y administración — acceso del administrador ✔ (HU23)
-│           │       ├── aprobacion/          # HU24 — aprobación de restaurantes — solicitudes pendientes ✔ (SCRUM-76)
+│           │       ├── aprobacion/          # HU24 — aprobación de restaurantes — solicitudes, filtros y revisión ✔ (SCRUM-76, SCRUM-77)
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
 │           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma
 │           ├── workers/                     # WorkManager (sync de pedidos entrantes, HU09)
@@ -155,6 +156,7 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | Plan de Firebase (HU02) | **Blaze**, con la prueba gratuita de Google Cloud. El bucket de Storage está en `us-east1` | Desde febrero de 2026, Cloud Storage para Firebase exige Blaze. En `us-east1` el uso de Storage entra en la capa gratuita de Google Cloud. La prueba dura 90 días: al terminar hay que activar la cuenta de facturación o el proyecto vuelve a Spark y Storage deja de funcionar. Conviene tener una alerta de presupuesto. |
 | Local del restaurante (HU02) | Documento `restaurantes/{uid}`, con el mismo `uid` de la cuenta. Estados: `borrador` → `pendiente` → `aprobado` o `rechazado` (y de `rechazado` otra vez a `pendiente` al reenviar) | Una cuenta = un local: el `uid` como id lo garantiza sin consultas. Campos, estados y reglas en «El documento del local», más abajo. |
 | Estado del local en pantalla (HU02) | El panel escucha `restaurantes/{uid}` en vivo (*snapshot listener*) | Si el administrador aprueba o rechaza el local, la pantalla del restaurante cambia sola, sin reiniciar la app. |
+| Revisión del local (HU24, SCRUM-77) | El administrador escribe la decisión directo en Firestore, en una transacción protegida por reglas (`esDecisionDelAdministrador()`). No pasa por una función HTTPS `revisarLocal` | Una transacción falla sin conexión en vez de quedar en espera, y solo aplica si el local sigue `pendiente`. Las reglas solo permiten pasar de `pendiente` a `aprobado` o `rechazado`, tocando `estado`, `revisadoEn` y `rechazo`. El aviso al local (SCRUM-78) lo enviará una función que reaccione al cambio de `estado`, así que sigue saliendo del servidor. |
 | Escrituras que no pueden quedar en espera (HU02) | Antes de guardar, una lectura al servidor (`Source.SERVER`); el reenvío de R7 usa una transacción | Sin conexión, Firestore deja las escrituras en espera sin fallar. Así la app muestra «Sin conexión» al instante, y una pausa de pedidos nunca aparenta haberse guardado. |
 | Fotos del local (HU02) | **Firebase Storage** + **Coil**. Se achican en el celular (portada de 1600 px, logo de 512 px, en JPEG). Cada subida tiene un nombre nuevo (`portada-<hora>.jpg`) y, al guardar, se borran las que ya no se usan | Cuidar la capa gratuita. Al sobrescribir un archivo, Storage cambia su URL de descarga y la URL guardada en Firestore dejaría de funcionar. Se eligen con el selector de fotos de Android, que no pide permisos. |
 | Mapa (HU02) | **Maps Compose** (`maps-compose`). La clave va en `local.properties` como `MAPS_API_KEY` y el Gradle la pasa al manifiesto | La clave no se sube al repositorio. Cada integrante agrega la suya; sin ella la app compila y abre, pero el mapa sale en blanco. |
@@ -202,7 +204,7 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 - **Reserva:** `pendiente` → `confirmada`. Además, `rechazada` (por el local, o sola 60 minutos antes) y `cancelada`. Si el comensal la modifica, vuelve a `pendiente`.
 - **Menú del día:** no hay documento hasta que se publica; después, `publicado` o `terminado` («Terminar menú de hoy» y «Reabrir»).
 
-**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `revisarLocal` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas.
+**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; y `revisarLocal`, que reacciona cuando el administrador cambia el `estado` de un local y le envía el aviso (SCRUM-78).
 
 **Fuera de Firestore:** el carrito del comensal va en Room (HU08). No se guardan la conversación del chatbot (HU11) ni la foto de la carta o de la pizarra después de leerla (HU04). El recordatorio de una reserva lo programa el celular con WorkManager (HU10).
 
@@ -219,7 +221,7 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | `portadaUrl`, `logoUrl` | texto | el local | URL de descarga de Storage. La portada es obligatoria y el logo opcional: sin logo se muestra la inicial del nombre. |
 | `horario` | mapa | el local (R4, O8) | Claves `lun` a `dom`, cada una con `{ abierto, abre: "HH:mm", cierra: "HH:mm" }`. Un día cerrado conserva sus horas. |
 | `estado` | texto | el local: `borrador` → `pendiente` (R4) y `rechazado` → `pendiente` (R7). El administrador: `aprobado` o `rechazado` (HU24) | Un `borrador` todavía no es una solicitud: el administrador no lo ve. |
-| `rechazo` | mapa | el administrador (HU24) | `{ motivo, detalle }`, con `motivo` igual a `datos_incompletos`, `direccion_no_verificable`, `local_duplicado` u `otro`. El detalle es opcional, salvo con `otro`. |
+| `rechazo` | mapa | el administrador (HU24) | `{ motivos, detalle }`. `motivos` es una lista, sin repetidos, con uno o más de `datos_incompletos`, `direccion_no_verificable`, `local_duplicado` y `otro`. El detalle es opcional (hasta 200 caracteres), salvo si `motivos` incluye `otro`: entonces es obligatorio, con al menos 3. Los rechazos anteriores a SCRUM-77 tienen `motivo` (un solo texto) en vez de `motivos`; la app los sigue leyendo. |
 | `rechazoAnterior`, `reenviado`, `camposCorregidos` | mapa, booleano, lista | el local al reenviar (R7) | Para A1 y A2: el reenvío marcado, el motivo anterior (copia exacta de `rechazo`) y los campos que cambiaron, con los mismos nombres de esta tabla. |
 | `pausado` | booleano | el local (cabecera de O1) | Sin el campo, el local recibe pedidos. Si es `true`, el comensal lo ve «Cerrado por ahora». Rechazar en el servidor los pedidos a un local pausado es trabajo de quien cree los pedidos (HU07, HU08). |
 | `creadoEn`, `enviadoEn`, `actualizadoEn` | fecha | el local | Siempre la hora del servidor. `enviadoEn` es el último envío a revisión. |
@@ -240,7 +242,8 @@ Qué garantizan las reglas de Firestore:
   - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
 - **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
-- El administrador lee cualquier local y sus platos (SCRUM-76): la función `esAdministrador()` (rol `administrador` en `usuarios/{uid}` y correo verificado) se suma con `||` a la lectura de `restaurantes/{uid}` y de `platos`. Sus escrituras (aprobar y rechazar) quedan para SCRUM-77.
+- El administrador lee cualquier local y sus platos (SCRUM-76): la función `esAdministrador()` (rol `administrador` en `usuarios/{uid}` y correo verificado) se suma con `||` a la lectura de `restaurantes/{uid}`, `platos`, `categorias` y `usuarios/{uid}` (el correo que muestra A2).
+- El administrador aprueba o rechaza (SCRUM-77) con `esDecisionDelAdministrador()`, sumada con `||` a la escritura de `restaurantes/{uid}`: solo un local en `pendiente`, solo a `aprobado` (cambia `estado` y `revisadoEn`) o a `rechazado` (además `rechazo`, validado por `rechazoValido()`), y con `revisadoEn == request.time`.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.
 
