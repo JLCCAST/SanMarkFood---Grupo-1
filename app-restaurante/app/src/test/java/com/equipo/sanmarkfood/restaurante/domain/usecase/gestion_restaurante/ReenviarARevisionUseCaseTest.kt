@@ -54,7 +54,7 @@ class ReenviarARevisionUseCaseTest {
             categoria = CategoriaRestaurante.CRIOLLA,
             direccion = direccion,
             ubicacion = Ubicacion.CiudadUniversitaria,
-            telefono = "+51 987 654 321",
+            telefono = "987 654 321",
             portadaUrl = "https://firebasestorage.googleapis.com/v0/b/prueba/o/restaurantes%2Fuid%2Fportada-1.jpg",
             logoUrl = null,
         )

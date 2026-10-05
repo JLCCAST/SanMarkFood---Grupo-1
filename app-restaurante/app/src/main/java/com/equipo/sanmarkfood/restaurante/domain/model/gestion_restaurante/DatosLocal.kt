@@ -11,9 +11,13 @@ data class DatosLocal(
     /** Opcional: sin logo se muestra la inicial del nombre. */
     val logoUrl: String?,
 ) {
+    val telefonoNacional: String get() = telefono.removePrefix(PREFIJO_TELEFONO)
+
     companion object {
         const val MAX_NOMBRE = 80
         const val MAX_DIRECCION = 200
+        const val DIGITOS_TELEFONO = 9
+        const val PREFIJO_TELEFONO = "+51"
     }
 }
 

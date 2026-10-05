@@ -42,12 +42,9 @@ internal fun validarDatosLocal(
     )
 }
 
-private val TELEFONO_INTERNACIONAL = Regex("""\+[1-9]\d{7,14}""")
-private val CELULAR_PERU = Regex("""\+519\d{8}""")
+private val CELULAR_PERU = Regex("""9\d{8}""")
 
 internal fun normalizarTelefono(texto: String): String? {
-    val telefono = texto.filterNot { it in " -()" }
-    val valido = TELEFONO_INTERNACIONAL.matches(telefono) &&
-        (!telefono.startsWith("+51") || CELULAR_PERU.matches(telefono))
-    return telefono.takeIf { valido }
+    val digitos = texto.filterNot { it == ' ' || it == '-' }
+    return if (CELULAR_PERU.matches(digitos)) DatosLocal.PREFIJO_TELEFONO + digitos else null
 }

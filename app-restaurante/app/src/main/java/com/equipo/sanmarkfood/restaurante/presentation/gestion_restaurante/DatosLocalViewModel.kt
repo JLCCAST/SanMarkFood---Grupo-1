@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -118,7 +119,9 @@ class DatosLocalViewModel @Inject constructor(
     }
 
     fun onCambiarTelefono(telefono: String) =
-        cambiarCampo(CampoLocal.TELEFONO) { it.copy(telefono = telefono.take(MAX_TELEFONO)) }
+        cambiarCampo(CampoLocal.TELEFONO) {
+            it.copy(telefono = telefono.filter { c -> c in '0'..'9' }.take(DatosLocal.DIGITOS_TELEFONO))
+        }
 
     fun onMoverPunto() = _uiState.update { it.copy(eligiendoUbicacion = true) }
 
@@ -206,6 +209,7 @@ class DatosLocalViewModel @Inject constructor(
             _uiState.update { it.copy(guardando = false, guardado = true) }
         } catch (e: ErrorRestaurante.TelefonoSinVerificar) {
             if (telefonoRecienVerificado) {
+                Log.e("BINGO", "Error detectado: ", e)
                 terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, error = ErrorRestaurante.Desconocido) }
             } else {
@@ -215,6 +219,7 @@ class DatosLocalViewModel @Inject constructor(
             terminarVerificacion()
             _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
         } catch (e: ErrorRestaurante) {
+            Log.e("BINGO", "Error detectado: ", e)
             terminarVerificacion()
             _uiState.update { it.copy(guardando = false, error = e) }
         }
@@ -230,6 +235,7 @@ class DatosLocalViewModel @Inject constructor(
                 terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
             } catch (e: ErrorRestaurante) {
+                Log.e("BINGO", "Error detectado: ", e)
                 if (_uiState.value.esperandoOtp) {
                     _uiState.update { it.copy(enviandoCodigo = false, errorOtp = e) }
                 } else {
@@ -336,7 +342,7 @@ class DatosLocalViewModel @Inject constructor(
                             categoria = datos.categoria,
                             direccion = datos.direccion,
                             ubicacion = datos.ubicacion,
-                            telefono = datos.telefono,
+                            telefono = datos.telefonoNacional,
                         )
                     }
                 }
@@ -387,8 +393,6 @@ class DatosLocalViewModel @Inject constructor(
     }
 
     private companion object {
-        // «+51 987 654 321» con espacios es lo más largo que tiene sentido escribir.
-        const val MAX_TELEFONO = 16
         const val SEGUNDOS_PARA_REENVIAR = 60
     }
 }

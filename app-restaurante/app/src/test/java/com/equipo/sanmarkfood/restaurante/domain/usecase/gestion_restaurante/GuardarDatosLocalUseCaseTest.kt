@@ -67,20 +67,19 @@ class GuardarDatosLocalUseCaseTest {
     }
 
     @Test
-    fun guardaLosDatosLimpiosYElTelefonoEnFormatoInternacional() {
-        guardarConTelefono("+51 987 654 321")
+    fun guardaLosDatosLimpiosYElTelefonoConElPrefijoDePeru() {
+        guardarConTelefono("987 654 321")
         val datos = repositorio.guardados!!
         assertEquals("La Sazón de Doña Carmen", datos.nombre)
         assertEquals(TELEFONO_VERIFICADO, datos.telefono)
     }
 
     @Test
-    fun aceptaCelularesConCodigoDePais() {
+    fun aceptaCelularesDeNueveDigitos() {
         listOf(
-            "+51 987-654-321" to "+51987654321",
-            "+51 (987) 654 321" to "+51987654321",
-            "+1 415 555 2671" to "+14155552671",
-            "+34 612 345 678" to "+34612345678",
+            "987654321" to "+51987654321",
+            "987-654-321" to "+51987654321",
+            "912 345 678" to "+51912345678",
         ).forEach { (escrito, guardado) ->
             verificacion.verificado = guardado
             guardarConTelefono(escrito)
@@ -89,29 +88,34 @@ class GuardarDatosLocalUseCaseTest {
     }
 
     @Test
-    fun rechazaTelefonosSinCodigoDePaisOFijosDePeru() {
+    fun rechazaLoQueNoEsUnCelularDeNueveDigitos() {
         listOf(
             "",
-            "987654321",
+            "+51987654321",
             "51987654321",
-            "+51 456 7890",
-            "+51 01 456 7890",
-            "+51 887 654 321",
-            "+51 98765432",
-            "+51 9876543210",
-            "+51 98765432a",
-            "+0 123 456 789",
-            "+1234567",
+            "4567890",
+            "014567890",
+            "887654321",
+            "98765432",
+            "9876543210",
+            "98765432a",
+            "(987) 654 321",
         ).forEach { telefono ->
             assertEquals(setOf(CampoLocal.TELEFONO), camposInvalidosCon(telefono))
         }
     }
 
     @Test
+    fun muestraElTelefonoGuardadoSinElPrefijo() {
+        guardarConTelefono("987 654 321")
+        assertEquals("987654321", repositorio.guardados!!.telefonoNacional)
+    }
+
+    @Test
     fun noGuardaSiElTelefonoNoEstaVerificado() {
         verificacion.verificado = null
         val error = try {
-            guardarConTelefono("+51 987 654 321")
+            guardarConTelefono("987 654 321")
             null
         } catch (e: ErrorRestaurante.TelefonoSinVerificar) {
             e
@@ -124,7 +128,7 @@ class GuardarDatosLocalUseCaseTest {
     fun noGuardaSiLaCuentaVerificoOtroTelefono() {
         verificacion.verificado = "+51911111111"
         val error = try {
-            guardarConTelefono("+51 987 654 321")
+            guardarConTelefono("987 654 321")
             null
         } catch (e: ErrorRestaurante.TelefonoSinVerificar) {
             e
@@ -136,7 +140,7 @@ class GuardarDatosLocalUseCaseTest {
     @Test
     fun marcaLosCamposAntesDePedirLaVerificacion() {
         verificacion.verificado = null
-        assertEquals(setOf(CampoLocal.TELEFONO), camposInvalidosCon("987654321"))
+        assertEquals(setOf(CampoLocal.TELEFONO), camposInvalidosCon("98765"))
     }
 
     @Test
@@ -154,14 +158,14 @@ class GuardarDatosLocalUseCaseTest {
     @Test
     fun exigeLaPortadaPeroNoElLogo() {
         val error = try {
-            guardarConTelefono(TELEFONO_VERIFICADO, portadaUrl = null)
+            guardarConTelefono("987654321", portadaUrl = null)
             null
         } catch (e: ErrorRestaurante.DatosInvalidos) {
             e
         }
         assertEquals(setOf(CampoLocal.PORTADA), error?.campos)
 
-        guardarConTelefono(TELEFONO_VERIFICADO)
+        guardarConTelefono("987654321")
         assertEquals(PORTADA, repositorio.guardados!!.portadaUrl)
         assertNull(repositorio.guardados!!.logoUrl)
     }

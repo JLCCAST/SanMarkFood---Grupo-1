@@ -90,7 +90,7 @@ fun DatosLocalScreen(
         )
 
         uiState.esperandoOtp -> VerificacionTelefono(
-            telefono = uiState.telefono.trim(),
+            telefono = uiState.telefono.chunked(3).joinToString(" "),
             codigo = uiState.codigoIngresado,
             error = uiState.errorOtp,
             verificando = uiState.verificandoCodigo,
@@ -285,7 +285,7 @@ private fun FormularioLocal(
         etiqueta = stringResource(R.string.datos_local_telefono),
         valor = uiState.telefono,
         onValorChange = onCambiarTelefono,
-        tipoTeclado = KeyboardType.Phone,
+        tipoTeclado = KeyboardType.Number,
         ejemplo = stringResource(R.string.datos_local_telefono_ejemplo),
         esError = telefonoInvalido,
         mensaje = stringResource(

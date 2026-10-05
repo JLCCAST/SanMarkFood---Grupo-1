@@ -33,7 +33,7 @@ class VerificacionTelefonoUseCasesTest {
 
     @Test
     fun enviaElSmsAlTelefonoNormalizado() {
-        val eventos = runBlocking { enviarCodigo("+51 (987) 654-321", reenviar = false).toList() }
+        val eventos = runBlocking { enviarCodigo("987 654-321", reenviar = false).toList() }
         assertEquals("+51987654321", verificacion.enviadoA)
         assertEquals(listOf(EventoVerificacion.CodigoEnviado), eventos)
     }
@@ -41,7 +41,7 @@ class VerificacionTelefonoUseCasesTest {
     @Test
     fun noEnviaSmsAUnTelefonoInvalido() {
         val error = try {
-            enviarCodigo("987 654 321", reenviar = false)
+            enviarCodigo("887 654 321", reenviar = false)
             null
         } catch (e: ErrorRestaurante.DatosInvalidos) {
             e

@@ -124,7 +124,7 @@ private fun VerificacionTelefonoPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             VerificacionTelefono(
-                telefono = "+51 987 654 321",
+                telefono = "987 654 321",
                 codigo = "4821",
                 error = ErrorRestaurante.CodigoIncorrecto,
                 verificando = false,

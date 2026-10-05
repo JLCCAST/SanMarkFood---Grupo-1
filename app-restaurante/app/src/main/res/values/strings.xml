@@ -72,13 +72,13 @@
     <string name="datos_local_mover_punto">Mover el punto</string>
     <string name="datos_local_mapa_ayuda">Arrastra el punto hasta la puerta de tu local.</string>
     <string name="datos_local_telefono">Teléfono del local</string>
-    <string name="datos_local_telefono_ejemplo">+51 999 999 999</string>
-    <string name="datos_local_telefono_ayuda">Un celular con el código de país. Lo verificamos por SMS y se muestra a los comensales para grupos grandes y consultas.</string>
+    <string name="datos_local_telefono_ejemplo">999 999 999</string>
+    <string name="datos_local_telefono_ayuda">Tu celular de 9 dígitos. Lo verificamos por SMS y se muestra a los comensales para grupos grandes y consultas.</string>
     <string name="datos_local_continuar">Continuar</string>
     <string name="datos_local_error_nombre">Escribe el nombre de tu local.</string>
     <string name="datos_local_error_categoria">Elige la categoría de tu local.</string>
     <string name="datos_local_error_direccion">Escribe la dirección de tu local.</string>
-    <string name="datos_local_error_telefono">Escribe un celular con el código de país, por ejemplo +51 987 654 321.</string>
+    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos que empiece con 9.</string>
     <string name="otp_titulo">Verifica tu teléfono</string>
     <string name="otp_enviamos">Te enviamos un código de 6 dígitos por SMS al %1$s.</string>
     <string name="otp_codigo">Código de verificación</string>
