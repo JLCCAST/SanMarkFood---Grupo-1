@@ -15,5 +15,10 @@ class DispositivosRepositoryImpl @Inject constructor(
         dispositivosDataSource.registrar(uid)
     }
 
+    override fun renovar(token: String) {
+        val uid = authDataSource.usuarioActual()?.uid ?: return
+        dispositivosDataSource.guardar(uid, token)
+    }
+
     override fun olvidar() = dispositivosDataSource.olvidar()
 }

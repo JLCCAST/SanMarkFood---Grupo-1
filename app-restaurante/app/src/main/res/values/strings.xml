@@ -292,6 +292,9 @@
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>
     <string name="estado_en_revision_titulo">Estamos revisando tu local</string>
+    <string name="canal_estado_local_id" translatable="false">estado_local</string>
+    <string name="canal_estado_local">Estado del local</string>
+    <string name="canal_estado_local_descripcion">Te avisamos cuando revisamos el registro de tu local.</string>
     <string name="estado_en_revision_texto">Aún no apareces en el mapa ni recibes pedidos o reservas. Te avisaremos apenas terminemos la revisión.</string>
     <string name="estado_rechazado">REGISTRO RECHAZADO</string>
     <string name="estado_rechazado_texto">Corrige tus datos y vuelve a enviarlos; tu carta y tu horario se conservan.</string>

@@ -11,14 +11,16 @@ class DispositivosDataSource @Inject constructor(
 ) {
     @Suppress("DEPRECATION")
     fun registrar(uid: String) {
-        messaging.token.addOnSuccessListener { token ->
-            firestore.collection("usuarios").document(uid).collection("dispositivos").document(token).set(
-                mapOf(
-                    "app" to "restaurante",
-                    "actualizadoEn" to FieldValue.serverTimestamp(),
-                )
+        messaging.token.addOnSuccessListener { token -> guardar(uid, token) }
+    }
+
+    fun guardar(uid: String, token: String) {
+        firestore.collection("usuarios").document(uid).collection("dispositivos").document(token).set(
+            mapOf(
+                "app" to "restaurante",
+                "actualizadoEn" to FieldValue.serverTimestamp(),
             )
-        }
+        )
     }
 
     @Suppress("DEPRECATION")

@@ -15,6 +15,9 @@ class DispositivoUseCasesTest {
         override fun registrar() {
             eventos += "registrar"
         }
+        override fun renovar(token: String) {
+            eventos += "renovar:$token"
+        }
         override fun olvidar() {
             eventos += "olvidar"
         }
@@ -49,6 +52,14 @@ class DispositivoUseCasesTest {
             EstadoSesion.SinVerificar("local@correo.com"),
         ).forEach { registrarDispositivo(it) }
         assertEquals(emptyList<String>(), eventos)
+    }
+
+    @Test
+    fun guardaElTokenNuevoYDescartaUnoVacio() {
+        val renovarDispositivo = RenovarDispositivoUseCase(dispositivos)
+        renovarDispositivo("token-nuevo")
+        renovarDispositivo("  ")
+        assertEquals(listOf("renovar:token-nuevo"), eventos)
     }
 
     @Test
