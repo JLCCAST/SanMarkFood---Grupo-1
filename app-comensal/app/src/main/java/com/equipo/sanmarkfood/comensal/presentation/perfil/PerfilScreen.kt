@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.perfil
+package com.equipo.sanmarkfood.comensal.presentation.perfil
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest

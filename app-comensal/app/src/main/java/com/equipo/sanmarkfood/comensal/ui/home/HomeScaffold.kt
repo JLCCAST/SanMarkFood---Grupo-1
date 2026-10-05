@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.equipo.sanmarkfood.comensal.ui.perfil.PerfilScreen
+import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
 private enum class Pestana(val titulo: String, val icono: ImageVector) {
     EXPLORAR("Explorar", Icons.Filled.Place),

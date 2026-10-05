@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.perfil
+package com.equipo.sanmarkfood.comensal.presentation.perfil
 
 import android.net.Uri
 import android.util.Log
