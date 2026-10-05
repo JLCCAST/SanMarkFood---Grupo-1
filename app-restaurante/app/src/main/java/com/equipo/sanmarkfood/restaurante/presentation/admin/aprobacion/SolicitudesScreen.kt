@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.restaurante.presentation.admin.aprobacion
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,9 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +41,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Categ
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
 import com.equipo.sanmarkfood.restaurante.presentation.admin.CabeceraAdministracion
+import com.equipo.sanmarkfood.restaurante.presentation.admin.EtiquetaSolicitud
 import com.equipo.sanmarkfood.restaurante.presentation.admin.MensajeErrorAdmin
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.LogoLocal
@@ -49,6 +53,7 @@ import java.util.Locale
 @Composable
 fun SolicitudesScreen(
     onSalir: () -> Unit,
+    onAbrirSolicitud: (uid: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SolicitudesViewModel = hiltViewModel(),
 ) {
@@ -57,6 +62,7 @@ fun SolicitudesScreen(
     SolicitudesContenido(
         uiState = uiState,
         onSalir = onSalir,
+        onAbrirSolicitud = onAbrirSolicitud,
         onReintentar = viewModel::onReintentar,
         modifier = modifier,
     )
@@ -66,6 +72,7 @@ fun SolicitudesScreen(
 private fun SolicitudesContenido(
     uiState: SolicitudesUiState,
     onSalir: () -> Unit,
+    onAbrirSolicitud: (uid: String) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -120,7 +127,11 @@ private fun SolicitudesContenido(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(uiState.solicitudes, key = { it.uid }) { solicitud ->
-                        TarjetaSolicitud(solicitud = solicitud, ahora = ahora)
+                        TarjetaSolicitud(
+                            solicitud = solicitud,
+                            ahora = ahora,
+                            onAbrir = { onAbrirSolicitud(solicitud.uid) },
+                        )
                     }
                 }
             }
@@ -129,7 +140,7 @@ private fun SolicitudesContenido(
 }
 
 @Composable
-private fun TarjetaSolicitud(solicitud: SolicitudLocal, ahora: Long) {
+private fun TarjetaSolicitud(solicitud: SolicitudLocal, ahora: Long, onAbrir: () -> Unit) {
     val forma = RoundedCornerShape(16.dp)
     Row(
         modifier = Modifier
@@ -137,8 +148,8 @@ private fun TarjetaSolicitud(solicitud: SolicitudLocal, ahora: Long) {
             .clip(forma)
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, forma)
-            .padding(horizontal = 14.dp, vertical = 12.dp)
-            .semantics(mergeDescendants = true) {},
+            .clickable(onClick = onAbrir)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         LogoLocal(logoUrl = solicitud.logoUrl, nombre = solicitud.nombre, tamano = 48.dp, radio = 12.dp)
@@ -171,22 +182,13 @@ private fun TarjetaSolicitud(solicitud: SolicitudLocal, ahora: Long) {
                 )
             }
         }
+        Icon(
+            painter = painterResource(R.drawable.ic_siguiente),
+            contentDescription = null,
+            modifier = Modifier.padding(top = 14.dp).size(18.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
-}
-
-@Composable
-private fun EtiquetaSolicitud(reenviado: Boolean) {
-    val fondo = if (reenviado) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
-    val texto = if (reenviado) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
-    Text(
-        text = stringResource(if (reenviado) R.string.solicitud_reenviado else R.string.solicitud_nuevo),
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(fondo)
-            .padding(horizontal = 7.dp, vertical = 3.dp),
-        style = MaterialTheme.typography.labelSmall,
-        color = texto,
-    )
 }
 
 @Composable
@@ -268,6 +270,7 @@ private fun SolicitudesPreview() {
                     ),
                 ),
                 onSalir = {},
+                onAbrirSolicitud = {},
                 onReintentar = {},
                 modifier = Modifier.fillMaxSize(),
             )

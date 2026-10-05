@@ -383,4 +383,57 @@
     <string name="error_motivo_faltante">Elige el motivo del rechazo.</string>
     <string name="error_detalle_obligatorio">Con «Otro», explica el motivo para que el local sepa qué corregir.</string>
     <string name="error_ya_revisada">Esta solicitud ya fue revisada. Vuelve a la lista para ver su estado.</string>
+
+    <string name="revisar_titulo">Revisar solicitud</string>
+    <string name="revisar_categoria_cuenta">%1$s · cuenta %2$s</string>
+    <string name="revisar_aprobado">Aprobado.</string>
+    <string name="revisar_aprobado_detalle">El local ya aparece en el mapa.</string>
+    <string name="revisar_rechazado">Rechazado: %1$s.</string>
+    <string name="revisar_rechazado_detalle">El local ve el motivo en su app y puede corregir y reenviar.</string>
+    <string name="revisar_rechazo_anterior">Rechazo anterior</string>
+    <string name="revisar_rechazo_anterior_fecha">Rechazo anterior · %1$s</string>
+    <string name="revisar_cambio">Cambió desde entonces:</string>
+    <string name="revisar_sin_cambios">No cambió sus datos; pudo corregir el horario o la carta.</string>
+    <string name="revisar_lista_y">%1$s y %2$s</string>
+    <string name="revisar_campo_nombre">nombre</string>
+    <string name="revisar_campo_categoria">categoría</string>
+    <string name="revisar_campo_direccion">dirección</string>
+    <string name="revisar_campo_ubicacion">punto del mapa</string>
+    <string name="revisar_campo_telefono">teléfono</string>
+    <string name="revisar_campo_portada">portada</string>
+    <string name="revisar_campo_logo">logo</string>
+    <string name="revisar_direccion">Dirección</string>
+    <string name="revisar_telefono">Teléfono</string>
+    <string name="revisar_horario">Horario</string>
+    <string name="revisar_carta">Carta</string>
+    <string name="revisar_horario_tramo">%1$s %2$s–%3$s</string>
+    <string name="revisar_sin_horario">Sin horario</string>
+    <string name="revisar_sin_dias">Cerrado todos los días</string>
+    <string name="revisar_carta_resumen">%1$s en %2$s</string>
+    <string name="revisar_sin_carta">Todavía sin platos</string>
+    <string name="revisar_aprobar">Aprobar</string>
+    <string name="revisar_rechazar">Rechazar</string>
+    <string name="revisar_rechazo_titulo">Rechazar el registro</string>
+    <string name="revisar_rechazo_explicacion">El local verá el motivo y podrá corregir y reenviar.</string>
+    <string name="revisar_rechazo_motivo">Motivo</string>
+    <string name="revisar_rechazo_otro">Otro</string>
+    <string name="revisar_rechazo_detalle_obligatorio">Explica el motivo (obligatorio)</string>
+    <string name="revisar_rechazo_detalle_opcional">Detalle para el local (opcional)</string>
+    <string name="revisar_rechazo_detalle_ejemplo">Ej.: la dirección no coincide con el mapa</string>
+    <string name="revisar_rechazo_volver">Volver</string>
+    <string name="revisar_rechazo_confirmar">Rechazar registro</string>
+    <string-array name="meses_cortos">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>set</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
 </resources>

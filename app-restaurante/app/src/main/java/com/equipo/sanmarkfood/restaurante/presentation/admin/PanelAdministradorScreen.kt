@@ -29,6 +29,7 @@ import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
 
 @Composable
 fun PanelAdministradorScreen(
+    onAbrirSolicitud: (uid: String) -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelAdministradorViewModel = hiltViewModel(),
     solicitudesViewModel: SolicitudesViewModel = hiltViewModel(),
@@ -54,6 +55,7 @@ fun PanelAdministradorScreen(
         when (uiState.pestana) {
             PestanaAdmin.SOLICITUDES -> SolicitudesScreen(
                 onSalir = viewModel::onCerrarSesion,
+                onAbrirSolicitud = onAbrirSolicitud,
                 modifier = contenido,
                 viewModel = solicitudesViewModel,
             )

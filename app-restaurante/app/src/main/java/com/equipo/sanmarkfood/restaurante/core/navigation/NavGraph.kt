@@ -9,6 +9,7 @@ import androidx.navigation.toRoute
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.Rol
 import com.equipo.sanmarkfood.restaurante.presentation.admin.PanelAdministradorScreen
+import com.equipo.sanmarkfood.restaurante.presentation.admin.aprobacion.RevisarSolicitudScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.ArranqueScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.InicioSesionScreen
 import com.equipo.sanmarkfood.restaurante.presentation.auth.RegistroScreen
@@ -50,7 +51,13 @@ fun RestauranteNavGraph() {
         }
         composable<PanelAdministrador> {
             PanelAdministradorScreen(
+                onAbrirSolicitud = { uid -> navController.navigate(RevisarSolicitud(uid)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
+            )
+        }
+        composable<RevisarSolicitud> {
+            RevisarSolicitudScreen(
+                onVolver = { navController.navigateUp() },
             )
         }
         composable<DatosLocal> { entrada ->

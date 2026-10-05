@@ -19,6 +19,9 @@ data class VerificarCorreo(val correo: String)
 @Serializable
 data object PanelAdministrador
 
+@Serializable
+data class RevisarSolicitud(val uid: String)
+
 /** R3 en el alta; O7 «Perfil del local» al editar. */
 @Serializable
 data class DatosLocal(val modo: ModoFormulario)

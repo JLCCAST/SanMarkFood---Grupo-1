@@ -80,6 +80,21 @@ fun CabeceraAdministracion(
 }
 
 @Composable
+fun EtiquetaSolicitud(reenviado: Boolean, modifier: Modifier = Modifier) {
+    val fondo = if (reenviado) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+    val texto = if (reenviado) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+    Text(
+        text = stringResource(if (reenviado) R.string.solicitud_reenviado else R.string.solicitud_nuevo),
+        modifier = modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(fondo)
+            .padding(horizontal = 7.dp, vertical = 3.dp),
+        style = MaterialTheme.typography.labelSmall,
+        color = texto,
+    )
+}
+
+@Composable
 fun MensajeErrorAdmin(error: ErrorAdmin, modifier: Modifier = Modifier) {
     Text(
         text = stringResource(error.mensaje()),
