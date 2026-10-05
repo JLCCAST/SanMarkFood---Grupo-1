@@ -21,11 +21,9 @@ class GuardarDatosLocalUseCase @Inject constructor(
         logoUrl: String?,
     ) {
         val datos = validarDatosLocal(nombre, categoria, direccion, ubicacion, telefono, portadaUrl, logoUrl)
-        
-        if (!verificacionTelefonoRepository.telefonoVerificado(telefono)) {
+        if (verificacionTelefonoRepository.telefonoVerificado() != datos.telefono) {
             throw ErrorRestaurante.TelefonoSinVerificar
         }
-
         if (restauranteRepository.obtener()?.requiereNuevaRevision(datos) == true) {
             restauranteRepository.guardarDatosYPedirRevision(datos)
         } else {

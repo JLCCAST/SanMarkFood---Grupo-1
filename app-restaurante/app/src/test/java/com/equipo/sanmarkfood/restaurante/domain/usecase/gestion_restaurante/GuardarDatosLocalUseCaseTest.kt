@@ -186,7 +186,7 @@ class GuardarDatosLocalUseCaseTest {
             editados.categoria,
             editados.direccion,
             editados.ubicacion,
-            editados.telefono,
+            editados.telefonoNacional,
             editados.portadaUrl,
             editados.logoUrl,
         )
@@ -195,6 +195,7 @@ class GuardarDatosLocalUseCaseTest {
     @Test
     fun unLocalAprobadoQueCambiaCamposMenoresSigueAprobado() {
         repositorio.actual = localEn(EstadoRestaurante.APROBADO)
+        verificacion.verificado = "+51912345678"
         guardarEdicion { it.copy(nombre = "La Sazón de Carmen", categoria = CategoriaRestaurante.MARINA, telefono = "912345678") }
         assertEquals("La Sazón de Carmen", repositorio.guardados!!.nombre)
         assertNull(repositorio.pedidosARevision)
@@ -227,7 +228,7 @@ class GuardarDatosLocalUseCaseTest {
                 editados.categoria,
                 editados.direccion,
                 editados.ubicacion,
-                editados.telefono,
+                editados.telefonoNacional,
                 editados.portadaUrl,
                 editados.logoUrl,
             )
@@ -266,7 +267,7 @@ class GuardarDatosLocalUseCaseTest {
             categoria = CategoriaRestaurante.CRIOLLA,
             direccion = "Av. Venezuela 3450",
             ubicacion = Ubicacion.CiudadUniversitaria,
-            telefono = "987654321",
+            telefono = TELEFONO_VERIFICADO,
             portadaUrl = PORTADA,
             logoUrl = null,
         )
