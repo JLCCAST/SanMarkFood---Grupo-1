@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.SolicitudLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
@@ -50,6 +51,18 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
         pausado = getBoolean("pausado") ?: false,
     )
 }
+
+internal fun DocumentSnapshot.aSolicitudLocal(cantidadPlatos: Int): SolicitudLocal = SolicitudLocal(
+    uid = id,
+    nombre = getString("nombre").orEmpty(),
+    categoria = CategoriaRestaurante.entries.firstOrNull { it.valor() == getString("categoria") }
+        ?: CategoriaRestaurante.OTRA,
+    logoUrl = getString("logoUrl"),
+    enviadoEn = getTimestamp("enviadoEn")?.toDate()?.time ?: 0L,
+    reenviado = getBoolean("reenviado") == true,
+    rechazoAnterior = (get("rechazoAnterior") as? Map<*, *>)?.aRechazo(),
+    cantidadPlatos = cantidadPlatos,
+)
 
 // rechazo: { motivo: "direccion_no_verificable", detalle: "…" }. Lo escribe el administrador al rechazar
 // (A2, HU24): motivo es uno de los cuatro valores de abajo y detalle es opcional, salvo con «otro».
