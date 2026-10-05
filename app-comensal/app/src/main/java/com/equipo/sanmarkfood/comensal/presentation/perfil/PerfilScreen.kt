@@ -40,12 +40,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.data.Direccion
 import com.equipo.sanmarkfood.comensal.presentation.auth.AuthTextField
 import com.equipo.sanmarkfood.comensal.presentation.auth.ErrorMessage
@@ -98,6 +100,8 @@ fun PerfilScreen(
     val hayCambios = nombre.trim() != state.comensal.nombre || telefono != state.comensal.telefono
     val puedeGuardar = hayCambios && nombre.isNotBlank() && !telefonoIncompleto
 
+    val nombrePorDefecto = stringResource(R.string.perfil_nombre_por_defecto)
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -106,7 +110,7 @@ fun PerfilScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
-            text = "Perfil",
+            text = stringResource(R.string.perfil_titulo),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.ExtraBold
         )
@@ -128,13 +132,13 @@ fun PerfilScreen(
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = nombreMostrado.ifBlank { "Comensal" },
+                    text = nombreMostrado.ifBlank { nombrePorDefecto },
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 if (miembroDesde.isNotBlank()) {
                     Text(
-                        text = "Comensal desde $miembroDesde",
+                        text = stringResource(R.string.perfil_miembro_desde, miembroDesde),
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurfaceVariant
                     )
@@ -149,7 +153,7 @@ fun PerfilScreen(
                 color = colors.secondaryContainer
             ) {
                 Text(
-                    text = "Completa tu nombre y teléfono para una mejor experiencia",
+                    text = stringResource(R.string.perfil_incompleto_aviso),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
@@ -160,28 +164,28 @@ fun PerfilScreen(
         }
 
         Text(
-            text = "Datos personales",
+            text = stringResource(R.string.perfil_seccion_datos),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
 
         AuthTextField(
-            label = "Nombre",
+            label = stringResource(R.string.perfil_etiqueta_nombre),
             value = nombre,
             onValueChange = { nombre = it },
-            placeholder = "Tu nombre"
+            placeholder = stringResource(R.string.perfil_placeholder_nombre)
         )
         AuthTextField(
-            label = "Teléfono",
+            label = stringResource(R.string.perfil_etiqueta_telefono),
             value = telefono,
             onValueChange = { telefono = it.filter(Char::isDigit).take(9) },
-            placeholder = "999 999 999",
+            placeholder = stringResource(R.string.perfil_placeholder_telefono),
             keyboardType = KeyboardType.Phone,
             imeAction = ImeAction.Done,
             isError = telefonoIncompleto
         )
         if (telefonoIncompleto) {
-            ErrorMessage("El teléfono debe tener 9 dígitos")
+            ErrorMessage(stringResource(R.string.perfil_error_telefono))
         }
         CorreoSoloLectura(correo = correo, verificado = correoVerificado)
 
@@ -189,7 +193,7 @@ fun PerfilScreen(
 
         if (state.guardadoExitoso) {
             Text(
-                text = "Cambios guardados",
+                text = stringResource(R.string.perfil_cambios_guardados),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = colors.tertiary
@@ -197,7 +201,7 @@ fun PerfilScreen(
         }
 
         PrimaryButton(
-            text = "Guardar cambios",
+            text = stringResource(R.string.perfil_boton_guardar),
             onClick = { viewModel.actualizarDatos(nombre.trim(), telefono) },
             enabled = puedeGuardar,
             isLoading = state.isLoading
@@ -228,7 +232,7 @@ fun PerfilScreen(
                 .height(52.dp),
             shape = CircleShape
         ) {
-            Text("Cerrar sesión", fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.perfil_boton_cerrar_sesion), fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -255,14 +259,14 @@ private fun SeccionDirecciones(
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            text = "Direcciones frecuentes",
+            text = stringResource(R.string.perfil_direcciones_titulo),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
 
         if (direcciones.isEmpty() && !mostrarFormulario) {
             Text(
-                text = "Aún no tienes direcciones guardadas. Agrega una para pedir más rápido.",
+                text = stringResource(R.string.perfil_direcciones_vacio),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant
             )
@@ -274,20 +278,20 @@ private fun SeccionDirecciones(
 
         if (mostrarFormulario) {
             AuthTextField(
-                label = "Etiqueta",
+                label = stringResource(R.string.perfil_direccion_etiqueta),
                 value = etiqueta,
                 onValueChange = { etiqueta = it.take(30) },
-                placeholder = "Casa, Trabajo, Universidad"
+                placeholder = stringResource(R.string.perfil_direccion_placeholder_etiqueta)
             )
             AuthTextField(
-                label = "Dirección",
+                label = stringResource(R.string.perfil_direccion_etiqueta_direccion),
                 value = direccionTexto,
                 onValueChange = { direccionTexto = it.take(150) },
-                placeholder = "Av. Venezuela 1234, Lima",
+                placeholder = stringResource(R.string.perfil_direccion_placeholder_direccion),
                 imeAction = ImeAction.Done
             )
             PrimaryButton(
-                text = "Guardar dirección",
+                text = stringResource(R.string.perfil_direccion_guardar),
                 onClick = {
                     onAgregar(
                         Direccion(
@@ -307,7 +311,7 @@ private fun SeccionDirecciones(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancelar")
+                Text(stringResource(R.string.common_cancelar))
             }
         } else {
             OutlinedButton(
@@ -317,7 +321,7 @@ private fun SeccionDirecciones(
                     .height(48.dp),
                 shape = CircleShape
             ) {
-                Text("Agregar dirección", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.perfil_direccion_agregar), fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -332,26 +336,26 @@ private fun SeccionNotificaciones(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            text = "Notificaciones",
+            text = stringResource(R.string.perfil_notificaciones_titulo),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
 
         NotificacionItem(
-            titulo = "Reservas",
-            descripcion = "Avisos de confirmación y recordatorios de tus reservas",
+            titulo = stringResource(R.string.perfil_notif_reservas_titulo),
+            descripcion = stringResource(R.string.perfil_notif_reservas_desc),
             checked = notificarReservas,
             onCheckedChange = onReservasChange
         )
         NotificacionItem(
-            titulo = "Reseñas",
-            descripcion = "Avisos para calificar tu experiencia luego de visitar un restaurante",
+            titulo = stringResource(R.string.perfil_notif_resenas_titulo),
+            descripcion = stringResource(R.string.perfil_notif_resenas_desc),
             checked = notificarResenas,
             onCheckedChange = onResenasChange
         )
         NotificacionItem(
-            titulo = "Pedido en curso",
-            descripcion = "Siempre activas: te avisan el estado de un pedido que ya hiciste",
+            titulo = stringResource(R.string.perfil_notif_pedido_titulo),
+            descripcion = stringResource(R.string.perfil_notif_pedido_desc),
             checked = true,
             onCheckedChange = {},
             habilitado = false
@@ -436,7 +440,7 @@ private fun DireccionItem(
                 )
             }
             TextButton(onClick = onEliminar) {
-                Text("Eliminar", color = colors.error)
+                Text(stringResource(R.string.perfil_direccion_eliminar), color = colors.error)
             }
         }
     }
@@ -468,7 +472,7 @@ private fun AvatarPerfil(
 
                 !fotoUrl.isNullOrBlank() -> AsyncImage(
                     model = fotoUrl,
-                    contentDescription = "Foto de perfil",
+                    contentDescription = stringResource(R.string.perfil_avatar_foto_descripcion),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -493,7 +497,7 @@ private fun AvatarPerfil(
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
-                contentDescription = "Cambiar foto",
+                contentDescription = stringResource(R.string.perfil_avatar_cambiar_descripcion),
                 tint = colors.onPrimary,
                 modifier = Modifier.size(14.dp)
             )
@@ -506,7 +510,7 @@ private fun CorreoSoloLectura(correo: String, verificado: Boolean) {
     val colors = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            text = "Correo",
+            text = stringResource(R.string.perfil_etiqueta_correo),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold
         )
@@ -529,7 +533,7 @@ private fun CorreoSoloLectura(correo: String, verificado: Boolean) {
                 )
                 if (verificado) {
                     Text(
-                        text = "Verificado",
+                        text = stringResource(R.string.perfil_correo_verificado),
                         modifier = Modifier
                             .clip(CircleShape)
                             .background(colors.tertiaryContainer)

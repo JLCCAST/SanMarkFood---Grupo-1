@@ -1,4 +1,93 @@
 <resources>
     <string name="app_name">app-comensal</string>
+
+    <!-- Comunes -->
+    <string name="common_cancelar">Cancelar</string>
+    <string name="auth_etiqueta_correo">Correo electrónico</string>
+    <string name="auth_placeholder_correo">tu@correo.com</string>
+    <string name="auth_etiqueta_contrasena">Contraseña</string>
+    <string name="auth_mostrar">Mostrar</string>
+    <string name="auth_ocultar">Ocultar</string>
+
+    <!-- Inicio de sesión -->
     <string name="login_etiqueta_comensal">COMENSALES</string>
+    <string name="login_marca_san_mark">San Mark</string>
+    <string name="login_marca_food">Food</string>
+    <string name="login_eslogan">Menús del día, reservas y pedidos para recoger, a pasos de San Marcos.</string>
+    <string name="login_titulo">Inicia sesión</string>
+    <string name="login_olvidaste_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="login_boton_iniciar">Iniciar sesión</string>
+    <string name="login_boton_explorar">Explorar sin cuenta</string>
+    <string name="login_primera_vez">¿Primera vez aquí?</string>
+    <string name="login_crear_cuenta">Crea tu cuenta</string>
+
+    <!-- Recuperar contraseña (diálogo del login) -->
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_instruccion">Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.</string>
+    <string name="recuperar_enlace_enviado">Si el correo está registrado, te enviamos un enlace para crear una nueva contraseña. Revisa también la carpeta de spam.</string>
+    <string name="recuperar_enviar">Enviar enlace</string>
+    <string name="recuperar_enviando">Enviando...</string>
+    <string name="recuperar_entendido">Entendido</string>
+
+    <!-- Registro -->
+    <string name="registro_volver_descripcion">Volver a iniciar sesión</string>
+    <string name="registro_titulo">Crea tu cuenta</string>
+    <string name="registro_subtitulo">Para pedir, reservar y guardar tu historial.</string>
+    <string name="registro_etiqueta_nombre">Nombre</string>
+    <string name="registro_regla_longitud">Al menos 8 caracteres</string>
+    <string name="registro_regla_numero">Al menos un número</string>
+    <string name="registro_regla_cumplida">Cumplida</string>
+    <string name="registro_acepto_terminos">Acepto los términos y la política de privacidad.</string>
+    <string name="registro_boton_crear">Crear cuenta</string>
+    <string name="registro_ya_tienes_cuenta">¿Ya tienes cuenta?</string>
+    <string name="registro_ir_a_login">Inicia sesión</string>
+
+    <!-- Verificación de correo -->
+    <string name="verificacion_titulo">Revisa tu correo</string>
+    <string name="verificacion_enlace_inicio">Te enviamos un enlace de verificación a</string>
+    <string name="verificacion_enlace_fin">. Tu cuenta se activará cuando lo abras.</string>
+    <string name="verificacion_correo_por_defecto">tu correo</string>
+    <string name="verificacion_no_aparece">¿No aparece? Revisa la carpeta de spam o de promociones.</string>
+    <string name="verificacion_boton_verificado">Ya verifiqué mi correo</string>
+    <string name="verificacion_reenviar">Reenviar correo</string>
+    <string name="verificacion_reenviar_en">Reenviar correo en %1$d s</string>
+    <string name="verificacion_cambiar_correo">Cambiar correo</string>
+
+    <!-- Perfil -->
+    <string name="perfil_titulo">Perfil</string>
+    <string name="perfil_miembro_desde">Comensal desde %1$s</string>
+    <string name="perfil_nombre_por_defecto">Comensal</string>
+    <string name="perfil_incompleto_aviso">Completa tu nombre y teléfono para una mejor experiencia</string>
+    <string name="perfil_seccion_datos">Datos personales</string>
+    <string name="perfil_etiqueta_nombre">Nombre</string>
+    <string name="perfil_placeholder_nombre">Tu nombre</string>
+    <string name="perfil_etiqueta_telefono">Teléfono</string>
+    <string name="perfil_placeholder_telefono">999 999 999</string>
+    <string name="perfil_error_telefono">El teléfono debe tener 9 dígitos</string>
+    <string name="perfil_etiqueta_correo">Correo</string>
+    <string name="perfil_correo_verificado">Verificado</string>
+    <string name="perfil_cambios_guardados">Cambios guardados</string>
+    <string name="perfil_boton_guardar">Guardar cambios</string>
+    <string name="perfil_boton_cerrar_sesion">Cerrar sesión</string>
+
+    <string name="perfil_direcciones_titulo">Direcciones frecuentes</string>
+    <string name="perfil_direcciones_vacio">Aún no tienes direcciones guardadas. Agrega una para pedir más rápido.</string>
+    <string name="perfil_direccion_etiqueta">Etiqueta</string>
+    <string name="perfil_direccion_placeholder_etiqueta">Casa, Trabajo, Universidad</string>
+    <string name="perfil_direccion_etiqueta_direccion">Dirección</string>
+    <string name="perfil_direccion_placeholder_direccion">Av. Venezuela 1234, Lima</string>
+    <string name="perfil_direccion_guardar">Guardar dirección</string>
+    <string name="perfil_direccion_agregar">Agregar dirección</string>
+    <string name="perfil_direccion_eliminar">Eliminar</string>
+
+    <string name="perfil_notificaciones_titulo">Notificaciones</string>
+    <string name="perfil_notif_reservas_titulo">Reservas</string>
+    <string name="perfil_notif_reservas_desc">Avisos de confirmación y recordatorios de tus reservas</string>
+    <string name="perfil_notif_resenas_titulo">Reseñas</string>
+    <string name="perfil_notif_resenas_desc">Avisos para calificar tu experiencia luego de visitar un restaurante</string>
+    <string name="perfil_notif_pedido_titulo">Pedido en curso</string>
+    <string name="perfil_notif_pedido_desc">Siempre activas: te avisan el estado de un pedido que ya hiciste</string>
+
+    <string name="perfil_avatar_foto_descripcion">Foto de perfil</string>
+    <string name="perfil_avatar_cambiar_descripcion">Cambiar foto</string>
 </resources>

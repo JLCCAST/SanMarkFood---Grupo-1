@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.equipo.sanmarkfood.comensal.R
 
 @Composable
 fun RegistroScreen(
@@ -70,6 +72,8 @@ fun RegistroScreen(
         onIrAInicioSesion()
     }
 
+    val descripcionVolver = stringResource(R.string.registro_volver_descripcion)
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -81,7 +85,7 @@ fun RegistroScreen(
             onClick = volverAInicioSesion,
             modifier = Modifier
                 .padding(start = 4.dp, top = 8.dp)
-                .semantics { contentDescription = "Volver a iniciar sesión" }
+                .semantics { contentDescription = descripcionVolver }
         ) {
             Text(text = "\u2190", fontSize = 24.sp)
         }
@@ -94,38 +98,44 @@ fun RegistroScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Text(
-                text = "Crea tu cuenta",
+                text = stringResource(R.string.registro_titulo),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "Para pedir, reservar y guardar tu historial.",
+                text = stringResource(R.string.registro_subtitulo),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             AuthTextField(
-                label = "Nombre",
+                label = stringResource(R.string.registro_etiqueta_nombre),
                 value = name,
                 onValueChange = { name = it }
             )
             AuthTextField(
-                label = "Correo electrónico",
+                label = stringResource(R.string.auth_etiqueta_correo),
                 value = email,
                 onValueChange = { email = it },
-                placeholder = "tu@correo.com",
+                placeholder = stringResource(R.string.auth_placeholder_correo),
                 keyboardType = KeyboardType.Email
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 PasswordField(
-                    label = "Contraseña",
+                    label = stringResource(R.string.auth_etiqueta_contrasena),
                     value = password,
                     onValueChange = { password = it },
                     imeAction = ImeAction.Done,
                     onImeAction = ::submit
                 )
-                PasswordRule(text = "Al menos 8 caracteres", fulfilled = hasMinLength)
-                PasswordRule(text = "Al menos un número", fulfilled = hasDigit)
+                PasswordRule(
+                    text = stringResource(R.string.registro_regla_longitud),
+                    fulfilled = hasMinLength
+                )
+                PasswordRule(
+                    text = stringResource(R.string.registro_regla_numero),
+                    fulfilled = hasDigit
+                )
             }
 
             Row(
@@ -138,7 +148,7 @@ fun RegistroScreen(
             ) {
                 Checkbox(checked = acceptedTerms, onCheckedChange = null)
                 Text(
-                    text = "Acepto los términos y la política de privacidad.",
+                    text = stringResource(R.string.registro_acepto_terminos),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -146,7 +156,7 @@ fun RegistroScreen(
             state.error?.let { ErrorMessage(it) }
 
             PrimaryButton(
-                text = "Crear cuenta",
+                text = stringResource(R.string.registro_boton_crear),
                 onClick = ::submit,
                 enabled = canSubmit,
                 isLoading = state.isLoading
@@ -158,12 +168,15 @@ fun RegistroScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "¿Ya tienes cuenta?",
+                    text = stringResource(R.string.registro_ya_tienes_cuenta),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 TextButton(onClick = volverAInicioSesion) {
-                    Text("Inicia sesión", fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.registro_ir_a_login),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -174,6 +187,7 @@ fun RegistroScreen(
 private fun PasswordRule(text: String, fulfilled: Boolean) {
     val colors = MaterialTheme.colorScheme
     val tint = if (fulfilled) colors.tertiary else colors.onSurfaceVariant
+    val descripcionCumplida = stringResource(R.string.registro_regla_cumplida)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -182,7 +196,7 @@ private fun PasswordRule(text: String, fulfilled: Boolean) {
             Box(
                 modifier = Modifier
                     .size(16.dp)
-                    .semantics { contentDescription = "Cumplida" },
+                    .semantics { contentDescription = descripcionCumplida },
                 contentAlignment = Alignment.Center
             ) {
                 Text(

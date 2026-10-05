@@ -22,12 +22,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.equipo.sanmarkfood.comensal.R
 
 @Composable
 fun AuthTextField(
@@ -94,7 +96,11 @@ fun PasswordField(
         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
         trailing = {
             TextButton(onClick = { visible = !visible }) {
-                Text(if (visible) "Ocultar" else "Mostrar")
+                Text(
+                    stringResource(
+                        if (visible) R.string.auth_ocultar else R.string.auth_mostrar
+                    )
+                )
             }
         }
     )
