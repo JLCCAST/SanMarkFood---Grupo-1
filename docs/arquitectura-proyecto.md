@@ -210,7 +210,7 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | --- | --- | --- | --- |
 | `nombre`, `direccion` | texto | el local (R3, O7, R7) | Hasta 80 y 200 caracteres. |
 | `categoria` | texto | el local | `criolla`, `chifa`, `polleria`, `marina`, `vegetariana` u `otra`. |
-| `telefono` | texto | el local | Solo dígitos: celular de 9 que empieza con 9, fijo de Lima de 7, o fijo con código de ciudad (`01…`, `044…`). |
+| `telefono` | texto | el local | Celular verificado por SMS (código OTP de Firebase Phone Auth), guardado con el prefijo de Perú: `+51987654321`. En la pantalla solo se piden los 9 dígitos (empieza con 9): la app agrega el `+51` antes de verificarlo y guardarlo, y lo quita para mostrarlo. No se guarda si no coincide con el teléfono verificado de la cuenta de Auth; al editar, solo se vuelve a verificar si cambió. Los locales registrados antes del OTP lo tienen sin prefijo y lo verifican la próxima vez que guardan. |
 | `ubicacion` | geopoint | el local | El punto elegido en el mapa. Empieza en la Ciudad Universitaria. |
 | `portadaUrl`, `logoUrl` | texto | el local | URL de descarga de Storage. La portada es obligatoria y el logo opcional: sin logo se muestra la inicial del nombre. |
 | `horario` | mapa | el local (R4, O8) | Claves `lun` a `dom`, cada una con `{ abierto, abre: "HH:mm", cierra: "HH:mm" }`. Un día cerrado conserva sus horas. |
