@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.CampoCorregido
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.DetalleSolicitud
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.SolicitudLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
@@ -63,6 +65,41 @@ internal fun DocumentSnapshot.aSolicitudLocal(cantidadPlatos: Int): SolicitudLoc
     rechazoAnterior = (get("rechazoAnterior") as? Map<*, *>)?.aRechazo(),
     cantidadPlatos = cantidadPlatos,
 )
+
+internal fun DocumentSnapshot.aDetalleSolicitud(
+    correo: String?,
+    cantidadPlatos: Int,
+    cantidadCategorias: Int,
+): DetalleSolicitud? {
+    val restaurante = aRestaurante() ?: return null
+    return DetalleSolicitud(
+        uid = id,
+        restaurante = restaurante,
+        correo = correo,
+        reenviado = getBoolean("reenviado") == true,
+        rechazoAnterior = (get("rechazoAnterior") as? Map<*, *>)?.aRechazo(),
+        camposCorregidos = (get("camposCorregidos") as? List<*>).orEmpty().mapNotNull(::campoCorregidoDe).toSet(),
+        revisadoEn = getTimestamp("revisadoEn")?.toDate()?.time,
+        cantidadPlatos = cantidadPlatos,
+        cantidadCategorias = cantidadCategorias,
+    )
+}
+
+private fun campoCorregidoDe(valor: Any?): CampoCorregido? = when (valor) {
+    "nombre" -> CampoCorregido.NOMBRE
+    "categoria" -> CampoCorregido.CATEGORIA
+    "direccion" -> CampoCorregido.DIRECCION
+    "ubicacion" -> CampoCorregido.UBICACION
+    "telefono" -> CampoCorregido.TELEFONO
+    "portadaUrl" -> CampoCorregido.PORTADA
+    "logoUrl" -> CampoCorregido.LOGO
+    else -> null
+}
+
+internal fun Rechazo.aCampos(): Map<String, Any> = buildMap {
+    put("motivo", motivo.valor())
+    detalle?.let { put("detalle", it) }
+}
 
 // rechazo: { motivo: "direccion_no_verificable", detalle: "…" }. Lo escribe el administrador al rechazar
 // (A2, HU24): motivo es uno de los cuatro valores de abajo y detalle es opcional, salvo con «otro».
