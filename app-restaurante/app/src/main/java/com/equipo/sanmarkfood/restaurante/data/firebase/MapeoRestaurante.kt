@@ -54,13 +54,15 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
     )
 }
 
-internal fun DocumentSnapshot.aSolicitudLocal(cantidadPlatos: Int): SolicitudLocal = SolicitudLocal(
+internal fun DocumentSnapshot.aSolicitudLocal(estado: EstadoRestaurante, cantidadPlatos: Int): SolicitudLocal = SolicitudLocal(
     uid = id,
     nombre = getString("nombre").orEmpty(),
     categoria = CategoriaRestaurante.entries.firstOrNull { it.valor() == getString("categoria") }
         ?: CategoriaRestaurante.OTRA,
     logoUrl = getString("logoUrl"),
+    estado = estado,
     enviadoEn = getTimestamp("enviadoEn")?.toDate()?.time ?: 0L,
+    revisadoEn = getTimestamp("revisadoEn")?.toDate()?.time,
     reenviado = getBoolean("reenviado") == true,
     rechazoAnterior = (get("rechazoAnterior") as? Map<*, *>)?.aRechazo(),
     cantidadPlatos = cantidadPlatos,

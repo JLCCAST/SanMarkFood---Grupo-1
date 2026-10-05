@@ -46,7 +46,7 @@ fun PanelAdministradorScreen(
         bottomBar = {
             BarraAdministracion(
                 actual = uiState.pestana,
-                pendientes = solicitudes.solicitudes.size,
+                pendientes = solicitudes.cantidadPendientes ?: 0,
                 onElegir = viewModel::onElegirPestana,
             )
         },

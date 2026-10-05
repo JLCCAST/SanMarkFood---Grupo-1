@@ -20,18 +20,18 @@ class SolicitudesDataSource @Inject constructor(
 ) {
     private fun restaurantes() = firestore.collection("restaurantes")
 
-    fun observarPendientes(): Flow<List<SolicitudLocal>> =
-        documentosPendientes().map { documentos ->
+    fun observar(estado: EstadoRestaurante): Flow<List<SolicitudLocal>> =
+        documentos(estado).map { documentos ->
             coroutineScope {
                 documentos
-                    .map { documento -> async { documento.aSolicitudLocal(contarPlatos(documento.id)) } }
+                    .map { documento -> async { documento.aSolicitudLocal(estado, contarPlatos(documento.id)) } }
                     .awaitAll()
             }
         }
 
-    private fun documentosPendientes(): Flow<List<DocumentSnapshot>> = callbackFlow {
+    private fun documentos(estado: EstadoRestaurante): Flow<List<DocumentSnapshot>> = callbackFlow {
         val registro = restaurantes()
-            .whereEqualTo("estado", EstadoRestaurante.PENDIENTE.valor())
+            .whereEqualTo("estado", estado.valor())
             .addSnapshotListener { fotos, error ->
                 if (error != null) {
                     close(error.aErrorAdmin())

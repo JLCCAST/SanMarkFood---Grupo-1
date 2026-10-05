@@ -381,6 +381,18 @@
         <item quantity="other">hace %d días</item>
     </plurals>
     <string name="solicitud_reenviado_hace">reenviado %1$s</string>
+    <string name="solicitud_aprobado">Aprobado</string>
+    <string name="solicitud_rechazado">Rechazado</string>
+    <string name="solicitud_aprobado_el">aprobado el %1$s</string>
+    <string name="solicitud_rechazado_el">rechazado el %1$s</string>
+    <string name="filtro_pendientes">Pendientes</string>
+    <string name="filtro_pendientes_cantidad">Pendientes (%1$d)</string>
+    <string name="filtro_aprobados">Aprobados</string>
+    <string name="filtro_rechazados">Rechazados</string>
+    <string name="solicitudes_vacio_aprobadas_titulo">Todavía no hay locales aprobados</string>
+    <string name="solicitudes_vacio_aprobadas_texto">Los locales que apruebes aparecerán aquí.</string>
+    <string name="solicitudes_vacio_rechazadas_titulo">No hay locales rechazados</string>
+    <string name="solicitudes_vacio_rechazadas_texto">Aquí verás los locales rechazados hasta que corrijan y reenvíen su registro.</string>
     <string name="error_motivo_faltante">Elige al menos un motivo del rechazo.</string>
     <string name="error_detalle_obligatorio">Si marcas «Otro», explica el motivo para que el local sepa qué corregir.</string>
     <string name="error_ya_revisada">Esta solicitud ya fue revisada. Vuelve a la lista para ver su estado.</string>

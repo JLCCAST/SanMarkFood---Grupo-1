@@ -46,7 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -81,6 +80,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubica
 import com.equipo.sanmarkfood.restaurante.presentation.admin.EtiquetaSolicitud
 import com.equipo.sanmarkfood.restaurante.presentation.admin.MensajeErrorAdmin
 import com.equipo.sanmarkfood.restaurante.presentation.admin.etiquetaParaAdministrador
+import com.equipo.sanmarkfood.restaurante.presentation.admin.fechaCorta
 import com.equipo.sanmarkfood.restaurante.presentation.admin.textoRechazo
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
@@ -92,9 +92,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.texto
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.unirConY
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
-import java.util.Calendar
 import java.util.Locale
-import java.util.TimeZone
 
 private val localePeru = Locale.forLanguageTag("es-PE")
 
@@ -598,13 +596,6 @@ private fun resumenHorario(horario: Horario?): String {
         stringResource(R.string.revisar_horario_tramo, dias, horas.abre.texto(), horas.cierra.texto())
     }
     return partes.joinToString(" · ").replaceFirstChar { it.titlecase(localePeru) }
-}
-
-@Composable
-private fun fechaCorta(milisegundos: Long): String {
-    val meses = stringArrayResource(R.array.meses_cortos)
-    val fecha = Calendar.getInstance(TimeZone.getTimeZone("America/Lima")).apply { timeInMillis = milisegundos }
-    return "${fecha.get(Calendar.DAY_OF_MONTH)} ${meses[fecha.get(Calendar.MONTH)]}"
 }
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)

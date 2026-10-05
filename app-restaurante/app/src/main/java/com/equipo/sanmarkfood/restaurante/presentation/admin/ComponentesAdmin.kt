@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
@@ -25,11 +26,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.ErrorAdmin
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.titulo
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.unirConY
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
+import java.util.Calendar
+import java.util.TimeZone
 
 @Composable
 fun CabeceraAdministracion(
@@ -84,18 +88,36 @@ fun CabeceraAdministracion(
 }
 
 @Composable
-fun EtiquetaSolicitud(reenviado: Boolean, modifier: Modifier = Modifier) {
-    val fondo = if (reenviado) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
-    val texto = if (reenviado) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+fun EtiquetaSolicitud(
+    reenviado: Boolean,
+    modifier: Modifier = Modifier,
+    estado: EstadoRestaurante = EstadoRestaurante.PENDIENTE,
+) {
+    val colores = MaterialTheme.colorScheme
+    val (texto, fondo, contenido) = when {
+        estado == EstadoRestaurante.APROBADO ->
+            Triple(R.string.solicitud_aprobado, colores.tertiaryContainer, colores.onTertiaryContainer)
+        estado == EstadoRestaurante.RECHAZADO ->
+            Triple(R.string.solicitud_rechazado, colores.errorContainer, colores.onErrorContainer)
+        reenviado -> Triple(R.string.solicitud_reenviado, colores.primaryContainer, colores.onPrimaryContainer)
+        else -> Triple(R.string.solicitud_nuevo, colores.secondaryContainer, colores.onSecondaryContainer)
+    }
     Text(
-        text = stringResource(if (reenviado) R.string.solicitud_reenviado else R.string.solicitud_nuevo),
+        text = stringResource(texto),
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
             .background(fondo)
             .padding(horizontal = 7.dp, vertical = 3.dp),
         style = MaterialTheme.typography.labelSmall,
-        color = texto,
+        color = contenido,
     )
+}
+
+@Composable
+fun fechaCorta(milisegundos: Long): String {
+    val meses = stringArrayResource(R.array.meses_cortos)
+    val fecha = Calendar.getInstance(TimeZone.getTimeZone("America/Lima")).apply { timeInMillis = milisegundos }
+    return "${fecha.get(Calendar.DAY_OF_MONTH)} ${meses[fecha.get(Calendar.MONTH)]}"
 }
 
 @Composable
