@@ -92,5 +92,8 @@ fun MensajeErrorAdmin(error: ErrorAdmin, modifier: Modifier = Modifier) {
 @StringRes
 private fun ErrorAdmin.mensaje(): Int = when (this) {
     ErrorAdmin.SinConexion -> R.string.error_sin_conexion
+    ErrorAdmin.MotivoFaltante -> R.string.error_motivo_faltante
+    ErrorAdmin.DetalleObligatorio -> R.string.error_detalle_obligatorio
+    ErrorAdmin.YaRevisada -> R.string.error_ya_revisada
     ErrorAdmin.Desconocido -> R.string.error_desconocido
 }

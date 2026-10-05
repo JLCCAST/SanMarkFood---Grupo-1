@@ -380,4 +380,7 @@
         <item quantity="other">hace %d días</item>
     </plurals>
     <string name="solicitud_reenviado_hace">reenviado %1$s</string>
+    <string name="error_motivo_faltante">Elige el motivo del rechazo.</string>
+    <string name="error_detalle_obligatorio">Con «Otro», explica el motivo para que el local sepa qué corregir.</string>
+    <string name="error_ya_revisada">Esta solicitud ya fue revisada. Vuelve a la lista para ver su estado.</string>
 </resources>
