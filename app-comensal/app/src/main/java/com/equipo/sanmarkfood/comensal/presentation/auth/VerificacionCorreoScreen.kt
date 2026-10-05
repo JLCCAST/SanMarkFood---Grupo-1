@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.auth
+package com.equipo.sanmarkfood.comensal.presentation.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,25 +19,33 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.equipo.sanmarkfood.comensal.R
 
 @Composable
-fun EmailVerificationScreen(
-    state: AuthUiState,
-    onCheckVerified: () -> Unit,
-    onResend: () -> Unit,
-    onChangeEmail: () -> Unit,
-    modifier: Modifier = Modifier
+fun VerificacionCorreoScreen(
+    correo: String,
+    modifier: Modifier = Modifier,
+    viewModel: VerificacionCorreoViewModel = hiltViewModel()
 ) {
+    val state by viewModel.uiState.collectAsState()
     val colors = MaterialTheme.colorScheme
     val canResend = state.resendCooldown == 0
+
+    val enlaceInicio = stringResource(R.string.verificacion_enlace_inicio)
+    val enlaceFin = stringResource(R.string.verificacion_enlace_fin)
+    val correoMostrado = correo.ifBlank { stringResource(R.string.verificacion_correo_por_defecto) }
 
     Column(
         modifier = modifier
@@ -57,37 +65,37 @@ fun EmailVerificationScreen(
         }
 
         Text(
-            text = "Revisa tu correo",
+            text = stringResource(R.string.verificacion_titulo),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.ExtraBold
         )
         Text(
             text = buildAnnotatedString {
-                append("Te enviamos un enlace de verificación a ")
+                append("$enlaceInicio ")
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(state.verificationEmail.ifBlank { "tu correo" })
+                    append(correoMostrado)
                 }
-                append(". Tu cuenta se activará cuando lo abras.")
+                append(enlaceFin)
             },
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
-            text = "¿No aparece? Revisa la carpeta de spam o de promociones.",
+            text = stringResource(R.string.verificacion_no_aparece),
             style = MaterialTheme.typography.bodyMedium,
             color = colors.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        state.error?.let { ErrorMessage(it) }
+        state.error?.let { ErrorMessage(stringResource(it)) }
 
         PrimaryButton(
-            text = "Ya verifiqué mi correo",
-            onClick = onCheckVerified,
+            text = stringResource(R.string.verificacion_boton_verificado),
+            onClick = viewModel::checkVerified,
             isLoading = state.isLoading
         )
         OutlinedButton(
-            onClick = onResend,
+            onClick = viewModel::resendVerification,
             enabled = canResend,
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,15 +103,22 @@ fun EmailVerificationScreen(
             shape = CircleShape
         ) {
             Text(
-                text = if (canResend) "Reenviar correo" else "Reenviar correo en ${state.resendCooldown} s",
+                text = if (canResend) {
+                    stringResource(R.string.verificacion_reenviar)
+                } else {
+                    stringResource(R.string.verificacion_reenviar_en, state.resendCooldown)
+                },
                 fontWeight = FontWeight.SemiBold
             )
         }
         TextButton(
-            onClick = onChangeEmail,
+            onClick = viewModel::changeEmail,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text("Cambiar correo", fontWeight = FontWeight.SemiBold)
+            Text(
+                stringResource(R.string.verificacion_cambiar_correo),
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
