@@ -17,7 +17,7 @@ data object Registro
 data class VerificarCorreo(val correo: String)
 
 @Serializable
-data class PanelProvisional(val administrador: Boolean)
+data object PanelAdministrador
 
 /** R3 en el alta; O7 «Perfil del local» al editar. */
 @Serializable
