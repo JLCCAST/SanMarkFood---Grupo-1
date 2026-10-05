@@ -8,6 +8,7 @@ data class DetalleSolicitud(
     val restaurante: Restaurante,
     val correo: String?,
     val reenviado: Boolean,
+    val actualizacion: Boolean,
     val rechazoAnterior: Rechazo?,
     val camposCorregidos: Set<CampoCorregido>,
     val revisadoEn: Long?,

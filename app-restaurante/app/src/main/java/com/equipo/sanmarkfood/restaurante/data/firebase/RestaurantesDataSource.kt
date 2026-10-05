@@ -61,6 +61,29 @@ class RestaurantesDataSource @Inject constructor(
         }
     }
 
+    suspend fun actualizarDatosYPedirRevision(uid: String, datos: DatosLocal): Boolean =
+        llamarFirebaseRestaurante {
+            firestore.runTransaction { transaccion ->
+                val actual = transaccion.get(documento(uid))
+                if (actual.getString("estado") != EstadoRestaurante.APROBADO.valor()) return@runTransaction false
+
+                val nuevos = datos.aCampos()
+                val cambiados = nuevos.filter { (campo, valor) -> actual.get(campo) != valor }.keys.toList()
+                transaccion.update(
+                    documento(uid),
+                    nuevos + mapOf(
+                        "estado" to EstadoRestaurante.PENDIENTE.valor(),
+                        "camposCorregidos" to cambiados,
+                        "reenviado" to FieldValue.delete(),
+                        "rechazoAnterior" to FieldValue.delete(),
+                        "enviadoEn" to FieldValue.serverTimestamp(),
+                        "actualizadoEn" to FieldValue.serverTimestamp(),
+                    ),
+                )
+                true
+            }.await()
+        }
+
     suspend fun enviarARevision(uid: String, horario: Horario) {
         llamarFirebaseRestaurante {
             documento(uid).update(

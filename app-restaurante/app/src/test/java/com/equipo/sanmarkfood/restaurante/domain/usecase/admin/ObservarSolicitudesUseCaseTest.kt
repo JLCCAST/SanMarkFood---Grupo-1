@@ -39,6 +39,7 @@ class ObservarSolicitudesUseCaseTest {
         enviadoEn = enviadoEn,
         revisadoEn = revisadoEn,
         reenviado = rechazoAnterior != null,
+        actualizacion = false,
         rechazoAnterior = rechazoAnterior,
         cantidadPlatos = 0,
     )

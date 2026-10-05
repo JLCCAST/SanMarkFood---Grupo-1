@@ -172,6 +172,12 @@ private fun RevisarSolicitudContenido(
                             camposCorregidos = solicitud.camposCorregidos,
                         )
                     }
+                    if (pendiente && solicitud.actualizacion) {
+                        AvisoActualizacion(
+                            aprobadoEl = solicitud.revisadoEn,
+                            camposCorregidos = solicitud.camposCorregidos,
+                        )
+                    }
                     DatosSolicitud(solicitud = solicitud)
                     VistaPreviaMapa(
                         ubicacion = solicitud.restaurante.datos.ubicacion,
@@ -260,7 +266,7 @@ private fun Encabezado(solicitud: DetalleSolicitud) {
         modifier = Modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        EtiquetaSolicitud(reenviado = solicitud.reenviado)
+        EtiquetaSolicitud(reenviado = solicitud.reenviado, actualizacion = solicitud.actualizacion)
         Text(
             text = datos.nombre,
             modifier = Modifier.semantics { heading() },
@@ -351,6 +357,38 @@ private fun AvisoRechazoAnterior(rechazo: Rechazo, rechazadoEl: Long?, camposCor
             },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+    }
+}
+
+@Composable
+private fun AvisoActualizacion(aprobadoEl: Long?, camposCorregidos: Set<CampoCorregido>) {
+    val encabezado = aprobadoEl?.let { stringResource(R.string.revisar_actualizacion_desde, fechaCorta(it)) }
+        ?: stringResource(R.string.revisar_actualizacion)
+    val explicacion = stringResource(R.string.revisar_actualizacion_texto)
+    val cambiados = listaDeCampos(camposCorregidos)
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            text = encabezado.uppercase(localePeru),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(explicacion) }
+                cambiados?.let { append(" $it.") }
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -625,6 +663,7 @@ private fun RevisarSolicitudPreview() {
                         ),
                         correo = "carmen@correo.com",
                         reenviado = true,
+                        actualizacion = false,
                         rechazoAnterior = Rechazo(
                             motivos = setOf(MotivoRechazo.DATOS_INCOMPLETOS, MotivoRechazo.DIRECCION_NO_VERIFICABLE),
                             detalle = null,

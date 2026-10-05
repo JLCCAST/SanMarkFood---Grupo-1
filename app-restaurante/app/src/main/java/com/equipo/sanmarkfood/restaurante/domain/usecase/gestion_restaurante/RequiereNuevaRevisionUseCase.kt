@@ -5,7 +5,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubica
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import javax.inject.Inject
 
-class GuardarDatosLocalUseCase @Inject constructor(
+class RequiereNuevaRevisionUseCase @Inject constructor(
     private val restauranteRepository: RestauranteRepository
 ) {
     suspend operator fun invoke(
@@ -16,12 +16,8 @@ class GuardarDatosLocalUseCase @Inject constructor(
         telefono: String,
         portadaUrl: String?,
         logoUrl: String?,
-    ) {
+    ): Boolean {
         val datos = validarDatosLocal(nombre, categoria, direccion, ubicacion, telefono, portadaUrl, logoUrl)
-        if (restauranteRepository.obtener()?.requiereNuevaRevision(datos) == true) {
-            restauranteRepository.guardarDatosYPedirRevision(datos)
-        } else {
-            restauranteRepository.guardarDatos(datos)
-        }
+        return restauranteRepository.obtener()?.requiereNuevaRevision(datos) == true
     }
 }

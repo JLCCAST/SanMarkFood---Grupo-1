@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.CambiarPausaPedidosUseCase
@@ -91,8 +92,11 @@ class PanelLocalViewModel @Inject constructor(
                 .catch { e -> if (e is ErrorRestaurante) _uiState.update { it.copy(error = e) } else throw e }
                 .collect { restaurante ->
                     _uiState.update {
+                        val volvioARevision = it.restaurante?.estado == EstadoRestaurante.APROBADO &&
+                            restaurante?.estado == EstadoRestaurante.PENDIENTE
                         it.copy(
                             restaurante = restaurante,
+                            pestana = if (volvioARevision) PestanaPanel.PEDIDOS else it.pestana,
                             error = if (restaurante == null) ErrorRestaurante.Desconocido else null,
                         )
                     }

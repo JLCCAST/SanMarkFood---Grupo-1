@@ -139,6 +139,10 @@
     <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
     <string name="descartar_seguir">Seguir editando</string>
     <string name="descartar_confirmar">Descartar</string>
+    <string name="nueva_revision_titulo">¿Enviar tu local a revisión?</string>
+    <string name="nueva_revision_texto">Cambiaste la dirección, la ubicación o las fotos. Revisaremos tu local de nuevo: hasta que lo aprobemos no aparecerá en el mapa ni recibirá pedidos o reservas.</string>
+    <string name="nueva_revision_confirmar">Guardar y enviar</string>
+    <string name="nueva_revision_cancelar">Seguir editando</string>
 
     <!-- Tu negocio (O6). Los indicadores y gráficos llegan con HU13. -->
     <string name="negocio_titulo">Tu negocio</string>
@@ -384,6 +388,11 @@
         <item quantity="other">hace %d días</item>
     </plurals>
     <string name="solicitud_reenviado_hace">reenviado %1$s</string>
+    <string name="solicitud_actualizado">Actualizado</string>
+    <string name="solicitud_actualizado_hace">actualizado %1$s</string>
+    <string name="revisar_actualizacion">Actualización de datos</string>
+    <string name="revisar_actualizacion_desde">Actualización de datos · aprobado el %1$s</string>
+    <string name="revisar_actualizacion_texto">El local ya estaba aprobado y cambió:</string>
     <string name="solicitud_aprobado">Aprobado</string>
     <string name="solicitud_rechazado">Rechazado</string>
     <string name="solicitud_aprobado_el">aprobado el %1$s</string>

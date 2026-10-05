@@ -13,6 +13,7 @@ data class SolicitudLocal(
     val enviadoEn: Long,
     val revisadoEn: Long?,
     val reenviado: Boolean,
+    val actualizacion: Boolean,
     val rechazoAnterior: Rechazo?,
     val cantidadPlatos: Int,
 )

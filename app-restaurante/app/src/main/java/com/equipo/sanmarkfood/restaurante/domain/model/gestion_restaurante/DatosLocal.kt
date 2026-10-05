@@ -12,6 +12,12 @@ data class DatosLocal(
     /** Opcional: sin logo se muestra la inicial del nombre. */
     val logoUrl: String?,
 ) {
+    fun cambiaCamposSensibles(editados: DatosLocal): Boolean =
+        direccion != editados.direccion ||
+            ubicacion != editados.ubicacion ||
+            portadaUrl != editados.portadaUrl ||
+            logoUrl != editados.logoUrl
+
     companion object {
         const val MAX_NOMBRE = 80
         const val MAX_DIRECCION = 200

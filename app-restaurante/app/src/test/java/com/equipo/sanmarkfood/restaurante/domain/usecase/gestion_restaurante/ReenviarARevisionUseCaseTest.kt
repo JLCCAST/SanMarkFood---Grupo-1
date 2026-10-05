@@ -26,6 +26,9 @@ class ReenviarARevisionUseCaseTest {
         override suspend fun guardarDatos(datos: DatosLocal) {
             guardados = datos
         }
+        override suspend fun guardarDatosYPedirRevision(datos: DatosLocal) {
+            guardados = datos
+        }
         override suspend fun enviarARevision(horario: Horario) = Unit
         override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (Float) -> Unit) = ""
         override suspend fun cambiarPausa(pausado: Boolean) = Unit

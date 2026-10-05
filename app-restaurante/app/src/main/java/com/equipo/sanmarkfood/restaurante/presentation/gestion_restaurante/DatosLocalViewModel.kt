@@ -18,6 +18,7 @@ import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.CerrarSesionUseCas
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.GuardarDatosLocalUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ObtenerRestauranteUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ReenviarARevisionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.RequiereNuevaRevisionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.SubirFotoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,6 +49,7 @@ data class DatosLocalUiState(
     val error: ErrorRestaurante? = null,
     val guardado: Boolean = false,
     val confirmandoDescarte: Boolean = false,
+    val confirmandoNuevaRevision: Boolean = false,
     val salir: Boolean = false,
     val sesionCerrada: Boolean = false,
 ) {
@@ -74,6 +76,7 @@ class DatosLocalViewModel @Inject constructor(
     private val reenviarARevision: ReenviarARevisionUseCase,
     private val subirFoto: SubirFotoUseCase,
     private val cerrarSesion: CerrarSesionUseCase,
+    private val requiereNuevaRevision: RequiereNuevaRevisionUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -131,32 +134,64 @@ class DatosLocalViewModel @Inject constructor(
         }
     }
 
-    // En el alta y al editar solo guarda; en R7 guarda y reenvía a revisión, aunque no haya cambios:
-    // el arreglo pudo estar en el horario o en la carta.
     fun onContinuar() {
         val estado = _uiState.value
         if (estado.guardando || estado.subiendoFoto) return
 
         _uiState.update { it.copy(guardando = true, error = null) }
         viewModelScope.launch {
-            try {
-                val guardar = if (estado.modo == ModoFormulario.CORREGIR) reenviarARevision::invoke else guardarDatosLocal::invoke
-                guardar(
-                    estado.nombre,
-                    estado.categoria,
-                    estado.direccion,
-                    estado.ubicacion,
-                    estado.telefono,
-                    estado.portada.url,
-                    estado.logo.url,
-                )
-                _uiState.update { it.copy(guardando = false, guardado = true) }
-            } catch (e: ErrorRestaurante.DatosInvalidos) {
-                _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
-            } catch (e: ErrorRestaurante) {
-                _uiState.update { it.copy(guardando = false, error = e) }
+            if (estado.modo == ModoFormulario.EDITAR) {
+                val pedirConfirmacion = intentar {
+                    requiereNuevaRevision(
+                        estado.nombre,
+                        estado.categoria,
+                        estado.direccion,
+                        estado.ubicacion,
+                        estado.telefono,
+                        estado.portada.url,
+                        estado.logo.url,
+                    )
+                } ?: return@launch
+                if (pedirConfirmacion) {
+                    _uiState.update { it.copy(guardando = false, confirmandoNuevaRevision = true) }
+                    return@launch
+                }
             }
+            guardar(estado)
         }
+    }
+
+    fun onConfirmarNuevaRevision() {
+        _uiState.update { it.copy(confirmandoNuevaRevision = false, guardando = true, error = null) }
+        viewModelScope.launch { guardar(_uiState.value) }
+    }
+
+    fun onCancelarNuevaRevision() = _uiState.update { it.copy(confirmandoNuevaRevision = false) }
+
+    private suspend fun guardar(estado: DatosLocalUiState) {
+        intentar {
+            val guardar = if (estado.modo == ModoFormulario.CORREGIR) reenviarARevision::invoke else guardarDatosLocal::invoke
+            guardar(
+                estado.nombre,
+                estado.categoria,
+                estado.direccion,
+                estado.ubicacion,
+                estado.telefono,
+                estado.portada.url,
+                estado.logo.url,
+            )
+            _uiState.update { it.copy(guardando = false, guardado = true) }
+        }
+    }
+
+    private suspend fun <T> intentar(accion: suspend () -> T): T? = try {
+        accion()
+    } catch (e: ErrorRestaurante.DatosInvalidos) {
+        _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
+        null
+    } catch (e: ErrorRestaurante) {
+        _uiState.update { it.copy(guardando = false, error = e) }
+        null
     }
 
     // Se marca como atendido para que, al volver desde el paso siguiente, no se navegue otra vez.

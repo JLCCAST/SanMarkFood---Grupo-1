@@ -64,6 +64,7 @@ internal fun DocumentSnapshot.aSolicitudLocal(estado: EstadoRestaurante, cantida
     enviadoEn = getTimestamp("enviadoEn")?.toDate()?.time ?: 0L,
     revisadoEn = getTimestamp("revisadoEn")?.toDate()?.time,
     reenviado = getBoolean("reenviado") == true,
+    actualizacion = esActualizacionDeDatos(),
     rechazoAnterior = (get("rechazoAnterior") as? Map<*, *>)?.aRechazo(),
     cantidadPlatos = cantidadPlatos,
 )
@@ -79,6 +80,7 @@ internal fun DocumentSnapshot.aDetalleSolicitud(
         restaurante = restaurante,
         correo = correo,
         reenviado = getBoolean("reenviado") == true,
+        actualizacion = esActualizacionDeDatos(),
         rechazoAnterior = (get("rechazoAnterior") as? Map<*, *>)?.aRechazo(),
         camposCorregidos = (get("camposCorregidos") as? List<*>).orEmpty().mapNotNull(::campoCorregidoDe).toSet(),
         revisadoEn = getTimestamp("revisadoEn")?.toDate()?.time,
@@ -86,6 +88,9 @@ internal fun DocumentSnapshot.aDetalleSolicitud(
         cantidadCategorias = cantidadCategorias,
     )
 }
+
+private fun DocumentSnapshot.esActualizacionDeDatos(): Boolean =
+    getBoolean("reenviado") != true && (get("camposCorregidos") as? List<*>).orEmpty().isNotEmpty()
 
 private fun campoCorregidoDe(valor: Any?): CampoCorregido? = when (valor) {
     "nombre" -> CampoCorregido.NOMBRE

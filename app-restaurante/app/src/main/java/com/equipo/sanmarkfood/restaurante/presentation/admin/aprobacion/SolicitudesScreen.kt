@@ -222,7 +222,11 @@ private fun TarjetaSolicitud(solicitud: SolicitudLocal, ahora: Long, onAbrir: ()
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                EtiquetaSolicitud(reenviado = solicitud.reenviado, estado = solicitud.estado)
+                EtiquetaSolicitud(
+                    reenviado = solicitud.reenviado,
+                    estado = solicitud.estado,
+                    actualizacion = solicitud.actualizacion,
+                )
             }
             Text(
                 text = detalleSolicitud(solicitud, ahora),
@@ -284,7 +288,11 @@ private fun cuandoSeEnvio(solicitud: SolicitudLocal, ahora: Long): String? {
         minutos < MINUTOS_POR_DIA -> stringResource(R.string.solicitud_hace_horas, minutos / MINUTOS_POR_HORA)
         else -> pluralStringResource(R.plurals.solicitud_hace_dias, dias, dias)
     }
-    return if (solicitud.reenviado) stringResource(R.string.solicitud_reenviado_hace, hace) else hace
+    return when {
+        solicitud.reenviado -> stringResource(R.string.solicitud_reenviado_hace, hace)
+        solicitud.actualizacion -> stringResource(R.string.solicitud_actualizado_hace, hace)
+        else -> hace
+    }
 }
 
 @Composable
@@ -336,6 +344,7 @@ private fun SolicitudesPreview() {
                                 enviadoEn = ahora - 20 * MILISEGUNDOS_POR_MINUTO,
                                 revisadoEn = ahora - MINUTOS_POR_DIA * MILISEGUNDOS_POR_MINUTO,
                                 reenviado = true,
+                                actualizacion = false,
                                 rechazoAnterior = Rechazo(
                                     motivos = setOf(MotivoRechazo.DATOS_INCOMPLETOS, MotivoRechazo.DIRECCION_NO_VERIFICABLE),
                                     detalle = null,
@@ -351,6 +360,7 @@ private fun SolicitudesPreview() {
                                 enviadoEn = ahora - 2 * MINUTOS_POR_HORA * MILISEGUNDOS_POR_MINUTO,
                                 revisadoEn = null,
                                 reenviado = false,
+                                actualizacion = false,
                                 rechazoAnterior = null,
                                 cantidadPlatos = 12,
                             ),
@@ -363,6 +373,7 @@ private fun SolicitudesPreview() {
                                 enviadoEn = ahora - MINUTOS_POR_DIA * MILISEGUNDOS_POR_MINUTO,
                                 revisadoEn = null,
                                 reenviado = false,
+                                actualizacion = false,
                                 rechazoAnterior = null,
                                 cantidadPlatos = 0,
                             ),

@@ -92,6 +92,7 @@ fun EtiquetaSolicitud(
     reenviado: Boolean,
     modifier: Modifier = Modifier,
     estado: EstadoRestaurante = EstadoRestaurante.PENDIENTE,
+    actualizacion: Boolean = false,
 ) {
     val colores = MaterialTheme.colorScheme
     val (texto, fondo, contenido) = when {
@@ -100,6 +101,7 @@ fun EtiquetaSolicitud(
         estado == EstadoRestaurante.RECHAZADO ->
             Triple(R.string.solicitud_rechazado, colores.errorContainer, colores.onErrorContainer)
         reenviado -> Triple(R.string.solicitud_reenviado, colores.primaryContainer, colores.onPrimaryContainer)
+        actualizacion -> Triple(R.string.solicitud_actualizado, colores.surfaceVariant, colores.onSurfaceVariant)
         else -> Triple(R.string.solicitud_nuevo, colores.secondaryContainer, colores.onSecondaryContainer)
     }
     Text(

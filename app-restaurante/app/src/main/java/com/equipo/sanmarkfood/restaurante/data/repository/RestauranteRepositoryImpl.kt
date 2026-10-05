@@ -38,6 +38,12 @@ class RestauranteRepositoryImpl @Inject constructor(
         borrarFotosSinUsar(uid, datos)
     }
 
+    override suspend fun guardarDatosYPedirRevision(datos: DatosLocal) {
+        val uid = uid()
+        if (!restaurantesDataSource.actualizarDatosYPedirRevision(uid, datos)) throw ErrorRestaurante.Desconocido
+        borrarFotosSinUsar(uid, datos)
+    }
+
     override suspend fun enviarARevision(horario: Horario) {
         val uid = uid()
         // Igual que al guardar los datos: la lectura al servidor avisa si no hay conexión antes de escribir.

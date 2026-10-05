@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -23,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -77,6 +79,12 @@ fun DatosLocalScreen(
         DialogoDescartarCambios(
             onSeguirEditando = viewModel::onSeguirEditando,
             onDescartar = viewModel::onDescartarCambios,
+        )
+    }
+    if (uiState.confirmandoNuevaRevision) {
+        DialogoNuevaRevision(
+            onConfirmar = viewModel::onConfirmarNuevaRevision,
+            onCancelar = viewModel::onCancelarNuevaRevision,
         )
     }
 
@@ -350,6 +358,25 @@ private fun SelectorCategoria(
             )
         }
     }
+}
+
+@Composable
+private fun DialogoNuevaRevision(onConfirmar: () -> Unit, onCancelar: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        title = { Text(text = stringResource(R.string.nueva_revision_titulo)) },
+        text = { Text(text = stringResource(R.string.nueva_revision_texto)) },
+        confirmButton = {
+            TextButton(onClick = onConfirmar) {
+                Text(text = stringResource(R.string.nueva_revision_confirmar))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar) {
+                Text(text = stringResource(R.string.nueva_revision_cancelar))
+            }
+        },
+    )
 }
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
