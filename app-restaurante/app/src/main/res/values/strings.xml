@@ -356,13 +356,6 @@
     <string name="error_imagen_ilegible">No pudimos abrir esa imagen. Prueba con otra foto.</string>
     <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
 
-    <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
-    <string name="provisional_titulo">Tu cuenta está lista</string>
-    <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
-    <string name="provisional_admin_titulo">Administración</string>
-    <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
-    <string name="provisional_cerrar_sesion">Cerrar sesión</string>
-
     <string name="admin_titulo">Sección de Administración</string>
     <string name="admin_cerrar_sesion">Cerrar sesión</string>
 </resources>

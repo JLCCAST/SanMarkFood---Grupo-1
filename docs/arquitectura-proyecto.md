@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (4 de octubre de 2026)
+## Estado actual del código (5 de octubre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -27,13 +27,14 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - SCRUM-161, primera parte: «Copiar el de ayer» en M1. Aparece solo si ayer se publicó un menú, y abre M5 con ese menú cargado. Al publicarlo queda con `origen: "ayer"` y con todas sus opciones disponibles.
   - SCRUM-161, segunda parte: en el menú publicado, la hora de fin («Se sirve hasta»), «Editar menú» (abre M5 con lo publicado y conserva las opciones agotadas), «Terminar menú de hoy» con su confirmación y «Reabrir». Cada cambio actualiza también `menuHoy`, así que el comensal ve «Menú agotado» apenas el local lo termina.
   - Queda para HU04: «Foto de la pizarra» en M1 y «Escanear carta» en M7.
+- **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`, que por ahora solo tiene el título «Sección de Administración» y «Cerrar sesión». La sección completa (A1 a A4, con la cabecera pizarra y la barra Solicitudes · Reportes · Métricas) entra con HU24.
 - **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
 - En `app-comensal`: las capas de esta arquitectura (ver arriba) y todo lo que no es HU05.
-- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/` y los paquetes `reservas/`, `resenas/` y `admin/` de `presentation/`. El administrador todavía entra a una **pantalla provisional** (`PanelProvisionalScreen`), que se reemplaza con HU24.
+- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `aprobacion/`, `moderacion/` y `dashboard_global/`.
 - La carpeta `functions/`, con las Cloud Functions (HU07).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
@@ -99,7 +100,7 @@ SanMarkFood---Grupo-1/
 │           │   ├── reservas/                # Proceso: Reservas entrantes
 │           │   ├── resenas/                 # Proceso: Gestión y respuesta a reseñas
 │           │   ├── dashboard/               # HU13 — dashboard del restaurante — sección «Tu local» ✔ (HU02)
-│           │   └── admin/                   # Proceso: Moderación y administración
+│           │   └── admin/                   # Proceso: Moderación y administración — acceso del administrador ✔ (HU23)
 │           │       ├── aprobacion/          # HU24 — aprobación de restaurantes
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
 │           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma
