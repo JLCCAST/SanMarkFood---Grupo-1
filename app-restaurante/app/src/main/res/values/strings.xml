@@ -356,10 +356,13 @@
     <string name="error_imagen_ilegible">No pudimos abrir esa imagen. Prueba con otra foto.</string>
     <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
 
-    <string name="admin_titulo">Sección de Administración</string>
-    <string name="admin_cerrar_sesion">Cerrar sesión</string>
     <string name="admin_etiqueta">ADMINISTRACIÓN</string>
     <string name="admin_salir">Salir</string>
+    <string name="admin_solicitudes">Solicitudes</string>
+    <string name="admin_reportes">Reportes</string>
+    <string name="admin_metricas">Métricas</string>
+    <string name="admin_reportes_provisional">Aquí verás las reseñas que reportan los comensales.</string>
+    <string name="admin_metricas_provisional">Aquí verás las métricas de toda la plataforma.</string>
 
     <string name="solicitudes_titulo">Solicitudes de locales</string>
     <string name="solicitudes_subtitulo">Aprueba solo negocios reales. Un local aprobado aparece en el mapa de inmediato.</string>
