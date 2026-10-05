@@ -22,11 +22,11 @@ class IniciarSesionUseCase @Inject constructor(
         }
 
         return repositorio.login(email.trim(), password).fold(
-            onSuccess = { user ->
-                if (user.isEmailVerified) {
+            onSuccess = { sesion ->
+                if (sesion.correoVerificado) {
                     ResultadoInicioSesion.Autenticado
                 } else {
-                    ResultadoInicioSesion.PorVerificar(user.email ?: email.trim())
+                    ResultadoInicioSesion.PorVerificar(sesion.correo.ifBlank { email.trim() })
                 }
             },
             onFailure = { ResultadoInicioSesion.Fallo(it) }

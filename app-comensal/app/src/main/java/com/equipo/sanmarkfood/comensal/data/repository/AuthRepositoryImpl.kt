@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.comensal.data.repository
 
 import com.equipo.sanmarkfood.comensal.domain.model.auth.CuentaDeOtroRolException
+import com.equipo.sanmarkfood.comensal.domain.model.auth.SesionUsuario
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -20,9 +21,18 @@ class AuthRepositoryImpl @Inject constructor(
         auth.setLanguageCode("es")
     }
 
-    override val currentUser: FirebaseUser? get() = auth.currentUser
+    override val currentUser: SesionUsuario? get() = auth.currentUser?.aSesionUsuario()
 
-    override suspend fun register(name: String, email: String, password: String): Result<FirebaseUser> =
+    /** Convierte el usuario de Firebase al modelo de dominio. */
+    private fun FirebaseUser.aSesionUsuario() = SesionUsuario(
+        uid = uid,
+        correo = email.orEmpty(),
+        nombre = displayName.orEmpty(),
+        correoVerificado = isEmailVerified,
+        fechaCreacion = metadata?.creationTimestamp
+    )
+
+    override suspend fun register(name: String, email: String, password: String): Result<Unit> =
         runCatching {
             val user = auth.createUserWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo crear el usuario")
@@ -36,7 +46,7 @@ class AuthRepositoryImpl @Inject constructor(
             runCatching { user.sendEmailVerification().await() }
             runCatching { crearDocumentoUsuario(user, email) }
 
-            user
+            Unit
         }
 
     // Las reglas de Firestore exigen que usuarios/{uid} lleve el rol al crearse.
@@ -50,7 +60,7 @@ class AuthRepositoryImpl @Inject constructor(
         ).await()
     }
 
-    override suspend fun login(email: String, password: String): Result<FirebaseUser> =
+    override suspend fun login(email: String, password: String): Result<SesionUsuario> =
         runCatching {
             val user = auth.signInWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo iniciar sesión")
@@ -62,7 +72,7 @@ class AuthRepositoryImpl @Inject constructor(
                 auth.signOut()
                 throw e
             }
-            user
+            user.aSesionUsuario()
         }
 
     /**

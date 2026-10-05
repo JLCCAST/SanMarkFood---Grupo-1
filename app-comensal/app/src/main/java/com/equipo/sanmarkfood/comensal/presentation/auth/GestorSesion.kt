@@ -30,10 +30,10 @@ class GestorSesion @Inject constructor(
 
     private fun calcularEstadoInicial(): EstadoSesion {
         val usuario = repositorio.currentUser ?: return EstadoSesion.SinSesion
-        return if (usuario.isEmailVerified) {
+        return if (usuario.correoVerificado) {
             EstadoSesion.Autenticado
         } else {
-            EstadoSesion.PorVerificar(usuario.email.orEmpty())
+            EstadoSesion.PorVerificar(usuario.correo)
         }
     }
 

@@ -8,13 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Comensal
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
+import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ActualizarDatosPerfilUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ActualizarPreferenciasNotificacionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.AgregarDireccionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.EliminarDireccionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ObservarPerfilUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.SubirFotoPerfilUseCase
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,14 +49,14 @@ class ComensalViewModel @Inject constructor(
     private val agregarDireccionUseCase: AgregarDireccionUseCase,
     private val eliminarDireccionUseCase: EliminarDireccionUseCase,
     private val actualizarPreferencias: ActualizarPreferenciasNotificacionUseCase,
-    private val auth: FirebaseAuth
+    private val repositorioAuth: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PerfilUiState())
     val uiState: StateFlow<PerfilUiState> = _uiState.asStateFlow()
 
     private val uid: String?
-        get() = auth.currentUser?.uid
+        get() = repositorioAuth.currentUser?.uid
 
     // Cuenta cuyos datos están en pantalla; sirve para no mostrar datos de otra cuenta.
     private var uidCargado: String? = null
@@ -64,21 +64,21 @@ class ComensalViewModel @Inject constructor(
     // Escucha activa del perfil en Firestore; se cancela si cambia de cuenta.
     private var perfilJob: Job? = null
 
-    // Datos de solo lectura que vienen de Firebase Auth.
+    // Datos de solo lectura de la cuenta (vienen de la sesión, no de Firestore).
     val correo: String
-        get() = auth.currentUser?.email.orEmpty()
+        get() = repositorioAuth.currentUser?.correo.orEmpty()
 
     val correoVerificado: Boolean
-        get() = auth.currentUser?.isEmailVerified == true
+        get() = repositorioAuth.currentUser?.correoVerificado == true
 
-    /** Nombre escrito al registrarse (se guardó en Firebase Auth). */
+    /** Nombre escrito al registrarse. */
     val nombreRegistro: String
-        get() = auth.currentUser?.displayName.orEmpty()
+        get() = repositorioAuth.currentUser?.nombre.orEmpty()
 
     /** Mes y año en que se creó la cuenta, por ejemplo "septiembre 2026". */
     val miembroDesde: String
         get() {
-            val millis = auth.currentUser?.metadata?.creationTimestamp ?: return ""
+            val millis = repositorioAuth.currentUser?.fechaCreacion ?: return ""
             return SimpleDateFormat("MMMM yyyy", Locale.forLanguageTag("es-PE")).format(Date(millis))
         }
 
