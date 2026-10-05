@@ -1,7 +1,7 @@
-package com.equipo.sanmarkfood.comensal.domain
+package com.equipo.sanmarkfood.comensal.domain.usecase.perfil
 
 import android.net.Uri
-import com.equipo.sanmarkfood.comensal.data.ComensalRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
 import javax.inject.Inject
 
 /** Sube la imagen a Storage y, si salió bien, guarda su enlace en el perfil. */

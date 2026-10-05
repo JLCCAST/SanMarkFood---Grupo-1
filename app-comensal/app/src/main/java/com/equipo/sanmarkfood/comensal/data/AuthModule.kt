@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.comensal.data
 
+import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
+import com.equipo.sanmarkfood.comensal.data.repository.AuthRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Binds

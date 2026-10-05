@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.data
+package com.equipo.sanmarkfood.comensal.domain.model.perfil
 
 data class Comensal(
     val uid: String = "",

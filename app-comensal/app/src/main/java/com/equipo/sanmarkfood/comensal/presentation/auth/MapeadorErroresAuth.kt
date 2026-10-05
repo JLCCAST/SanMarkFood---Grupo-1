@@ -2,7 +2,7 @@ package com.equipo.sanmarkfood.comensal.presentation.auth
 
 import androidx.annotation.StringRes
 import com.equipo.sanmarkfood.comensal.R
-import com.equipo.sanmarkfood.comensal.data.CuentaDeOtroRolException
+import com.equipo.sanmarkfood.comensal.domain.model.auth.CuentaDeOtroRolException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException

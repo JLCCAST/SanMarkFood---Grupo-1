@@ -1,6 +1,6 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
-import com.equipo.sanmarkfood.comensal.data.AuthRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.comensal.R
-import com.equipo.sanmarkfood.comensal.data.Direccion
+import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
 import com.equipo.sanmarkfood.comensal.presentation.auth.AuthTextField
 import com.equipo.sanmarkfood.comensal.presentation.auth.ErrorMessage
 import com.equipo.sanmarkfood.comensal.presentation.auth.PrimaryButton

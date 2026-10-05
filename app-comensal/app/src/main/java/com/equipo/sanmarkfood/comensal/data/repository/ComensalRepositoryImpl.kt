@@ -1,6 +1,9 @@
-package com.equipo.sanmarkfood.comensal.data
+package com.equipo.sanmarkfood.comensal.data.repository
 
 import android.net.Uri
+import com.equipo.sanmarkfood.comensal.domain.model.perfil.Comensal
+import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
+import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions

@@ -1,6 +1,8 @@
-package com.equipo.sanmarkfood.comensal.data
+package com.equipo.sanmarkfood.comensal.domain.repository
 
 import android.net.Uri
+import com.equipo.sanmarkfood.comensal.domain.model.perfil.Comensal
+import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
 import kotlinx.coroutines.flow.Flow
 
 interface ComensalRepository {

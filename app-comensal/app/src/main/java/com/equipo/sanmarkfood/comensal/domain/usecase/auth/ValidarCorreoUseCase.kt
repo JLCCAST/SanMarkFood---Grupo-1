@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.domain
+package com.equipo.sanmarkfood.comensal.domain.usecase.auth
 
 import android.util.Patterns
 import javax.inject.Inject

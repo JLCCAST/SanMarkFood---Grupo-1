@@ -1,5 +1,7 @@
-package com.equipo.sanmarkfood.comensal.data
+package com.equipo.sanmarkfood.comensal.data.repository
 
+import com.equipo.sanmarkfood.comensal.domain.model.auth.CuentaDeOtroRolException
+import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -7,19 +9,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-
-/** La cuenta existe, pero su rol en usuarios/{uid} no es "comensal" (D5). */
-class CuentaDeOtroRolException : Exception("La cuenta no es de comensal")
-
-interface AuthRepository {
-    val currentUser: FirebaseUser?
-    suspend fun register(name: String, email: String, password: String): Result<FirebaseUser>
-    suspend fun login(email: String, password: String): Result<FirebaseUser>
-    suspend fun sendVerification(): Result<Unit>
-    suspend fun reloadAndCheckVerified(): Result<Boolean>
-    suspend fun sendPasswordReset(email: String): Result<Unit>
-    fun logout()
-}
 
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,

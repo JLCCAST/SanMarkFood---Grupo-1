@@ -1,7 +1,7 @@
-package com.equipo.sanmarkfood.comensal.domain
+package com.equipo.sanmarkfood.comensal.domain.usecase.perfil
 
-import com.equipo.sanmarkfood.comensal.data.ComensalRepository
-import com.equipo.sanmarkfood.comensal.data.Direccion
+import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
+import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
 import javax.inject.Inject
 
 class EliminarDireccionUseCase @Inject constructor(

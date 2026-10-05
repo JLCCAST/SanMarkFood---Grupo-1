@@ -1,6 +1,6 @@
-package com.equipo.sanmarkfood.comensal.domain
+package com.equipo.sanmarkfood.comensal.domain.usecase.perfil
 
-import com.equipo.sanmarkfood.comensal.data.ComensalRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
 import javax.inject.Inject
 
 /** Regla: el nombre es obligatorio y el teléfono, si se escribe, tiene 9 dígitos. */
