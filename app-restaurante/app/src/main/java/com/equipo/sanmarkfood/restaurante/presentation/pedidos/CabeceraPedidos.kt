@@ -28,7 +28,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.MensajeErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 

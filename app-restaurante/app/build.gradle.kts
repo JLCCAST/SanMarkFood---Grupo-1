@@ -14,6 +14,13 @@ plugins {
 val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
+val mapsApiKey = localProperties.getProperty("MAPS_API_KEY")
+    ?.trim()
+    ?.removeSurrounding("\"")
+    ?.takeIf { it.isNotBlank() }
+if (mapsApiKey == null) {
+    logger.warn("MAPS_API_KEY no está en ${rootProject.file("local.properties")}: el mapa de los datos del local saldrá en blanco.")
+}
 
 android {
     namespace = "com.equipo.sanmarkfood.restaurante"
@@ -29,7 +36,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY", "YOUR_KEY_HERE")
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey ?: "YOUR_KEY_HERE"
     }
 
     buildTypes {
@@ -70,6 +77,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

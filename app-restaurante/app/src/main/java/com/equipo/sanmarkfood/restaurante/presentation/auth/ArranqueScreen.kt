@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
 
 @Composable
 fun ArranqueScreen(

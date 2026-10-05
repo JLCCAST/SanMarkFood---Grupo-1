@@ -11,13 +11,13 @@ Ambas aplicaciones comparten la misma fuente de datos (Firebase + backend propio
 
 ## Estructura del repositorio
 
-El repo contiene **tres proyectos independientes** como carpetas hermanas (no un Gradle multi-módulo — cada uno tiene su propio `build.gradle.kts` y se abre por separado en Android Studio):
+El repo contiene **dos apps independientes y el backend** como carpetas hermanas (no un Gradle multi-módulo — cada app tiene su propio `build.gradle.kts` y se abre por separado en Android Studio):
 
 ```
 SanMarkFood---Grupo-1/
 ├── app-comensal/       # Proyecto Android independiente — App Comensal
 ├── app-restaurante/    # Proyecto Android independiente — App Restaurante + sección Administrador
-├── backend/            # Proyecto Kotlin/Ktor independiente — backend propio (Sprint 2, aún no creado)
+├── functions/          # Cloud Functions — backend propio (HU07, Sprint 2; aún no creado)
 └── docs/               # Diseño, planificación y documentación técnica
 ```
 
@@ -42,7 +42,7 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - [ ] Uso de herramientas Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions, Test Lab)
 - [ ] Material Design 3 con paleta de colores propia — tema (colores, tipografía, modo oscuro) ya implementado y aplicado en las pantallas de cuenta de la App Restaurante; falta el resto de pantallas
 - [ ] Arquitectura MVVM + Clean Code (`data` / `domain` / `presentation` en cada app) — ya en uso en la App Restaurante (HU01)
-- [ ] Corrutinas + Retrofit (consumo del backend propio y de APIs externas)
+- [ ] Corrutinas + Retrofit (consumo de las Cloud Functions del equipo y de Geocoding API)
 - [ ] WorkManager
 - [ ] SQLite (Room)
 - [ ] Dashboards (restaurante y administrador)
@@ -55,11 +55,11 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - **Lenguaje:** Kotlin
 - **UI:** Jetpack Compose + Material Design 3
 - **Arquitectura:** MVVM + Clean Architecture (`data` / `domain` / `presentation`)
-- **Networking:** Retrofit + OkHttp + Corrutinas
+- **Networking:** Retrofit + OkHttp + Corrutinas, para las Cloud Functions del equipo y Geocoding API
 - **Persistencia local:** Room (SQLite)
 - **Navegación:** Navigation Compose con rutas tipadas
-- **Backend as a service:** Firebase (Auth, Firestore, Storage, Cloud Messaging), en el plan Spark: sin Cloud Functions
-- **Backend propio:** Ktor + Exposed (ORM) + PostgreSQL/H2
+- **Backend as a service:** Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions), en el plan Blaze
+- **Backend propio:** Cloud Functions de Firebase sobre la misma base Firestore (HU07); todos los datos viven en Firestore
 - **Tareas en background:** WorkManager
 - **Inyección de dependencias:** Hilt (con KSP)
 - **Dashboards:** Vico o MPAndroidChart

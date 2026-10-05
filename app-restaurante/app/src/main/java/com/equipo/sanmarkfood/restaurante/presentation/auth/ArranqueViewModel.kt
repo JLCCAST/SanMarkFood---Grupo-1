@@ -2,9 +2,10 @@ package com.equipo.sanmarkfood.restaurante.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoSesion
-import com.equipo.sanmarkfood.restaurante.domain.usecase.ObtenerEstadoSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.ObtenerEstadoSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.RegistrarDispositivoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,8 @@ data class ArranqueUiState(
 
 @HiltViewModel
 class ArranqueViewModel @Inject constructor(
-    private val obtenerEstadoSesion: ObtenerEstadoSesionUseCase
+    private val obtenerEstadoSesion: ObtenerEstadoSesionUseCase,
+    private val registrarDispositivo: RegistrarDispositivoUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ArranqueUiState())
@@ -37,6 +39,7 @@ class ArranqueViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val sesion = obtenerEstadoSesion()
+                registrarDispositivo(sesion)
                 _uiState.update { it.copy(sesion = sesion) }
             } catch (e: ErrorAuth) {
                 _uiState.update { it.copy(error = e) }

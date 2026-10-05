@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.equipo.sanmarkfood.restaurante.core.navigation.VerificarCorreo
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorAuth
-import com.equipo.sanmarkfood.restaurante.domain.usecase.ComprobarVerificacionUseCase
-import com.equipo.sanmarkfood.restaurante.domain.usecase.ReenviarVerificacionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.ComprobarVerificacionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.ReenviarVerificacionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -47,15 +48,15 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.CategoriaRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Horario
-import com.equipo.sanmarkfood.restaurante.domain.model.MotivoRechazo
-import com.equipo.sanmarkfood.restaurante.domain.model.Rechazo
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Ubicacion
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import java.util.Locale
 
@@ -64,7 +65,13 @@ import java.util.Locale
  * rechazaron y, hasta que HU09 traiga la bandeja de pedidos, un aviso cuando ya está aprobado.
  */
 @Composable
-fun EstadoLocal(restaurante: Restaurante, onCorregir: () -> Unit, modifier: Modifier = Modifier) {
+fun EstadoLocal(
+    restaurante: Restaurante,
+    platosEnCarta: Int,
+    onCorregir: () -> Unit,
+    onCargarCarta: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -80,7 +87,9 @@ fun EstadoLocal(restaurante: Restaurante, onCorregir: () -> Unit, modifier: Modi
             // Un borrador no llega aquí: el arranque lo manda a terminar el alta.
             EstadoRestaurante.BORRADOR -> Unit
         }
-        if (restaurante.estado != EstadoRestaurante.APROBADO) ListaPreparacion(restaurante, onCorregir)
+        if (restaurante.estado != EstadoRestaurante.APROBADO) {
+            ListaPreparacion(restaurante, platosEnCarta, onCorregir, onCargarCarta)
+        }
     }
 }
 
@@ -120,7 +129,7 @@ private fun TarjetaRechazado(rechazo: Rechazo?, onCorregir: () -> Unit) {
     val indicacion = stringResource(R.string.estado_rechazado_texto)
     TarjetaEstado(
         etiqueta = stringResource(R.string.estado_rechazado),
-        titulo = stringResource((rechazo?.motivo ?: MotivoRechazo.OTRO).titulo()),
+        titulo = rechazo?.let { tituloRechazo(it) } ?: stringResource(MotivoRechazo.OTRO.titulo()),
         texto = rechazo?.detalle?.let { stringResource(R.string.estado_rechazado_con_detalle, it, indicacion) } ?: indicacion,
         fondo = MaterialTheme.colorScheme.errorContainer,
         contenido = MaterialTheme.colorScheme.onErrorContainer,
@@ -194,7 +203,12 @@ private fun PuntoParpadeante() {
 }
 
 @Composable
-private fun ListaPreparacion(restaurante: Restaurante, onCorregir: () -> Unit) {
+private fun ListaPreparacion(
+    restaurante: Restaurante,
+    platosEnCarta: Int,
+    onCorregir: () -> Unit,
+    onCargarCarta: () -> Unit,
+) {
     val rechazado = restaurante.estado == EstadoRestaurante.RECHAZADO
     val horario = restaurante.horario
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -213,7 +227,8 @@ private fun ListaPreparacion(restaurante: Restaurante, onCorregir: () -> Unit) {
             ayuda = stringResource(
                 when {
                     !rechazado -> R.string.preparacion_datos_ayuda
-                    restaurante.rechazo?.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE -> R.string.preparacion_datos_direccion
+                    restaurante.rechazo?.motivos == setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE) ->
+                        R.string.preparacion_datos_direccion
                     else -> R.string.preparacion_datos_revisar
                 }
             ),
@@ -226,11 +241,14 @@ private fun ListaPreparacion(restaurante: Restaurante, onCorregir: () -> Unit) {
             ayuda = horario?.let { resumenDias(it) } ?: stringResource(R.string.preparacion_horario_falta),
             listo = horario != null,
         )
-        // HU03 agrega el botón «Cargar» y el estado real de la carta.
+        val sinPlatos = platosEnCarta == 0
         ItemPreparacion(
             titulo = stringResource(R.string.preparacion_carta),
-            ayuda = stringResource(R.string.preparacion_carta_ayuda),
-            listo = false,
+            ayuda = if (sinPlatos) stringResource(R.string.preparacion_carta_ayuda)
+            else pluralStringResource(R.plurals.preparacion_carta_platos, platosEnCarta, platosEnCarta),
+            listo = !sinPlatos,
+            accion = if (sinPlatos) stringResource(R.string.preparacion_carta_cargar) else null,
+            onAccion = onCargarCarta,
         )
         ItemPreparacion(
             titulo = stringResource(R.string.preparacion_menu),
@@ -339,7 +357,7 @@ private val restauranteDeEjemplo = Restaurante(
 private fun EnRevisionPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            EstadoLocal(restauranteDeEjemplo, onCorregir = {})
+            EstadoLocal(restauranteDeEjemplo, platosEnCarta = 0, onCorregir = {}, onCargarCarta = {})
         }
     }
 }
@@ -353,11 +371,13 @@ private fun RechazadoPreview() {
                 restauranteDeEjemplo.copy(
                     estado = EstadoRestaurante.RECHAZADO,
                     rechazo = Rechazo(
-                        MotivoRechazo.DIRECCION_NO_VERIFICABLE,
+                        setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE),
                         "La dirección no coincide con el punto marcado en el mapa.",
                     ),
                 ),
+                platosEnCarta = 0,
                 onCorregir = {},
+                onCargarCarta = {},
             )
         }
     }

@@ -4,12 +4,12 @@ import com.equipo.sanmarkfood.restaurante.data.firebase.AuthDataSource
 import com.equipo.sanmarkfood.restaurante.data.firebase.FotosDataSource
 import com.equipo.sanmarkfood.restaurante.data.firebase.RestaurantesDataSource
 import com.equipo.sanmarkfood.restaurante.data.local.LectorImagenes
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Horario
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.TipoFoto
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -35,6 +35,12 @@ class RestauranteRepositoryImpl @Inject constructor(
         } else {
             restaurantesDataSource.crear(uid, datos, EstadoRestaurante.BORRADOR)
         }
+        borrarFotosSinUsar(uid, datos)
+    }
+
+    override suspend fun guardarDatosYPedirRevision(datos: DatosLocal) {
+        val uid = uid()
+        if (!restaurantesDataSource.actualizarDatosYPedirRevision(uid, datos)) throw ErrorRestaurante.Desconocido
         borrarFotosSinUsar(uid, datos)
     }
 

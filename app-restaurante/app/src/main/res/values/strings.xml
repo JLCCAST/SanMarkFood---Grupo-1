@@ -73,12 +73,20 @@
     <string name="datos_local_mapa_ayuda">Arrastra el punto hasta la puerta de tu local.</string>
     <string name="datos_local_telefono">Teléfono del local</string>
     <string name="datos_local_telefono_ejemplo">999 999 999</string>
-    <string name="datos_local_telefono_ayuda">Se muestra a los comensales para grupos grandes y consultas.</string>
+    <string name="datos_local_telefono_ayuda">Tu celular de 9 dígitos. Lo verificamos por SMS y se muestra a los comensales para grupos grandes y consultas.</string>
     <string name="datos_local_continuar">Continuar</string>
     <string name="datos_local_error_nombre">Escribe el nombre de tu local.</string>
     <string name="datos_local_error_categoria">Elige la categoría de tu local.</string>
     <string name="datos_local_error_direccion">Escribe la dirección de tu local.</string>
-    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos o un teléfono fijo.</string>
+    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos que empiece con 9.</string>
+    <string name="otp_titulo">Verifica tu teléfono</string>
+    <string name="otp_enviamos">Te enviamos un código de 6 dígitos por SMS al %1$s.</string>
+    <string name="otp_codigo">Código de verificación</string>
+    <string name="otp_codigo_ejemplo">6 dígitos</string>
+    <string name="otp_no_llego">¿No llegó? Espera un momento y pide otro código, o vuelve atrás para corregir el número.</string>
+    <string name="otp_verificar">Verificar</string>
+    <string name="otp_reenviar">Reenviar código</string>
+    <string name="otp_reenviar_en">Reenviar código en %1$d s</string>
 
     <!-- Fotos del local (HU02, SCRUM-63) -->
     <string name="fotos_subir_portada">Subir foto de portada</string>
@@ -139,6 +147,10 @@
     <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
     <string name="descartar_seguir">Seguir editando</string>
     <string name="descartar_confirmar">Descartar</string>
+    <string name="nueva_revision_titulo">¿Enviar tu local a revisión?</string>
+    <string name="nueva_revision_texto">Cambiaste la dirección, la ubicación o las fotos. Revisaremos tu local de nuevo: hasta que lo aprobemos no aparecerá en el mapa ni recibirá pedidos o reservas.</string>
+    <string name="nueva_revision_confirmar">Guardar y enviar</string>
+    <string name="nueva_revision_cancelar">Seguir editando</string>
 
     <!-- Tu negocio (O6). Los indicadores y gráficos llegan con HU13. -->
     <string name="negocio_titulo">Tu negocio</string>
@@ -158,12 +170,127 @@
     <string name="panel_resenas">Reseñas</string>
     <string name="panel_negocio">Negocio</string>
 
-    <!-- Pestañas que todavía no existen: las reemplazan HU03 (Menú), HU12 (Reservas) y HU21 (Reseñas) -->
+    <!-- Pestañas que todavía no existen: las reemplazan HU12 (Reservas) y HU21 (Reseñas) -->
     <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
     <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
     <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
-    <string name="provisional_menu">Aquí vas a cargar tu carta y publicar tu menú del día.</string>
+
+    <!-- Menú: cabecera con «Menú de hoy» y «Carta» (M1 y M7, HU03) -->
+    <string name="menu_titulo">Menú</string>
+    <string name="menu_hoy">Menú de hoy</string>
+    <string name="menu_carta">Carta</string>
+    <string name="precio_soles">S/ %1$s</string>
+
+    <!-- Menú de hoy (M1 y la tarjeta del menú publicado, HU03). «Foto de la pizarra» llega con HU04. -->
+    <string name="menu_hoy_sin_publicar_titulo">Aún no publicas el menú de hoy</string>
+    <string name="menu_hoy_sin_publicar_texto">Los comensales ven «El menú de hoy aún no se publica» en tu local. Elige cómo empezar:</string>
+    <string name="menu_hoy_copiar">Copiar el de ayer</string>
+    <string name="menu_hoy_copiar_ayuda">%1$s · %2$s</string>
+    <string name="menu_hoy_de_cero">Empezar de cero</string>
+    <string name="menu_hoy_de_cero_ayuda">Escribe las opciones una por una</string>
+    <string name="menu_hoy_vale_hoy">El menú vale solo para hoy y se cierra a la hora de fin que elijas.</string>
+    <string name="menu_hoy_publicado_a">Publicado %1$s · se sirve hasta las %2$s</string>
+    <string name="menu_hoy_se_sirve_hasta">Se sirve hasta las %1$s</string>
+    <string name="menu_entradas">ENTRADAS</string>
+    <string name="menu_segundos">SEGUNDOS</string>
+    <string name="menu_incluye">Incluye: %1$s</string>
+    <string name="menu_incluye_dos">Incluye: %1$s y %2$s</string>
+    <string name="menu_hoy_terminado_titulo">Terminaste el menú de hoy.</string>
+    <string name="menu_hoy_terminado_texto">Los comensales ven «Menú agotado».</string>
+    <string name="menu_hoy_reabrir">Reabrir</string>
+    <string name="menu_hoy_editar">Editar menú</string>
+    <string name="menu_hoy_terminar">Terminar menú de hoy</string>
+    <string name="terminar_titulo">¿Terminar el menú de hoy?</string>
+    <string name="terminar_texto">Nadie más podrá pedirlo hoy; los comensales verán «Menú agotado». Los pedidos que ya recibiste siguen igual.</string>
+    <string name="terminar_volver">Volver</string>
+    <string name="terminar_confirmar">Terminar menú</string>
+
+    <!-- Armar el menú de hoy (M5, HU03) -->
+    <string name="armar_cerrar">Cerrar sin publicar</string>
+    <string name="armar_copiado">Copiamos el menú de ayer. Cambia lo que haga falta y publícalo.</string>
+    <string name="armar_precio">Precio del menú</string>
+    <string name="armar_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 14.00.</string>
+    <string name="armar_entradas">ENTRADAS · EL COMENSAL ELIGE 1</string>
+    <string name="armar_segundos">SEGUNDOS · EL COMENSAL ELIGE 1</string>
+    <string name="armar_agregar_entrada">Agregar entrada</string>
+    <string name="armar_agregar_segundo">Agregar segundo</string>
+    <string name="armar_sin_entradas">Agrega al menos una entrada.</string>
+    <string name="armar_sin_segundos">Agrega al menos un segundo.</string>
+    <string name="armar_quitar">Quitar %1$s</string>
+    <string name="armar_refresco">Refresco incluido</string>
+    <string name="armar_refresco_ejemplo">Ej.: chicha morada</string>
+    <string name="armar_postre">Postre incluido</string>
+    <string name="armar_postre_ejemplo">Ej.: mazamorra</string>
+    <string name="armar_se_sirve_hasta">Se sirve hasta</string>
+    <string name="armar_publicar">Publicar menú de hoy</string>
+    <string name="armar_falta">Falta el precio, una entrada o un segundo</string>
+    <string name="armar_vence">Se publica ahora y vence a las %1$s</string>
+    <string name="armar_conservan">Los pedidos que ya recibiste conservan su precio.</string>
+
+    <!-- Disponible o agotado (SCRUM-70): en la carta, en el plato y en las opciones del menú de hoy -->
+    <string name="disponible">Disponible</string>
+    <string name="agotado">Agotado</string>
+    <string name="agotado_hoy">Agotado hoy</string>
+    <string name="disponible_descripcion">Disponible: %1$s</string>
+    <string name="carta_precio_estado">%1$s · %2$s</string>
+    <string name="plato_disponible_hoy">Disponible hoy</string>
+    <string name="plato_disponible_ayuda">Apágalo si se acabó; vuelve a estar disponible mañana</string>
+
+    <!-- Carta (M7, HU03) -->
+    <string name="carta_sin_platos">Sin platos</string>
+    <string name="carta_resumen">%1$s · %2$s</string>
+    <plurals name="carta_platos">
+        <item quantity="one">%d plato</item>
+        <item quantity="other">%d platos</item>
+    </plurals>
+    <plurals name="carta_categorias">
+        <item quantity="one">%d categoría</item>
+        <item quantity="other">%d categorías</item>
+    </plurals>
+    <string name="carta_agregar_plato">Agregar plato</string>
+    <string name="carta_vacia_titulo">Tu carta está vacía</string>
+    <!-- Con HU04 vuelve al texto del prototipo, que ofrece también la foto de la carta con IA. -->
+    <string name="carta_vacia_texto">Agrega tus platos uno por uno.</string>
+
+    <!-- Alta de plato (M8, HU03) -->
+    <string name="plato_nuevo_titulo">Nuevo plato</string>
+    <string name="plato_editar_titulo">Editar plato</string>
+    <string name="plato_eliminar">Eliminar plato</string>
+    <string name="eliminar_plato_titulo">¿Eliminar %1$s?</string>
+    <string name="eliminar_plato_texto">Dejará de verse en tu carta. Los pedidos y reseñas anteriores lo seguirán mostrando. Si solo se acabó hoy, márcalo como agotado.</string>
+    <string name="eliminar_plato_volver">Volver</string>
+    <string name="eliminar_plato_confirmar">Eliminar</string>
+    <string name="plato_agregar_foto">Agregar foto</string>
+    <string name="plato_cambiar_foto">Cambiar foto</string>
+    <string name="plato_nombre">Nombre</string>
+    <string name="plato_nombre_ejemplo">Ej.: Lomo saltado</string>
+    <string name="plato_descripcion">Descripción</string>
+    <string name="plato_descripcion_ejemplo">Ingredientes y acompañamientos</string>
+    <string name="plato_precio">Precio</string>
+    <string name="plato_moneda">S/</string>
+    <string name="plato_precio_ejemplo">0.00</string>
+    <string name="plato_categoria">Categoría</string>
+    <string name="plato_nueva_categoria">+ Nueva categoría</string>
+    <string name="plato_guardar">Guardar plato</string>
+    <string name="plato_error_nombre">Escribe el nombre del plato.</string>
+    <string name="plato_error_descripcion">La descripción puede tener hasta 300 caracteres.</string>
+    <string name="plato_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 24.50.</string>
+    <string name="plato_error_categoria">Elige una categoría o crea una nueva.</string>
+    <string name="plato_reintentar">Reintentar</string>
+
+    <!-- Nueva categoría (desde M8) -->
+    <string name="categoria_nueva_titulo">Nueva categoría</string>
+    <string name="categoria_nombre">Nombre</string>
+    <string name="categoria_nombre_ejemplo">Ej.: Bebidas</string>
+    <string name="categoria_crear">Crear</string>
+    <string name="categoria_cancelar">Cancelar</string>
+
+    <!-- Errores de la carta -->
+    <string name="error_nombre_categoria">Escribe un nombre de hasta 40 caracteres.</string>
+    <string name="error_categoria_repetida">Ya tienes una categoría con ese nombre.</string>
+    <string name="error_datos_menu">Falta el precio, una entrada o un segundo.</string>
+    <string name="error_menu_ya_publicado">El menú de hoy ya está publicado.</string>
 
     <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
     <string name="pedidos_titulo">Pedidos</string>
@@ -177,6 +304,9 @@
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>
     <string name="estado_en_revision_titulo">Estamos revisando tu local</string>
+    <string name="canal_estado_local_id" translatable="false">estado_local</string>
+    <string name="canal_estado_local">Estado del local</string>
+    <string name="canal_estado_local_descripcion">Te avisamos cuando revisamos el registro de tu local.</string>
     <string name="estado_en_revision_texto">Aún no apareces en el mapa ni recibes pedidos o reservas. Te avisaremos apenas terminemos la revisión.</string>
     <string name="estado_rechazado">REGISTRO RECHAZADO</string>
     <string name="estado_rechazado_texto">Corrige tus datos y vuelve a enviarlos; tu carta y tu horario se conservan.</string>
@@ -199,6 +329,7 @@
     <string name="motivo_direccion_no_verificable">No pudimos verificar la dirección</string>
     <string name="motivo_local_duplicado">Local duplicado</string>
     <string name="motivo_otro">Revisa tu registro</string>
+    <string name="lista_y">%1$s y %2$s</string>
 
     <!-- Lista de preparación de R5 -->
     <string name="preparacion_titulo">Mientras tanto, deja todo listo</string>
@@ -215,6 +346,11 @@
     <string name="preparacion_horario_falta">Aún no lo configuras</string>
     <string name="preparacion_carta">Carta</string>
     <string name="preparacion_carta_ayuda">Aún no tienes platos</string>
+    <string name="preparacion_carta_cargar">Cargar</string>
+    <plurals name="preparacion_carta_platos">
+        <item quantity="one">%d plato en tu carta</item>
+        <item quantity="other">%d platos en tu carta</item>
+    </plurals>
     <string name="preparacion_menu">Menú del día</string>
     <string name="preparacion_menu_ayuda">Opcional: publícalo cuando te aprueben</string>
 
@@ -235,11 +371,105 @@
     <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>
     <string name="error_imagen_ilegible">No pudimos abrir esa imagen. Prueba con otra foto.</string>
     <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
+    <string name="error_telefono_sin_verificar">Verifica tu teléfono con el código que te enviamos por SMS.</string>
+    <string name="error_codigo_incorrecto">El código no es correcto. Revísalo e inténtalo de nuevo.</string>
+    <string name="error_codigo_vencido">El código venció. Pide uno nuevo.</string>
+    <string name="error_telefono_en_uso">Ese número ya está verificado en otra cuenta de San Mark Food. Usa otro celular.</string>
 
-    <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
-    <string name="provisional_titulo">Tu cuenta está lista</string>
-    <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
-    <string name="provisional_admin_titulo">Administración</string>
-    <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
-    <string name="provisional_cerrar_sesion">Cerrar sesión</string>
+    <string name="admin_etiqueta">ADMINISTRACIÓN</string>
+    <string name="admin_salir">Salir</string>
+    <string name="admin_solicitudes">Solicitudes</string>
+    <string name="admin_reportes">Reportes</string>
+    <string name="admin_metricas">Métricas</string>
+    <string name="admin_reportes_provisional">Aquí verás las reseñas que reportan los comensales.</string>
+    <string name="admin_metricas_provisional">Aquí verás las métricas de toda la plataforma.</string>
+
+    <string name="solicitudes_titulo">Solicitudes de locales</string>
+    <string name="solicitudes_subtitulo">Aprueba solo negocios reales. Un local aprobado aparece en el mapa de inmediato.</string>
+    <string name="solicitudes_vacio_titulo">No hay solicitudes pendientes</string>
+    <string name="solicitudes_vacio_texto">Cuando un local envíe su registro o lo corrija, aparecerá aquí.</string>
+    <string name="solicitud_nuevo">Nuevo</string>
+    <string name="solicitud_reenviado">Reenviado</string>
+    <string name="solicitud_rechazo_anterior">Rechazo anterior: %1$s</string>
+    <string name="solicitud_sin_carta">sin carta</string>
+    <string name="solicitud_hace_un_momento">hace un momento</string>
+    <string name="solicitud_hace_minutos">hace %1$d min</string>
+    <string name="solicitud_hace_horas">hace %1$d h</string>
+    <plurals name="solicitud_hace_dias">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+    <string name="solicitud_reenviado_hace">reenviado %1$s</string>
+    <string name="solicitud_actualizado">Actualizado</string>
+    <string name="solicitud_actualizado_hace">actualizado %1$s</string>
+    <string name="revisar_actualizacion">Actualización de datos</string>
+    <string name="revisar_actualizacion_desde">Actualización de datos · aprobado el %1$s</string>
+    <string name="revisar_actualizacion_texto">El local ya estaba aprobado y cambió:</string>
+    <string name="solicitud_aprobado">Aprobado</string>
+    <string name="solicitud_rechazado">Rechazado</string>
+    <string name="solicitud_aprobado_el">aprobado el %1$s</string>
+    <string name="solicitud_rechazado_el">rechazado el %1$s</string>
+    <string name="filtro_pendientes">Pendientes</string>
+    <string name="filtro_pendientes_cantidad">Pendientes (%1$d)</string>
+    <string name="filtro_aprobados">Aprobados</string>
+    <string name="filtro_rechazados">Rechazados</string>
+    <string name="solicitudes_vacio_aprobadas_titulo">Todavía no hay locales aprobados</string>
+    <string name="solicitudes_vacio_aprobadas_texto">Los locales que apruebes aparecerán aquí.</string>
+    <string name="solicitudes_vacio_rechazadas_titulo">No hay locales rechazados</string>
+    <string name="solicitudes_vacio_rechazadas_texto">Aquí verás los locales rechazados hasta que corrijan y reenvíen su registro.</string>
+    <string name="error_motivo_faltante">Elige al menos un motivo del rechazo.</string>
+    <string name="error_detalle_obligatorio">Si marcas «Otro», explica el motivo para que el local sepa qué corregir.</string>
+    <string name="error_ya_revisada">Esta solicitud ya fue revisada. Vuelve a la lista para ver su estado.</string>
+
+    <string name="revisar_titulo">Revisar solicitud</string>
+    <string name="revisar_categoria_cuenta">%1$s · cuenta %2$s</string>
+    <string name="revisar_aprobado">Aprobado.</string>
+    <string name="revisar_aprobado_detalle">El local ya aparece en el mapa y le enviamos una notificación.</string>
+    <string name="revisar_rechazado">Rechazado: %1$s.</string>
+    <string name="revisar_rechazado_detalle">Le enviamos una notificación con el motivo; puede corregir y reenviar.</string>
+    <string name="revisar_rechazo_anterior">Rechazo anterior</string>
+    <string name="revisar_rechazo_anterior_fecha">Rechazo anterior · %1$s</string>
+    <string name="revisar_cambio">Cambió desde entonces:</string>
+    <string name="revisar_sin_cambios">No cambió sus datos; pudo corregir el horario o la carta.</string>
+    <string name="revisar_campo_nombre">nombre</string>
+    <string name="revisar_campo_categoria">categoría</string>
+    <string name="revisar_campo_direccion">dirección</string>
+    <string name="revisar_campo_ubicacion">punto del mapa</string>
+    <string name="revisar_campo_telefono">teléfono</string>
+    <string name="revisar_campo_portada">portada</string>
+    <string name="revisar_campo_logo">logo</string>
+    <string name="revisar_direccion">Dirección</string>
+    <string name="revisar_telefono">Teléfono</string>
+    <string name="revisar_horario">Horario</string>
+    <string name="revisar_carta">Carta</string>
+    <string name="revisar_horario_tramo">%1$s %2$s–%3$s</string>
+    <string name="revisar_sin_horario">Sin horario</string>
+    <string name="revisar_sin_dias">Cerrado todos los días</string>
+    <string name="revisar_carta_resumen">%1$s en %2$s</string>
+    <string name="revisar_sin_carta">Todavía sin platos</string>
+    <string name="revisar_aprobar">Aprobar</string>
+    <string name="revisar_rechazar">Rechazar</string>
+    <string name="revisar_rechazo_titulo">Rechazar el registro</string>
+    <string name="revisar_rechazo_explicacion">El local verá el motivo y podrá corregir y reenviar.</string>
+    <string name="revisar_rechazo_motivo">Motivos (puedes marcar más de uno)</string>
+    <string name="revisar_rechazo_otro">Otro</string>
+    <string name="revisar_rechazo_detalle_obligatorio">Explica el motivo (obligatorio)</string>
+    <string name="revisar_rechazo_detalle_opcional">Detalle para el local (opcional)</string>
+    <string name="revisar_rechazo_detalle_ejemplo">Ej.: la dirección no coincide con el mapa</string>
+    <string name="revisar_rechazo_volver">Volver</string>
+    <string name="revisar_rechazo_confirmar">Rechazar registro</string>
+    <string-array name="meses_cortos">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>set</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
 </resources>

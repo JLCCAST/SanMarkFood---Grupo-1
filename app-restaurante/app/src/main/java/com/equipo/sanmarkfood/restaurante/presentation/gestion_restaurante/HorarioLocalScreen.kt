@@ -51,10 +51,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
-import com.equipo.sanmarkfood.restaurante.domain.model.DiaSemana
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Hora
-import com.equipo.sanmarkfood.restaurante.domain.model.HorarioDia
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Hora
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.HorarioDia
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.auth.CabeceraPaso
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme

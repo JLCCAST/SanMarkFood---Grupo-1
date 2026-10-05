@@ -1,10 +1,10 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import com.equipo.sanmarkfood.restaurante.domain.model.DatosLocal
-import com.equipo.sanmarkfood.restaurante.domain.model.ErrorRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.EstadoRestaurante
-import com.equipo.sanmarkfood.restaurante.domain.model.Horario
-import com.equipo.sanmarkfood.restaurante.domain.model.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
@@ -60,6 +60,29 @@ class RestaurantesDataSource @Inject constructor(
             documento(uid).update(datos.aCampos() + ("actualizadoEn" to FieldValue.serverTimestamp())).await()
         }
     }
+
+    suspend fun actualizarDatosYPedirRevision(uid: String, datos: DatosLocal): Boolean =
+        llamarFirebaseRestaurante {
+            firestore.runTransaction { transaccion ->
+                val actual = transaccion.get(documento(uid))
+                if (actual.getString("estado") != EstadoRestaurante.APROBADO.valor()) return@runTransaction false
+
+                val nuevos = datos.aCampos()
+                val cambiados = nuevos.filter { (campo, valor) -> actual.get(campo) != valor }.keys.toList()
+                transaccion.update(
+                    documento(uid),
+                    nuevos + mapOf(
+                        "estado" to EstadoRestaurante.PENDIENTE.valor(),
+                        "camposCorregidos" to cambiados,
+                        "reenviado" to FieldValue.delete(),
+                        "rechazoAnterior" to FieldValue.delete(),
+                        "enviadoEn" to FieldValue.serverTimestamp(),
+                        "actualizadoEn" to FieldValue.serverTimestamp(),
+                    ),
+                )
+                true
+            }.await()
+        }
 
     suspend fun enviarARevision(uid: String, horario: Horario) {
         llamarFirebaseRestaurante {
