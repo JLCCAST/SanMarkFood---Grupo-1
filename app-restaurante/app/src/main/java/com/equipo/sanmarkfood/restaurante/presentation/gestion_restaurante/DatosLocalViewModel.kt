@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -169,7 +168,7 @@ class DatosLocalViewModel @Inject constructor(
                         estado.logo.url,
                     )
                 } ?: return@launch
-                
+
                 if (pedirConfirmacion) {
                     _uiState.update { it.copy(guardando = false, confirmandoNuevaRevision = true) }
                     return@launch
@@ -234,7 +233,6 @@ class DatosLocalViewModel @Inject constructor(
             _uiState.update { it.copy(guardando = false, guardado = true) }
         } catch (e: ErrorRestaurante.TelefonoSinVerificar) {
             if (telefonoRecienVerificado) {
-                Log.e("BINGO", "Error detectado: ", e)
                 terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, error = ErrorRestaurante.Desconocido) }
             } else {
@@ -244,7 +242,6 @@ class DatosLocalViewModel @Inject constructor(
             terminarVerificacion()
             _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
         } catch (e: ErrorRestaurante) {
-            Log.e("BINGO", "Error detectado: ", e)
             terminarVerificacion()
             _uiState.update { it.copy(guardando = false, error = e) }
         }
@@ -270,7 +267,6 @@ class DatosLocalViewModel @Inject constructor(
                 terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
             } catch (e: ErrorRestaurante) {
-                Log.e("BINGO", "Error detectado: ", e)
                 if (_uiState.value.esperandoOtp) {
                     _uiState.update { it.copy(enviandoCodigo = false, errorOtp = e) }
                 } else {

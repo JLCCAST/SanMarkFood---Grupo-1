@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import android.util.Log
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.ErrorAdmin
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CampoLocal
@@ -42,7 +41,6 @@ internal suspend fun <T> llamarFirebaseRestaurante(llamada: suspend () -> T): T 
     try {
         llamada()
     } catch (e: FirebaseException) {
-        Log.e("BINGO", "Error detectado: ", e)
         throw e.aErrorRestaurante()
     }
 
@@ -58,7 +56,6 @@ internal suspend fun <T> llamarFirebaseVerificacion(llamada: suspend () -> T): T
     try {
         llamada()
     } catch (e: FirebaseException) {
-        Log.e("BINGO", "Error detectado: ", e)
         throw e.aErrorVerificacion()
     }
 
