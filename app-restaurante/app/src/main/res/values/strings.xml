@@ -368,10 +368,6 @@
     <string name="error_codigo_vencido">El código venció. Pide uno nuevo.</string>
     <string name="error_telefono_en_uso">Ese número ya está verificado en otra cuenta de San Mark Food. Usa otro celular.</string>
 
-    <!-- Pantalla provisional (se reemplaza con HU02, HU09 y HU24) -->
-    <string name="provisional_titulo">Tu cuenta está lista</string>
-    <string name="provisional_texto">Pantalla provisional. Aquí irá el panel del local.</string>
-    <string name="provisional_admin_titulo">Administración</string>
-    <string name="provisional_admin_texto">Pantalla provisional. Aquí irá la sección de administración.</string>
-    <string name="provisional_cerrar_sesion">Cerrar sesión</string>
+    <string name="admin_titulo">Sección de Administración</string>
+    <string name="admin_cerrar_sesion">Cerrar sesión</string>
 </resources>

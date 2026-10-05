@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.restaurante.presentation.auth
+package com.equipo.sanmarkfood.restaurante.presentation.admin
 
 import androidx.lifecycle.ViewModel
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.CerrarSesionUseCase
@@ -9,17 +9,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-data class PanelProvisionalUiState(
+data class PanelAdministradorUiState(
     val sesionCerrada: Boolean = false,
 )
 
 @HiltViewModel
-class PanelProvisionalViewModel @Inject constructor(
+class PanelAdministradorViewModel @Inject constructor(
     private val cerrarSesion: CerrarSesionUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PanelProvisionalUiState())
-    val uiState: StateFlow<PanelProvisionalUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PanelAdministradorUiState())
+    val uiState: StateFlow<PanelAdministradorUiState> = _uiState.asStateFlow()
 
     fun onCerrarSesion() {
         cerrarSesion()
