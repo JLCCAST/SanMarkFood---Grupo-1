@@ -358,4 +358,23 @@
 
     <string name="admin_titulo">Sección de Administración</string>
     <string name="admin_cerrar_sesion">Cerrar sesión</string>
+    <string name="admin_etiqueta">ADMINISTRACIÓN</string>
+    <string name="admin_salir">Salir</string>
+
+    <string name="solicitudes_titulo">Solicitudes de locales</string>
+    <string name="solicitudes_subtitulo">Aprueba solo negocios reales. Un local aprobado aparece en el mapa de inmediato.</string>
+    <string name="solicitudes_vacio_titulo">No hay solicitudes pendientes</string>
+    <string name="solicitudes_vacio_texto">Cuando un local envíe su registro o lo corrija, aparecerá aquí.</string>
+    <string name="solicitud_nuevo">Nuevo</string>
+    <string name="solicitud_reenviado">Reenviado</string>
+    <string name="solicitud_rechazo_anterior">Rechazo anterior: %1$s</string>
+    <string name="solicitud_sin_carta">sin carta</string>
+    <string name="solicitud_hace_un_momento">hace un momento</string>
+    <string name="solicitud_hace_minutos">hace %1$d min</string>
+    <string name="solicitud_hace_horas">hace %1$d h</string>
+    <plurals name="solicitud_hace_dias">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+    <string name="solicitud_reenviado_hace">reenviado %1$s</string>
 </resources>
