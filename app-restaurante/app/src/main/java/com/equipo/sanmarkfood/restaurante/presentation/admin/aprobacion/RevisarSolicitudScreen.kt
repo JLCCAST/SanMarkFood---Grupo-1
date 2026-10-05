@@ -17,13 +17,13 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -33,7 +33,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -81,6 +80,8 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Resta
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
 import com.equipo.sanmarkfood.restaurante.presentation.admin.EtiquetaSolicitud
 import com.equipo.sanmarkfood.restaurante.presentation.admin.MensajeErrorAdmin
+import com.equipo.sanmarkfood.restaurante.presentation.admin.etiquetaParaAdministrador
+import com.equipo.sanmarkfood.restaurante.presentation.admin.textoRechazo
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.LogoLocal
@@ -88,7 +89,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.Vista
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.etiqueta
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.nombreCorto
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.texto
-import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.titulo
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.unirConY
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
 import java.util.Calendar
@@ -107,7 +108,7 @@ fun RevisarSolicitudScreen(
     uiState.hojaRechazo?.let { hoja ->
         HojaRechazo(
             hoja = hoja,
-            onElegirMotivo = viewModel::onElegirMotivo,
+            onAlternarMotivo = viewModel::onAlternarMotivo,
             onCambiarDetalle = viewModel::onCambiarDetalle,
             onRechazar = viewModel::onRechazar,
             onCerrar = viewModel::onCerrarRechazo,
@@ -289,7 +290,7 @@ private fun AvisoDecision(restaurante: Restaurante) {
             contenido = MaterialTheme.colorScheme.onErrorContainer,
             titulo = stringResource(
                 R.string.revisar_rechazado,
-                restaurante.rechazo?.let { textoMotivo(it).replaceFirstChar { c -> c.lowercase(localePeru) } }.orEmpty(),
+                restaurante.rechazo?.let { textoRechazo(it).replaceFirstChar { c -> c.lowercase(localePeru) } }.orEmpty(),
             ),
             detalle = stringResource(R.string.revisar_rechazado_detalle),
         )
@@ -321,7 +322,7 @@ private fun Aviso(fondo: Color, contenido: Color, titulo: String, detalle: Strin
 private fun AvisoRechazoAnterior(rechazo: Rechazo, rechazadoEl: Long?, camposCorregidos: Set<CampoCorregido>) {
     val encabezado = rechazadoEl?.let { stringResource(R.string.revisar_rechazo_anterior_fecha, fechaCorta(it)) }
         ?: stringResource(R.string.revisar_rechazo_anterior)
-    val motivo = textoMotivo(rechazo).trimEnd('.')
+    val motivo = textoRechazo(rechazo).trimEnd('.')
     val cambio = stringResource(R.string.revisar_cambio)
     val corregidos = listaDeCampos(camposCorregidos)
     val sinCambios = stringResource(R.string.revisar_sin_cambios)
@@ -449,7 +450,7 @@ private fun BotonesDecision(
 @Composable
 private fun HojaRechazo(
     hoja: HojaRechazoUiState,
-    onElegirMotivo: (MotivoRechazo) -> Unit,
+    onAlternarMotivo: (MotivoRechazo) -> Unit,
     onCambiarDetalle: (String) -> Unit,
     onRechazar: () -> Unit,
     onCerrar: () -> Unit,
@@ -477,22 +478,19 @@ private fun HojaRechazo(
                 modifier = Modifier.padding(top = 4.dp),
                 style = MaterialTheme.typography.labelLarge,
             )
-            Column(
-                modifier = Modifier.selectableGroup(),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 MotivoRechazo.entries.forEach { motivo ->
                     OpcionMotivo(
                         motivo = motivo,
-                        seleccionado = hoja.motivo == motivo,
+                        marcado = motivo in hoja.motivos,
                         habilitado = !hoja.enviando,
-                        onElegir = { onElegirMotivo(motivo) },
+                        onAlternar = { onAlternarMotivo(motivo) },
                     )
                 }
             }
             CampoFormulario(
                 etiqueta = stringResource(
-                    if (hoja.motivo == MotivoRechazo.OTRO) R.string.revisar_rechazo_detalle_obligatorio
+                    if (MotivoRechazo.OTRO in hoja.motivos) R.string.revisar_rechazo_detalle_obligatorio
                     else R.string.revisar_rechazo_detalle_opcional
                 ),
                 valor = hoja.detalle,
@@ -534,7 +532,7 @@ private fun HojaRechazo(
 }
 
 @Composable
-private fun OpcionMotivo(motivo: MotivoRechazo, seleccionado: Boolean, habilitado: Boolean, onElegir: () -> Unit) {
+private fun OpcionMotivo(motivo: MotivoRechazo, marcado: Boolean, habilitado: Boolean, onAlternar: () -> Unit) {
     val forma = RoundedCornerShape(12.dp)
     Row(
         modifier = Modifier
@@ -543,38 +541,23 @@ private fun OpcionMotivo(motivo: MotivoRechazo, seleccionado: Boolean, habilitad
             .clip(forma)
             .border(
                 1.5.dp,
-                if (seleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                if (marcado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                 forma,
             )
-            .selectable(selected = seleccionado, enabled = habilitado, role = Role.RadioButton, onClick = onElegir)
+            .toggleable(value = marcado, enabled = habilitado, role = Role.Checkbox, onValueChange = { onAlternar() })
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        RadioButton(selected = seleccionado, onClick = null, enabled = habilitado)
+        Checkbox(checked = marcado, onCheckedChange = null, enabled = habilitado)
         Text(text = stringResource(motivo.etiquetaParaAdministrador()), style = MaterialTheme.typography.labelLarge)
     }
 }
 
-@StringRes
-private fun MotivoRechazo.etiquetaParaAdministrador(): Int =
-    if (this == MotivoRechazo.OTRO) R.string.revisar_rechazo_otro else titulo()
-
-@Composable
-private fun textoMotivo(rechazo: Rechazo): String {
-    val detalle = rechazo.detalle
-    if (rechazo.motivo == MotivoRechazo.OTRO && detalle != null) return detalle
-    return stringResource(rechazo.motivo.titulo())
-}
-
 @Composable
 private fun listaDeCampos(campos: Set<CampoCorregido>): String? {
-    val nombres = CampoCorregido.entries.filter { it in campos }.map { stringResource(it.nombre()) }
-    return when (nombres.size) {
-        0 -> null
-        1 -> nombres.single()
-        else -> stringResource(R.string.revisar_lista_y, nombres.dropLast(1).joinToString(", "), nombres.last())
-    }
+    if (campos.isEmpty()) return null
+    return unirConY(CampoCorregido.entries.filter { it in campos }.map { stringResource(it.nombre()) })
 }
 
 @StringRes
@@ -651,7 +634,10 @@ private fun RevisarSolicitudPreview() {
                         ),
                         correo = "carmen@correo.com",
                         reenviado = true,
-                        rechazoAnterior = Rechazo(MotivoRechazo.DIRECCION_NO_VERIFICABLE, detalle = null),
+                        rechazoAnterior = Rechazo(
+                            motivos = setOf(MotivoRechazo.DATOS_INCOMPLETOS, MotivoRechazo.DIRECCION_NO_VERIFICABLE),
+                            detalle = null,
+                        ),
                         camposCorregidos = setOf(CampoCorregido.DIRECCION, CampoCorregido.UBICACION),
                         revisadoEn = System.currentTimeMillis(),
                         cantidadPlatos = 5,

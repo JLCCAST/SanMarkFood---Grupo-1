@@ -52,7 +52,7 @@ class ObservarSolicitudesPendientesUseCaseTest {
 
     @Test
     fun conservaElReenvioYElRechazoAnterior() {
-        val rechazo = Rechazo(MotivoRechazo.DIRECCION_NO_VERIFICABLE, detalle = null)
+        val rechazo = Rechazo(setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE), detalle = null)
         val reenviada = observar(listOf(solicitud("reenviada", enviadoEn = 1_000L, rechazoAnterior = rechazo))).single()
         assertTrue(reenviada.reenviado)
         assertEquals(rechazo, reenviada.rechazoAnterior)

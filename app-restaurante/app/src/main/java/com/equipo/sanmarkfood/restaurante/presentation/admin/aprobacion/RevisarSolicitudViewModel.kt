@@ -31,14 +31,14 @@ data class RevisarSolicitudUiState(
 )
 
 data class HojaRechazoUiState(
-    val motivo: MotivoRechazo? = null,
+    val motivos: Set<MotivoRechazo> = emptySet(),
     val detalle: String = "",
     val enviando: Boolean = false,
     val error: ErrorAdmin? = null,
 ) {
     val completa: Boolean
-        get() = motivo != null &&
-            (motivo != MotivoRechazo.OTRO || detalle.trim().length >= RechazarLocalUseCase.MIN_DETALLE_OTRO)
+        get() = motivos.isNotEmpty() &&
+            (MotivoRechazo.OTRO !in motivos || detalle.trim().length >= RechazarLocalUseCase.MIN_DETALLE_OTRO)
 }
 
 @HiltViewModel
@@ -84,7 +84,9 @@ class RevisarSolicitudViewModel @Inject constructor(
 
     fun onCerrarRechazo() = _uiState.update { it.copy(hojaRechazo = null) }
 
-    fun onElegirMotivo(motivo: MotivoRechazo) = actualizarHoja { it.copy(motivo = motivo, error = null) }
+    fun onAlternarMotivo(motivo: MotivoRechazo) = actualizarHoja {
+        it.copy(motivos = if (motivo in it.motivos) it.motivos - motivo else it.motivos + motivo, error = null)
+    }
 
     fun onCambiarDetalle(detalle: String) =
         actualizarHoja { it.copy(detalle = detalle.take(RechazarLocalUseCase.MAX_DETALLE), error = null) }
@@ -96,7 +98,7 @@ class RevisarSolicitudViewModel @Inject constructor(
         actualizarHoja { it.copy(enviando = true, error = null) }
         viewModelScope.launch {
             try {
-                rechazarLocal(uid, hoja.motivo, hoja.detalle)
+                rechazarLocal(uid, hoja.motivos, hoja.detalle)
                 _uiState.update { it.copy(hojaRechazo = null) }
             } catch (e: ErrorAdmin) {
                 _uiState.update { estado ->

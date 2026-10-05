@@ -129,7 +129,7 @@ private fun TarjetaRechazado(rechazo: Rechazo?, onCorregir: () -> Unit) {
     val indicacion = stringResource(R.string.estado_rechazado_texto)
     TarjetaEstado(
         etiqueta = stringResource(R.string.estado_rechazado),
-        titulo = stringResource((rechazo?.motivo ?: MotivoRechazo.OTRO).titulo()),
+        titulo = rechazo?.let { tituloRechazo(it) } ?: stringResource(MotivoRechazo.OTRO.titulo()),
         texto = rechazo?.detalle?.let { stringResource(R.string.estado_rechazado_con_detalle, it, indicacion) } ?: indicacion,
         fondo = MaterialTheme.colorScheme.errorContainer,
         contenido = MaterialTheme.colorScheme.onErrorContainer,
@@ -227,7 +227,8 @@ private fun ListaPreparacion(
             ayuda = stringResource(
                 when {
                     !rechazado -> R.string.preparacion_datos_ayuda
-                    restaurante.rechazo?.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE -> R.string.preparacion_datos_direccion
+                    restaurante.rechazo?.motivos == setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE) ->
+                        R.string.preparacion_datos_direccion
                     else -> R.string.preparacion_datos_revisar
                 }
             ),
@@ -370,7 +371,7 @@ private fun RechazadoPreview() {
                 restauranteDeEjemplo.copy(
                     estado = EstadoRestaurante.RECHAZADO,
                     rechazo = Rechazo(
-                        MotivoRechazo.DIRECCION_NO_VERIFICABLE,
+                        setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE),
                         "La dirección no coincide con el punto marcado en el mapa.",
                     ),
                 ),

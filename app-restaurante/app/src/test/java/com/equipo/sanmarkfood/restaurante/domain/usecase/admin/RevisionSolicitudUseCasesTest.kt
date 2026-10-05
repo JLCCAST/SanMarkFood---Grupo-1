@@ -30,8 +30,8 @@ class RevisionSolicitudUseCasesTest {
     private val aprobar = AprobarLocalUseCase(repositorio)
     private val rechazar = RechazarLocalUseCase(repositorio)
 
-    private fun errorAlRechazar(motivo: MotivoRechazo?, detalle: String): ErrorAdmin? = try {
-        runBlocking { rechazar(UID, motivo, detalle) }
+    private fun errorAlRechazar(motivos: Set<MotivoRechazo>, detalle: String): ErrorAdmin? = try {
+        runBlocking { rechazar(UID, motivos, detalle) }
         null
     } catch (e: ErrorAdmin) {
         e
@@ -44,34 +44,45 @@ class RevisionSolicitudUseCasesTest {
     }
 
     @Test
-    fun noRechazaSinMotivo() {
-        assertEquals(ErrorAdmin.MotivoFaltante, errorAlRechazar(null, "La dirección no existe"))
+    fun noRechazaSinMotivos() {
+        assertEquals(ErrorAdmin.MotivoFaltante, errorAlRechazar(emptySet(), "La dirección no existe"))
         assertNull(repositorio.rechazado)
     }
 
     @Test
-    fun conOtroElDetalleEsObligatorio() {
-        listOf("", "   ", "ab").forEach { detalle ->
-            assertEquals(ErrorAdmin.DetalleObligatorio, errorAlRechazar(MotivoRechazo.OTRO, detalle))
+    fun rechazaConVariosMotivosALaVez() {
+        val motivos = setOf(MotivoRechazo.DATOS_INCOMPLETOS, MotivoRechazo.DIRECCION_NO_VERIFICABLE)
+        runBlocking { rechazar(UID, motivos, "") }
+        assertEquals(UID to Rechazo(motivos, null), repositorio.rechazado)
+    }
+
+    @Test
+    fun conOtroElDetalleEsObligatorioAunqueHayaOtrosMotivos() {
+        listOf(setOf(MotivoRechazo.OTRO), setOf(MotivoRechazo.LOCAL_DUPLICADO, MotivoRechazo.OTRO)).forEach { motivos ->
+            listOf("", "   ", "ab").forEach { detalle ->
+                assertEquals(ErrorAdmin.DetalleObligatorio, errorAlRechazar(motivos, detalle))
+            }
         }
         assertNull(repositorio.rechazado)
     }
 
     @Test
     fun conOtroEnviaElDetalleSinEspaciosDeMas() {
-        runBlocking { rechazar(UID, MotivoRechazo.OTRO, "  La portada no es del local  ") }
-        assertEquals(UID to Rechazo(MotivoRechazo.OTRO, "La portada no es del local"), repositorio.rechazado)
+        val motivos = setOf(MotivoRechazo.DATOS_INCOMPLETOS, MotivoRechazo.OTRO)
+        runBlocking { rechazar(UID, motivos, "  La portada no es del local  ") }
+        assertEquals(UID to Rechazo(motivos, "La portada no es del local"), repositorio.rechazado)
     }
 
     @Test
-    fun conLosDemasMotivosElDetalleEsOpcional() {
-        runBlocking { rechazar(UID, MotivoRechazo.DIRECCION_NO_VERIFICABLE, "   ") }
-        assertEquals(UID to Rechazo(MotivoRechazo.DIRECCION_NO_VERIFICABLE, null), repositorio.rechazado)
+    fun sinOtroElDetalleEsOpcional() {
+        runBlocking { rechazar(UID, setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE), "   ") }
+        assertEquals(UID to Rechazo(setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE), null), repositorio.rechazado)
     }
 
     @Test
     fun elDetalleSeRecortaAlMaximo() {
-        runBlocking { rechazar(UID, MotivoRechazo.DATOS_INCOMPLETOS, "a".repeat(RechazarLocalUseCase.MAX_DETALLE + 50)) }
+        val detalle = "a".repeat(RechazarLocalUseCase.MAX_DETALLE + 50)
+        runBlocking { rechazar(UID, setOf(MotivoRechazo.DATOS_INCOMPLETOS), detalle) }
         assertEquals(RechazarLocalUseCase.MAX_DETALLE, repositorio.rechazado!!.second.detalle!!.length)
     }
 

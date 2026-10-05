@@ -283,11 +283,10 @@ private fun FormularioLocal(
     )
 }
 
-// Aviso de R7 con el motivo que eligió el administrador, igual que la tarjeta de R6 pero más compacto.
 @Composable
 private fun AvisoMotivoRechazo(rechazo: Rechazo) {
     val indicacion = stringResource(
-        if (rechazo.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE) R.string.corregir_indicacion_direccion
+        if (rechazo.motivos == setOf(MotivoRechazo.DIRECCION_NO_VERIFICABLE)) R.string.corregir_indicacion_direccion
         else R.string.corregir_indicacion
     )
     Column(
@@ -301,7 +300,7 @@ private fun AvisoMotivoRechazo(rechazo: Rechazo) {
     ) {
         val color = MaterialTheme.colorScheme.onErrorContainer
         Text(text = stringResource(R.string.corregir_motivo), style = MaterialTheme.typography.labelMedium, color = color)
-        Text(text = stringResource(rechazo.motivo.titulo()), style = MaterialTheme.typography.titleSmall, color = color)
+        Text(text = tituloRechazo(rechazo), style = MaterialTheme.typography.titleSmall, color = color)
         Text(
             text = rechazo.detalle?.let { stringResource(R.string.estado_rechazado_con_detalle, it, indicacion) } ?: indicacion,
             style = MaterialTheme.typography.bodySmall,

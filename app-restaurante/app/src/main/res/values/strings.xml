@@ -314,6 +314,7 @@
     <string name="motivo_direccion_no_verificable">No pudimos verificar la dirección</string>
     <string name="motivo_local_duplicado">Local duplicado</string>
     <string name="motivo_otro">Revisa tu registro</string>
+    <string name="lista_y">%1$s y %2$s</string>
 
     <!-- Lista de preparación de R5 -->
     <string name="preparacion_titulo">Mientras tanto, deja todo listo</string>
@@ -380,8 +381,8 @@
         <item quantity="other">hace %d días</item>
     </plurals>
     <string name="solicitud_reenviado_hace">reenviado %1$s</string>
-    <string name="error_motivo_faltante">Elige el motivo del rechazo.</string>
-    <string name="error_detalle_obligatorio">Con «Otro», explica el motivo para que el local sepa qué corregir.</string>
+    <string name="error_motivo_faltante">Elige al menos un motivo del rechazo.</string>
+    <string name="error_detalle_obligatorio">Si marcas «Otro», explica el motivo para que el local sepa qué corregir.</string>
     <string name="error_ya_revisada">Esta solicitud ya fue revisada. Vuelve a la lista para ver su estado.</string>
 
     <string name="revisar_titulo">Revisar solicitud</string>
@@ -394,7 +395,6 @@
     <string name="revisar_rechazo_anterior_fecha">Rechazo anterior · %1$s</string>
     <string name="revisar_cambio">Cambió desde entonces:</string>
     <string name="revisar_sin_cambios">No cambió sus datos; pudo corregir el horario o la carta.</string>
-    <string name="revisar_lista_y">%1$s y %2$s</string>
     <string name="revisar_campo_nombre">nombre</string>
     <string name="revisar_campo_categoria">categoría</string>
     <string name="revisar_campo_direccion">dirección</string>
@@ -415,7 +415,7 @@
     <string name="revisar_rechazar">Rechazar</string>
     <string name="revisar_rechazo_titulo">Rechazar el registro</string>
     <string name="revisar_rechazo_explicacion">El local verá el motivo y podrá corregir y reenviar.</string>
-    <string name="revisar_rechazo_motivo">Motivo</string>
+    <string name="revisar_rechazo_motivo">Motivos (puedes marcar más de uno)</string>
     <string name="revisar_rechazo_otro">Otro</string>
     <string name="revisar_rechazo_detalle_obligatorio">Explica el motivo (obligatorio)</string>
     <string name="revisar_rechazo_detalle_opcional">Detalle para el local (opcional)</string>

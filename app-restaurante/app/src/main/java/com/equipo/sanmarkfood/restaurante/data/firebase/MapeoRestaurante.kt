@@ -97,17 +97,20 @@ private fun campoCorregidoDe(valor: Any?): CampoCorregido? = when (valor) {
 }
 
 internal fun Rechazo.aCampos(): Map<String, Any> = buildMap {
-    put("motivo", motivo.valor())
+    put("motivos", motivos.sortedBy { it.ordinal }.map { it.valor() })
     detalle?.let { put("detalle", it) }
 }
 
-// rechazo: { motivo: "direccion_no_verificable", detalle: "…" }. Lo escribe el administrador al rechazar
-// (A2, HU24): motivo es uno de los cuatro valores de abajo y detalle es opcional, salvo con «otro».
-// Un motivo desconocido se muestra como «otro», para no romper la pantalla del local.
-private fun Map<*, *>.aRechazo(): Rechazo = Rechazo(
-    motivo = MotivoRechazo.entries.firstOrNull { it.valor() == this["motivo"] } ?: MotivoRechazo.OTRO,
-    detalle = (this["detalle"] as? String)?.takeIf { it.isNotBlank() },
-)
+private fun Map<*, *>.aRechazo(): Rechazo {
+    val valores = this["motivos"] as? List<*> ?: listOfNotNull(this["motivo"])
+    val motivos = valores
+        .map { valor -> MotivoRechazo.entries.firstOrNull { it.valor() == valor } ?: MotivoRechazo.OTRO }
+        .toSet()
+    return Rechazo(
+        motivos = motivos.ifEmpty { setOf(MotivoRechazo.OTRO) },
+        detalle = (this["detalle"] as? String)?.takeIf { it.isNotBlank() },
+    )
+}
 
 private fun MotivoRechazo.valor(): String = when (this) {
     MotivoRechazo.DATOS_INCOMPLETOS -> "datos_incompletos"

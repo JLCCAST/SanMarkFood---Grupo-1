@@ -25,6 +25,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.ErrorAdmin
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.titulo
+import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.unirConY
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
 
 @Composable
@@ -93,6 +97,20 @@ fun EtiquetaSolicitud(reenviado: Boolean, modifier: Modifier = Modifier) {
         color = texto,
     )
 }
+
+@Composable
+fun textoRechazo(rechazo: Rechazo): String {
+    val detalle = rechazo.detalle
+    val partes = rechazo.motivos.sortedBy { it.ordinal }.map { motivo ->
+        if (motivo == MotivoRechazo.OTRO && detalle != null) detalle.trimEnd('.')
+        else stringResource(motivo.etiquetaParaAdministrador())
+    }
+    return unirConY(partes)
+}
+
+@StringRes
+fun MotivoRechazo.etiquetaParaAdministrador(): Int =
+    if (this == MotivoRechazo.OTRO) R.string.revisar_rechazo_otro else titulo()
 
 @Composable
 fun MensajeErrorAdmin(error: ErrorAdmin, modifier: Modifier = Modifier) {

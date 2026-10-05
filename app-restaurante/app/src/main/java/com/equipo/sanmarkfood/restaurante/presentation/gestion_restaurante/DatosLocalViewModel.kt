@@ -195,7 +195,7 @@ class DatosLocalViewModel @Inject constructor(
                             cargando = false,
                             rechazo = restaurante.rechazo.takeIf { corrigiendo },
                             direccionPorCorregir = corrigiendo &&
-                                restaurante.rechazo?.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE,
+                                restaurante.rechazo?.motivos?.contains(MotivoRechazo.DIRECCION_NO_VERIFICABLE) == true,
                             portada = FotoUiState(imagen = datos.portadaUrl, url = datos.portadaUrl),
                             logo = FotoUiState(imagen = datos.logoUrl, url = datos.logoUrl),
                             nombre = datos.nombre,

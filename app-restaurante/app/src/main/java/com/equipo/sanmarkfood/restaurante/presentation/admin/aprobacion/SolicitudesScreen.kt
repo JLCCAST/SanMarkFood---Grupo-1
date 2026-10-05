@@ -43,10 +43,10 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Recha
 import com.equipo.sanmarkfood.restaurante.presentation.admin.CabeceraAdministracion
 import com.equipo.sanmarkfood.restaurante.presentation.admin.EtiquetaSolicitud
 import com.equipo.sanmarkfood.restaurante.presentation.admin.MensajeErrorAdmin
+import com.equipo.sanmarkfood.restaurante.presentation.admin.textoRechazo
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.LogoLocal
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.etiqueta
-import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.titulo
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import java.util.Locale
 
@@ -217,11 +217,8 @@ private fun cuandoSeEnvio(solicitud: SolicitudLocal, ahora: Long): String? {
 }
 
 @Composable
-private fun motivoAnterior(rechazo: Rechazo): String {
-    val detalle = rechazo.detalle
-    if (rechazo.motivo == MotivoRechazo.OTRO && detalle != null) return detalle
-    return stringResource(rechazo.motivo.titulo()).replaceFirstChar { it.lowercase(Locale.forLanguageTag("es-PE")) }
-}
+private fun motivoAnterior(rechazo: Rechazo): String =
+    textoRechazo(rechazo).replaceFirstChar { it.lowercase(Locale.forLanguageTag("es-PE")) }
 
 private const val MILISEGUNDOS_POR_MINUTO = 60_000L
 private const val MINUTOS_POR_HORA = 60
@@ -244,7 +241,10 @@ private fun SolicitudesPreview() {
                             logoUrl = null,
                             enviadoEn = ahora - 20 * MILISEGUNDOS_POR_MINUTO,
                             reenviado = true,
-                            rechazoAnterior = Rechazo(MotivoRechazo.DIRECCION_NO_VERIFICABLE, detalle = null),
+                            rechazoAnterior = Rechazo(
+                                motivos = setOf(MotivoRechazo.DATOS_INCOMPLETOS, MotivoRechazo.DIRECCION_NO_VERIFICABLE),
+                                detalle = null,
+                            ),
                             cantidadPlatos = 5,
                         ),
                         SolicitudLocal(

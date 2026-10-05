@@ -9,13 +9,13 @@ import javax.inject.Inject
 class RechazarLocalUseCase @Inject constructor(
     private val revisionRepository: RevisionRepository
 ) {
-    suspend operator fun invoke(uid: String, motivo: MotivoRechazo?, detalle: String) {
-        if (motivo == null) throw ErrorAdmin.MotivoFaltante
+    suspend operator fun invoke(uid: String, motivos: Set<MotivoRechazo>, detalle: String) {
+        if (motivos.isEmpty()) throw ErrorAdmin.MotivoFaltante
         val detalleLimpio = detalle.trim().take(MAX_DETALLE).ifEmpty { null }
-        if (motivo == MotivoRechazo.OTRO && (detalleLimpio == null || detalleLimpio.length < MIN_DETALLE_OTRO)) {
+        if (MotivoRechazo.OTRO in motivos && (detalleLimpio == null || detalleLimpio.length < MIN_DETALLE_OTRO)) {
             throw ErrorAdmin.DetalleObligatorio
         }
-        revisionRepository.rechazar(uid, Rechazo(motivo, detalleLimpio))
+        revisionRepository.rechazar(uid, Rechazo(motivos, detalleLimpio))
     }
 
     companion object {
