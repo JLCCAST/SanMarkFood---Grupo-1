@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.comensal.ui.home
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,14 +25,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
-private enum class Pestana(val titulo: String, val icono: ImageVector) {
-    EXPLORAR("Explorar", Icons.Filled.Place),
-    ACTIVIDAD("Actividad", Icons.Filled.DateRange),
-    PERFIL("Perfil", Icons.Filled.Person)
+private enum class Pestana(@StringRes val tituloRes: Int, val icono: ImageVector) {
+    EXPLORAR(R.string.home_tab_explorar, Icons.Filled.Place),
+    ACTIVIDAD(R.string.home_tab_actividad, Icons.Filled.DateRange),
+    PERFIL(R.string.home_tab_perfil, Icons.Filled.Person)
 }
 
 @Composable
@@ -49,11 +52,12 @@ fun HomeScaffold(
                 HorizontalDivider(thickness = 1.dp, color = colors.outline)
                 NavigationBar(containerColor = colors.surface) {
                     Pestana.entries.forEachIndexed { index, pestana ->
+                        val titulo = stringResource(pestana.tituloRes)
                         NavigationBarItem(
                             selected = seleccionada == index,
                             onClick = { seleccionada = index },
-                            icon = { Icon(pestana.icono, contentDescription = pestana.titulo) },
-                            label = { Text(pestana.titulo) },
+                            icon = { Icon(pestana.icono, contentDescription = titulo) },
+                            label = { Text(titulo) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = colors.primary,
                                 selectedTextColor = colors.primary,
@@ -67,14 +71,14 @@ fun HomeScaffold(
     ) { innerPadding ->
         when (Pestana.entries[seleccionada]) {
             Pestana.EXPLORAR -> PestanaProvisional(
-                titulo = "Explorar",
-                texto = "Pronto verás aquí el mapa, los menús del día y las reseñas de los restaurantes.",
+                titulo = stringResource(R.string.home_tab_explorar),
+                texto = stringResource(R.string.home_explorar_texto),
                 modifier = Modifier.padding(innerPadding)
             )
 
             Pestana.ACTIVIDAD -> PestanaProvisional(
-                titulo = "Actividad",
-                texto = "Pronto verás aquí tus pedidos y reservas.",
+                titulo = stringResource(R.string.home_tab_actividad),
+                texto = stringResource(R.string.home_actividad_texto),
                 modifier = Modifier.padding(innerPadding)
             )
 

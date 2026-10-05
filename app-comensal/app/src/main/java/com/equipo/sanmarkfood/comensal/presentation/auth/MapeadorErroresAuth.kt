@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
+import androidx.annotation.StringRes
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.data.CuentaDeOtroRolException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -15,21 +17,23 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
  */
 object MapeadorErroresAuth {
 
-    fun mapearError(e: Throwable): String = when (e) {
-        is CuentaDeOtroRolException -> "Esta cuenta no es de comensal. Usa otro correo o la app para restaurantes"
-        is FirebaseAuthUserCollisionException -> "Ya existe una cuenta con ese correo"
-        is FirebaseAuthWeakPasswordException -> "La contraseña es muy débil"
+    @StringRes
+    fun mapearError(e: Throwable): Int = when (e) {
+        is CuentaDeOtroRolException -> R.string.error_cuenta_otro_rol
+        is FirebaseAuthUserCollisionException -> R.string.error_correo_en_uso
+        is FirebaseAuthWeakPasswordException -> R.string.error_contrasena_debil
         is FirebaseAuthInvalidUserException,
-        is FirebaseAuthInvalidCredentialsException -> "Correo o contraseña incorrectos"
-        is FirebaseTooManyRequestsException -> "Demasiados intentos. Espera un momento e inténtalo de nuevo"
-        is FirebaseNetworkException -> "Sin conexión a internet"
-        else -> "Ocurrió un error. Inténtalo de nuevo"
+        is FirebaseAuthInvalidCredentialsException -> R.string.error_credenciales_incorrectas
+        is FirebaseTooManyRequestsException -> R.string.error_demasiados_intentos
+        is FirebaseNetworkException -> R.string.error_sin_conexion
+        else -> R.string.error_generico
     }
 
     /** Mensajes propios de la recuperación (no valen los de "contraseña incorrecta"). */
-    fun mapearErrorRecuperacion(e: Throwable): String = when (e) {
-        is FirebaseAuthInvalidUserException -> "No encontramos una cuenta con ese correo"
-        is FirebaseAuthInvalidCredentialsException -> "Correo no válido"
+    @StringRes
+    fun mapearErrorRecuperacion(e: Throwable): Int = when (e) {
+        is FirebaseAuthInvalidUserException -> R.string.error_recuperar_correo_no_encontrado
+        is FirebaseAuthInvalidCredentialsException -> R.string.error_correo_invalido
         else -> mapearError(e)
     }
 }

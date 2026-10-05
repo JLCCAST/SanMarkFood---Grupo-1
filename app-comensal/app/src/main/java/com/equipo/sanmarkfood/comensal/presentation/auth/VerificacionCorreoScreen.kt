@@ -87,7 +87,7 @@ fun VerificacionCorreoScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        state.error?.let { ErrorMessage(it) }
+        state.error?.let { ErrorMessage(stringResource(it)) }
 
         PrimaryButton(
             text = stringResource(R.string.verificacion_boton_verificado),

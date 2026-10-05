@@ -1,7 +1,9 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.data.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.ValidarCorreoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +16,7 @@ import javax.inject.Inject
 
 data class InicioSesionUiState(
     val isLoading: Boolean = false,
-    val error: String? = null
+    @StringRes val error: Int? = null
 )
 
 @HiltViewModel
@@ -29,9 +31,9 @@ class InicioSesionViewModel @Inject constructor(
 
     fun login(email: String, password: String) {
         if (email.isBlank() || password.isEmpty()) {
-            return setError("Ingresa tu correo y tu contraseña.")
+            return setError(R.string.error_login_campos_vacios)
         }
-        if (!validarCorreo(email)) return setError("Correo no válido")
+        if (!validarCorreo(email)) return setError(R.string.error_correo_invalido)
 
         viewModelScope.launch {
             _uiState.value = InicioSesionUiState(isLoading = true)
@@ -57,5 +59,5 @@ class InicioSesionViewModel @Inject constructor(
 
     fun limpiarError() = _uiState.update { it.copy(error = null) }
 
-    private fun setError(mensaje: String) = _uiState.update { it.copy(error = mensaje) }
+    private fun setError(@StringRes mensaje: Int) = _uiState.update { it.copy(error = mensaje) }
 }

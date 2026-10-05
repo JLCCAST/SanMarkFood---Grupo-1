@@ -2,8 +2,10 @@ package com.equipo.sanmarkfood.comensal.presentation.perfil
 
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.data.Comensal
 import com.equipo.sanmarkfood.comensal.data.Direccion
 import com.equipo.sanmarkfood.comensal.domain.ActualizarDatosPerfilUseCase
@@ -30,7 +32,7 @@ data class PerfilUiState(
     val comensal: Comensal = Comensal(),
     val isLoading: Boolean = false,
     val subiendoFoto: Boolean = false,
-    val error: String? = null,
+    @StringRes val error: Int? = null,
     val guardadoExitoso: Boolean = false
 ) {
     // Se usa cuando falte un dato esencial para completar un pedido o reserva.
@@ -92,7 +94,7 @@ class ComensalViewModel @Inject constructor(
             observarPerfil(currentUid)
                 .catch { e ->
                     Log.e(TAG, "cargarPerfil", e)
-                    _uiState.update { it.copy(isLoading = false, error = "No se pudo cargar tu perfil") }
+                    _uiState.update { it.copy(isLoading = false, error = R.string.error_perfil_cargar) }
                 }
                 .collect { comensal ->
                     _uiState.update { it.copy(comensal = comensal, isLoading = false, error = null) }
@@ -110,7 +112,7 @@ class ComensalViewModel @Inject constructor(
                 }
                 .onFailure { e ->
                     Log.e(TAG, "actualizarDatos", e)
-                    _uiState.update { it.copy(isLoading = false, error = "No se pudo guardar. Intenta de nuevo") }
+                    _uiState.update { it.copy(isLoading = false, error = R.string.error_perfil_guardar) }
                 }
         }
     }
@@ -126,7 +128,7 @@ class ComensalViewModel @Inject constructor(
                 }
                 .onFailure { e ->
                     Log.e(TAG, "agregarDireccion", e)
-                    _uiState.update { it.copy(isLoading = false, error = "No se pudo guardar la dirección") }
+                    _uiState.update { it.copy(isLoading = false, error = R.string.error_perfil_direccion_guardar) }
                 }
         }
     }
@@ -138,7 +140,7 @@ class ComensalViewModel @Inject constructor(
             eliminarDireccionUseCase(currentUid, actuales, direccion)
                 .onFailure { e ->
                     Log.e(TAG, "eliminarDireccion", e)
-                    setError("No se pudo eliminar la dirección")
+                    setError(R.string.error_perfil_direccion_eliminar)
                 }
         }
     }
@@ -149,7 +151,7 @@ class ComensalViewModel @Inject constructor(
             actualizarPreferencias(currentUid, notificarReservas, notificarResenas)
                 .onFailure { e ->
                     Log.e(TAG, "actualizarPreferenciasNotificacion", e)
-                    setError("No se pudieron guardar las preferencias")
+                    setError(R.string.error_perfil_preferencias)
                 }
         }
     }
@@ -164,14 +166,14 @@ class ComensalViewModel @Inject constructor(
                 }
                 .onFailure { e ->
                     Log.e(TAG, "subirFoto", e)
-                    setError("No se pudo subir la foto")
+                    setError(R.string.error_perfil_foto)
                 }
         }
     }
 
     fun clearGuardadoExitoso() = _uiState.update { it.copy(guardadoExitoso = false) }
 
-    private fun setError(msg: String) =
+    private fun setError(@StringRes msg: Int) =
         _uiState.update { it.copy(isLoading = false, subiendoFoto = false, error = msg) }
 
     override fun onCleared() {

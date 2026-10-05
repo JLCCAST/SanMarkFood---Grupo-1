@@ -90,4 +90,51 @@
 
     <string name="perfil_avatar_foto_descripcion">Foto de perfil</string>
     <string name="perfil_avatar_cambiar_descripcion">Cambiar foto</string>
+
+    <!-- Home -->
+    <string name="home_tab_explorar">Explorar</string>
+    <string name="home_tab_actividad">Actividad</string>
+    <string name="home_tab_perfil">Perfil</string>
+    <string name="home_explorar_texto">Pronto verás aquí el mapa, los menús del día y las reseñas de los restaurantes.</string>
+    <string name="home_actividad_texto">Pronto verás aquí tus pedidos y reservas.</string>
+
+    <!-- Invitado -->
+    <string name="invitado_titulo">Estás explorando sin cuenta</string>
+    <string name="invitado_texto">Pronto verás aquí el mapa, los menús del día y las reseñas de los restaurantes. Para reservar o pedir necesitas una cuenta.</string>
+    <string name="invitado_crear_cuenta">Crear cuenta</string>
+    <string name="invitado_iniciar_sesion">Iniciar sesión</string>
+
+    <!-- Errores de autenticación (compartidos) -->
+    <string name="error_cuenta_otro_rol">Esta cuenta no es de comensal. Usa otro correo o la app para restaurantes</string>
+    <string name="error_correo_en_uso">Ya existe una cuenta con ese correo</string>
+    <string name="error_contrasena_debil">La contraseña es muy débil</string>
+    <string name="error_credenciales_incorrectas">Correo o contraseña incorrectos</string>
+    <string name="error_demasiados_intentos">Demasiados intentos. Espera un momento e inténtalo de nuevo</string>
+    <string name="error_sin_conexion">Sin conexión a internet</string>
+    <string name="error_generico">Ocurrió un error. Inténtalo de nuevo</string>
+    <string name="error_correo_invalido">Correo no válido</string>
+    <string name="error_recuperar_correo_no_encontrado">No encontramos una cuenta con ese correo</string>
+
+    <!-- Errores de inicio de sesión -->
+    <string name="error_login_campos_vacios">Ingresa tu correo y tu contraseña.</string>
+
+    <!-- Errores de registro -->
+    <string name="error_registro_nombre_vacio">Escribe tu nombre</string>
+    <string name="error_registro_terminos">Debes aceptar los términos y la política de privacidad</string>
+    <string name="error_contrasena_longitud">La contraseña debe tener al menos 8 caracteres</string>
+    <string name="error_contrasena_numero">La contraseña debe incluir al menos un número</string>
+
+    <!-- Errores de verificación de correo -->
+    <string name="error_verificacion_pendiente">Todavía no verificaste tu correo. Abre el enlace que te enviamos.</string>
+
+    <!-- Errores de recuperar contraseña -->
+    <string name="error_recuperar_correo_vacio">Escribe tu correo</string>
+
+    <!-- Errores de perfil -->
+    <string name="error_perfil_cargar">No se pudo cargar tu perfil</string>
+    <string name="error_perfil_guardar">No se pudo guardar. Intenta de nuevo</string>
+    <string name="error_perfil_direccion_guardar">No se pudo guardar la dirección</string>
+    <string name="error_perfil_direccion_eliminar">No se pudo eliminar la dirección</string>
+    <string name="error_perfil_preferencias">No se pudieron guardar las preferencias</string>
+    <string name="error_perfil_foto">No se pudo subir la foto</string>
 </resources>

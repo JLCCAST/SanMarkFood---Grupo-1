@@ -189,7 +189,7 @@ fun PerfilScreen(
         }
         CorreoSoloLectura(correo = correo, verificado = correoVerificado)
 
-        state.error?.let { ErrorMessage(it) }
+        state.error?.let { ErrorMessage(stringResource(it)) }
 
         if (state.guardadoExitoso) {
             Text(

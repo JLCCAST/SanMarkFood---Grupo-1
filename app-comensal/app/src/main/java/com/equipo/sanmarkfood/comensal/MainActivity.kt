@@ -22,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,22 +96,21 @@ private fun InvitadoPlaceholder(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Estás explorando sin cuenta",
+            text = stringResource(R.string.invitado_titulo),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "Pronto verás aquí el mapa, los menús del día y las reseñas de los " +
-                    "restaurantes. Para reservar o pedir necesitas una cuenta.",
+            text = stringResource(R.string.invitado_texto),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
         Button(onClick = onCrearCuenta, modifier = Modifier.fillMaxWidth()) {
-            Text("Crear cuenta")
+            Text(stringResource(R.string.invitado_crear_cuenta))
         }
         OutlinedButton(onClick = onIniciarSesion, modifier = Modifier.fillMaxWidth()) {
-            Text("Iniciar sesión")
+            Text(stringResource(R.string.invitado_iniciar_sesion))
         }
     }
 }

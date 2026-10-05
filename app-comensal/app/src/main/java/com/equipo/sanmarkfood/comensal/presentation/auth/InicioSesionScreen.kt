@@ -162,7 +162,7 @@ fun InicioSesionScreen(
                 )
             }
 
-            state.error?.let { ErrorMessage(it) }
+            state.error?.let { ErrorMessage(stringResource(it)) }
 
             PrimaryButton(
                 text = stringResource(R.string.login_boton_iniciar),
@@ -235,7 +235,7 @@ fun InicioSesionScreen(
                             keyboardType = KeyboardType.Email,
                             isError = recuperarState.error != null
                         )
-                        recuperarState.error?.let { ErrorMessage(it) }
+                        recuperarState.error?.let { ErrorMessage(stringResource(it)) }
                     }
                 }
             },

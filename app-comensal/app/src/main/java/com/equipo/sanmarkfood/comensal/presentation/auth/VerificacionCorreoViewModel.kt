@@ -1,7 +1,9 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.data.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -15,7 +17,7 @@ import javax.inject.Inject
 
 data class VerificacionCorreoUiState(
     val isLoading: Boolean = false,
-    val error: String? = null,
+    @StringRes val error: Int? = null,
     val resendCooldown: Int = 0
 )
 
@@ -54,7 +56,7 @@ class VerificacionCorreoViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                error = "Todavía no verificaste tu correo. Abre el enlace que te enviamos."
+                                error = R.string.error_verificacion_pendiente
                             )
                         }
                     }

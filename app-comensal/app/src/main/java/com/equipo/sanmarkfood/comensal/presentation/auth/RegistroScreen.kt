@@ -153,7 +153,7 @@ fun RegistroScreen(
                 )
             }
 
-            state.error?.let { ErrorMessage(it) }
+            state.error?.let { ErrorMessage(stringResource(it)) }
 
             PrimaryButton(
                 text = stringResource(R.string.registro_boton_crear),

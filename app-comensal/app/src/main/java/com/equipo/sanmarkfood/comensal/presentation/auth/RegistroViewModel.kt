@@ -1,7 +1,9 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.data.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.ValidarContrasenaRegistroUseCase
 import com.equipo.sanmarkfood.comensal.domain.ValidarCorreoUseCase
@@ -15,7 +17,7 @@ import javax.inject.Inject
 
 data class RegistroUiState(
     val isLoading: Boolean = false,
-    val error: String? = null
+    @StringRes val error: Int? = null
 )
 
 @HiltViewModel
@@ -31,10 +33,10 @@ class RegistroViewModel @Inject constructor(
 
     fun register(name: String, email: String, password: String, acceptedTerms: Boolean) {
         val problema = when {
-            name.isBlank() -> "Escribe tu nombre"
-            !validarCorreo(email) -> "Correo no válido"
+            name.isBlank() -> R.string.error_registro_nombre_vacio
+            !validarCorreo(email) -> R.string.error_correo_invalido
             else -> validarContrasenaRegistro(password)
-        } ?: if (!acceptedTerms) "Debes aceptar los términos y la política de privacidad" else null
+        } ?: if (!acceptedTerms) R.string.error_registro_terminos else null
 
         if (problema != null) return setError(problema)
 
@@ -55,5 +57,5 @@ class RegistroViewModel @Inject constructor(
 
     fun limpiarError() = _uiState.update { it.copy(error = null) }
 
-    private fun setError(mensaje: String) = _uiState.update { it.copy(error = mensaje) }
+    private fun setError(@StringRes mensaje: Int) = _uiState.update { it.copy(error = mensaje) }
 }
