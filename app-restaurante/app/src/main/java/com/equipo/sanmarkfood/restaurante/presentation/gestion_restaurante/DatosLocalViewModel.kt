@@ -10,16 +10,22 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Campo
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EventoVerificacion
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.LARGO_CODIGO_SMS
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.TipoFoto
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.CerrarSesionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.EnviarCodigoSmsUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.GuardarDatosLocalUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ObtenerRestauranteUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ReenviarARevisionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.SubirFotoUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.VerificarCodigoSmsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,6 +56,12 @@ data class DatosLocalUiState(
     val confirmandoDescarte: Boolean = false,
     val salir: Boolean = false,
     val sesionCerrada: Boolean = false,
+    val esperandoOtp: Boolean = false,
+    val codigoIngresado: String = "",
+    val errorOtp: ErrorRestaurante? = null,
+    val enviandoCodigo: Boolean = false,
+    val verificandoCodigo: Boolean = false,
+    val segundosParaReenviar: Int = 0,
 ) {
     val subiendoFoto: Boolean get() = portada.subiendo || logo.subiendo
 }
@@ -74,6 +86,8 @@ class DatosLocalViewModel @Inject constructor(
     private val reenviarARevision: ReenviarARevisionUseCase,
     private val subirFoto: SubirFotoUseCase,
     private val cerrarSesion: CerrarSesionUseCase,
+    private val enviarCodigoSms: EnviarCodigoSmsUseCase,
+    private val verificarCodigoSms: VerificarCodigoSmsUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -83,6 +97,9 @@ class DatosLocalViewModel @Inject constructor(
 
     // Lo que había guardado al abrir la pantalla, para saber si al salir hay cambios que se perderían.
     private var valoresGuardados: ValoresFormulario? = null
+
+    private var envioCodigo: Job? = null
+    private var cuentaReenvio: Job? = null
 
     init {
         cargarLocal()
@@ -138,24 +155,141 @@ class DatosLocalViewModel @Inject constructor(
         if (estado.guardando || estado.subiendoFoto) return
 
         _uiState.update { it.copy(guardando = true, error = null) }
+        viewModelScope.launch { guardarFormulario(telefonoRecienVerificado = false) }
+    }
+
+    fun onCambiarCodigo(codigo: String) = _uiState.update {
+        it.copy(codigoIngresado = codigo.filter { c -> c in '0'..'9' }.take(LARGO_CODIGO_SMS), errorOtp = null)
+    }
+
+    fun onVerificarCodigo() {
+        val estado = _uiState.value
+        if (estado.verificandoCodigo || estado.enviandoCodigo) return
+
+        _uiState.update { it.copy(verificandoCodigo = true, errorOtp = null) }
         viewModelScope.launch {
             try {
-                val guardar = if (estado.modo == ModoFormulario.CORREGIR) reenviarARevision::invoke else guardarDatosLocal::invoke
-                guardar(
-                    estado.nombre,
-                    estado.categoria,
-                    estado.direccion,
-                    estado.ubicacion,
-                    estado.telefono,
-                    estado.portada.url,
-                    estado.logo.url,
-                )
-                _uiState.update { it.copy(guardando = false, guardado = true) }
+                verificarCodigoSms(estado.codigoIngresado)
+            } catch (e: ErrorRestaurante) {
+                _uiState.update { it.copy(verificandoCodigo = false, errorOtp = e) }
+                return@launch
+            }
+            guardarFormulario(telefonoRecienVerificado = true)
+        }
+    }
+
+    fun onReenviarCodigo() {
+        val estado = _uiState.value
+        if (estado.enviandoCodigo || estado.verificandoCodigo || estado.segundosParaReenviar > 0) return
+        enviarCodigo(reenviar = true)
+    }
+
+    fun onCancelarVerificacion() {
+        if (_uiState.value.verificandoCodigo) return
+        terminarVerificacion()
+    }
+
+    private suspend fun guardarFormulario(telefonoRecienVerificado: Boolean) {
+        val estado = _uiState.value
+        try {
+            val guardar = if (estado.modo == ModoFormulario.CORREGIR) reenviarARevision::invoke else guardarDatosLocal::invoke
+            guardar(
+                estado.nombre,
+                estado.categoria,
+                estado.direccion,
+                estado.ubicacion,
+                estado.telefono,
+                estado.portada.url,
+                estado.logo.url,
+            )
+            terminarVerificacion()
+            _uiState.update { it.copy(guardando = false, guardado = true) }
+        } catch (e: ErrorRestaurante.TelefonoSinVerificar) {
+            if (telefonoRecienVerificado) {
+                terminarVerificacion()
+                _uiState.update { it.copy(guardando = false, error = ErrorRestaurante.Desconocido) }
+            } else {
+                enviarCodigo(reenviar = false)
+            }
+        } catch (e: ErrorRestaurante.DatosInvalidos) {
+            terminarVerificacion()
+            _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
+        } catch (e: ErrorRestaurante) {
+            terminarVerificacion()
+            _uiState.update { it.copy(guardando = false, error = e) }
+        }
+    }
+
+    private fun enviarCodigo(reenviar: Boolean) {
+        envioCodigo?.cancel()
+        _uiState.update { it.copy(enviandoCodigo = true, errorOtp = null) }
+        envioCodigo = viewModelScope.launch {
+            try {
+                enviarCodigoSms(_uiState.value.telefono, reenviar).collect { alRecibirEvento(it) }
             } catch (e: ErrorRestaurante.DatosInvalidos) {
+                terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
             } catch (e: ErrorRestaurante) {
-                _uiState.update { it.copy(guardando = false, error = e) }
+                if (_uiState.value.esperandoOtp) {
+                    _uiState.update { it.copy(enviandoCodigo = false, errorOtp = e) }
+                } else {
+                    terminarVerificacion()
+                    _uiState.update { it.copy(guardando = false, error = e) }
+                }
             }
+        }
+    }
+
+    private fun alRecibirEvento(evento: EventoVerificacion) {
+        when (evento) {
+            EventoVerificacion.CodigoEnviado -> {
+                _uiState.update {
+                    it.copy(
+                        guardando = false,
+                        esperandoOtp = true,
+                        enviandoCodigo = false,
+                        codigoIngresado = "",
+                        errorOtp = null,
+                    )
+                }
+                iniciarCuentaReenvio()
+            }
+
+            is EventoVerificacion.CodigoRecibido -> if (!_uiState.value.verificandoCodigo) {
+                onCambiarCodigo(evento.codigo)
+                onVerificarCodigo()
+            }
+
+            EventoVerificacion.Verificado -> if (!_uiState.value.verificandoCodigo) {
+                _uiState.update { it.copy(verificandoCodigo = true) }
+                viewModelScope.launch { guardarFormulario(telefonoRecienVerificado = true) }
+            }
+        }
+    }
+
+    private fun iniciarCuentaReenvio() {
+        cuentaReenvio?.cancel()
+        cuentaReenvio = viewModelScope.launch {
+            for (segundos in SEGUNDOS_PARA_REENVIAR downTo 1) {
+                _uiState.update { it.copy(segundosParaReenviar = segundos) }
+                delay(1_000)
+            }
+            _uiState.update { it.copy(segundosParaReenviar = 0) }
+        }
+    }
+
+    private fun terminarVerificacion() {
+        envioCodigo?.cancel()
+        cuentaReenvio?.cancel()
+        _uiState.update {
+            it.copy(
+                esperandoOtp = false,
+                codigoIngresado = "",
+                errorOtp = null,
+                enviandoCodigo = false,
+                verificandoCodigo = false,
+                segundosParaReenviar = 0,
+            )
         }
     }
 
@@ -255,5 +389,6 @@ class DatosLocalViewModel @Inject constructor(
     private companion object {
         // «+51 987 654 321» con espacios es lo más largo que tiene sentido escribir.
         const val MAX_TELEFONO = 16
+        const val SEGUNDOS_PARA_REENVIAR = 60
     }
 }

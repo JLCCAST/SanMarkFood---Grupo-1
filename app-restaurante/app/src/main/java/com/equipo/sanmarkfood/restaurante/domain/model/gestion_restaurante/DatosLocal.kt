@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante
 
-/** Lo que el local llena en R3. El teléfono se guarda solo con dígitos. */
 data class DatosLocal(
     val nombre: String,
     val categoria: CategoriaRestaurante,

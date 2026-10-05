@@ -42,12 +42,12 @@ internal fun validarDatosLocal(
     )
 }
 
-// Celular de 9 dígitos que empieza con 9, fijo de Lima de 7, o fijo con código de ciudad (01…, 044…).
-// Acepta espacios, guiones, paréntesis y el prefijo +51; devuelve solo los dígitos, o null si no es válido.
-private fun normalizarTelefono(texto: String): String? {
-    if (texto.any { it !in '0'..'9' && it !in " +-()" }) return null
-    val digitos = texto.filter { it in '0'..'9' }
-        .let { if (it.length == 11 && it.startsWith("51")) it.drop(2) else it }
-    val valido = digitos.length == 7 || (digitos.length == 9 && digitos.first() in "09")
-    return digitos.takeIf { valido }
+private val TELEFONO_INTERNACIONAL = Regex("""\+[1-9]\d{7,14}""")
+private val CELULAR_PERU = Regex("""\+519\d{8}""")
+
+internal fun normalizarTelefono(texto: String): String? {
+    val telefono = texto.filterNot { it in " -()" }
+    val valido = TELEFONO_INTERNACIONAL.matches(telefono) &&
+        (!telefono.startsWith("+51") || CELULAR_PERU.matches(telefono))
+    return telefono.takeIf { valido }
 }
