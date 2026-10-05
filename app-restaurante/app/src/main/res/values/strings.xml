@@ -412,9 +412,9 @@
     <string name="revisar_titulo">Revisar solicitud</string>
     <string name="revisar_categoria_cuenta">%1$s · cuenta %2$s</string>
     <string name="revisar_aprobado">Aprobado.</string>
-    <string name="revisar_aprobado_detalle">El local ya aparece en el mapa.</string>
+    <string name="revisar_aprobado_detalle">El local ya aparece en el mapa y le enviamos una notificación.</string>
     <string name="revisar_rechazado">Rechazado: %1$s.</string>
-    <string name="revisar_rechazado_detalle">El local ve el motivo en su app y puede corregir y reenviar.</string>
+    <string name="revisar_rechazado_detalle">Le enviamos una notificación con el motivo; puede corregir y reenviar.</string>
     <string name="revisar_rechazo_anterior">Rechazo anterior</string>
     <string name="revisar_rechazo_anterior_fecha">Rechazo anterior · %1$s</string>
     <string name="revisar_cambio">Cambió desde entonces:</string>
