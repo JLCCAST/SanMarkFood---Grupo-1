@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.data.firebase
 
-import android.util.Log
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EventoVerificacion
 import com.google.firebase.FirebaseException
@@ -53,7 +52,6 @@ class VerificacionTelefonoDataSource @Inject constructor(
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
-                Log.e("BINGO", "Error detectado: ", e)
                 close(e.aErrorVerificacion())
             }
         }

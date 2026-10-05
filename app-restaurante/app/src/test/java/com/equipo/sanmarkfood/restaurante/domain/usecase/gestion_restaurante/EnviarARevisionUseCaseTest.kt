@@ -22,6 +22,7 @@ class EnviarARevisionUseCaseTest {
         override suspend fun obtener(): Restaurante? = null
         override fun observar(): Flow<Restaurante?> = emptyFlow()
         override suspend fun guardarDatos(datos: DatosLocal) = Unit
+        override suspend fun guardarDatosYPedirRevision(datos: DatosLocal) = Unit
         override suspend fun enviarARevision(horario: Horario) {
             enviado = horario
         }

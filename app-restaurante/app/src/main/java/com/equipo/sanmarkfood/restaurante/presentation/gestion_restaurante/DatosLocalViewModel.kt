@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,6 +21,7 @@ import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.Env
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.GuardarDatosLocalUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ObtenerRestauranteUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.ReenviarARevisionUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.RequiereNuevaRevisionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.SubirFotoUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.gestion_restaurante.VerificarCodigoSmsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,6 +55,7 @@ data class DatosLocalUiState(
     val error: ErrorRestaurante? = null,
     val guardado: Boolean = false,
     val confirmandoDescarte: Boolean = false,
+    val confirmandoNuevaRevision: Boolean = false,
     val salir: Boolean = false,
     val sesionCerrada: Boolean = false,
     val esperandoOtp: Boolean = false,
@@ -89,6 +90,7 @@ class DatosLocalViewModel @Inject constructor(
     private val cerrarSesion: CerrarSesionUseCase,
     private val enviarCodigoSms: EnviarCodigoSmsUseCase,
     private val verificarCodigoSms: VerificarCodigoSmsUseCase,
+    private val requiereNuevaRevision: RequiereNuevaRevisionUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -130,13 +132,10 @@ class DatosLocalViewModel @Inject constructor(
     fun onUbicacionElegida(ubicacion: Ubicacion) =
         _uiState.update { it.copy(ubicacion = ubicacion, eligiendoUbicacion = false, direccionPorCorregir = false) }
 
-    // La foto se sube apenas se elige. Si falla, vuelve a verse la que ya estaba subida (o ninguna).
-    // No se suben fotos mientras se guarda: al guardar se borran de Storage las que no se usan.
     fun onFotoElegida(tipo: TipoFoto, imagenLocal: String) {
         val estado = _uiState.value
         if (estado.guardando || estado.foto(tipo).subiendo) return
 
-        // Elegir una portada corrige la marca de «falta la portada», igual que escribir en un campo.
         if (tipo == TipoFoto.PORTADA) cambiarCampo(CampoLocal.PORTADA) { it }
         cambiarFoto(tipo) { it.copy(imagen = imagenLocal, progreso = 0f, error = null) }
         viewModelScope.launch {
@@ -151,15 +150,40 @@ class DatosLocalViewModel @Inject constructor(
         }
     }
 
-    // En el alta y al editar solo guarda; en R7 guarda y reenvía a revisión, aunque no haya cambios:
-    // el arreglo pudo estar en el horario o en la carta.
     fun onContinuar() {
         val estado = _uiState.value
         if (estado.guardando || estado.subiendoFoto) return
 
         _uiState.update { it.copy(guardando = true, error = null) }
+        viewModelScope.launch {
+            if (estado.modo == ModoFormulario.EDITAR) {
+                val pedirConfirmacion = intentar {
+                    requiereNuevaRevision(
+                        estado.nombre,
+                        estado.categoria,
+                        estado.direccion,
+                        estado.ubicacion,
+                        estado.telefono,
+                        estado.portada.url,
+                        estado.logo.url,
+                    )
+                } ?: return@launch
+
+                if (pedirConfirmacion) {
+                    _uiState.update { it.copy(guardando = false, confirmandoNuevaRevision = true) }
+                    return@launch
+                }
+            }
+            guardarFormulario(telefonoRecienVerificado = false)
+        }
+    }
+
+    fun onConfirmarNuevaRevision() {
+        _uiState.update { it.copy(confirmandoNuevaRevision = false, guardando = true, error = null) }
         viewModelScope.launch { guardarFormulario(telefonoRecienVerificado = false) }
     }
+
+    fun onCancelarNuevaRevision() = _uiState.update { it.copy(confirmandoNuevaRevision = false) }
 
     fun onCambiarCodigo(codigo: String) = _uiState.update {
         it.copy(codigoIngresado = codigo.filter { c -> c in '0'..'9' }.take(LARGO_CODIGO_SMS), errorOtp = null)
@@ -209,7 +233,6 @@ class DatosLocalViewModel @Inject constructor(
             _uiState.update { it.copy(guardando = false, guardado = true) }
         } catch (e: ErrorRestaurante.TelefonoSinVerificar) {
             if (telefonoRecienVerificado) {
-                Log.e("BINGO", "Error detectado: ", e)
                 terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, error = ErrorRestaurante.Desconocido) }
             } else {
@@ -219,10 +242,19 @@ class DatosLocalViewModel @Inject constructor(
             terminarVerificacion()
             _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
         } catch (e: ErrorRestaurante) {
-            Log.e("BINGO", "Error detectado: ", e)
             terminarVerificacion()
             _uiState.update { it.copy(guardando = false, error = e) }
         }
+    }
+
+    private suspend fun <T> intentar(accion: suspend () -> T): T? = try {
+        accion()
+    } catch (e: ErrorRestaurante.DatosInvalidos) {
+        _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
+        null
+    } catch (e: ErrorRestaurante) {
+        _uiState.update { it.copy(guardando = false, error = e) }
+        null
     }
 
     private fun enviarCodigo(reenviar: Boolean) {
@@ -235,7 +267,6 @@ class DatosLocalViewModel @Inject constructor(
                 terminarVerificacion()
                 _uiState.update { it.copy(guardando = false, camposInvalidos = e.campos, error = e) }
             } catch (e: ErrorRestaurante) {
-                Log.e("BINGO", "Error detectado: ", e)
                 if (_uiState.value.esperandoOtp) {
                     _uiState.update { it.copy(enviandoCodigo = false, errorOtp = e) }
                 } else {
@@ -299,14 +330,11 @@ class DatosLocalViewModel @Inject constructor(
         }
     }
 
-    // Se marca como atendido para que, al volver desde el paso siguiente, no se navegue otra vez.
     fun onGuardadoAtendido() = _uiState.update { it.copy(guardado = false) }
 
     fun onVolver() {
         val estado = _uiState.value
         when {
-            // En el alta la cuenta ya está creada y verificada: volver al paso 1 no tiene sentido, así que
-            // «atrás» cierra la sesión. Al volver a entrar, el arranque trae de nuevo a este paso.
             estado.modo == ModoFormulario.ALTA -> {
                 cerrarSesion()
                 _uiState.update { it.copy(sesionCerrada = true) }
@@ -335,7 +363,7 @@ class DatosLocalViewModel @Inject constructor(
                             cargando = false,
                             rechazo = restaurante.rechazo.takeIf { corrigiendo },
                             direccionPorCorregir = corrigiendo &&
-                                restaurante.rechazo?.motivo == MotivoRechazo.DIRECCION_NO_VERIFICABLE,
+                                restaurante.rechazo?.motivos?.contains(MotivoRechazo.DIRECCION_NO_VERIFICABLE) == true,
                             portada = FotoUiState(imagen = datos.portadaUrl, url = datos.portadaUrl),
                             logo = FotoUiState(imagen = datos.logoUrl, url = datos.logoUrl),
                             nombre = datos.nombre,
@@ -353,7 +381,6 @@ class DatosLocalViewModel @Inject constructor(
         }
     }
 
-    // Al corregir un campo marcado se le quita la marca; con el último, también el aviso general.
     private fun cambiarCampo(campo: CampoLocal, cambio: (DatosLocalUiState) -> DatosLocalUiState) {
         _uiState.update { estado ->
             val invalidos = estado.camposInvalidos - campo
@@ -375,7 +402,6 @@ class DatosLocalViewModel @Inject constructor(
     private fun DatosLocalUiState.valores() =
         ValoresFormulario(nombre, categoria, direccion, ubicacion, telefono, portada.url, logo.url)
 
-    // Una foto a medio subir también cuenta: si se sale, se pierde.
     private fun DatosLocalUiState.hayCambios(): Boolean = subiendoFoto || valores() != valoresGuardados
 
     private fun DatosLocalUiState.foto(tipo: TipoFoto): FotoUiState = when (tipo) {

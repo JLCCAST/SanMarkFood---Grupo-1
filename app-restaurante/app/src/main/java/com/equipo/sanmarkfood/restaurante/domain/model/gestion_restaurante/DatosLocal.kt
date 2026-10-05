@@ -13,6 +13,12 @@ data class DatosLocal(
 ) {
     val telefonoNacional: String get() = telefono.removePrefix(PREFIJO_TELEFONO)
 
+    fun cambiaCamposSensibles(editados: DatosLocal): Boolean =
+        direccion != editados.direccion ||
+            ubicacion != editados.ubicacion ||
+            portadaUrl != editados.portadaUrl ||
+            logoUrl != editados.logoUrl
+
     companion object {
         const val MAX_NOMBRE = 80
         const val MAX_DIRECCION = 200

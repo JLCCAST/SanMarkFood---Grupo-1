@@ -35,6 +35,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSe
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Hora
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.MotivoRechazo
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Rechazo
 import java.util.Locale
 
 /** El logo del local, o la inicial de su nombre si no subió uno (el logo es opcional desde SCRUM-63). */
@@ -129,6 +130,24 @@ fun MotivoRechazo.titulo(): Int = when (this) {
     MotivoRechazo.DIRECCION_NO_VERIFICABLE -> R.string.motivo_direccion_no_verificable
     MotivoRechazo.LOCAL_DUPLICADO -> R.string.motivo_local_duplicado
     MotivoRechazo.OTRO -> R.string.motivo_otro
+}
+
+@Composable
+fun tituloRechazo(rechazo: Rechazo): String {
+    val motivos = rechazo.motivos.filter { it != MotivoRechazo.OTRO }.ifEmpty { listOf(MotivoRechazo.OTRO) }
+    return unirConY(motivos.sortedBy { it.ordinal }.map { stringResource(it.titulo()) })
+}
+
+@Composable
+fun unirConY(partes: List<String>): String {
+    val enOracion = partes.mapIndexed { indice, parte ->
+        if (indice == 0) parte else parte.replaceFirstChar { it.lowercase(Locale.forLanguageTag("es-PE")) }
+    }
+    return when (enOracion.size) {
+        0 -> ""
+        1 -> enOracion.single()
+        else -> stringResource(R.string.lista_y, enOracion.dropLast(1).joinToString(", "), enOracion.last())
+    }
 }
 
 @StringRes

@@ -147,6 +147,10 @@
     <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
     <string name="descartar_seguir">Seguir editando</string>
     <string name="descartar_confirmar">Descartar</string>
+    <string name="nueva_revision_titulo">¿Enviar tu local a revisión?</string>
+    <string name="nueva_revision_texto">Cambiaste la dirección, la ubicación o las fotos. Revisaremos tu local de nuevo: hasta que lo aprobemos no aparecerá en el mapa ni recibirá pedidos o reservas.</string>
+    <string name="nueva_revision_confirmar">Guardar y enviar</string>
+    <string name="nueva_revision_cancelar">Seguir editando</string>
 
     <!-- Tu negocio (O6). Los indicadores y gráficos llegan con HU13. -->
     <string name="negocio_titulo">Tu negocio</string>
@@ -300,6 +304,9 @@
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>
     <string name="estado_en_revision_titulo">Estamos revisando tu local</string>
+    <string name="canal_estado_local_id" translatable="false">estado_local</string>
+    <string name="canal_estado_local">Estado del local</string>
+    <string name="canal_estado_local_descripcion">Te avisamos cuando revisamos el registro de tu local.</string>
     <string name="estado_en_revision_texto">Aún no apareces en el mapa ni recibes pedidos o reservas. Te avisaremos apenas terminemos la revisión.</string>
     <string name="estado_rechazado">REGISTRO RECHAZADO</string>
     <string name="estado_rechazado_texto">Corrige tus datos y vuelve a enviarlos; tu carta y tu horario se conservan.</string>
@@ -322,6 +329,7 @@
     <string name="motivo_direccion_no_verificable">No pudimos verificar la dirección</string>
     <string name="motivo_local_duplicado">Local duplicado</string>
     <string name="motivo_otro">Revisa tu registro</string>
+    <string name="lista_y">%1$s y %2$s</string>
 
     <!-- Lista de preparación de R5 -->
     <string name="preparacion_titulo">Mientras tanto, deja todo listo</string>
@@ -368,6 +376,100 @@
     <string name="error_codigo_vencido">El código venció. Pide uno nuevo.</string>
     <string name="error_telefono_en_uso">Ese número ya está verificado en otra cuenta de San Mark Food. Usa otro celular.</string>
 
-    <string name="admin_titulo">Sección de Administración</string>
-    <string name="admin_cerrar_sesion">Cerrar sesión</string>
+    <string name="admin_etiqueta">ADMINISTRACIÓN</string>
+    <string name="admin_salir">Salir</string>
+    <string name="admin_solicitudes">Solicitudes</string>
+    <string name="admin_reportes">Reportes</string>
+    <string name="admin_metricas">Métricas</string>
+    <string name="admin_reportes_provisional">Aquí verás las reseñas que reportan los comensales.</string>
+    <string name="admin_metricas_provisional">Aquí verás las métricas de toda la plataforma.</string>
+
+    <string name="solicitudes_titulo">Solicitudes de locales</string>
+    <string name="solicitudes_subtitulo">Aprueba solo negocios reales. Un local aprobado aparece en el mapa de inmediato.</string>
+    <string name="solicitudes_vacio_titulo">No hay solicitudes pendientes</string>
+    <string name="solicitudes_vacio_texto">Cuando un local envíe su registro o lo corrija, aparecerá aquí.</string>
+    <string name="solicitud_nuevo">Nuevo</string>
+    <string name="solicitud_reenviado">Reenviado</string>
+    <string name="solicitud_rechazo_anterior">Rechazo anterior: %1$s</string>
+    <string name="solicitud_sin_carta">sin carta</string>
+    <string name="solicitud_hace_un_momento">hace un momento</string>
+    <string name="solicitud_hace_minutos">hace %1$d min</string>
+    <string name="solicitud_hace_horas">hace %1$d h</string>
+    <plurals name="solicitud_hace_dias">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+    <string name="solicitud_reenviado_hace">reenviado %1$s</string>
+    <string name="solicitud_actualizado">Actualizado</string>
+    <string name="solicitud_actualizado_hace">actualizado %1$s</string>
+    <string name="revisar_actualizacion">Actualización de datos</string>
+    <string name="revisar_actualizacion_desde">Actualización de datos · aprobado el %1$s</string>
+    <string name="revisar_actualizacion_texto">El local ya estaba aprobado y cambió:</string>
+    <string name="solicitud_aprobado">Aprobado</string>
+    <string name="solicitud_rechazado">Rechazado</string>
+    <string name="solicitud_aprobado_el">aprobado el %1$s</string>
+    <string name="solicitud_rechazado_el">rechazado el %1$s</string>
+    <string name="filtro_pendientes">Pendientes</string>
+    <string name="filtro_pendientes_cantidad">Pendientes (%1$d)</string>
+    <string name="filtro_aprobados">Aprobados</string>
+    <string name="filtro_rechazados">Rechazados</string>
+    <string name="solicitudes_vacio_aprobadas_titulo">Todavía no hay locales aprobados</string>
+    <string name="solicitudes_vacio_aprobadas_texto">Los locales que apruebes aparecerán aquí.</string>
+    <string name="solicitudes_vacio_rechazadas_titulo">No hay locales rechazados</string>
+    <string name="solicitudes_vacio_rechazadas_texto">Aquí verás los locales rechazados hasta que corrijan y reenvíen su registro.</string>
+    <string name="error_motivo_faltante">Elige al menos un motivo del rechazo.</string>
+    <string name="error_detalle_obligatorio">Si marcas «Otro», explica el motivo para que el local sepa qué corregir.</string>
+    <string name="error_ya_revisada">Esta solicitud ya fue revisada. Vuelve a la lista para ver su estado.</string>
+
+    <string name="revisar_titulo">Revisar solicitud</string>
+    <string name="revisar_categoria_cuenta">%1$s · cuenta %2$s</string>
+    <string name="revisar_aprobado">Aprobado.</string>
+    <string name="revisar_aprobado_detalle">El local ya aparece en el mapa y le enviamos una notificación.</string>
+    <string name="revisar_rechazado">Rechazado: %1$s.</string>
+    <string name="revisar_rechazado_detalle">Le enviamos una notificación con el motivo; puede corregir y reenviar.</string>
+    <string name="revisar_rechazo_anterior">Rechazo anterior</string>
+    <string name="revisar_rechazo_anterior_fecha">Rechazo anterior · %1$s</string>
+    <string name="revisar_cambio">Cambió desde entonces:</string>
+    <string name="revisar_sin_cambios">No cambió sus datos; pudo corregir el horario o la carta.</string>
+    <string name="revisar_campo_nombre">nombre</string>
+    <string name="revisar_campo_categoria">categoría</string>
+    <string name="revisar_campo_direccion">dirección</string>
+    <string name="revisar_campo_ubicacion">punto del mapa</string>
+    <string name="revisar_campo_telefono">teléfono</string>
+    <string name="revisar_campo_portada">portada</string>
+    <string name="revisar_campo_logo">logo</string>
+    <string name="revisar_direccion">Dirección</string>
+    <string name="revisar_telefono">Teléfono</string>
+    <string name="revisar_horario">Horario</string>
+    <string name="revisar_carta">Carta</string>
+    <string name="revisar_horario_tramo">%1$s %2$s–%3$s</string>
+    <string name="revisar_sin_horario">Sin horario</string>
+    <string name="revisar_sin_dias">Cerrado todos los días</string>
+    <string name="revisar_carta_resumen">%1$s en %2$s</string>
+    <string name="revisar_sin_carta">Todavía sin platos</string>
+    <string name="revisar_aprobar">Aprobar</string>
+    <string name="revisar_rechazar">Rechazar</string>
+    <string name="revisar_rechazo_titulo">Rechazar el registro</string>
+    <string name="revisar_rechazo_explicacion">El local verá el motivo y podrá corregir y reenviar.</string>
+    <string name="revisar_rechazo_motivo">Motivos (puedes marcar más de uno)</string>
+    <string name="revisar_rechazo_otro">Otro</string>
+    <string name="revisar_rechazo_detalle_obligatorio">Explica el motivo (obligatorio)</string>
+    <string name="revisar_rechazo_detalle_opcional">Detalle para el local (opcional)</string>
+    <string name="revisar_rechazo_detalle_ejemplo">Ej.: la dirección no coincide con el mapa</string>
+    <string name="revisar_rechazo_volver">Volver</string>
+    <string name="revisar_rechazo_confirmar">Rechazar registro</string>
+    <string-array name="meses_cortos">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>set</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
 </resources>

@@ -46,7 +46,7 @@ private const val ZOOM_SELECTOR = 17f
 
 /** Mapa pequeño de R3: solo muestra el punto. Para moverlo se abre [SelectorUbicacion]. */
 @Composable
-fun VistaPreviaMapa(ubicacion: Ubicacion, onMoverPunto: () -> Unit, modifier: Modifier = Modifier) {
+fun VistaPreviaMapa(ubicacion: Ubicacion, onMoverPunto: (() -> Unit)?, modifier: Modifier = Modifier) {
     val forma = RoundedCornerShape(12.dp)
     val descripcion = stringResource(R.string.datos_local_mapa_descripcion)
     Box(
@@ -81,20 +81,22 @@ fun VistaPreviaMapa(ubicacion: Ubicacion, onMoverPunto: () -> Unit, modifier: Mo
                     zoomGesturesEnabled = false,
                 ),
                 // Sin este listener, en modo lite tocar el mapa abre la app de Google Maps.
-                onMapClick = { onMoverPunto() },
+                onMapClick = { onMoverPunto?.invoke() },
             )
         }
         PinUbicacion(alto = 34.dp)
-        Surface(
-            onClick = onMoverPunto,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).height(36.dp),
-            shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLowest,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            shadowElevation = 2.dp,
-        ) {
-            Box(modifier = Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
-                Text(text = stringResource(R.string.datos_local_mover_punto), style = MaterialTheme.typography.labelLarge)
+        if (onMoverPunto != null) {
+            Surface(
+                onClick = onMoverPunto,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).height(36.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                shadowElevation = 2.dp,
+            ) {
+                Box(modifier = Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+                    Text(text = stringResource(R.string.datos_local_mover_punto), style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }

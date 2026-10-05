@@ -24,6 +24,10 @@ class GuardarDatosLocalUseCase @Inject constructor(
         if (verificacionTelefonoRepository.telefonoVerificado() != datos.telefono) {
             throw ErrorRestaurante.TelefonoSinVerificar
         }
-        restauranteRepository.guardarDatos(datos)
+        if (restauranteRepository.obtener()?.requiereNuevaRevision(datos) == true) {
+            restauranteRepository.guardarDatosYPedirRevision(datos)
+        } else {
+            restauranteRepository.guardarDatos(datos)
+        }
     }
 }

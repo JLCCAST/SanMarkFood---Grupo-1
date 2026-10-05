@@ -48,6 +48,7 @@ class ObtenerEstadoSesionUseCaseTest {
         }
         override fun observar(): Flow<Restaurante?> = emptyFlow()
         override suspend fun guardarDatos(datos: DatosLocal) = Unit
+        override suspend fun guardarDatosYPedirRevision(datos: DatosLocal) = Unit
         override suspend fun subirFoto(tipo: TipoFoto, imagenLocal: String, alAvanzar: (Float) -> Unit) = ""
         override suspend fun enviarARevision(horario: Horario) = Unit
         override suspend fun reenviarARevision(datos: DatosLocal) = Unit

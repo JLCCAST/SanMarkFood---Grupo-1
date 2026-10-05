@@ -19,6 +19,8 @@ interface RestauranteRepository {
      */
     suspend fun guardarDatos(datos: DatosLocal)
 
+    suspend fun guardarDatosYPedirRevision(datos: DatosLocal)
+
     /**
      * Achica la foto elegida en el celular ([imagenLocal] es su dirección) y la sube a Storage.
      * Devuelve la URL de descarga, que se guarda con los datos del local.
