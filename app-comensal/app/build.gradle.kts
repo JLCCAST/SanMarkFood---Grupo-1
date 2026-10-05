@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -50,6 +52,14 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("com.google.dagger:hilt-android:2.60.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    ksp("com.google.dagger:hilt-compiler:2.60.1")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

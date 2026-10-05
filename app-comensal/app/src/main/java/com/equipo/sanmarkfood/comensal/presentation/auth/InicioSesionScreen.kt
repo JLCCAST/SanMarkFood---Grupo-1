@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.auth
+package com.equipo.sanmarkfood.comensal.presentation.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -37,17 +39,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.equipo.sanmarkfood.comensal.R
 
 @Composable
-fun LoginScreen(
-    state: AuthUiState,
-    onLogin: (email: String, password: String) -> Unit,
-    onGoToRegister: () -> Unit,
-    onSendPasswordReset: (email: String) -> Unit,
-    onDismissReset: () -> Unit,
-    onExplore: () -> Unit,
-    modifier: Modifier = Modifier
+fun InicioSesionScreen(
+    onIrARegistro: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: InicioSesionViewModel = hiltViewModel(),
+    recuperarViewModel: RecuperarContrasenaViewModel = hiltViewModel()
 ) {
+    val state by viewModel.uiState.collectAsState()
+    val recuperarState by recuperarViewModel.uiState.collectAsState()
+
     val colors = MaterialTheme.colorScheme
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -57,11 +61,15 @@ fun LoginScreen(
     var resetEmail by rememberSaveable { mutableStateOf("") }
     val closeReset: () -> Unit = {
         showReset = false
-        onDismissReset()
+        recuperarViewModel.limpiar()
     }
 
     val emailMissing = state.error != null && email.isBlank()
     val passwordMissing = state.error != null && password.isEmpty()
+
+    // Partes del nombre de la marca (el espacio entre ambas se agrega en el código).
+    val marcaSanMark = stringResource(R.string.login_marca_san_mark)
+    val marcaFood = stringResource(R.string.login_marca_food)
 
     Column(
         modifier = modifier
@@ -83,7 +91,7 @@ fun LoginScreen(
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 // Etiqueta que diferencia esta app de la de restaurantes
                 Text(
-                    text = "COMENSALES",
+                    text = stringResource(R.string.login_etiqueta_comensal),
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .background(colors.secondary)
@@ -94,15 +102,15 @@ fun LoginScreen(
                 )
                 Text(
                     text = buildAnnotatedString {
-                        append("San Mark ")
-                        withStyle(SpanStyle(color = colors.secondary)) { append("Food") }
+                        append("$marcaSanMark ")
+                        withStyle(SpanStyle(color = colors.secondary)) { append(marcaFood) }
                     },
                     color = colors.inverseOnSurface,
                     fontSize = 40.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = "Menús del día, reservas y pedidos para recoger, a pasos de San Marcos.",
+                    text = stringResource(R.string.login_eslogan),
                     style = MaterialTheme.typography.bodyLarge,
                     color = colors.inverseOnSurface.copy(alpha = 0.85f)
                 )
@@ -117,56 +125,62 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Text(
-                text = "Inicia sesión",
+                text = stringResource(R.string.login_titulo),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold
             )
 
             AuthTextField(
-                label = "Correo electrónico",
+                label = stringResource(R.string.auth_etiqueta_correo),
                 value = email,
                 onValueChange = { email = it },
-                placeholder = "tu@correo.com",
+                placeholder = stringResource(R.string.auth_placeholder_correo),
                 keyboardType = KeyboardType.Email,
                 isError = emailMissing
             )
             PasswordField(
-                label = "Contraseña",
+                label = stringResource(R.string.auth_etiqueta_contrasena),
                 value = password,
                 onValueChange = { password = it },
                 imeAction = ImeAction.Done,
-                onImeAction = { onLogin(email, password) },
+                onImeAction = { viewModel.login(email, password) },
                 isError = passwordMissing
             )
 
             // Enlace para recuperar la contraseña (SCRUM-82)
             TextButton(
                 onClick = {
-                    onDismissReset()
+                    recuperarViewModel.limpiar()
                     resetEmail = email
                     showReset = true
                 },
                 modifier = Modifier.align(Alignment.End)
             ) {
-                Text("¿Olvidaste tu contraseña?", fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.login_olvidaste_contrasena),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
-            state.error?.let { ErrorMessage(it) }
+            state.error?.let { ErrorMessage(stringResource(it)) }
 
             PrimaryButton(
-                text = "Iniciar sesión",
-                onClick = { onLogin(email, password) },
+                text = stringResource(R.string.login_boton_iniciar),
+                onClick = { viewModel.login(email, password) },
                 isLoading = state.isLoading
             )
 
             // Exploración sin cuenta (SCRUM-154)
             OutlinedButton(
-                onClick = onExplore,
+                onClick = viewModel::continuarComoInvitado,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
-                Text("Explorar sin cuenta", fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.login_boton_explorar),
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -177,12 +191,20 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "¿Primera vez aquí?",
+                    text = stringResource(R.string.login_primera_vez),
                     style = MaterialTheme.typography.bodyLarge,
                     color = colors.onSurfaceVariant
                 )
-                TextButton(onClick = onGoToRegister) {
-                    Text("Crea tu cuenta", fontWeight = FontWeight.Bold)
+                TextButton(
+                    onClick = {
+                        viewModel.limpiarError()
+                        onIrARegistro()
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.login_crear_cuenta),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -191,48 +213,56 @@ fun LoginScreen(
     if (showReset) {
         AlertDialog(
             onDismissRequest = closeReset,
-            title = { Text("Recuperar contraseña") },
+            title = { Text(stringResource(R.string.recuperar_titulo)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (state.resetEmailSent) {
+                    if (recuperarState.enlaceEnviado) {
                         Text(
-                            "Si el correo está registrado, te enviamos un enlace para " +
-                                    "crear una nueva contraseña. Revisa también la carpeta de spam.",
+                            stringResource(R.string.recuperar_enlace_enviado),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     } else {
                         Text(
-                            "Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.",
+                            stringResource(R.string.recuperar_instruccion),
                             style = MaterialTheme.typography.bodyMedium,
                             color = colors.onSurfaceVariant
                         )
                         AuthTextField(
-                            label = "Correo electrónico",
+                            label = stringResource(R.string.auth_etiqueta_correo),
                             value = resetEmail,
                             onValueChange = { resetEmail = it },
-                            placeholder = "tu@correo.com",
+                            placeholder = stringResource(R.string.auth_placeholder_correo),
                             keyboardType = KeyboardType.Email,
-                            isError = state.resetError != null
+                            isError = recuperarState.error != null
                         )
-                        state.resetError?.let { ErrorMessage(it) }
+                        recuperarState.error?.let { ErrorMessage(stringResource(it)) }
                     }
                 }
             },
             confirmButton = {
-                if (state.resetEmailSent) {
-                    TextButton(onClick = closeReset) { Text("Entendido") }
+                if (recuperarState.enlaceEnviado) {
+                    TextButton(onClick = closeReset) {
+                        Text(stringResource(R.string.recuperar_entendido))
+                    }
                 } else {
                     TextButton(
-                        onClick = { onSendPasswordReset(resetEmail) },
-                        enabled = !state.resetLoading
+                        onClick = { recuperarViewModel.sendPasswordReset(resetEmail) },
+                        enabled = !recuperarState.isLoading
                     ) {
-                        Text(if (state.resetLoading) "Enviando..." else "Enviar enlace")
+                        Text(
+                            stringResource(
+                                if (recuperarState.isLoading) R.string.recuperar_enviando
+                                else R.string.recuperar_enviar
+                            )
+                        )
                     }
                 }
             },
             dismissButton = {
-                if (!state.resetEmailSent) {
-                    TextButton(onClick = closeReset) { Text("Cancelar") }
+                if (!recuperarState.enlaceEnviado) {
+                    TextButton(onClick = closeReset) {
+                        Text(stringResource(R.string.common_cancelar))
+                    }
                 }
             }
         )

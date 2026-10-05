@@ -15,22 +15,27 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.equipo.sanmarkfood.comensal.ui.auth.AuthViewModel
-import com.equipo.sanmarkfood.comensal.ui.auth.LoginScreen
-import com.equipo.sanmarkfood.comensal.ui.auth.RegisterScreen
-import com.equipo.sanmarkfood.comensal.ui.auth.EmailVerificationScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.equipo.sanmarkfood.comensal.presentation.auth.EstadoSesion
+import com.equipo.sanmarkfood.comensal.presentation.auth.InicioSesionScreen
+import com.equipo.sanmarkfood.comensal.presentation.auth.RegistroScreen
+import com.equipo.sanmarkfood.comensal.presentation.auth.SesionViewModel
+import com.equipo.sanmarkfood.comensal.presentation.auth.VerificacionCorreoScreen
+import com.equipo.sanmarkfood.comensal.ui.home.HomeScaffold
 import com.equipo.sanmarkfood.comensal.ui.theme.AppcomensalTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,79 +54,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AuthGate(viewModel: AuthViewModel = viewModel()) {
-    val state by viewModel.uiState.collectAsState()
-    var showRegister by rememberSaveable { mutableStateOf(false) }
+private fun AuthGate(viewModel: SesionViewModel = hiltViewModel()) {
+    val sesion by viewModel.estado.collectAsState()
+    var mostrarRegistro by rememberSaveable { mutableStateOf(false) }
 
-    when {
-        state.isLoggedIn -> LoggedInPlaceholder(onLogout = viewModel::logout)
+    when (val actual = sesion) {
+        EstadoSesion.Autenticado -> HomeScaffold(onLogout = viewModel::cerrarSesion)
 
-        state.needsVerification -> EmailVerificationScreen(
-            state = state,
-            onCheckVerified = viewModel::checkVerified,
-            onResend = viewModel::resendVerification,
-            onChangeEmail = viewModel::changeEmail
-        )
+        is EstadoSesion.PorVerificar -> VerificacionCorreoScreen(correo = actual.correo)
 
-        state.isGuest -> GuestPlaceholder(
-            onCreateAccount = {
-                viewModel.exitGuest()
-                showRegister = true
+        EstadoSesion.Invitado -> InvitadoPlaceholder(
+            onCrearCuenta = {
+                viewModel.salirDeInvitado()
+                mostrarRegistro = true
             },
-            onLogin = {
-                viewModel.exitGuest()
-                showRegister = false
+            onIniciarSesion = {
+                viewModel.salirDeInvitado()
+                mostrarRegistro = false
             }
         )
 
-        showRegister -> RegisterScreen(
-            state = state,
-            onRegister = viewModel::register,
-            onGoToLogin = {
-                viewModel.clearError()
-                showRegister = false
-            }
-        )
-
-        else -> LoginScreen(
-            state = state,
-            onLogin = viewModel::login,
-            onGoToRegister = {
-                viewModel.clearError()
-                showRegister = true
-            },
-            onSendPasswordReset = viewModel::sendPasswordReset,
-            onDismissReset = viewModel::clearReset,
-            onExplore = viewModel::continueAsGuest
-        )
-    }
-}
-
-// Temporal: sirve para probar el flujo hasta que exista la pantalla de inicio.
-@Composable
-private fun LoggedInPlaceholder(onLogout: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Sesión iniciada",
-            style = MaterialTheme.typography.headlineSmall
-        )
-        OutlinedButton(onClick = onLogout, modifier = Modifier.padding(top = 16.dp)) {
-            Text("Cerrar sesión")
+        EstadoSesion.SinSesion -> if (mostrarRegistro) {
+            RegistroScreen(onIrAInicioSesion = { mostrarRegistro = false })
+        } else {
+            InicioSesionScreen(onIrARegistro = { mostrarRegistro = true })
         }
     }
 }
 
 // Temporal: se reemplazará por el mapa, los menús y las reseñas cuando existan.
 @Composable
-private fun GuestPlaceholder(
-    onCreateAccount: () -> Unit,
-    onLogin: () -> Unit
+private fun InvitadoPlaceholder(
+    onCrearCuenta: () -> Unit,
+    onIniciarSesion: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -131,22 +96,21 @@ private fun GuestPlaceholder(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Estás explorando sin cuenta",
+            text = stringResource(R.string.invitado_titulo),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "Pronto verás aquí el mapa, los menús del día y las reseñas de los " +
-                    "restaurantes. Para reservar o pedir necesitas una cuenta.",
+            text = stringResource(R.string.invitado_texto),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        Button(onClick = onCreateAccount, modifier = Modifier.fillMaxWidth()) {
-            Text("Crear cuenta")
+        Button(onClick = onCrearCuenta, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.invitado_crear_cuenta))
         }
-        OutlinedButton(onClick = onLogin, modifier = Modifier.fillMaxWidth()) {
-            Text("Iniciar sesión")
+        OutlinedButton(onClick = onIniciarSesion, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.invitado_iniciar_sesion))
         }
     }
 }
