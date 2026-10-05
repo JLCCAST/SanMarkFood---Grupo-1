@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
+import com.equipo.sanmarkfood.comensal.data.CuentaDeOtroRolException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 object MapeadorErroresAuth {
 
     fun mapearError(e: Throwable): String = when (e) {
+        is CuentaDeOtroRolException -> "Esta cuenta no es de comensal. Usa otro correo o la app para restaurantes"
         is FirebaseAuthUserCollisionException -> "Ya existe una cuenta con ese correo"
         is FirebaseAuthWeakPasswordException -> "La contraseña es muy débil"
         is FirebaseAuthInvalidUserException,

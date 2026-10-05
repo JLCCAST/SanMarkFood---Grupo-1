@@ -8,6 +8,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
+/** La cuenta existe, pero su rol en usuarios/{uid} no es "comensal" (D5). */
+class CuentaDeOtroRolException : Exception("La cuenta no es de comensal")
+
 interface AuthRepository {
     val currentUser: FirebaseUser?
     suspend fun register(name: String, email: String, password: String): Result<FirebaseUser>
@@ -60,9 +63,30 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, password: String): Result<FirebaseUser> =
         runCatching {
-            auth.signInWithEmailAndPassword(email, password).await().user
+            val user = auth.signInWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo iniciar sesión")
+
+            try {
+                verificarRolComensal(user)
+            } catch (e: Exception) {
+                // Si la cuenta no es de comensal (o no se pudo comprobar), no se deja la sesión abierta.
+                auth.signOut()
+                throw e
+            }
+            user
         }
+
+    /**
+     * D5: esta app solo admite cuentas con rol "comensal". Si la cuenta no tiene
+     * documento en usuarios, se crea con ese rol (cuentas anteriores a HU05).
+     */
+    private suspend fun verificarRolComensal(user: FirebaseUser) {
+        val documento = firestore.collection("usuarios").document(user.uid).get().await()
+        when {
+            !documento.exists() -> crearDocumentoUsuario(user, user.email.orEmpty())
+            documento.getString("rol") != "comensal" -> throw CuentaDeOtroRolException()
+        }
+    }
 
     override suspend fun sendVerification(): Result<Unit> =
         runCatching {
