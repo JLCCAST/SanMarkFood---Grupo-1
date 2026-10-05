@@ -73,12 +73,20 @@
     <string name="datos_local_mapa_ayuda">Arrastra el punto hasta la puerta de tu local.</string>
     <string name="datos_local_telefono">Teléfono del local</string>
     <string name="datos_local_telefono_ejemplo">999 999 999</string>
-    <string name="datos_local_telefono_ayuda">Se muestra a los comensales para grupos grandes y consultas.</string>
+    <string name="datos_local_telefono_ayuda">Tu celular de 9 dígitos. Lo verificamos por SMS y se muestra a los comensales para grupos grandes y consultas.</string>
     <string name="datos_local_continuar">Continuar</string>
     <string name="datos_local_error_nombre">Escribe el nombre de tu local.</string>
     <string name="datos_local_error_categoria">Elige la categoría de tu local.</string>
     <string name="datos_local_error_direccion">Escribe la dirección de tu local.</string>
-    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos o un teléfono fijo.</string>
+    <string name="datos_local_error_telefono">Ingresa un celular de 9 dígitos que empiece con 9.</string>
+    <string name="otp_titulo">Verifica tu teléfono</string>
+    <string name="otp_enviamos">Te enviamos un código de 6 dígitos por SMS al %1$s.</string>
+    <string name="otp_codigo">Código de verificación</string>
+    <string name="otp_codigo_ejemplo">6 dígitos</string>
+    <string name="otp_no_llego">¿No llegó? Espera un momento y pide otro código, o vuelve atrás para corregir el número.</string>
+    <string name="otp_verificar">Verificar</string>
+    <string name="otp_reenviar">Reenviar código</string>
+    <string name="otp_reenviar_en">Reenviar código en %1$d s</string>
 
     <!-- Fotos del local (HU02, SCRUM-63) -->
     <string name="fotos_subir_portada">Subir foto de portada</string>
@@ -363,6 +371,10 @@
     <string name="error_ningun_dia_abierto">Abre al menos un día para enviar tu local a revisión.</string>
     <string name="error_imagen_ilegible">No pudimos abrir esa imagen. Prueba con otra foto.</string>
     <string name="error_horas_invalidas">Revisa los horarios marcados en rojo: cada día tiene que cerrar después de abrir.</string>
+    <string name="error_telefono_sin_verificar">Verifica tu teléfono con el código que te enviamos por SMS.</string>
+    <string name="error_codigo_incorrecto">El código no es correcto. Revísalo e inténtalo de nuevo.</string>
+    <string name="error_codigo_vencido">El código venció. Pide uno nuevo.</string>
+    <string name="error_telefono_en_uso">Ese número ya está verificado en otra cuenta de San Mark Food. Usa otro celular.</string>
 
     <string name="admin_etiqueta">ADMINISTRACIÓN</string>
     <string name="admin_salir">Salir</string>

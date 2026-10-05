@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante
 
-/** Lo que el local llena en R3. El teléfono se guarda solo con dígitos. */
 data class DatosLocal(
     val nombre: String,
     val categoria: CategoriaRestaurante,
@@ -12,6 +11,8 @@ data class DatosLocal(
     /** Opcional: sin logo se muestra la inicial del nombre. */
     val logoUrl: String?,
 ) {
+    val telefonoNacional: String get() = telefono.removePrefix(PREFIJO_TELEFONO)
+
     fun cambiaCamposSensibles(editados: DatosLocal): Boolean =
         direccion != editados.direccion ||
             ubicacion != editados.ubicacion ||
@@ -21,6 +22,8 @@ data class DatosLocal(
     companion object {
         const val MAX_NOMBRE = 80
         const val MAX_DIRECCION = 200
+        const val DIGITOS_TELEFONO = 9
+        const val PREFIJO_TELEFONO = "+51"
     }
 }
 

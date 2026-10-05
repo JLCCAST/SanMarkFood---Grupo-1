@@ -73,7 +73,7 @@ fun DatosLocalScreen(
     LaunchedEffect(uiState.sesionCerrada) {
         if (uiState.sesionCerrada) onSesionCerrada()
     }
-    BackHandler(enabled = !uiState.eligiendoUbicacion, onBack = viewModel::onVolver)
+    BackHandler(enabled = !uiState.eligiendoUbicacion && !uiState.esperandoOtp, onBack = viewModel::onVolver)
 
     if (uiState.confirmandoDescarte) {
         DialogoDescartarCambios(
@@ -90,14 +90,27 @@ fun DatosLocalScreen(
 
     // Fuera del formulario, para no perder el scroll al abrir y cerrar el selector de ubicación.
     val scroll = rememberScrollState()
-    if (uiState.eligiendoUbicacion) {
-        SelectorUbicacion(
+    when {
+        uiState.eligiendoUbicacion -> SelectorUbicacion(
             ubicacionInicial = uiState.ubicacion,
             onConfirmar = viewModel::onUbicacionElegida,
             onCancelar = viewModel::onCancelarUbicacion,
         )
-    } else {
-        DatosLocalContenido(
+
+        uiState.esperandoOtp -> VerificacionTelefono(
+            telefono = uiState.telefono.chunked(3).joinToString(" "),
+            codigo = uiState.codigoIngresado,
+            error = uiState.errorOtp,
+            verificando = uiState.verificandoCodigo,
+            enviando = uiState.enviandoCodigo,
+            segundosParaReenviar = uiState.segundosParaReenviar,
+            onCambiarCodigo = viewModel::onCambiarCodigo,
+            onVerificar = viewModel::onVerificarCodigo,
+            onReenviar = viewModel::onReenviarCodigo,
+            onCancelar = viewModel::onCancelarVerificacion,
+        )
+
+        else -> DatosLocalContenido(
             uiState = uiState,
             scroll = scroll,
             onVolver = viewModel::onVolver,
@@ -280,7 +293,7 @@ private fun FormularioLocal(
         etiqueta = stringResource(R.string.datos_local_telefono),
         valor = uiState.telefono,
         onValorChange = onCambiarTelefono,
-        tipoTeclado = KeyboardType.Phone,
+        tipoTeclado = KeyboardType.Number,
         ejemplo = stringResource(R.string.datos_local_telefono_ejemplo),
         esError = telefonoInvalido,
         mensaje = stringResource(

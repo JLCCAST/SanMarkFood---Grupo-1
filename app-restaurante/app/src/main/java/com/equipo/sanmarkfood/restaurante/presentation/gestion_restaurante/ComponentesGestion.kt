@@ -181,5 +181,10 @@ private fun ErrorRestaurante.mensaje(): Int = when (this) {
     ErrorRestaurante.NingunDiaAbierto -> R.string.error_ningun_dia_abierto
     is ErrorRestaurante.HorasInvalidas -> R.string.error_horas_invalidas
     ErrorRestaurante.ImagenIlegible -> R.string.error_imagen_ilegible
+    ErrorRestaurante.TelefonoSinVerificar -> R.string.error_telefono_sin_verificar
+    ErrorRestaurante.CodigoIncorrecto -> R.string.error_codigo_incorrecto
+    ErrorRestaurante.CodigoVencido -> R.string.error_codigo_vencido
+    ErrorRestaurante.TelefonoEnUso -> R.string.error_telefono_en_uso
+    ErrorRestaurante.DemasiadosIntentos -> R.string.error_demasiados_intentos
     ErrorRestaurante.Desconocido -> R.string.error_desconocido
 }
