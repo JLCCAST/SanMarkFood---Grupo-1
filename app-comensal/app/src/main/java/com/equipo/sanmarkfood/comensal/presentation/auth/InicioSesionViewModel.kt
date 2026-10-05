@@ -3,9 +3,8 @@ package com.equipo.sanmarkfood.comensal.presentation.auth
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.equipo.sanmarkfood.comensal.R
-import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
-import com.equipo.sanmarkfood.comensal.domain.usecase.auth.ValidarCorreoUseCase
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ResultadoInicioSesion
+import com.equipo.sanmarkfood.comensal.domain.usecase.auth.IniciarSesionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +20,7 @@ data class InicioSesionUiState(
 
 @HiltViewModel
 class InicioSesionViewModel @Inject constructor(
-    private val repositorio: AuthRepository,
-    private val validarCorreo: ValidarCorreoUseCase,
+    private val iniciarSesion: IniciarSesionUseCase,
     private val gestorSesion: GestorSesion
 ) : ViewModel() {
 
@@ -30,27 +28,28 @@ class InicioSesionViewModel @Inject constructor(
     val uiState: StateFlow<InicioSesionUiState> = _uiState.asStateFlow()
 
     fun login(email: String, password: String) {
-        if (email.isBlank() || password.isEmpty()) {
-            return setError(R.string.error_login_campos_vacios)
-        }
-        if (!validarCorreo(email)) return setError(R.string.error_correo_invalido)
-
         viewModelScope.launch {
             _uiState.value = InicioSesionUiState(isLoading = true)
-            repositorio.login(email.trim(), password)
-                .onSuccess { user ->
+
+            when (val resultado = iniciarSesion(email, password)) {
+                is ResultadoInicioSesion.Autenticado -> {
                     _uiState.value = InicioSesionUiState()
-                    if (user.isEmailVerified) {
-                        gestorSesion.marcarAutenticado()
-                    } else {
-                        gestorSesion.marcarPorVerificar(user.email ?: email.trim())
-                    }
+                    gestorSesion.marcarAutenticado()
                 }
-                .onFailure {
+
+                is ResultadoInicioSesion.PorVerificar -> {
+                    _uiState.value = InicioSesionUiState()
+                    gestorSesion.marcarPorVerificar(resultado.correo)
+                }
+
+                is ResultadoInicioSesion.CampoInvalido ->
+                    _uiState.value = InicioSesionUiState(error = resultado.mensaje)
+
+                is ResultadoInicioSesion.Fallo ->
                     _uiState.value = InicioSesionUiState(
-                        error = MapeadorErroresAuth.mapearError(it)
+                        error = MapeadorErroresAuth.mapearError(resultado.causa)
                     )
-                }
+            }
         }
     }
 
@@ -58,6 +57,4 @@ class InicioSesionViewModel @Inject constructor(
     fun continuarComoInvitado() = gestorSesion.entrarComoInvitado()
 
     fun limpiarError() = _uiState.update { it.copy(error = null) }
-
-    private fun setError(@StringRes mensaje: Int) = _uiState.update { it.copy(error = mensaje) }
 }
