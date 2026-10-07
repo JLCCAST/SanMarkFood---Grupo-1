@@ -1,7 +1,5 @@
 package com.equipo.sanmarkfood.comensal.domain.model.auth
 
-import androidx.annotation.StringRes
-
 /** Lo que puede pasar al iniciar sesión; el ViewModel decide qué mostrar en cada caso. */
 sealed interface ResultadoInicioSesion {
     /** Sesión abierta y correo verificado. */
@@ -11,8 +9,8 @@ sealed interface ResultadoInicioSesion {
     data class PorVerificar(val correo: String) : ResultadoInicioSesion
 
     /** Los datos escritos no pasan las reglas; no se llamó a Firebase. */
-    data class CampoInvalido(@StringRes val mensaje: Int) : ResultadoInicioSesion
+    data class CampoInvalido(val error: ErrorAuth) : ResultadoInicioSesion
 
-    /** Firebase rechazó el inicio de sesión (contraseña incorrecta, cuenta de otro rol, etc.). */
-    data class Fallo(val causa: Throwable) : ResultadoInicioSesion
+    /** El inicio de sesión falló (contraseña incorrecta, cuenta de otro rol, sin conexión, etc.). */
+    data class Fallo(val error: ErrorAuth) : ResultadoInicioSesion
 }

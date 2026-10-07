@@ -1,9 +1,8 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.equipo.sanmarkfood.comensal.domain.usecase.auth.ErrorValidacion
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.usecase.auth.RecuperarContrasenaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +13,7 @@ import javax.inject.Inject
 
 data class RecuperarContrasenaUiState(
     val isLoading: Boolean = false,
-    @StringRes val error: Int? = null,
+    val error: ErrorAuth? = null,
     val enlaceEnviado: Boolean = false
 )
 
@@ -35,11 +34,9 @@ class RecuperarContrasenaViewModel @Inject constructor(
                     _uiState.value = RecuperarContrasenaUiState(enlaceEnviado = true)
                 }
                 .onFailure { e ->
-                    val mensaje = when (e) {
-                        is ErrorValidacion -> e.mensajeRes
-                        else -> MapeadorErroresAuth.mapearErrorRecuperacion(e)
-                    }
-                    _uiState.value = RecuperarContrasenaUiState(error = mensaje)
+                    _uiState.value = RecuperarContrasenaUiState(
+                        error = e as? ErrorAuth ?: ErrorAuth.Desconocido
+                    )
                 }
         }
     }

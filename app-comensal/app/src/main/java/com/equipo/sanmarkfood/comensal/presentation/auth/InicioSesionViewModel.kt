@@ -1,8 +1,8 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ResultadoInicioSesion
 import com.equipo.sanmarkfood.comensal.domain.usecase.auth.IniciarSesionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 data class InicioSesionUiState(
     val isLoading: Boolean = false,
-    @StringRes val error: Int? = null
+    val error: ErrorAuth? = null
 )
 
 @HiltViewModel
@@ -43,12 +43,10 @@ class InicioSesionViewModel @Inject constructor(
                 }
 
                 is ResultadoInicioSesion.CampoInvalido ->
-                    _uiState.value = InicioSesionUiState(error = resultado.mensaje)
+                    _uiState.value = InicioSesionUiState(error = resultado.error)
 
                 is ResultadoInicioSesion.Fallo ->
-                    _uiState.value = InicioSesionUiState(
-                        error = MapeadorErroresAuth.mapearError(resultado.causa)
-                    )
+                    _uiState.value = InicioSesionUiState(error = resultado.error)
             }
         }
     }

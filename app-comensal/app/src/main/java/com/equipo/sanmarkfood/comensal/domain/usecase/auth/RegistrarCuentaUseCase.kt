@@ -1,6 +1,6 @@
 package com.equipo.sanmarkfood.comensal.domain.usecase.auth
 
-import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ResultadoRegistro
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import javax.inject.Inject
@@ -20,17 +20,18 @@ class RegistrarCuentaUseCase @Inject constructor(
         password: String,
         aceptoTerminos: Boolean
     ): ResultadoRegistro {
-        val problema = when {
-            nombre.isBlank() -> R.string.error_registro_nombre_vacio
-            !validarCorreo(email) -> R.string.error_correo_invalido
+        val problema: ErrorAuth? = when {
+            nombre.isBlank() -> ErrorAuth.NombreVacio
+            !validarCorreo(email) -> ErrorAuth.CorreoInvalido
             else -> validarContrasenaRegistro(password)
-        } ?: if (!aceptoTerminos) R.string.error_registro_terminos else null
+                ?: if (!aceptoTerminos) ErrorAuth.TerminosNoAceptados else null
+        }
 
         if (problema != null) return ResultadoRegistro.CampoInvalido(problema)
 
         return repositorio.register(nombre.trim(), email.trim(), password).fold(
             onSuccess = { ResultadoRegistro.Registrado(email.trim()) },
-            onFailure = { ResultadoRegistro.Fallo(it) }
+            onFailure = { ResultadoRegistro.Fallo(it as? ErrorAuth ?: ErrorAuth.Desconocido) }
         )
     }
 }

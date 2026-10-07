@@ -1,22 +1,24 @@
 package com.equipo.sanmarkfood.comensal.domain.usecase.auth
 
-import androidx.annotation.StringRes
-import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import javax.inject.Inject
 
-/** Regla: antes de enviar el enlace, el correo no puede estar vacío y debe tener formato válido. */
+/**
+ * Regla: el correo es obligatorio y tiene formato válido.
+ * Si pasa, pide a Firebase que envíe el enlace para crear una contraseña nueva.
+ */
 class RecuperarContrasenaUseCase @Inject constructor(
     private val repositorio: AuthRepository,
     private val validarCorreo: ValidarCorreoUseCase
 ) {
     suspend operator fun invoke(email: String): Result<Unit> {
-        if (email.isBlank()) return Result.failure(ErrorValidacion(R.string.error_recuperar_correo_vacio))
-        if (!validarCorreo(email)) return Result.failure(ErrorValidacion(R.string.error_correo_invalido))
+        if (email.isBlank()) return Result.failure(ErrorAuth.CorreoVacio)
+        if (!validarCorreo(email)) return Result.failure(ErrorAuth.CorreoInvalido)
 
-        return repositorio.sendPasswordReset(email.trim())
+        return repositorio.sendPasswordReset(email.trim()).fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it as? ErrorAuth ?: ErrorAuth.Desconocido) }
+        )
     }
 }
-
-/** Error de validación local, antes de llamar a Firebase. */
-class ErrorValidacion(@StringRes val mensajeRes: Int) : Exception()

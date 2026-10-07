@@ -1,15 +1,22 @@
 package com.equipo.sanmarkfood.comensal.data.repository
 
-import com.equipo.sanmarkfood.comensal.domain.model.auth.CuentaDeOtroRolException
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.SesionUsuario
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -33,7 +40,7 @@ class AuthRepositoryImpl @Inject constructor(
     )
 
     override suspend fun register(name: String, email: String, password: String): Result<Unit> =
-        runCatching {
+        conErrorAuth {
             val user = auth.createUserWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo crear el usuario")
 
@@ -61,7 +68,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun login(email: String, password: String): Result<SesionUsuario> =
-        runCatching {
+        conErrorAuth {
             val user = auth.signInWithEmailAndPassword(email, password).await().user
                 ?: error("No se pudo iniciar sesión")
 
@@ -83,19 +90,19 @@ class AuthRepositoryImpl @Inject constructor(
         val documento = firestore.collection("usuarios").document(user.uid).get().await()
         when {
             !documento.exists() -> crearDocumentoUsuario(user, user.email.orEmpty())
-            documento.getString("rol") != "comensal" -> throw CuentaDeOtroRolException()
+            documento.getString("rol") != "comensal" -> throw ErrorAuth.CuentaDeOtroRol
         }
     }
 
     override suspend fun sendVerification(): Result<Unit> =
-        runCatching {
+        conErrorAuth {
             val user = auth.currentUser ?: error("No hay sesión activa")
             user.sendEmailVerification().await()
             Unit
         }
 
     override suspend fun reloadAndCheckVerified(): Result<Boolean> =
-        runCatching {
+        conErrorAuth {
             val user = auth.currentUser ?: error("No hay sesión activa")
             user.reload().await()
             val verificado = auth.currentUser?.isEmailVerified == true
@@ -108,10 +115,46 @@ class AuthRepositoryImpl @Inject constructor(
 
     /** Envía el correo con el enlace para crear una nueva contraseña (SCRUM-82). */
     override suspend fun sendPasswordReset(email: String): Result<Unit> =
-        runCatching {
+        conErrorAuth(traducir = { it.aErrorRecuperacion() }) {
             auth.sendPasswordResetEmail(email).await()
             Unit
         }
 
     override fun logout() = auth.signOut()
+}
+
+/**
+ * Ejecuta el bloque y, si falla, devuelve el error ya traducido a ErrorAuth,
+ * para que ninguna excepción de Firebase salga de la capa data.
+ */
+private suspend fun <T> conErrorAuth(
+    traducir: (Throwable) -> ErrorAuth = { it.aErrorAuth() },
+    bloque: suspend () -> T
+): Result<T> = try {
+    Result.success(bloque())
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Throwable) {
+    Result.failure(traducir(e))
+}
+
+/** Traducción general de las excepciones de Firebase Auth (antes en MapeadorErroresAuth). */
+private fun Throwable.aErrorAuth(): ErrorAuth = when (this) {
+    is ErrorAuth -> this
+    is FirebaseAuthUserCollisionException -> ErrorAuth.CorreoYaRegistrado
+    // FirebaseAuthWeakPasswordException hereda de FirebaseAuthInvalidCredentialsException,
+    // por eso va antes: si no, se confundiría con credenciales incorrectas.
+    is FirebaseAuthWeakPasswordException -> ErrorAuth.ContrasenaDebil
+    is FirebaseAuthInvalidUserException,
+    is FirebaseAuthInvalidCredentialsException -> ErrorAuth.CredencialesInvalidas
+    is FirebaseTooManyRequestsException -> ErrorAuth.DemasiadosIntentos
+    is FirebaseNetworkException -> ErrorAuth.SinConexion
+    else -> ErrorAuth.Desconocido
+}
+
+/** Mensajes propios de la recuperación (no valen los de "contraseña incorrecta"). */
+private fun Throwable.aErrorRecuperacion(): ErrorAuth = when (this) {
+    is FirebaseAuthInvalidUserException -> ErrorAuth.CorreoNoRegistrado
+    is FirebaseAuthInvalidCredentialsException -> ErrorAuth.CorreoInvalido
+    else -> aErrorAuth()
 }
