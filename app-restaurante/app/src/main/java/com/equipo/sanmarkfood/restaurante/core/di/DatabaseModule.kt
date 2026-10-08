@@ -17,7 +17,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): SanMarkFoodDatabase =
-        Room.databaseBuilder(context, SanMarkFoodDatabase::class.java, "sanmarkfood.db").build()
+        Room.databaseBuilder(context, SanMarkFoodDatabase::class.java, "sanmarkfood.db")
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
 
     @Provides
     fun provideBorradorMenuDao(database: SanMarkFoodDatabase): BorradorMenuDao = database.borradorMenuDao()

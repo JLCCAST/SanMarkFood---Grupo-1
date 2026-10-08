@@ -12,4 +12,5 @@ data class BorradorMenuEntity(
     val refresco: String,
     val postre: String,
     val horaFin: String,
+    val precioPorRevisar: Boolean,
 )

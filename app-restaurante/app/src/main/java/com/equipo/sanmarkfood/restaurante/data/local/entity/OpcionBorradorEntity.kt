@@ -23,4 +23,5 @@ data class OpcionBorradorEntity(
     val fecha: String,
     val tipo: TipoOpcion,
     val nombre: String,
+    val porRevisar: Boolean,
 )

@@ -25,6 +25,8 @@ class BorradorMenuRepositoryImpl @Inject constructor(
             refresco = borrador.refresco,
             postre = borrador.postre,
             horaFin = borrador.horaFin,
+            precioPorRevisar = borrador.precioPorRevisar,
+            porRevisar = opciones.filter { it.porRevisar }.map { it.nombre }.toSet(),
         )
     }
 
@@ -38,11 +40,15 @@ class BorradorMenuRepositoryImpl @Inject constructor(
             refresco = borrador.refresco,
             postre = borrador.postre,
             horaFin = borrador.horaFin,
+            precioPorRevisar = borrador.precioPorRevisar,
         )
-        val opciones = borrador.entradas.map { OpcionBorradorEntity(fecha = fecha, tipo = TipoOpcion.ENTRADA, nombre = it) } +
-            borrador.segundos.map { OpcionBorradorEntity(fecha = fecha, tipo = TipoOpcion.SEGUNDO, nombre = it) }
+        val opciones = borrador.entradas.map { opcion(fecha, TipoOpcion.ENTRADA, it, borrador.porRevisar) } +
+            borrador.segundos.map { opcion(fecha, TipoOpcion.SEGUNDO, it, borrador.porRevisar) }
         borradorMenuDao.reemplazar(fila, opciones)
     }
 
     override suspend fun borrarBorrador() = borradorMenuDao.borrarTodo()
+
+    private fun opcion(fecha: String, tipo: TipoOpcion, nombre: String, porRevisar: Set<String>) =
+        OpcionBorradorEntity(fecha = fecha, tipo = tipo, nombre = nombre, porRevisar = nombre in porRevisar)
 }

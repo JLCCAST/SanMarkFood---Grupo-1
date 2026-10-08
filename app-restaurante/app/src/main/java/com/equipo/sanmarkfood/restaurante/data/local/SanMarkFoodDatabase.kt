@@ -8,7 +8,7 @@ import com.equipo.sanmarkfood.restaurante.data.local.entity.OpcionBorradorEntity
 
 @Database(
     entities = [BorradorMenuEntity::class, OpcionBorradorEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class SanMarkFoodDatabase : RoomDatabase() {

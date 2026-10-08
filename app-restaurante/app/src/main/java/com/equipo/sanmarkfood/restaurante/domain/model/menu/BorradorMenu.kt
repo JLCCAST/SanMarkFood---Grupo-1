@@ -8,4 +8,6 @@ data class BorradorMenu(
     val refresco: String,
     val postre: String,
     val horaFin: String,
+    val precioPorRevisar: Boolean = false,
+    val porRevisar: Set<String> = emptySet(),
 )

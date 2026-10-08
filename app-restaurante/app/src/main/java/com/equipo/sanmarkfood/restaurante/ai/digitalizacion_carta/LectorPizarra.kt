@@ -13,10 +13,17 @@ import javax.inject.Inject
 @Serializable
 data class MenuLeidoDto(
     val precio: Double? = null,
-    val entradas: List<String> = emptyList(),
-    val segundos: List<String> = emptyList(),
+    val precioDudoso: Boolean = false,
+    val entradas: List<OpcionLeidaDto> = emptyList(),
+    val segundos: List<OpcionLeidaDto> = emptyList(),
     val refresco: String? = null,
     val postre: String? = null,
+)
+
+@Serializable
+data class OpcionLeidaDto(
+    val nombre: String,
+    val dudoso: Boolean = false,
 )
 
 class LectorPizarra @Inject constructor() {
@@ -44,19 +51,29 @@ class LectorPizarra @Inject constructor() {
     }
 }
 
+private val esquemaOpcion = Schema.obj(
+    mapOf(
+        "nombre" to Schema.string(),
+        "dudoso" to Schema.boolean(),
+    ),
+)
+
 private val esquemaMenu = Schema.obj(
     mapOf(
         "precio" to Schema.double("Precio del menú completo en soles, solo el número"),
-        "entradas" to Schema.array(Schema.string()),
-        "segundos" to Schema.array(Schema.string()),
+        "precioDudoso" to Schema.boolean(),
+        "entradas" to Schema.array(esquemaOpcion),
+        "segundos" to Schema.array(esquemaOpcion),
         "refresco" to Schema.string(),
         "postre" to Schema.string(),
     ),
-    optionalProperties = listOf("precio", "refresco", "postre"),
+    optionalProperties = listOf("precio", "precioDudoso", "refresco", "postre"),
 )
 
 private const val INSTRUCCIONES =
     "Esta foto es la pizarra del menú del día de un restaurante peruano. " +
         "Lee el precio del menú, las entradas, los segundos y, si los incluye, el refresco y el postre. " +
         "Copia cada plato completo, como está escrito, con mayúscula solo al inicio. " +
-        "No inventes platos ni precios: si algo no aparece en la pizarra, déjalo fuera."
+        "No inventes platos ni precios: si algo no aparece en la pizarra, déjalo fuera. " +
+        "Marca dudoso un plato, y precioDudoso el precio, si la letra está borrosa, cortada o tapada, " +
+        "o si no estás seguro de haberlo leído bien."

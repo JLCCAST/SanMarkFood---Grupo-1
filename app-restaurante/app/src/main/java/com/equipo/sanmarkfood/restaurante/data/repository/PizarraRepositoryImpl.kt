@@ -36,11 +36,13 @@ class PizarraRepositoryImpl @Inject constructor(
         return BorradorMenu(
             origen = OrigenMenu.IA,
             precio = leido.precio?.let { "%.2f".format(Locale.ROOT, it) }.orEmpty(),
-            entradas = leido.entradas.map { it.trim() }.filter { it.isNotEmpty() },
-            segundos = leido.segundos.map { it.trim() }.filter { it.isNotEmpty() },
+            entradas = leido.entradas.map { it.nombre.trim() }.filter { it.isNotEmpty() },
+            segundos = leido.segundos.map { it.nombre.trim() }.filter { it.isNotEmpty() },
             refresco = leido.refresco?.trim().orEmpty(),
             postre = leido.postre?.trim().orEmpty(),
             horaFin = DatosMenu.HORA_FIN_POR_DEFECTO,
+            precioPorRevisar = leido.precio != null && leido.precioDudoso,
+            porRevisar = (leido.entradas + leido.segundos).filter { it.dudoso }.map { it.nombre.trim() }.toSet(),
         )
     }
 
