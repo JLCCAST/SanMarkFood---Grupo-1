@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (5 de octubre de 2026)
+## Estado actual del código (8 de octubre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -27,6 +27,8 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - SCRUM-161, primera parte: «Copiar el de ayer» en M1. Aparece solo si ayer se publicó un menú, y abre M5 con ese menú cargado. Al publicarlo queda con `origen: "ayer"` y con todas sus opciones disponibles.
   - SCRUM-161, segunda parte: en el menú publicado, la hora de fin («Se sirve hasta»), «Editar menú» (abre M5 con lo publicado y conserva las opciones agotadas), «Terminar menú de hoy» con su confirmación y «Reabrir». Cada cambio actualiza también `menuHoy`, así que el comensal ve «Menú agotado» apenas el local lo termina.
   - Queda para HU04: «Foto de la pizarra» en M1 y «Escanear carta» en M7.
+- **App Restaurante — HU04 (SCRUM-33), en curso:**
+  - SCRUM-73, primera parte (el borrador del menú del día): la primera base de datos local, con Room. `data/local/` tiene `SanMarkFoodDatabase`, `entity/` y `dao/`; `core/di/DatabaseModule` la entrega a Hilt, y `BorradorMenuRepository` la usa. Mientras el local arma el menú en M5, cada cambio se guarda en el celular, y al publicar se borra (ver «El borrador del menú del día», más abajo).
 - **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`: la sección de administración, con la cabecera pizarra («ADMINISTRACIÓN» y «Salir») y la barra Solicitudes · Reportes · Métricas.
 - **App Restaurante — HU24 (SCRUM-35) completa:**
   - SCRUM-76 (solicitudes pendientes): `domain/model/admin/`, `SolicitudesRepository`, `domain/usecase/admin/` y, en `data/`, `SolicitudesDataSource` y `SolicitudesRepositoryImpl`. A1 vive en `presentation/admin/aprobacion/`: escucha en vivo los locales en `pendiente`, de la solicitud más reciente a la más antigua, con la etiqueta «Nuevo» o «Reenviado», el rechazo anterior y la cantidad de platos (un `count()` al servidor por local). La pestaña Solicitudes muestra cuántas hay; Reportes y Métricas muestran un aviso provisional hasta HU25 y HU26.
@@ -40,7 +42,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 **Todavía no existe:**
 
 - En `app-comensal`: las capas de esta arquitectura (ver arriba) y todo lo que no es HU05.
-- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
+- En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
 - En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos`, `vencimientos` y `resumenResenas`). Hoy solo existe `revisarLocal` (SCRUM-78).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
@@ -92,10 +94,10 @@ SanMarkFood---Grupo-1/
 │       └── java/com/equipo/sanmarkfood/restaurante/
 │           ├── ui/theme/                    # mismo tema que el comensal ✔
 │           ├── core/                        # (misma estructura que app-comensal) — di/ y navigation/ ✔
-│           ├── data/                        # (misma estructura que app-comensal) — firebase/, repository/ ✔ y local/ (por ahora solo LectorImagenes) ✔
+│           ├── data/                        # (misma estructura que app-comensal) — firebase/, repository/ ✔ y local/ (LectorImagenes y Room: entity/, dao/) ✔
 │           ├── domain/
 │           │   ├── model/                   # admin/, auth/, gestion_restaurante/ y menu/ ✔
-│           │   ├── repository/              # AuthRepository, RestauranteRepository, MenuRepository, SolicitudesRepository y RevisionRepository ✔
+│           │   ├── repository/              # AuthRepository, RestauranteRepository, MenuRepository, BorradorMenuRepository, SolicitudesRepository y RevisionRepository ✔
 │           │   └── usecase/                 # admin/, auth/, gestion_restaurante/, menu/ y pedidos/ ✔
 │           ├── presentation/
 │           │   ├── auth/                    # HU01 — registro, verificación, inicio de sesión, recuperar contraseña ✔
@@ -154,7 +156,7 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | Rol de la cuenta (SCRUM-60) | Documento `usuarios/{uid}` en Firestore con los campos `rol` (`comensal`, `restaurante` o `administrador`), `correo` y `creadoEn`, protegido por **reglas de Firestore**. Cada app lo crea al registrarse con su rol; si una cuenta verificada no lo tiene (el registro se cortó a medias), la app lo crea al iniciar sesión | Cuando se decidió, el proyecto estaba en el plan **Spark**, que no permite Cloud Functions (desde HU02 está en Blaze; ver «Plan de Firebase»). Las reglas impiden crear una cuenta como `administrador` y cambiar el rol después de creado. El administrador se asigna a mano desde la consola. Con las Cloud Functions de HU07 se puede migrar a *custom claims* sin cambiar el modelo de datos. |
 | Cuentas entre las dos apps | **Un correo = una cuenta = un rol.** Al iniciar sesión, cada app rechaza las cuentas que no son suyas: la del restaurante cierra la sesión de un comensal, y la del comensal debe hacer lo mismo con restaurantes y administradores (HU05) | Las dos apps comparten el proyecto de Firebase: un correo es un solo usuario de Auth con un solo `usuarios/{uid}`, y las reglas congelan el rol. Quien sea comensal y dueño de un local usa dos correos. |
 | Arranque y sesión | La app arranca en `Arranque`, que lee la sesión guardada y navega según `EstadoSesion` (sin sesión, sin verificar, activa con su rol). Todo cambio de sesión —iniciar, verificar el correo, cerrar— limpia el historial de navegación | Firebase Auth guarda la sesión y Firestore deja el rol en caché, así que se entra directo, también sin conexión. Con el historial limpio, «atrás» nunca vuelve a una pantalla de antes de iniciar o cerrar sesión. |
-| Base de datos local | **Room** (SQLite) | Requisito del curso. Se usa para lo que debe funcionar sin conexión, empezando por el carrito del comensal (HU08). |
+| Base de datos local | **Room** 2.8.4 (SQLite), una base por app. En el restaurante, el borrador del menú del día (HU04); en el comensal, el carrito (HU08) | Requisito del curso. Guarda lo que no debe perderse si se cierra la app y que no le sirve a nadie más: por eso no va en Firestore. |
 | Servidor y datos (HU07, acuerdo del 3 oct) | **Todos los datos en Firestore.** Lo que no puede vivir en el celular va en **Cloud Functions**: funciones HTTPS, que las apps llaman con Retrofit, y funciones programadas. Sin Ktor ni PostgreSQL | Hay tareas que una app no puede hacer de forma confiable: los avisos push a la otra app, los rechazos automáticos (pedido a los 10 min, reserva 60 min antes), el cupo por franja y validar precio y menú al crear un pedido. Con una sola base, la otra app se entera en tiempo real sin programar nada, hay un solo esquema y no hay servidor que mantener encendido. PostgreSQL no es requisito del curso: la base relacional que pide es SQLite (Room). |
 | Retrofit (acuerdo del 3 oct) | Para las **funciones HTTPS** del equipo y para **Geocoding API**, que convierte en coordenadas la dirección frecuente que guarda el comensal (HU19) | Requisito del sílabo (Corrutinas + Retrofit). Las funciones se escriben como HTTPS normales y no como «callable», porque esas se llaman con el SDK de Firebase y no usan Retrofit. Geocoding usa una clave propia, restringida solo a esa API y con tope diario. El mapa (Maps SDK) y la IA tienen su propio SDK y no pasan por Retrofit. |
 | Dashboards | Consultas de agregación de Firestore (`count()`, `sum()`, `average()`); el ranking de platos más pedidos lo calcula una función | Firestore suma y cuenta en el servidor, así que no hacen falta colecciones de estadísticas ni otra base. |
@@ -177,7 +179,7 @@ Las colecciones con datos reales deben exigir además `request.auth.token.email_
 
 ## Modelo de datos (acuerdo del 3 de octubre)
 
-Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comensal, en Room. Esta es la vista completa. El detalle campo por campo de cada colección se escribe en su propia sección cuando su HU la implementa, como «El documento del local».
+Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comensal y el borrador del menú del día, en Room. Esta es la vista completa. El detalle campo por campo de cada colección se escribe en su propia sección cuando su HU la implementa, como «El documento del local».
 
 **Reglas del esquema:**
 
@@ -215,7 +217,7 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 
 **Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; y `revisarLocal`, que reacciona cuando el administrador cambia el `estado` de un local y le envía el aviso (SCRUM-78, ya escrita en `functions/`).
 
-**Fuera de Firestore:** el carrito del comensal va en Room (HU08). No se guardan la conversación del chatbot (HU11) ni la foto de la carta o de la pizarra después de leerla (HU04). El recordatorio de una reserva lo programa el celular con WorkManager (HU10).
+**Fuera de Firestore:** el carrito del comensal (HU08) y el borrador del menú del día (HU04) van en Room. No se guardan la conversación del chatbot (HU11) ni la foto de la carta o de la pizarra después de leerla (HU04). El recordatorio de una reserva lo programa el celular con WorkManager (HU10).
 
 ## El documento del local (`restaurantes/{uid}`)
 
@@ -305,6 +307,17 @@ El menú del día se publica en una transacción, que falla sin conexión en vez
 
 `rangoCarta` se recalcula después de crear, editar o eliminar un plato, leyendo los precios del servidor; si la carta queda sin platos, el campo se quita (la regla `cambiaCarta()` lo permite). Si ese paso falla, el plato igual queda guardado y el rango se corrige en el siguiente cambio. Lo mismo pasa al borrar la foto vieja de un plato: si falla, queda suelta en Storage, sin afectar la carta.
 
+### El borrador del menú del día (Room, HU04)
+
+Mientras el local arma el menú en M5, cada cambio se guarda en la base `sanmarkfood.db` del celular. Si cierra la app, o sale con la X, al volver a M5 por el mismo botón («Empezar de cero» o «Copiar el de ayer») encuentra el menú como lo dejó. Al publicar, `PublicarMenuDelDiaUseCase` lo borra. Hay un solo borrador, y solo vale el de hoy. Editar un menú ya publicado no usa borrador.
+
+| Tabla | Columnas | Notas |
+| --- | --- | --- |
+| `borrador_menu` | `fecha` (clave), `origen`, `precio`, `refresco`, `postre`, `horaFin` | Una sola fila. El precio se guarda como lo escribió el local («14.»), porque todavía puede estar a medias. |
+| `opcion_borrador` | `id`, `fecha`, `tipo`, `nombre` | Una fila por entrada o segundo, en el orden en que se agregaron. `fecha` es clave foránea con borrado en cascada: al borrar el borrador, SQLite borra sus opciones. |
+
+`origen` y `tipo` se guardan con el nombre del `enum` (`CERO`, `ENTRADA`): esta base es solo del celular, no es un contrato con otra app. Guardar reemplaza todo en una transacción (`BorradorMenuDao.reemplazar`).
+
 ## Convenciones de código
 
 Para que el código de los tres integrantes se lea como si lo hubiera escrito una sola persona:
@@ -347,7 +360,7 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — ya en uso en `app-restaurante` desde HU01 |
 | Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions del equipo (`functions/`) y a Geocoding API |
 | WorkManager | `workers/` en cada app |
-| SQLite | `data/local/` (Room) — mínimo en `app-comensal` (carrito, HU08) |
+| SQLite | `data/local/` (Room) — **en `app-restaurante`, el borrador del menú del día** (HU04); en `app-comensal`, el carrito (HU08) |
 | Dashboards | `app-restaurante/presentation/dashboard/` y `admin/dashboard_global/` (Vico o MPAndroidChart), con consultas de agregación de Firestore |
 | Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (carta, HU04); GPS, biometría, micrófono → `app-comensal` |
 | Funcionalidades de IA (mín. 3, el proyecto cubre 4) | `ai/` en ambas apps |
