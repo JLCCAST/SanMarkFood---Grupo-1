@@ -61,6 +61,7 @@ import java.util.Date
 fun MenuHoyScreen(
     onElegirSeccion: (SeccionMenu) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
+    onFotoPizarra: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MenuHoyViewModel = hiltViewModel(),
 ) {
@@ -74,6 +75,7 @@ fun MenuHoyScreen(
         uiState = uiState,
         onElegirSeccion = onElegirSeccion,
         onArmarMenu = onArmarMenu,
+        onFotoPizarra = onFotoPizarra,
         onCambiarDisponible = viewModel::onCambiarDisponible,
         onElegirHoraFin = viewModel::onElegirHoraFin,
         onTerminar = viewModel::onTerminar,
@@ -88,6 +90,7 @@ private fun MenuHoyContenido(
     uiState: MenuHoyUiState,
     onElegirSeccion: (SeccionMenu) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
+    onFotoPizarra: () -> Unit,
     onCambiarDisponible: (TipoOpcion, Int, Boolean) -> Unit,
     onElegirHoraFin: (String) -> Unit,
     onTerminar: () -> Unit,
@@ -123,7 +126,12 @@ private fun MenuHoyContenido(
                 CircularProgressIndicator()
             }
 
-            menu == null -> MenuSinPublicar(menuDeAyer = uiState.menuDeAyer, onArmarMenu = onArmarMenu, modifier = contenido)
+            menu == null -> MenuSinPublicar(
+                menuDeAyer = uiState.menuDeAyer,
+                onArmarMenu = onArmarMenu,
+                onFotoPizarra = onFotoPizarra,
+                modifier = contenido,
+            )
 
             else -> MenuPublicado(
                 menu = menu,
@@ -144,6 +152,7 @@ private fun MenuHoyContenido(
 private fun MenuSinPublicar(
     menuDeAyer: MenuDelDia?,
     onArmarMenu: (ModoArmarMenu) -> Unit,
+    onFotoPizarra: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -155,6 +164,13 @@ private fun MenuSinPublicar(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        OpcionInicio(
+            icono = R.drawable.ic_camara,
+            titulo = stringResource(R.string.menu_hoy_pizarra),
+            ayuda = stringResource(R.string.menu_hoy_pizarra_ayuda),
+            onClick = onFotoPizarra,
+            destacada = true,
+        )
         if (menuDeAyer != null) {
             OpcionInicio(
                 icono = R.drawable.ic_copiar,
@@ -185,12 +201,20 @@ private fun resumenMenu(datos: DatosMenu): String {
 }
 
 @Composable
-private fun OpcionInicio(@DrawableRes icono: Int, titulo: String, ayuda: String, onClick: () -> Unit) {
+private fun OpcionInicio(
+    @DrawableRes icono: Int,
+    titulo: String,
+    ayuda: String,
+    onClick: () -> Unit,
+    destacada: Boolean = false,
+) {
+    val colores = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = if (destacada) colores.primary else colores.surfaceContainerLowest,
+        contentColor = if (destacada) colores.onPrimary else colores.onSurface,
+        border = BorderStroke(1.5.dp, if (destacada) colores.primary else colores.outlineVariant),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -201,17 +225,21 @@ private fun OpcionInicio(@DrawableRes icono: Int, titulo: String, ayuda: String,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                    .background(if (destacada) colores.primaryContainer else colores.surfaceContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(painter = painterResource(icono), contentDescription = null)
+                Icon(
+                    painter = painterResource(icono),
+                    contentDescription = null,
+                    tint = if (destacada) colores.onPrimaryContainer else colores.onSurface,
+                )
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(text = titulo, style = MaterialTheme.typography.titleSmall)
                 Text(
                     text = ayuda,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (destacada) colores.onPrimary else colores.onSurfaceVariant,
                 )
             }
             Icon(painter = painterResource(R.drawable.ic_siguiente), contentDescription = null, modifier = Modifier.size(18.dp))
@@ -450,6 +478,7 @@ private fun MenuSinPublicarPreview() {
                 uiState = MenuHoyUiState(fecha = "2026-10-05", cargando = false),
                 onElegirSeccion = {},
                 onArmarMenu = {},
+                onFotoPizarra = {},
                 onCambiarDisponible = { _, _, _ -> },
                 onElegirHoraFin = {},
                 onTerminar = {},
@@ -487,6 +516,7 @@ private fun MenuPublicadoPreview() {
                 ),
                 onElegirSeccion = {},
                 onArmarMenu = {},
+                onFotoPizarra = {},
                 onCambiarDisponible = { _, _, _ -> },
                 onElegirHoraFin = {},
                 onTerminar = {},

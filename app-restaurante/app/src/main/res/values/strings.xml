@@ -182,9 +182,11 @@
     <string name="menu_carta">Carta</string>
     <string name="precio_soles">S/ %1$s</string>
 
-    <!-- Menú de hoy (M1 y la tarjeta del menú publicado, HU03). «Foto de la pizarra» llega con HU04. -->
+    <!-- Menú de hoy (M1 y la tarjeta del menú publicado, HU03 y HU04) -->
     <string name="menu_hoy_sin_publicar_titulo">Aún no publicas el menú de hoy</string>
     <string name="menu_hoy_sin_publicar_texto">Los comensales ven «El menú de hoy aún no se publica» en tu local. Elige cómo empezar:</string>
+    <string name="menu_hoy_pizarra">Foto de la pizarra</string>
+    <string name="menu_hoy_pizarra_ayuda">La IA lee las entradas, los segundos y el precio</string>
     <string name="menu_hoy_copiar">Copiar el de ayer</string>
     <string name="menu_hoy_copiar_ayuda">%1$s · %2$s</string>
     <string name="menu_hoy_de_cero">Empezar de cero</string>
@@ -227,6 +229,15 @@
     <string name="armar_falta">Falta el precio, una entrada o un segundo</string>
     <string name="armar_vence">Se publica ahora y vence a las %1$s</string>
     <string name="armar_conservan">Los pedidos que ya recibiste conservan su precio.</string>
+
+    <!-- Cámara de la pizarra (M2, HU04) -->
+    <string name="camara_cerrar">Cerrar cámara</string>
+    <string name="camara_consejo_pizarra">Encuadra la pizarra completa; la IA lee la letra a mano.</string>
+    <string name="camara_galeria">Elegir una foto de la galería</string>
+    <string name="camara_tomar">Tomar foto</string>
+    <string name="camara_permiso">Para tomar la foto, permite que la app use la cámara. También puedes elegir una foto de la galería.</string>
+    <string name="camara_permitir">Permitir cámara</string>
+    <string name="camara_error">No pudimos tomar la foto. Intenta otra vez.</string>
 
     <!-- Disponible o agotado (SCRUM-70): en la carta, en el plato y en las opciones del menú de hoy -->
     <string name="disponible">Disponible</string>
