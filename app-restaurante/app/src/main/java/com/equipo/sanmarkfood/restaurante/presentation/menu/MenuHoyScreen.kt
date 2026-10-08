@@ -128,6 +128,7 @@ private fun MenuHoyContenido(
 
             menu == null -> MenuSinPublicar(
                 menuDeAyer = uiState.menuDeAyer,
+                pizarraLeida = uiState.pizarraLeida,
                 onArmarMenu = onArmarMenu,
                 onFotoPizarra = onFotoPizarra,
                 modifier = contenido,
@@ -151,6 +152,7 @@ private fun MenuHoyContenido(
 @Composable
 private fun MenuSinPublicar(
     menuDeAyer: MenuDelDia?,
+    pizarraLeida: Boolean,
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
     modifier: Modifier = Modifier,
@@ -167,8 +169,8 @@ private fun MenuSinPublicar(
         OpcionInicio(
             icono = R.drawable.ic_camara,
             titulo = stringResource(R.string.menu_hoy_pizarra),
-            ayuda = stringResource(R.string.menu_hoy_pizarra_ayuda),
-            onClick = onFotoPizarra,
+            ayuda = stringResource(if (pizarraLeida) R.string.menu_hoy_pizarra_leida else R.string.menu_hoy_pizarra_ayuda),
+            onClick = { if (pizarraLeida) onArmarMenu(ModoArmarMenu.IA) else onFotoPizarra() },
             destacada = true,
         )
         if (menuDeAyer != null) {

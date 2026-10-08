@@ -187,6 +187,7 @@
     <string name="menu_hoy_sin_publicar_texto">Los comensales ven «El menú de hoy aún no se publica» en tu local. Elige cómo empezar:</string>
     <string name="menu_hoy_pizarra">Foto de la pizarra</string>
     <string name="menu_hoy_pizarra_ayuda">La IA lee las entradas, los segundos y el precio</string>
+    <string name="menu_hoy_pizarra_leida">Ya leímos tu pizarra: toca para seguir revisándola</string>
     <string name="menu_hoy_copiar">Copiar el de ayer</string>
     <string name="menu_hoy_copiar_ayuda">%1$s · %2$s</string>
     <string name="menu_hoy_de_cero">Empezar de cero</string>
@@ -213,6 +214,7 @@
     <string name="armar_copiado">Copiamos el menú de ayer. Cambia lo que haga falta y publícalo.</string>
     <string name="armar_leido_titulo">Leímos tu pizarra.</string>
     <string name="armar_leido_texto">Revisa lo marcado en amarillo antes de publicar.</string>
+    <string name="armar_tomar_otra">Tomar otra foto</string>
     <string name="armar_precio">Precio del menú</string>
     <string name="armar_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 14.00.</string>
     <string name="armar_entradas">ENTRADAS · EL COMENSAL ELIGE 1</string>

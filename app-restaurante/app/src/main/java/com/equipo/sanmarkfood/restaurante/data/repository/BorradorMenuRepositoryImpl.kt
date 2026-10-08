@@ -4,8 +4,10 @@ import com.equipo.sanmarkfood.restaurante.data.local.dao.BorradorMenuDao
 import com.equipo.sanmarkfood.restaurante.data.local.entity.BorradorMenuEntity
 import com.equipo.sanmarkfood.restaurante.data.local.entity.OpcionBorradorEntity
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.BorradorMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
 import com.equipo.sanmarkfood.restaurante.domain.repository.BorradorMenuRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class BorradorMenuRepositoryImpl @Inject constructor(
@@ -25,6 +27,8 @@ class BorradorMenuRepositoryImpl @Inject constructor(
             horaFin = borrador.horaFin,
         )
     }
+
+    override fun observarOrigen(fecha: String): Flow<OrigenMenu?> = borradorMenuDao.observarOrigen(fecha)
 
     override suspend fun guardarBorrador(fecha: String, borrador: BorradorMenu) {
         val fila = BorradorMenuEntity(

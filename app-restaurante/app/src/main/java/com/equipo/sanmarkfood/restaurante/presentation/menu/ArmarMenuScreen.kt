@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
@@ -29,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,6 +62,7 @@ import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 fun ArmarMenuScreen(
     onCerrar: () -> Unit,
     onPublicado: () -> Unit,
+    onTomarOtraFoto: () -> Unit,
     viewModel: ArmarMenuViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -71,6 +74,7 @@ fun ArmarMenuScreen(
     ArmarMenuContenido(
         uiState = uiState,
         onCerrar = onCerrar,
+        onTomarOtraFoto = onTomarOtraFoto,
         onReintentarCarga = viewModel::onReintentarCarga,
         onCambiarPrecio = viewModel::onCambiarPrecio,
         onCambiarNuevaEntrada = viewModel::onCambiarNuevaEntrada,
@@ -90,6 +94,7 @@ fun ArmarMenuScreen(
 private fun ArmarMenuContenido(
     uiState: ArmarMenuUiState,
     onCerrar: () -> Unit,
+    onTomarOtraFoto: () -> Unit,
     onReintentarCarga: () -> Unit,
     onCambiarPrecio: (String) -> Unit,
     onCambiarNuevaEntrada: (String) -> Unit,
@@ -132,22 +137,7 @@ private fun ArmarMenuContenido(
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             if (uiState.origen == OrigenMenu.IA) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(stringResource(R.string.armar_leido_titulo))
-                        }
-                        append(" ")
-                        append(stringResource(R.string.armar_leido_texto))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
+                AvisoPizarraLeida(habilitado = !uiState.publicando, onTomarOtraFoto = onTomarOtraFoto)
             }
             if (uiState.origen == OrigenMenu.AYER) {
                 Text(
@@ -240,6 +230,38 @@ private fun ArmarMenuContenido(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
+        }
+    }
+}
+
+@Composable
+private fun AvisoPizarraLeida(habilitado: Boolean, onTomarOtraFoto: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .padding(start = 14.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(stringResource(R.string.armar_leido_titulo))
+                }
+                append(" ")
+                append(stringResource(R.string.armar_leido_texto))
+            },
+            modifier = Modifier.weight(1f).padding(vertical = 6.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        TextButton(
+            onClick = onTomarOtraFoto,
+            enabled = habilitado,
+            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
+        ) {
+            Text(text = stringResource(R.string.armar_tomar_otra), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -369,6 +391,7 @@ private fun ArmarMenuPreview() {
                     refresco = "Chicha morada",
                 ),
                 onCerrar = {},
+                onTomarOtraFoto = {},
                 onReintentarCarga = {},
                 onCambiarPrecio = {},
                 onCambiarNuevaEntrada = {},

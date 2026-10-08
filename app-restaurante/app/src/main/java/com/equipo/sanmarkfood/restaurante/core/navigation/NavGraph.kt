@@ -96,6 +96,11 @@ fun RestauranteNavGraph() {
             ArmarMenuScreen(
                 onCerrar = { navController.navigateUp() },
                 onPublicado = { navController.navigateUp() },
+                onTomarOtraFoto = {
+                    navController.navigate(Camara) {
+                        popUpTo<ArmarMenu> { inclusive = true }
+                    }
+                },
             )
         }
         composable<Camara> {
