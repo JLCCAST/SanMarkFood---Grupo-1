@@ -232,6 +232,8 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 
 **Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; y `revisarLocal`, que reacciona cuando el administrador cambia el `estado` de un local y le envía el aviso (SCRUM-78, ya escrita en `functions/`).
 
+**Los ítems del pedido (acuerdo del 8 oct, para HU07, HU08 y HU13).** Cada ítem de `pedidos/{id}` guarda `tipo` (`plato` o `menu`), `cantidad`, y el `nombre` y el `precio` copiados al momento de pedir. Un plato de la carta guarda además su `platoId`; el menú del día, la `fecha` del menú y los nombres de la `entrada` y el `segundo` elegidos. El ranking de platos más pedidos de O6 (SCRUM-131, función `rankingPlatos`) cuenta los platos por `platoId` y no por nombre, porque el local puede renombrarlos, y junta todos los ítems `menu` en una sola fila, «Menú del día», como en el diseño. Las opciones del menú no se rankean: son texto libre que cambia cada día, y a veces lo escribe la IA. Por la misma razón, el dashboard del administrador (HU26) no compara platos entre locales; puede agrupar por la `categoria` del local, que es una lista fija.
+
 **Fuera de Firestore:** el carrito del comensal (HU08) y el borrador del menú del día (HU04) van en Room. No se guardan la conversación del chatbot (HU11) ni la foto de la carta o de la pizarra después de leerla (HU04). El recordatorio de una reserva lo programa el celular con WorkManager (HU10).
 
 ## El documento del local (`restaurantes/{uid}`)
