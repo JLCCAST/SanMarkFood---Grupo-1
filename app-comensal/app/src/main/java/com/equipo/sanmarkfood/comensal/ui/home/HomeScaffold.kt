@@ -29,9 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DescubrimientoScreen
 import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
-private enum class Pestana(@StringRes val tituloRes: Int, val icono: ImageVector) {
+private enum class Pestana(@param:StringRes val tituloRes: Int, val icono: ImageVector) {
     EXPLORAR(R.string.home_tab_explorar, Icons.Filled.Place),
     ACTIVIDAD(R.string.home_tab_actividad, Icons.Filled.DateRange),
     PERFIL(R.string.home_tab_perfil, Icons.Filled.Person)
@@ -70,9 +71,7 @@ fun HomeScaffold(
         }
     ) { innerPadding ->
         when (Pestana.entries[seleccionada]) {
-            Pestana.EXPLORAR -> PestanaProvisional(
-                titulo = stringResource(R.string.home_tab_explorar),
-                texto = stringResource(R.string.home_explorar_texto),
+            Pestana.EXPLORAR -> DescubrimientoScreen(
                 modifier = Modifier.padding(innerPadding)
             )
 

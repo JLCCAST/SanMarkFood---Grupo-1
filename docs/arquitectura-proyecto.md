@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (5 de octubre de 2026)
+## Estado actual del código (7 de octubre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -27,21 +27,19 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - SCRUM-161, primera parte: «Copiar el de ayer» en M1. Aparece solo si ayer se publicó un menú, y abre M5 con ese menú cargado. Al publicarlo queda con `origen: "ayer"` y con todas sus opciones disponibles.
   - SCRUM-161, segunda parte: en el menú publicado, la hora de fin («Se sirve hasta»), «Editar menú» (abre M5 con lo publicado y conserva las opciones agotadas), «Terminar menú de hoy» con su confirmación y «Reabrir». Cada cambio actualiza también `menuHoy`, así que el comensal ve «Menú agotado» apenas el local lo termina.
   - Queda para HU04: «Foto de la pizarra» en M1 y «Escanear carta» en M7.
-- **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`: la sección de administración, con la cabecera pizarra («ADMINISTRACIÓN» y «Salir») y la barra Solicitudes · Reportes · Métricas.
-- **App Restaurante — HU24 (SCRUM-35) completa:**
-  - SCRUM-76 (solicitudes pendientes): `domain/model/admin/`, `SolicitudesRepository`, `domain/usecase/admin/` y, en `data/`, `SolicitudesDataSource` y `SolicitudesRepositoryImpl`. A1 vive en `presentation/admin/aprobacion/`: escucha en vivo los locales en `pendiente`, de la solicitud más reciente a la más antigua, con la etiqueta «Nuevo» o «Reenviado», el rechazo anterior y la cantidad de platos (un `count()` al servidor por local). La pestaña Solicitudes muestra cuántas hay; Reportes y Métricas muestran un aviso provisional hasta HU25 y HU26.
-  - SCRUM-77 (aprobar o rechazar): A2 (`RevisarSolicitudScreen`, ruta `RevisarSolicitud(uid)`) se abre al tocar una tarjeta de A1. Muestra el local en vivo (portada, logo, correo de la cuenta, el rechazo anterior con los campos corregidos, dirección, teléfono, horario, platos y categorías, y el mapa), con «Rechazar» y «Aprobar» mientras está `pendiente`. Rechazar abre la hoja «Rechazar el registro»: uno o más motivos con casillas y un detalle, obligatorio si se marca «Otro». La decisión la escriben `RevisionRepository` y `RevisionDataSource` en una transacción que solo aplica si el local sigue `pendiente` (si no, «Esta solicitud ya fue revisada»). A1 tiene los filtros «Pendientes (n)», «Aprobados» y «Rechazados»; los revisados van de la última decisión a la primera, con «aprobado el …» o «rechazado el …».
-  - SCRUM-78 (aviso al local con el resultado): el celular del local guarda su token de FCM en `usuarios/{uid}/dispositivos/{token}` al iniciar sesión o abrir la app (`RegistrarDispositivoUseCase`, solo cuentas de restaurante) y lo borra del celular al cerrar sesión. `avisos/AvisosService` recibe los tokens nuevos y muestra el aviso con la app abierta, en el canal «Estado del local»; el panel pide el permiso de notificaciones (Android 13+) mientras el local espera la revisión. La función `revisarLocal` de `functions/` envía el aviso cuando el `estado` pasa de `pendiente` a `aprobado` o `rechazado`, y borra los tokens vencidos. A2 lo confirma con «…y le enviamos una notificación».
-  - Re-evaluación por cambios sensibles (regla agregada a la historia): si un local `aprobado` cambia la dirección, la ubicación, la portada o el logo, vuelve a `pendiente`; si cambia solo el nombre, la categoría o el teléfono, sigue aprobado. Antes de guardar, O7 avisa con «¿Enviar tu local a revisión?» (`RequiereNuevaRevisionUseCase`), y el panel pasa solo a la pestaña Pedidos para mostrar «En revisión». El administrador lo ve en A1 con la etiqueta «Actualizado» y en A2 con el aviso «Actualización de datos» y los campos que cambiaron.
-  - Las reglas de Firestore ya viven en el repositorio, en `firestore.rules` (ver «Reglas de seguridad», más abajo).
-- **App Comensal — HU05 (SCRUM-36):** inicio de sesión, registro, verificación, recuperación de contraseña y exploración sin cuenta, en `ui/auth/` y `data/AuthRepository.kt`. Todavía sin Hilt, Navigation, Firestore ni capa `domain/`: falta alinearla con esta arquitectura y crear el documento del rol `comensal` (acuerdo del 3 oct).
+- **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`, que por ahora solo tiene el título «Sección de Administración» y «Cerrar sesión». La sección completa (A1 a A4, con la cabecera pizarra y la barra Solicitudes · Reportes · Métricas) entra con HU24.
+- **App Comensal — HU05 (SCRUM-36) completa:** inicio de sesión, registro, verificación de correo, recuperación de contraseña y exploración sin cuenta, con rol de la cuenta: documento `usuarios/{uid}` con `rol: comensal`, creado al registrarse, y rechazo de cuentas de otro rol al iniciar sesión (cuentas antiguas sin documento se crean como comensal). Ya con Hilt, Firestore y capa `domain/`, alineada con esta arquitectura.
+- **App Comensal — HU19 (SCRUM-37) completa:** gestión de perfil — nombre, teléfono y foto (SCRUM-83, en Firestore + Storage), direcciones frecuentes (SCRUM-84), switches de notificaciones de reservas y reseñas (SCRUM-158), tema claro/oscuro (SCRUM-159) y listener en tiempo real del perfil (SCRUM-85). Con ella entraron `domain/model/perfil/`, `domain/usecase/perfil/` y `presentation/perfil/`.
+- **App Comensal — carpetas por proceso (acuerdo del 3 oct):** aplicado en `auth/` y `perfil/`, igual que en el restaurante.
+- **App Comensal — `domain/` sin Android (SCRUM-86):** los errores de auth se devuelven como `ErrorAuth` (sealed class en `domain/model/auth/`), con la traducción de las excepciones de Firebase hecha en `data/repository/AuthRepositoryImpl.kt`, siguiendo el mismo patrón que ya usa `app-restaurante`.
+- Todavía en app-comensal: sin Navigation Compose (el cambio de pantalla es un `when` en `AuthGate`, dentro de `MainActivity.kt`) y sin `core/di/` (los módulos de Hilt, `AuthModule.kt` y `ComensalModule.kt`, están en `data/` en vez de `core/di/`).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
-- En `app-comensal`: las capas de esta arquitectura (ver arriba) y todo lo que no es HU05.
-- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
-- En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos`, `vencimientos` y `resumenResenas`). Hoy solo existe `revisarLocal` (SCRUM-78).
+- En `app-comensal`: `core/`, Navigation Compose (hoy un `when` en `AuthGate`), Room, `workers/`, `ai/`, y los procesos que no son auth ni perfil (`descubrimiento/`, `reservas/`, `pedidos/`, `resenas/`, `historial/`, `notificaciones/`).
+- En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `aprobacion/`, `moderacion/` y `dashboard_global/`.
+- La carpeta `functions/`, con las Cloud Functions (HU07).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
 
@@ -161,17 +159,12 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | Plan de Firebase (HU02) | **Blaze**, con la prueba gratuita de Google Cloud. El bucket de Storage está en `us-east1` | Desde febrero de 2026, Cloud Storage para Firebase exige Blaze. En `us-east1` el uso de Storage entra en la capa gratuita de Google Cloud. La prueba dura 90 días: al terminar hay que activar la cuenta de facturación o el proyecto vuelve a Spark y Storage deja de funcionar. Conviene tener una alerta de presupuesto. |
 | Local del restaurante (HU02) | Documento `restaurantes/{uid}`, con el mismo `uid` de la cuenta. Estados: `borrador` → `pendiente` → `aprobado` o `rechazado` (y de `rechazado` otra vez a `pendiente` al reenviar) | Una cuenta = un local: el `uid` como id lo garantiza sin consultas. Campos, estados y reglas en «El documento del local», más abajo. |
 | Estado del local en pantalla (HU02) | El panel escucha `restaurantes/{uid}` en vivo (*snapshot listener*) | Si el administrador aprueba o rechaza el local, la pantalla del restaurante cambia sola, sin reiniciar la app. |
-| Revisión del local (HU24, SCRUM-77) | El administrador escribe la decisión directo en Firestore, en una transacción protegida por reglas (`esDecisionDelAdministrador()`). No pasa por una función HTTPS `revisarLocal` | Una transacción falla sin conexión en vez de quedar en espera, y solo aplica si el local sigue `pendiente`. Las reglas solo permiten pasar de `pendiente` a `aprobado` o `rechazado`, tocando `estado`, `revisadoEn` y `rechazo`. El aviso al local (SCRUM-78) lo envía la función `revisarLocal`, que reacciona al cambio de `estado`, así que sigue saliendo del servidor. |
-| Avisos push (HU24, SCRUM-78) | **FCM**. Cada celular guarda su token en `usuarios/{uid}/dispositivos/{token}`; la función `revisarLocal` (disparador de Firestore, 2.ª generación, `us-central1`) lee esos tokens y envía el aviso con la Admin SDK. `AvisosService` lo muestra si la app está abierta; si está cerrada, lo muestra Android con el canal y el ícono por defecto del manifiesto | Una app no puede enviar avisos a otro celular de forma segura. El token es el id del documento, así un celular no se repite. Al cerrar sesión el celular borra su token, y la función borra de Firestore los que FCM rechaza como inválidos. `getToken()`, `deleteToken()` y `onNewToken()` están marcados como obsoletos en FCM 25.x; se mantienen con `@Suppress` porque su reemplazo (registro por Installation ID) exige activar un modo opcional que la Admin SDK todavía no usa para enviar. |
-| Re-evaluación de un local aprobado (HU24) | Si un local `aprobado` cambia un campo sensible (`direccion`, `ubicacion`, `portadaUrl` o `logoUrl`), la app lo pasa a `pendiente` en una transacción, con `camposCorregidos` y un `enviadoEn` nuevo, previo aviso en O7. Los cambios de nombre, categoría o teléfono no lo sacan de `aprobado` | Lo que el comensal usa para encontrar el local y confiar en él (dónde está y cómo se ve) lo vuelve a mirar el administrador. La regla vive en el dominio (`Restaurante.requiereNuevaRevision()`) y la repiten las reglas de Firestore (`cambiaDatosMenores()` y `cambiaDatosSensibles()`), así una versión vieja de la app tampoco puede saltársela. |
-| Reglas de seguridad (HU24) | `firestore.rules` en la raíz del repositorio, publicado con `firebase deploy --only firestore:rules` | Quedan versionadas y revisadas como el código, y la consola deja de ser la única copia. Se pueden probar antes de publicar con el emulador local de Firestore. Las de Storage siguen en la consola. |
-| Cloud Functions (HU24, SCRUM-78) | `functions/` en TypeScript, Node 22, `firebase-functions` 7 y `firebase-admin` 14. Se despliegan con `npm --prefix functions install` y `firebase deploy --only functions`, que compila antes (`predeploy`) | El `predeploy` usa `npm --prefix functions` y no `$RESOURCE_DIR`, que no funciona en la consola de Windows. Las funciones de HU07 se agregan aquí, una por archivo. |
 | Escrituras que no pueden quedar en espera (HU02) | Antes de guardar, una lectura al servidor (`Source.SERVER`); el reenvío de R7 usa una transacción | Sin conexión, Firestore deja las escrituras en espera sin fallar. Así la app muestra «Sin conexión» al instante, y una pausa de pedidos nunca aparenta haberse guardado. |
 | Fotos del local (HU02) | **Firebase Storage** + **Coil**. Se achican en el celular (portada de 1600 px, logo de 512 px, en JPEG). Cada subida tiene un nombre nuevo (`portada-<hora>.jpg`) y, al guardar, se borran las que ya no se usan | Cuidar la capa gratuita. Al sobrescribir un archivo, Storage cambia su URL de descarga y la URL guardada en Firestore dejaría de funcionar. Se eligen con el selector de fotos de Android, que no pide permisos. |
 | Mapa (HU02) | **Maps Compose** (`maps-compose`). La clave va en `local.properties` como `MAPS_API_KEY` y el Gradle la pasa al manifiesto | La clave no se sube al repositorio. Cada integrante agrega la suya; sin ella la app compila y abre, pero el mapa sale en blanco. |
 | Versiones fijadas (HU02) | Coil 3.4.0 y maps-compose 8.3.1 | Las versiones más nuevas traen `kotlin-stdlib` 2.4 y el proyecto compila con Kotlin 2.2.10, que no puede leerla. Para subirlas hay que actualizar Kotlin en todo el proyecto. |
 
-**Reglas de seguridad.** Las de Firestore viven en `firestore.rules`, en la raíz del repositorio, y se publican con `firebase deploy --only firestore:rules` (reemplaza lo que haya en la consola: no se editan allí). Las de Storage siguen en la consola (Storage → Reglas). **Cada colección o carpeta nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
+Las reglas de Firestore viven en la consola de Firebase (Firestore → Reglas), y las de Storage en Storage → Reglas. **Cada colección o carpeta nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
 
 Las colecciones con datos reales deben exigir además `request.auth.token.email_verified == true`, como ya lo hace `restaurantes` desde HU02. La app no deja pasar a una cuenta sin verificar, pero es la regla la que lo garantiza en el servidor. Ojo: el token guardado no se entera de la verificación hasta que se refresca. Por eso, después de «Ya lo confirmé» la app pide uno nuevo con `getIdToken(true)`, en `AuthDataSource.correoVerificado()`.
 
@@ -192,9 +185,8 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 
 | Colección | Qué guarda | La escribe | HU |
 | --- | --- | --- | --- |
-| `usuarios/{uid}` | Rol y correo; del comensal, además nombre, teléfono, foto y preferencias de avisos | la app (el rol, al registrarse) | HU01, HU05, HU19 |
-| `usuarios/{uid}/direcciones/{id}` | Direcciones frecuentes, con la `ubicacion` que devuelve Geocoding | el comensal | HU19 |
-| `usuarios/{uid}/dispositivos/{token}` | El token de FCM de cada celular (el id del documento) con `{ app, actualizadoEn }`; `app` es `restaurante` o `comensal`. Lo escribe el celular al iniciar sesión o cuando FCM le da un token nuevo; las funciones borran los vencidos | cada app; las funciones | HU24 (SCRUM-78), HU09, HU12, HU15, HU21 |
+| `usuarios/{uid}` | Rol y correo; del comensal, además nombre, teléfono, foto, direcciones frecuentes (lista `direcciones`, cada una con `etiqueta`, `direccionTexto`, `latitud`, `longitud`) y preferencias de avisos | la app (el rol, al registrarse); el resto del perfil, el comensal | HU01, HU05, HU19 |
+| `usuarios/{uid}/dispositivos/{token}` | El token de avisos de cada celular | cada app | HU09, HU12, HU15, HU21 |
 | `usuarios/{uid}/notificaciones/{id}` | La bandeja de avisos (C5) | las funciones | HU09, HU10, HU12, HU21 |
 | `restaurantes/{uid}` | El local (ver «El documento del local») | el local; el administrador aprueba o rechaza | HU02, HU24 |
 | `restaurantes/{uid}/categorias/{id}` | Las categorías de la carta y su orden | el local | HU03 |
@@ -213,7 +205,7 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 - **Reserva:** `pendiente` → `confirmada`. Además, `rechazada` (por el local, o sola 60 minutos antes) y `cancelada`. Si el comensal la modifica, vuelve a `pendiente`.
 - **Menú del día:** no hay documento hasta que se publica; después, `publicado` o `terminado` («Terminar menú de hoy» y «Reabrir»).
 
-**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; y `revisarLocal`, que reacciona cuando el administrador cambia el `estado` de un local y le envía el aviso (SCRUM-78, ya escrita en `functions/`).
+**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `revisarLocal` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas.
 
 **Fuera de Firestore:** el carrito del comensal va en Room (HU08). No se guardan la conversación del chatbot (HU11) ni la foto de la carta o de la pizarra después de leerla (HU04). El recordatorio de una reserva lo programa el celular con WorkManager (HU10).
 
@@ -225,13 +217,13 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | --- | --- | --- | --- |
 | `nombre`, `direccion` | texto | el local (R3, O7, R7) | Hasta 80 y 200 caracteres. |
 | `categoria` | texto | el local | `criolla`, `chifa`, `polleria`, `marina`, `vegetariana` u `otra`. |
-| `telefono` | texto | el local | Celular verificado por SMS (código OTP de Firebase Phone Auth), guardado con el prefijo de Perú: `+51987654321`. En la pantalla solo se piden los 9 dígitos (empieza con 9): la app agrega el `+51` antes de verificarlo y guardarlo, y lo quita para mostrarlo. No se guarda si no coincide con el teléfono verificado de la cuenta de Auth; al editar, solo se vuelve a verificar si cambió. Los locales registrados antes del OTP lo tienen sin prefijo y lo verifican la próxima vez que guardan. |
+| `telefono` | texto | el local | Solo dígitos: celular de 9 que empieza con 9, fijo de Lima de 7, o fijo con código de ciudad (`01…`, `044…`). |
 | `ubicacion` | geopoint | el local | El punto elegido en el mapa. Empieza en la Ciudad Universitaria. |
 | `portadaUrl`, `logoUrl` | texto | el local | URL de descarga de Storage. La portada es obligatoria y el logo opcional: sin logo se muestra la inicial del nombre. |
 | `horario` | mapa | el local (R4, O8) | Claves `lun` a `dom`, cada una con `{ abierto, abre: "HH:mm", cierra: "HH:mm" }`. Un día cerrado conserva sus horas. |
-| `estado` | texto | el local: `borrador` → `pendiente` (R4), `rechazado` → `pendiente` (R7) y `aprobado` → `pendiente` al cambiar la dirección, la ubicación o las fotos (O7). El administrador: `aprobado` o `rechazado` (HU24) | Un `borrador` todavía no es una solicitud: el administrador no lo ve. |
-| `rechazo` | mapa | el administrador (HU24) | `{ motivos, detalle }`. `motivos` es una lista, sin repetidos, con uno o más de `datos_incompletos`, `direccion_no_verificable`, `local_duplicado` y `otro`. El detalle es opcional (hasta 200 caracteres), salvo si `motivos` incluye `otro`: entonces es obligatorio, con al menos 3. Los rechazos anteriores a SCRUM-77 tienen `motivo` (un solo texto) en vez de `motivos`; la app los sigue leyendo. |
-| `rechazoAnterior`, `reenviado`, `camposCorregidos` | mapa, booleano, lista | el local al reenviar (R7) o al volver a revisión desde `aprobado` (O7) | Para A1 y A2: el reenvío marcado, el motivo anterior (copia exacta de `rechazo`) y los campos que cambiaron, con los mismos nombres de esta tabla. Al volver a revisión desde `aprobado`, el local escribe solo `camposCorregidos` y borra `reenviado` y `rechazoAnterior`: `camposCorregidos` sin `reenviado` es una «actualización de datos». |
+| `estado` | texto | el local: `borrador` → `pendiente` (R4) y `rechazado` → `pendiente` (R7). El administrador: `aprobado` o `rechazado` (HU24) | Un `borrador` todavía no es una solicitud: el administrador no lo ve. |
+| `rechazo` | mapa | el administrador (HU24) | `{ motivo, detalle }`, con `motivo` igual a `datos_incompletos`, `direccion_no_verificable`, `local_duplicado` u `otro`. El detalle es opcional, salvo con `otro`. |
+| `rechazoAnterior`, `reenviado`, `camposCorregidos` | mapa, booleano, lista | el local al reenviar (R7) | Para A1 y A2: el reenvío marcado, el motivo anterior (copia exacta de `rechazo`) y los campos que cambiaron, con los mismos nombres de esta tabla. |
 | `pausado` | booleano | el local (cabecera de O1) | Sin el campo, el local recibe pedidos. Si es `true`, el comensal lo ve «Cerrado por ahora». Rechazar en el servidor los pedidos a un local pausado es trabajo de quien cree los pedidos (HU07, HU08). |
 | `creadoEn`, `enviadoEn`, `actualizadoEn` | fecha | el local | Siempre la hora del servidor. `enviadoEn` es el último envío a revisión. |
 | `menuHoy` | mapa | el local (HU03) | `{ fecha, precio, horaFin, estado }`: copia del menú del día, que se escribe junto con él. Los pines del mapa del comensal muestran ese precio, o «Carta» si no hay menú hoy. |
@@ -242,9 +234,8 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 
 Qué garantizan las reglas de Firestore:
 - El dueño lee su local en cualquier estado; cualquier otro, solo si `estado == 'aprobado'`. Por eso las consultas del comensal tienen que filtrar con `where("estado", "==", "aprobado")`, o Firestore las rechaza.
-- El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos siete:
-  - cambiar los datos y las fotos (`cambiaDatosMenores()`); si está `aprobado`, solo nombre, categoría y teléfono;
-  - volver a revisión desde `aprobado` al cambiar la dirección, la ubicación o las fotos (`cambiaDatosSensibles()`): pasa a `pendiente` con `camposCorregidos` y un `enviadoEn` nuevo, y borra `reenviado` y `rechazoAnterior`;
+- El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos seis:
+  - cambiar los datos y las fotos;
   - enviar a revisión (de `borrador` a `pendiente`, con el horario);
   - cambiar el horario;
   - pausar o reanudar los pedidos (solo si está `aprobado`);
@@ -252,8 +243,7 @@ Qué garantizan las reglas de Firestore:
   - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
 - **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
-- El administrador lee cualquier local y sus platos (SCRUM-76): la función `esAdministrador()` (rol `administrador` en `usuarios/{uid}` y correo verificado) se suma con `||` a la lectura de `restaurantes/{uid}`, `platos`, `categorias` y `usuarios/{uid}` (el correo que muestra A2).
-- El administrador aprueba o rechaza (SCRUM-77) con `esDecisionDelAdministrador()`, sumada con `||` a la escritura de `restaurantes/{uid}`: solo un local en `pendiente`, solo a `aprobado` (cambia `estado` y `revisadoEn`) o a `rechazado` (además `rechazo`, validado por `rechazoValido()`), y con `revisadoEn == request.time`.
+- Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.
 
@@ -342,7 +332,7 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | --- | --- |
 | Autenticación | `data/firebase/` + `presentation/auth/` en cada proyecto — **hecha en `app-restaurante`** (HU01); falta `app-comensal` (HU05) |
 | Procesos de negocio (mín. 3, el proyecto cubre 6) | Una carpeta por proceso en `presentation/`, `domain/model/` y `domain/usecase/` de la app que corresponde |
-| Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) — en `app-restaurante` ya se usan Auth, Firestore, Storage y Cloud Messaging (avisos, SCRUM-78), y en `functions/` la primera Cloud Function (`revisarLocal`); las de HU07 vienen después |
+| Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) — en `app-restaurante` ya se usan Auth, Firestore y Storage; Cloud Functions (`functions/`, HU07) y Cloud Messaging para los avisos |
 | Material Design | `ui/theme/` + `res/font/` de cada app — **ya hecho**, con paleta propia y modo oscuro |
 | MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — ya en uso en `app-restaurante` desde HU01 |
 | Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions del equipo (`functions/`) y a Geocoding API |

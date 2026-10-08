@@ -54,6 +54,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation("androidx.compose.material:material-icons-core")

@@ -137,4 +137,26 @@
     <string name="error_perfil_direccion_eliminar">No se pudo eliminar la dirección</string>
     <string name="error_perfil_preferencias">No se pudieron guardar las preferencias</string>
     <string name="error_perfil_foto">No se pudo subir la foto</string>
+
+    <!-- Descubrimiento de restaurantes (HU06) -->
+    <string name="descubrimiento_aviso_ubicacion">Activa tu ubicación para ordenar por cercanía</string>
+    <string name="descubrimiento_boton_ubicacion">Activar ubicación</string>
+    <string name="descubrimiento_vacio">Aún no hay restaurantes disponibles. Vuelve pronto.</string>
+    <string name="descubrimiento_reintentar">Reintentar</string>
+    <string name="descubrimiento_cerrado">Cerrado por ahora</string>
+    <string name="descubrimiento_sin_resenas">Sin reseñas todavía</string>
+    <string name="descubrimiento_distancia_m">%1$d m</string>
+    <string name="descubrimiento_distancia_km">%1$s km</string>
+    <plurals name="descubrimiento_calificacion">
+        <item quantity="one">★ %1$s · %2$d reseña</item>
+        <item quantity="other">★ %1$s · %2$d reseñas</item>
+    </plurals>
+    <string name="descubrimiento_categoria_criolla">Criolla</string>
+    <string name="descubrimiento_categoria_chifa">Chifa</string>
+    <string name="descubrimiento_categoria_polleria">Pollería</string>
+    <string name="descubrimiento_categoria_marina">Marina</string>
+    <string name="descubrimiento_categoria_vegetariana">Vegetariana</string>
+    <string name="descubrimiento_categoria_otra">Otra</string>
+    <string name="error_descubrimiento_sin_conexion">Sin conexión a internet</string>
+    <string name="error_descubrimiento_desconocido">No pudimos cargar los restaurantes. Inténtalo de nuevo</string>
 </resources>

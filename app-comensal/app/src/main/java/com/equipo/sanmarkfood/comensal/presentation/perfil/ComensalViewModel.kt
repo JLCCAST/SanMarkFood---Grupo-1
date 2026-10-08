@@ -32,7 +32,7 @@ data class PerfilUiState(
     val comensal: Comensal = Comensal(),
     val isLoading: Boolean = false,
     val subiendoFoto: Boolean = false,
-    @StringRes val error: Int? = null,
+    @param:StringRes val error: Int? = null,
     val guardadoExitoso: Boolean = false
 ) {
     // Se usa cuando falte un dato esencial para completar un pedido o reserva.
@@ -160,7 +160,8 @@ class ComensalViewModel @Inject constructor(
         val currentUid = uid ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(subiendoFoto = true, error = null) }
-            subirFotoPerfil(currentUid, uri)
+            // El dominio recibe la ruta como texto; el Uri solo vive en presentation y data.
+            subirFotoPerfil(currentUid, uri.toString())
                 .onSuccess {
                     _uiState.update { it.copy(subiendoFoto = false) }
                 }

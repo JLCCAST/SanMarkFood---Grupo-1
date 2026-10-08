@@ -1,6 +1,5 @@
 package com.equipo.sanmarkfood.comensal.domain.repository
 
-import android.net.Uri
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Comensal
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +14,8 @@ interface ComensalRepository {
         notificarReservas: Boolean,
         notificarResenas: Boolean
     ): Result<Unit>
-    suspend fun subirFoto(uid: String, uri: Uri): Result<String>
+
+    /** Sube la foto de perfil; rutaLocal es la ubicación de la imagen en el teléfono. */
+    suspend fun subirFoto(uid: String, rutaLocal: String): Result<String>
     suspend fun actualizarFoto(uid: String, fotoUrl: String): Result<Unit>
 }
