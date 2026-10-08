@@ -157,6 +157,7 @@ private fun ArmarMenuContenido(
                 onValorChange = onCambiarPrecio,
                 esError = CampoMenu.PRECIO in invalidos,
                 mensajeError = stringResource(R.string.armar_error_precio),
+                porRevisar = uiState.precioPorRevisar,
             )
 
             SeccionOpciones(
@@ -164,6 +165,7 @@ private fun ArmarMenuContenido(
                 textoVacio = stringResource(R.string.armar_sin_entradas),
                 textoAgregar = stringResource(R.string.armar_agregar_entrada),
                 opciones = uiState.entradas,
+                porRevisar = uiState.porRevisar,
                 nueva = uiState.nuevaEntrada,
                 esError = CampoMenu.ENTRADAS in invalidos,
                 onCambiarNueva = onCambiarNuevaEntrada,
@@ -176,6 +178,7 @@ private fun ArmarMenuContenido(
                 textoVacio = stringResource(R.string.armar_sin_segundos),
                 textoAgregar = stringResource(R.string.armar_agregar_segundo),
                 opciones = uiState.segundos,
+                porRevisar = uiState.porRevisar,
                 nueva = uiState.nuevoSegundo,
                 esError = CampoMenu.SEGUNDOS in invalidos,
                 onCambiarNueva = onCambiarNuevoSegundo,
@@ -222,6 +225,7 @@ private fun ArmarMenuContenido(
             Text(
                 text = when {
                     !uiState.completo -> stringResource(R.string.armar_falta)
+                    uiState.hayPorRevisar -> stringResource(R.string.armar_hay_por_revisar)
                     uiState.editando -> stringResource(R.string.armar_conservan)
                     else -> stringResource(R.string.armar_vence, uiState.horaFin)
                 },
@@ -293,6 +297,7 @@ private fun SeccionOpciones(
     textoVacio: String,
     textoAgregar: String,
     opciones: List<String>,
+    porRevisar: Set<String>,
     nueva: String,
     esError: Boolean,
     onCambiarNueva: (String) -> Unit,
@@ -314,7 +319,7 @@ private fun SeccionOpciones(
             )
         }
         opciones.forEachIndexed { indice, nombre ->
-            FilaOpcion(nombre = nombre, onQuitar = { onQuitar(indice) })
+            FilaOpcion(nombre = nombre, porRevisar = nombre in porRevisar, onQuitar = { onQuitar(indice) })
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
@@ -353,25 +358,67 @@ private fun SeccionOpciones(
 }
 
 @Composable
-private fun FilaOpcion(nombre: String, onQuitar: () -> Unit) {
+private fun FilaOpcion(nombre: String, porRevisar: Boolean, onQuitar: () -> Unit) {
     val forma = RoundedCornerShape(12.dp)
+    val colores = MaterialTheme.colorScheme
+    val texto = if (porRevisar) colores.onSecondaryContainer else colores.onSurface
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .clip(forma)
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-            .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, forma)
+            .background(if (porRevisar) colores.secondaryContainer else colores.surfaceContainerLowest)
+            .border(1.5.dp, if (porRevisar) colores.secondary else colores.outlineVariant, forma)
             .padding(start = 12.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = nombre, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+        Column(modifier = Modifier.weight(1f).padding(vertical = 6.dp)) {
+            Text(text = nombre, style = MaterialTheme.typography.titleSmall, color = texto)
+            if (porRevisar) {
+                Text(text = stringResource(R.string.armar_revisar_opcion), style = MaterialTheme.typography.bodySmall, color = texto)
+            }
+        }
         IconButton(onClick = onQuitar) {
             Icon(
                 painter = painterResource(R.drawable.ic_cerrar),
                 contentDescription = stringResource(R.string.armar_quitar, nombre),
                 modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = if (porRevisar) texto else colores.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun ArmarMenuPizarraPreview() {
+    ApprestauranteTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            ArmarMenuContenido(
+                uiState = ArmarMenuUiState(
+                    fecha = "2026-10-05",
+                    origen = OrigenMenu.IA,
+                    precio = "14.00",
+                    entradas = listOf("Papa a la huancaína", "Causa limeña", "Sopa de casa"),
+                    segundos = listOf("Ají de gallina", "Seco con frej…", "Tacu tacu con ensalada"),
+                    refresco = "Chicha morada",
+                    precioPorRevisar = true,
+                    porRevisar = setOf("Seco con frej…"),
+                ),
+                onCerrar = {},
+                onTomarOtraFoto = {},
+                onReintentarCarga = {},
+                onCambiarPrecio = {},
+                onCambiarNuevaEntrada = {},
+                onAgregarEntrada = {},
+                onQuitarEntrada = {},
+                onCambiarNuevoSegundo = {},
+                onAgregarSegundo = {},
+                onQuitarSegundo = {},
+                onCambiarRefresco = {},
+                onCambiarPostre = {},
+                onElegirHoraFin = {},
+                onPublicar = {},
             )
         }
     }

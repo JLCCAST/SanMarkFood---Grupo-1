@@ -215,6 +215,8 @@
     <string name="armar_leido_titulo">Leímos tu pizarra.</string>
     <string name="armar_leido_texto">Revisa lo marcado en amarillo antes de publicar.</string>
     <string name="armar_tomar_otra">Tomar otra foto</string>
+    <string name="armar_revisar_opcion">Revisa: no se leyó bien</string>
+    <string name="armar_hay_por_revisar">Aún hay datos marcados para revisar</string>
     <string name="armar_precio">Precio del menú</string>
     <string name="armar_error_precio">Ingresa un precio de hasta S/ 1000.00, por ejemplo 14.00.</string>
     <string name="armar_entradas">ENTRADAS · EL COMENSAL ELIGE 1</string>

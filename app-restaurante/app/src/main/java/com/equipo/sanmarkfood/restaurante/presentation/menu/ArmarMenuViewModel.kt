@@ -41,12 +41,16 @@ data class ArmarMenuUiState(
     val refresco: String = "",
     val postre: String = "",
     val horaFin: String = DatosMenu.HORA_FIN_POR_DEFECTO,
+    val precioPorRevisar: Boolean = false,
+    val porRevisar: Set<String> = emptySet(),
     val camposInvalidos: Set<CampoMenu> = emptySet(),
     val publicando: Boolean = false,
     val error: ErrorMenu? = null,
     val publicado: Boolean = false,
 ) {
     val completo: Boolean get() = precio.isNotBlank() && entradas.isNotEmpty() && segundos.isNotEmpty()
+
+    val hayPorRevisar: Boolean get() = precioPorRevisar || (entradas + segundos).any { it in porRevisar }
 }
 
 @HiltViewModel
@@ -90,7 +94,7 @@ class ArmarMenuViewModel @Inject constructor(
     fun onReintentarCarga() = cargarMenu()
 
     fun onCambiarPrecio(precio: String) =
-        cambiarCampo(CampoMenu.PRECIO) { it.copy(precio = precio.take(MAX_PRECIO)) }
+        cambiarCampo(CampoMenu.PRECIO) { it.copy(precio = precio.take(MAX_PRECIO), precioPorRevisar = false) }
 
     fun onCambiarNuevaEntrada(texto: String) =
         _uiState.update { it.copy(nuevaEntrada = texto.take(DatosMenu.MAX_TEXTO)) }
@@ -103,7 +107,9 @@ class ArmarMenuViewModel @Inject constructor(
     }
 
     fun onQuitarEntrada(indice: Int) =
-        cambiarBorrador { it.copy(entradas = it.entradas.filterIndexed { i, _ -> i != indice }) }
+        cambiarBorrador {
+            it.copy(entradas = it.entradas.filterIndexed { i, _ -> i != indice }, porRevisar = it.porRevisar - it.entradas[indice])
+        }
 
     fun onCambiarNuevoSegundo(texto: String) =
         _uiState.update { it.copy(nuevoSegundo = texto.take(DatosMenu.MAX_TEXTO)) }
@@ -116,7 +122,9 @@ class ArmarMenuViewModel @Inject constructor(
     }
 
     fun onQuitarSegundo(indice: Int) =
-        cambiarBorrador { it.copy(segundos = it.segundos.filterIndexed { i, _ -> i != indice }) }
+        cambiarBorrador {
+            it.copy(segundos = it.segundos.filterIndexed { i, _ -> i != indice }, porRevisar = it.porRevisar - it.segundos[indice])
+        }
 
     fun onCambiarRefresco(refresco: String) = cambiarBorrador { it.copy(refresco = refresco.take(DatosMenu.MAX_TEXTO)) }
 
@@ -172,6 +180,8 @@ class ArmarMenuViewModel @Inject constructor(
             refresco = borrador.refresco,
             postre = borrador.postre,
             horaFin = borrador.horaFin,
+            precioPorRevisar = borrador.precioPorRevisar,
+            porRevisar = borrador.porRevisar,
         )
     }
 
@@ -232,6 +242,8 @@ class ArmarMenuViewModel @Inject constructor(
                     refresco = estado.refresco,
                     postre = estado.postre,
                     horaFin = estado.horaFin,
+                    precioPorRevisar = estado.precioPorRevisar,
+                    porRevisar = estado.porRevisar,
                 )
             )
         }
