@@ -28,7 +28,7 @@ data class OpcionLeidaDto(
 
 class LectorPizarra @Inject constructor() {
 
-    private val modelo = Firebase.ai(backend = GenerativeBackend.vertexAI(location = "global")).generativeModel(
+    private val modelo = Firebase.ai(backend = GenerativeBackend.agentPlatform()).generativeModel(
         modelName = "gemini-3.5-flash",
         generationConfig = generationConfig {
             responseMimeType = "application/json"
