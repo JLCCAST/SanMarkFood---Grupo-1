@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
@@ -29,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,16 +39,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.CampoMenu
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.OrigenMenu
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
@@ -55,6 +62,7 @@ import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 fun ArmarMenuScreen(
     onCerrar: () -> Unit,
     onPublicado: () -> Unit,
+    onTomarOtraFoto: () -> Unit,
     viewModel: ArmarMenuViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -66,6 +74,7 @@ fun ArmarMenuScreen(
     ArmarMenuContenido(
         uiState = uiState,
         onCerrar = onCerrar,
+        onTomarOtraFoto = onTomarOtraFoto,
         onReintentarCarga = viewModel::onReintentarCarga,
         onCambiarPrecio = viewModel::onCambiarPrecio,
         onCambiarNuevaEntrada = viewModel::onCambiarNuevaEntrada,
@@ -85,6 +94,7 @@ fun ArmarMenuScreen(
 private fun ArmarMenuContenido(
     uiState: ArmarMenuUiState,
     onCerrar: () -> Unit,
+    onTomarOtraFoto: () -> Unit,
     onReintentarCarga: () -> Unit,
     onCambiarPrecio: (String) -> Unit,
     onCambiarNuevaEntrada: (String) -> Unit,
@@ -126,7 +136,10 @@ private fun ArmarMenuContenido(
                 .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            if (uiState.copiadoDeAyer) {
+            if (uiState.origen == OrigenMenu.IA) {
+                AvisoPizarraLeida(habilitado = !uiState.publicando, onTomarOtraFoto = onTomarOtraFoto)
+            }
+            if (uiState.origen == OrigenMenu.AYER) {
                 Text(
                     text = stringResource(R.string.armar_copiado),
                     modifier = Modifier
@@ -144,6 +157,7 @@ private fun ArmarMenuContenido(
                 onValorChange = onCambiarPrecio,
                 esError = CampoMenu.PRECIO in invalidos,
                 mensajeError = stringResource(R.string.armar_error_precio),
+                porRevisar = uiState.precioPorRevisar,
             )
 
             SeccionOpciones(
@@ -151,6 +165,7 @@ private fun ArmarMenuContenido(
                 textoVacio = stringResource(R.string.armar_sin_entradas),
                 textoAgregar = stringResource(R.string.armar_agregar_entrada),
                 opciones = uiState.entradas,
+                porRevisar = uiState.porRevisar,
                 nueva = uiState.nuevaEntrada,
                 esError = CampoMenu.ENTRADAS in invalidos,
                 onCambiarNueva = onCambiarNuevaEntrada,
@@ -163,6 +178,7 @@ private fun ArmarMenuContenido(
                 textoVacio = stringResource(R.string.armar_sin_segundos),
                 textoAgregar = stringResource(R.string.armar_agregar_segundo),
                 opciones = uiState.segundos,
+                porRevisar = uiState.porRevisar,
                 nueva = uiState.nuevoSegundo,
                 esError = CampoMenu.SEGUNDOS in invalidos,
                 onCambiarNueva = onCambiarNuevoSegundo,
@@ -209,6 +225,7 @@ private fun ArmarMenuContenido(
             Text(
                 text = when {
                     !uiState.completo -> stringResource(R.string.armar_falta)
+                    uiState.hayPorRevisar -> stringResource(R.string.armar_hay_por_revisar)
                     uiState.editando -> stringResource(R.string.armar_conservan)
                     else -> stringResource(R.string.armar_vence, uiState.horaFin)
                 },
@@ -217,6 +234,38 @@ private fun ArmarMenuContenido(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
+        }
+    }
+}
+
+@Composable
+private fun AvisoPizarraLeida(habilitado: Boolean, onTomarOtraFoto: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .padding(start = 14.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(stringResource(R.string.armar_leido_titulo))
+                }
+                append(" ")
+                append(stringResource(R.string.armar_leido_texto))
+            },
+            modifier = Modifier.weight(1f).padding(vertical = 6.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        TextButton(
+            onClick = onTomarOtraFoto,
+            enabled = habilitado,
+            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
+        ) {
+            Text(text = stringResource(R.string.armar_tomar_otra), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -248,6 +297,7 @@ private fun SeccionOpciones(
     textoVacio: String,
     textoAgregar: String,
     opciones: List<String>,
+    porRevisar: Set<String>,
     nueva: String,
     esError: Boolean,
     onCambiarNueva: (String) -> Unit,
@@ -269,7 +319,7 @@ private fun SeccionOpciones(
             )
         }
         opciones.forEachIndexed { indice, nombre ->
-            FilaOpcion(nombre = nombre, onQuitar = { onQuitar(indice) })
+            FilaOpcion(nombre = nombre, porRevisar = nombre in porRevisar, onQuitar = { onQuitar(indice) })
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
@@ -308,25 +358,67 @@ private fun SeccionOpciones(
 }
 
 @Composable
-private fun FilaOpcion(nombre: String, onQuitar: () -> Unit) {
+private fun FilaOpcion(nombre: String, porRevisar: Boolean, onQuitar: () -> Unit) {
     val forma = RoundedCornerShape(12.dp)
+    val colores = MaterialTheme.colorScheme
+    val texto = if (porRevisar) colores.onSecondaryContainer else colores.onSurface
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .clip(forma)
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-            .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, forma)
+            .background(if (porRevisar) colores.secondaryContainer else colores.surfaceContainerLowest)
+            .border(1.5.dp, if (porRevisar) colores.secondary else colores.outlineVariant, forma)
             .padding(start = 12.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = nombre, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+        Column(modifier = Modifier.weight(1f).padding(vertical = 6.dp)) {
+            Text(text = nombre, style = MaterialTheme.typography.titleSmall, color = texto)
+            if (porRevisar) {
+                Text(text = stringResource(R.string.armar_revisar_opcion), style = MaterialTheme.typography.bodySmall, color = texto)
+            }
+        }
         IconButton(onClick = onQuitar) {
             Icon(
                 painter = painterResource(R.drawable.ic_cerrar),
                 contentDescription = stringResource(R.string.armar_quitar, nombre),
                 modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = if (porRevisar) texto else colores.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun ArmarMenuPizarraPreview() {
+    ApprestauranteTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            ArmarMenuContenido(
+                uiState = ArmarMenuUiState(
+                    fecha = "2026-10-05",
+                    origen = OrigenMenu.IA,
+                    precio = "14.00",
+                    entradas = listOf("Papa a la huancaína", "Causa limeña", "Sopa de casa"),
+                    segundos = listOf("Ají de gallina", "Seco con frej…", "Tacu tacu con ensalada"),
+                    refresco = "Chicha morada",
+                    precioPorRevisar = true,
+                    porRevisar = setOf("Seco con frej…"),
+                ),
+                onCerrar = {},
+                onTomarOtraFoto = {},
+                onReintentarCarga = {},
+                onCambiarPrecio = {},
+                onCambiarNuevaEntrada = {},
+                onAgregarEntrada = {},
+                onQuitarEntrada = {},
+                onCambiarNuevoSegundo = {},
+                onAgregarSegundo = {},
+                onQuitarSegundo = {},
+                onCambiarRefresco = {},
+                onCambiarPostre = {},
+                onElegirHoraFin = {},
+                onPublicar = {},
             )
         }
     }
@@ -346,6 +438,7 @@ private fun ArmarMenuPreview() {
                     refresco = "Chicha morada",
                 ),
                 onCerrar = {},
+                onTomarOtraFoto = {},
                 onReintentarCarga = {},
                 onCambiarPrecio = {},
                 onCambiarNuevaEntrada = {},
