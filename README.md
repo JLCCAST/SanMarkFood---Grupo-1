@@ -44,10 +44,10 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - [ ] Arquitectura MVVM + Clean Code (`data` / `domain` / `presentation` en cada app) — ya en uso en la App Restaurante (HU01)
 - [ ] Corrutinas + Retrofit (consumo de las Cloud Functions del equipo y de Geocoding API)
 - [ ] WorkManager
-- [ ] SQLite (Room)
+- [ ] SQLite (Room) — en uso en la App Restaurante: el borrador del menú del día (HU04); falta el carrito de la App Comensal (HU08)
 - [ ] Dashboards (restaurante y administrador)
-- [ ] Mínimo 3 recursos del móvil (cámara, GPS, biometría, micrófono — el proyecto cubre los 4)
-- [ ] Mínimo 3 funcionalidades de IA (el proyecto cubre 4: digitalización de carta, chatbot con voz, resumen de reseñas, alerta de reseñas negativas)
+- [ ] Mínimo 3 recursos del móvil (cámara, GPS, biometría, micrófono — el proyecto cubre los 4) — cámara hecha en la App Restaurante (HU04, CameraX)
+- [ ] Mínimo 3 funcionalidades de IA (el proyecto cubre 4: digitalización de carta, chatbot con voz, resumen de reseñas, alerta de reseñas negativas) — digitalización hecha para la pizarra del menú del día (HU04, Gemini con Firebase AI Logic); falta la carta
 - [ ] Despliegue en Google Play Store (2 apps)
 
 ## Stack tecnológico
@@ -57,8 +57,10 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - **Arquitectura:** MVVM + Clean Architecture (`data` / `domain` / `presentation`)
 - **Networking:** Retrofit + OkHttp + Corrutinas, para las Cloud Functions del equipo y Geocoding API
 - **Persistencia local:** Room (SQLite)
+- **Cámara:** CameraX
+- **IA:** Gemini con Firebase AI Logic (Agent Platform Gemini API), protegido con App Check
 - **Navegación:** Navigation Compose con rutas tipadas
-- **Backend as a service:** Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions), en el plan Blaze
+- **Backend as a service:** Firebase (Auth, Firestore, Storage, Cloud Messaging, Cloud Functions, AI Logic y App Check), en el plan Blaze
 - **Backend propio:** Cloud Functions de Firebase sobre la misma base Firestore (HU07); todos los datos viven en Firestore
 - **Tareas en background:** WorkManager
 - **Inyección de dependencias:** Hilt (con KSP)
