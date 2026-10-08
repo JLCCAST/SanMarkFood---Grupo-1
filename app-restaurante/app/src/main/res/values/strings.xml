@@ -302,6 +302,7 @@
     <string name="error_categoria_repetida">Ya tienes una categoría con ese nombre.</string>
     <string name="error_datos_menu">Falta el precio, una entrada o un segundo.</string>
     <string name="error_menu_ya_publicado">El menú de hoy ya está publicado.</string>
+    <string name="error_pizarra_sin_menu">No encontramos un menú en la foto. Toma otra con toda la pizarra a la vista.</string>
 
     <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
     <string name="pedidos_titulo">Pedidos</string>

@@ -8,5 +8,6 @@ sealed class ErrorMenu : Exception() {
     data class DatosMenuInvalidos(val campos: Set<CampoMenu>) : ErrorMenu()
     data object MenuYaPublicado : ErrorMenu()
     data object ImagenIlegible : ErrorMenu()
+    data object PizarraSinMenu : ErrorMenu()
     data object Desconocido : ErrorMenu()
 }
