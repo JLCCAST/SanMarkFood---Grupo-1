@@ -58,6 +58,7 @@ fun PanelLocalScreen(
     onAgregarPlato: () -> Unit,
     onAbrirPlato: (platoId: String) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
+    onFotoPizarra: () -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -92,6 +93,7 @@ fun PanelLocalScreen(
                 SeccionMenu.HOY -> MenuHoyScreen(
                     onElegirSeccion = viewModel::onElegirSeccionMenu,
                     onArmarMenu = onArmarMenu,
+                    onFotoPizarra = onFotoPizarra,
                     modifier = contenido,
                 )
                 SeccionMenu.CARTA -> CartaScreen(

@@ -18,6 +18,8 @@ import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.Datos
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.HorarioLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ArmarMenuScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.CamaraScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.PlatoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 
@@ -86,6 +88,7 @@ fun RestauranteNavGraph() {
                 onAgregarPlato = { navController.navigate(Plato()) { launchSingleTop = true } },
                 onAbrirPlato = { platoId -> navController.navigate(Plato(platoId)) { launchSingleTop = true } },
                 onArmarMenu = { modo -> navController.navigate(ArmarMenu(modo)) { launchSingleTop = true } },
+                onFotoPizarra = { navController.navigate(Camara) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
@@ -93,6 +96,21 @@ fun RestauranteNavGraph() {
             ArmarMenuScreen(
                 onCerrar = { navController.navigateUp() },
                 onPublicado = { navController.navigateUp() },
+                onTomarOtraFoto = {
+                    navController.navigate(Camara) {
+                        popUpTo<ArmarMenu> { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable<Camara> {
+            CamaraScreen(
+                onCerrar = { navController.navigateUp() },
+                onRevisar = {
+                    navController.navigate(ArmarMenu(ModoArmarMenu.IA)) {
+                        popUpTo<Camara> { inclusive = true }
+                    }
+                },
             )
         }
         composable<Plato> {

@@ -9,6 +9,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.menu.fechaDeHoy
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CambiarDisponibilidadOpcionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.CambiarHoraFinUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObservarMenuDeHoyUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObservarPizarraLeidaUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ObtenerMenuDeAyerUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.ReabrirMenuDelDiaUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.menu.TerminarMenuDelDiaUseCase
@@ -31,6 +32,7 @@ data class MenuHoyUiState(
     val guardando: Boolean = false,
     val errorGuardar: ErrorMenu? = null,
     val confirmandoTerminar: Boolean = false,
+    val pizarraLeida: Boolean = false,
 )
 
 @HiltViewModel
@@ -41,6 +43,7 @@ class MenuHoyViewModel @Inject constructor(
     private val cambiarHoraFin: CambiarHoraFinUseCase,
     private val terminarMenuDelDia: TerminarMenuDelDiaUseCase,
     private val reabrirMenuDelDia: ReabrirMenuDelDiaUseCase,
+    private val observarPizarraLeida: ObservarPizarraLeidaUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MenuHoyUiState())
@@ -51,6 +54,9 @@ class MenuHoyViewModel @Inject constructor(
     init {
         observar()
         cargarMenuDeAyer()
+        viewModelScope.launch {
+            observarPizarraLeida().collect { leida -> _uiState.update { it.copy(pizarraLeida = leida) } }
+        }
     }
 
     fun onReintentar() = observar()

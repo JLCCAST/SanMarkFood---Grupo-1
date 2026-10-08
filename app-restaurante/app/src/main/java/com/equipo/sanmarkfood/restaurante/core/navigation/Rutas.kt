@@ -39,3 +39,6 @@ data class Plato(val platoId: String? = null)
 
 @Serializable
 data class ArmarMenu(val modo: ModoArmarMenu)
+
+@Serializable
+data object Camara
