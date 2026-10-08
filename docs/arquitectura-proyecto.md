@@ -30,6 +30,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 - **App Restaurante — HU04 (SCRUM-33), en curso:**
   - SCRUM-73, primera parte (el borrador del menú del día): la primera base de datos local, con Room. `data/local/` tiene `SanMarkFoodDatabase`, `entity/` y `dao/`; `core/di/DatabaseModule` la entrega a Hilt, y `BorradorMenuRepository` la usa. Mientras el local arma el menú en M5, cada cambio se guarda en el celular, y al publicar se borra (ver «El borrador del menú del día», más abajo).
   - SCRUM-71 (la cámara): «Foto de la pizarra» en M1, destacada en guinda, abre M2 (`CamaraScreen`, ruta `Camara`). La vista previa y la foto son de CameraX; el permiso de la cámara se pide al entrar y, si se niega, M2 lo explica y deja elegir una foto de la galería. La foto queda en la caché de la app (`pizarra.jpg`). M2 es oscura en los dos temas: se dibuja con el tema oscuro. Por ahora solo fotografía la pizarra: la pestaña «Carta» (M9) llega después.
+  - SCRUM-72 (la lectura con IA): al tomar o elegir la foto, M2 muestra «Leyendo tu pizarra…» y Gemini la lee (`ai/digitalizacion_carta/LectorPizarra`, a través de `PizarraRepository` y `LeerPizarraUseCase`). El resultado llena el borrador del menú del día con origen `ia`, y «Revisar resultado» abre M5 con él, con el aviso «Leímos tu pizarra» (es M3). Si falla o la foto no tiene un menú, M2 lo dice y deja tomar otra.
 - **App Restaurante — HU23 (SCRUM-34) completa:** el administrador entra por el mismo inicio de sesión que los restaurantes; en la app no hay registro de administradores. Con el `rol` de `usuarios/{uid}`, la app abre `presentation/admin/PanelAdministradorScreen`: la sección de administración, con la cabecera pizarra («ADMINISTRACIÓN» y «Salir») y la barra Solicitudes · Reportes · Métricas.
 - **App Restaurante — HU24 (SCRUM-35) completa:**
   - SCRUM-76 (solicitudes pendientes): `domain/model/admin/`, `SolicitudesRepository`, `domain/usecase/admin/` y, en `data/`, `SolicitudesDataSource` y `SolicitudesRepositoryImpl`. A1 vive en `presentation/admin/aprobacion/`: escucha en vivo los locales en `pendiente`, de la solicitud más reciente a la más antigua, con la etiqueta «Nuevo» o «Reenviado», el rechazo anterior y la cantidad de platos (un `count()` al servidor por local). La pestaña Solicitudes muestra cuántas hay; Reportes y Métricas muestran un aviso provisional hasta HU25 y HU26.
@@ -43,7 +44,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 **Todavía no existe:**
 
 - En `app-comensal`: las capas de esta arquitectura (ver arriba) y todo lo que no es HU05.
-- En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
+- En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, `ai/alerta_resenas/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
 - En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos`, `vencimientos` y `resumenResenas`). Hoy solo existe `revisarLocal` (SCRUM-78).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
@@ -116,7 +117,7 @@ SanMarkFood---Grupo-1/
 │           ├── avisos/                      # Avisos push (FCM): AvisosService y el canal «Estado del local» ✔ (SCRUM-78)
 │           ├── workers/                     # WorkManager (sync de pedidos entrantes, HU09)
 │           └── ai/
-│               ├── digitalizacion_carta/    # HU04 — digitalización de carta con IA
+│               ├── digitalizacion_carta/    # HU04 — digitalización de carta con IA — la pizarra ✔ (LectorPizarra)
 │               └── alerta_resenas/          # HU15 — alerta de reseñas negativas
 │
 ├── functions/                               # Cloud Functions (TypeScript, Node 22) — revisarLocal ✔ (SCRUM-78); el resto, HU07
@@ -171,6 +172,7 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | Cloud Functions (HU24, SCRUM-78) | `functions/` en TypeScript, Node 22, `firebase-functions` 7 y `firebase-admin` 14. Se despliegan con `npm --prefix functions install` y `firebase deploy --only functions`, que compila antes (`predeploy`) | El `predeploy` usa `npm --prefix functions` y no `$RESOURCE_DIR`, que no funciona en la consola de Windows. Las funciones de HU07 se agregan aquí, una por archivo. |
 | Escrituras que no pueden quedar en espera (HU02) | Antes de guardar, una lectura al servidor (`Source.SERVER`); el reenvío de R7 usa una transacción | Sin conexión, Firestore deja las escrituras en espera sin fallar. Así la app muestra «Sin conexión» al instante, y una pausa de pedidos nunca aparenta haberse guardado. |
 | Fotos del local (HU02) | **Firebase Storage** + **Coil**. Se achican en el celular (portada de 1600 px, logo de 512 px, en JPEG). Cada subida tiene un nombre nuevo (`portada-<hora>.jpg`) y, al guardar, se borran las que ya no se usan | Cuidar la capa gratuita. Al sobrescribir un archivo, Storage cambia su URL de descarga y la URL guardada en Firestore dejaría de funcionar. Se eligen con el selector de fotos de Android, que no pide permisos. |
+| IA de la pizarra (HU04, SCRUM-72) | **Firebase AI Logic** con la Gemini Developer API y el modelo `gemini-3.5-flash`. Gemini recibe la foto (achicada a 1600 px) y responde un JSON con forma fija (`responseSchema`): precio, entradas, segundos, refresco y postre | Gemini es multimodal: lee el texto de la foto (OCR) y lo ordena (LLM) en un solo paso, así que no hace falta un OCR aparte, que además lee mal la letra a mano. El SDK de Firebase no necesita clave en la app ni servidor propio. `gemini-3.5-flash` es estable al menos hasta mayo de 2027. |
 | Cámara (HU04, SCRUM-71) | **CameraX** 1.6.2 con `LifecycleCameraController` y `PreviewView` (`camera-view`) | El controlador junta la vista previa, la foto y el ciclo de vida: se enciende al abrir M2 y se apaga al salir, sin código propio. La galería usa el mismo selector de fotos de HU02, que no pide permisos. |
 | Mapa (HU02) | **Maps Compose** (`maps-compose`). La clave va en `local.properties` como `MAPS_API_KEY` y el Gradle la pasa al manifiesto | La clave no se sube al repositorio. Cada integrante agrega la suya; sin ella la app compila y abre, pero el mapa sale en blanco. |
 | Versiones fijadas (HU02) | Coil 3.4.0 y maps-compose 8.3.1 | Las versiones más nuevas traen `kotlin-stdlib` 2.4 y el proyecto compila con Kotlin 2.2.10, que no puede leerla. Para subirlas hay que actualizar Kotlin en todo el proyecto. |
@@ -311,7 +313,7 @@ El menú del día se publica en una transacción, que falla sin conexión en vez
 
 ### El borrador del menú del día (Room, HU04)
 
-Mientras el local arma el menú en M5, cada cambio se guarda en la base `sanmarkfood.db` del celular. Si cierra la app, o sale con la X, al volver a M5 por el mismo botón («Empezar de cero» o «Copiar el de ayer») encuentra el menú como lo dejó. Al publicar, `PublicarMenuDelDiaUseCase` lo borra. Hay un solo borrador, y solo vale el de hoy. Editar un menú ya publicado no usa borrador.
+Mientras el local arma el menú en M5, cada cambio se guarda en la base `sanmarkfood.db` del celular. Si cierra la app, o sale con la X, al volver a M5 por el mismo botón («Empezar de cero» o «Copiar el de ayer») encuentra el menú como lo dejó. La lectura de la pizarra (SCRUM-72) escribe en este mismo borrador, con origen `IA`, y M2 se lo pasa a M5. Al publicar, `PublicarMenuDelDiaUseCase` lo borra. Hay un solo borrador, y solo vale el de hoy. Editar un menú ya publicado no usa borrador.
 
 | Tabla | Columnas | Notas |
 | --- | --- | --- |
@@ -365,7 +367,7 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | SQLite | `data/local/` (Room) — **en `app-restaurante`, el borrador del menú del día** (HU04); en `app-comensal`, el carrito (HU08) |
 | Dashboards | `app-restaurante/presentation/dashboard/` y `admin/dashboard_global/` (Vico o MPAndroidChart), con consultas de agregación de Firestore |
 | Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (pizarra y carta, HU04) — **la pizarra ya usa CameraX**; GPS, biometría, micrófono → `app-comensal` |
-| Funcionalidades de IA (mín. 3, el proyecto cubre 4) | `ai/` en ambas apps |
+| Funcionalidades de IA (mín. 3, el proyecto cubre 4) | `ai/` en ambas apps — **en `app-restaurante`, la lectura de la pizarra con Gemini** (HU04) |
 | Despliegue en Play Store | No es código — checklist aparte en Sprint 3 (firma de cada AAB, ficha de Play Console por app) |
 
 ## Documentos relacionados

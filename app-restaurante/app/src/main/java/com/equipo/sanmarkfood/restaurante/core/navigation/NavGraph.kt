@@ -19,6 +19,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.Horar
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ArmarMenuScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.CamaraScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.PlatoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 
@@ -98,7 +99,14 @@ fun RestauranteNavGraph() {
             )
         }
         composable<Camara> {
-            CamaraScreen(onCerrar = { navController.navigateUp() })
+            CamaraScreen(
+                onCerrar = { navController.navigateUp() },
+                onRevisar = {
+                    navController.navigate(ArmarMenu(ModoArmarMenu.IA)) {
+                        popUpTo<Camara> { inclusive = true }
+                    }
+                },
+            )
         }
         composable<Plato> {
             PlatoScreen(

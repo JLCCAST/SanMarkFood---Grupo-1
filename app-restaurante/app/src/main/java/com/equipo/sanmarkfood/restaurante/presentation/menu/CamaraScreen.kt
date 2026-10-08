@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +50,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,7 +63,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
@@ -72,6 +71,7 @@ import java.io.File
 @Composable
 fun CamaraScreen(
     onCerrar: () -> Unit,
+    onRevisar: () -> Unit,
     viewModel: CamaraViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,6 +95,7 @@ fun CamaraScreen(
             uiState = uiState,
             camara = camara.takeIf { permitida },
             onCerrar = onCerrar,
+            onRevisar = onRevisar,
             onPermitir = { pedirPermiso.launch(Manifest.permission.CAMERA) },
             onTomarFoto = {
                 viewModel.onTomarFoto()
@@ -133,11 +134,12 @@ private fun CamaraContenido(
     uiState: CamaraUiState,
     camara: LifecycleCameraController?,
     onCerrar: () -> Unit,
+    onRevisar: () -> Unit,
     onPermitir: () -> Unit,
     onTomarFoto: () -> Unit,
     onElegirDeGaleria: () -> Unit,
 ) {
-    val ocupada = uiState.tomando || uiState.foto != null
+    val ocupada = uiState.tomando || uiState.leyendo || uiState.listo
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -166,17 +168,9 @@ private fun CamaraContenido(
                 .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center,
         ) {
-            when {
-                uiState.foto != null -> AsyncImage(
-                    model = uiState.foto,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-                camara != null -> VistaPreviaCamara(camara = camara)
-                else -> AvisoPermiso(onPermitir = onPermitir)
-            }
+            if (camara != null) VistaPreviaCamara(camara = camara) else AvisoPermiso(onPermitir = onPermitir)
             GuiasEncuadre(modifier = Modifier.fillMaxSize())
+            if (uiState.leyendo || uiState.listo) LecturaPizarra(listo = uiState.listo, onRevisar = onRevisar)
         }
 
         Column(
@@ -184,12 +178,17 @@ private fun CamaraContenido(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text(
-                text = stringResource(if (uiState.error) R.string.camara_error else R.string.camara_consejo_pizarra),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
+            val error = uiState.error
+            if (error != null) {
+                MensajeErrorMenu(error = error)
+            } else {
+                Text(
+                    text = stringResource(R.string.camara_consejo_pizarra),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -258,6 +257,73 @@ private fun AvisoPermiso(onPermitir: () -> Unit) {
 }
 
 @Composable
+private fun LecturaPizarra(listo: Boolean, onRevisar: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.extendedColors.superficieFija.copy(alpha = 0.82f))
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(if (listo) R.string.camara_leido else R.string.camara_leyendo),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            PasoLectura(texto = stringResource(R.string.camara_paso_texto), hecho = listo, enCurso = !listo)
+            PasoLectura(texto = stringResource(R.string.camara_paso_separar), hecho = listo, enCurso = !listo)
+            PasoLectura(texto = stringResource(R.string.camara_paso_listo), hecho = listo, enCurso = false)
+        }
+        if (listo) {
+            Button(
+                onClick = onRevisar,
+                modifier = Modifier.padding(top = 8.dp).height(52.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary,
+                ),
+            ) {
+                Text(text = stringResource(R.string.camara_revisar), style = MaterialTheme.typography.titleSmall)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PasoLectura(texto: String, hecho: Boolean, enCurso: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        when {
+            hecho -> Box(
+                modifier = Modifier.size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.tertiary),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_listo),
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colorScheme.onTertiary,
+                )
+            }
+            enCurso -> CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = MaterialTheme.colorScheme.secondary,
+                strokeWidth = 2.dp,
+            )
+            else -> Box(
+                modifier = Modifier.size(20.dp).clip(CircleShape).background(MaterialTheme.colorScheme.outlineVariant),
+            )
+        }
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (hecho || enCurso) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+        )
+    }
+}
+
+@Composable
 private fun GuiasEncuadre(modifier: Modifier = Modifier) {
     val color = MaterialTheme.colorScheme.secondary
     Canvas(modifier = modifier) {
@@ -310,6 +376,7 @@ private fun CamaraPreview() {
             uiState = CamaraUiState(),
             camara = null,
             onCerrar = {},
+            onRevisar = {},
             onPermitir = {},
             onTomarFoto = {},
             onElegirDeGaleria = {},

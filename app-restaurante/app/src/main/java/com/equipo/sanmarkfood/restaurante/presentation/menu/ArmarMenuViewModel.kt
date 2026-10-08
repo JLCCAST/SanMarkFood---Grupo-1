@@ -31,7 +31,7 @@ data class ArmarMenuUiState(
     val fecha: String = fechaDeHoy(),
     val cargando: Boolean = false,
     val errorCarga: ErrorMenu? = null,
-    val copiadoDeAyer: Boolean = false,
+    val origen: OrigenMenu? = null,
     val editando: Boolean = false,
     val precio: String = "",
     val entradas: List<String> = emptyList(),
@@ -65,6 +65,7 @@ class ArmarMenuViewModel @Inject constructor(
     private val origenDelBorrador: OrigenMenu? = when (modo) {
         ModoArmarMenu.CERO -> OrigenMenu.CERO
         ModoArmarMenu.COPIAR_AYER -> OrigenMenu.AYER
+        ModoArmarMenu.IA -> OrigenMenu.IA
         ModoArmarMenu.EDITAR -> null
     }
 
@@ -149,7 +150,7 @@ class ArmarMenuViewModel @Inject constructor(
                         refresco = estado.refresco,
                         postre = estado.postre,
                         horaFin = estado.horaFin,
-                        origen = if (estado.copiadoDeAyer) OrigenMenu.AYER else OrigenMenu.CERO,
+                        origen = estado.origen ?: OrigenMenu.CERO,
                     )
                 }
                 _uiState.update { it.copy(publicando = false, publicado = true) }
@@ -164,7 +165,7 @@ class ArmarMenuViewModel @Inject constructor(
     private fun mostrarBorrador(borrador: BorradorMenu) = _uiState.update {
         it.copy(
             cargando = false,
-            copiadoDeAyer = modo == ModoArmarMenu.COPIAR_AYER,
+            origen = borrador.origen,
             precio = borrador.precio,
             entradas = borrador.entradas,
             segundos = borrador.segundos,
@@ -175,7 +176,7 @@ class ArmarMenuViewModel @Inject constructor(
     }
 
     private fun cargarMenu() {
-        if (modo == ModoArmarMenu.CERO) {
+        if (modo == ModoArmarMenu.CERO || modo == ModoArmarMenu.IA) {
             _uiState.update { it.copy(cargando = false) }
             return
         }
@@ -192,7 +193,7 @@ class ArmarMenuViewModel @Inject constructor(
                     } else {
                         estado.copy(
                             cargando = false,
-                            copiadoDeAyer = modo == ModoArmarMenu.COPIAR_AYER,
+                            origen = if (modo == ModoArmarMenu.COPIAR_AYER) OrigenMenu.AYER else null,
                             precio = precioEnSoles(datos.precio),
                             entradas = datos.entradas.map { it.nombre },
                             segundos = datos.segundos.map { it.nombre },
