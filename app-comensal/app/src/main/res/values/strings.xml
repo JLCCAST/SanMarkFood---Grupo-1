@@ -159,4 +159,36 @@
     <string name="descubrimiento_categoria_otra">Otra</string>
     <string name="error_descubrimiento_sin_conexion">Sin conexión a internet</string>
     <string name="error_descubrimiento_desconocido">No pudimos cargar los restaurantes. Inténtalo de nuevo</string>
+
+    <!-- Descubrimiento: filtros (SCRUM-87) -->
+    <string name="descubrimiento_filtro_categoria">Categoría</string>
+    <string name="descubrimiento_filtro_precio">Precio</string>
+    <string name="descubrimiento_filtro_calificacion">Calificación</string>
+    <string name="descubrimiento_precio_hasta_10">Hasta S/ 10</string>
+    <string name="descubrimiento_precio_10_15">S/ 10 a 15</string>
+    <string name="descubrimiento_precio_15_25">S/ 15 a 25</string>
+    <string name="descubrimiento_precio_mas_25">Más de S/ 25</string>
+    <string name="descubrimiento_calif_3">★ 3 o más</string>
+    <string name="descubrimiento_calif_4">★ 4 o más</string>
+    <string name="descubrimiento_calif_45">★ 4,5 o más</string>
+    <string name="descubrimiento_sin_coincidencias">Ningún restaurante coincide con tus filtros</string>
+    <string name="descubrimiento_limpiar_filtros">Limpiar filtros</string>
+    <string name="descubrimiento_filtrar_por">Filtrar por</string>
+    <string name="descubrimiento_filtros_descripcion">Abrir filtros</string>
+
+    <!-- Mapa de restaurantes (SCRUM-149) -->
+    <string name="mapa_pin_precio">S/ %1$s</string>
+    <string name="mapa_pin_carta">Carta</string>
+    <string name="mapa_pin_cerrado">Cerrado</string>
+    <string name="mapa_descripcion">Mapa de restaurantes cercanos</string>
+
+    <!-- Filtros de Explorar: botones y panel «Filtrar locales» -->
+    <string name="descubrimiento_boton_filtros">Filtros</string>
+    <string name="descubrimiento_chip_menu_hoy">Con menú hoy</string>
+    <string name="descubrimiento_chip_abierto_ahora">Abierto ahora</string>
+    <string name="descubrimiento_panel_titulo">Filtrar locales</string>
+    <string name="descubrimiento_filtro_rango_precio">Rango de precio</string>
+    <string name="descubrimiento_panel_todas">Todas</string>
+    <string name="descubrimiento_panel_todos">Todos</string>
+    <string name="descubrimiento_panel_listo">Listo</string>
 </resources>

@@ -6,6 +6,10 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.RestaurantesCercanos
 import com.equipo.sanmarkfood.comensal.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.UbicacionRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import kotlin.math.PI
 import kotlin.math.atan2
@@ -26,7 +30,27 @@ class ObtenerRestaurantesCercanosUseCase @Inject constructor(
         }
 
         val usuario = if (usarUbicacion) ubicaciones.obtenerUbicacionActual() else null
+        return Result.success(ordenarPorDistancia(lista, usuario))
+    }
 
+    /**
+     * Igual que [invoke], pero en vivo: la ubicación se obtiene una vez y la lista se
+     * vuelve a emitir cada vez que cambia en Firestore. Si falla, el flujo termina con
+     * un ErrorDescubrimiento.
+     */
+    fun observar(usarUbicacion: Boolean): Flow<RestaurantesCercanos> = flow {
+        val usuario = if (usarUbicacion) ubicaciones.obtenerUbicacionActual() else null
+        emitAll(
+            restaurantes.observarRestaurantesAprobados()
+                .map { lista -> ordenarPorDistancia(lista, usuario) }
+        )
+    }
+
+    /** Calcula la distancia de cada local y ordena: con distancia primero, luego por nombre. */
+    private fun ordenarPorDistancia(
+        lista: List<Restaurante>,
+        usuario: Coordenadas?
+    ): RestaurantesCercanos {
         val conDistancia = lista.map { restaurante ->
             val local = restaurante.ubicacion
             val distancia = if (usuario != null && local != null) {
@@ -43,7 +67,7 @@ class ObtenerRestaurantesCercanosUseCase @Inject constructor(
                 .thenBy { it.nombre.lowercase() }
         )
 
-        return Result.success(RestaurantesCercanos(ordenada, conDistancia = usuario != null))
+        return RestaurantesCercanos(ordenada, conDistancia = usuario != null)
     }
 
     /** Distancia entre dos puntos sobre la esfera terrestre (fórmula de Haversine). */
