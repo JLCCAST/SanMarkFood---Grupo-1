@@ -7,6 +7,7 @@ interface AuthRepository {
     suspend fun enviarVerificacion()
     suspend fun correoVerificado(): Boolean
     suspend fun iniciarSesion(correo: String, contrasena: String)
+    suspend fun iniciarSesionConGoogle(): Boolean
     suspend fun estadoSesion(): EstadoSesion
     fun cerrarSesion()
     suspend fun enviarRecuperacion(correo: String)
