@@ -15,6 +15,7 @@
     <string name="error_correo_invalido">Revisa el correo: no parece válido.</string>
     <string name="error_correo_sin_verificar">Todavía no vemos tu correo confirmado. Abre el enlace que te enviamos y vuelve a intentarlo.</string>
     <string name="error_cuenta_comensal">Esta cuenta es de comensal. Para pedir, usa la app San Mark Food; para tu local, crea una cuenta con otro correo.</string>
+    <string name="error_sin_cuenta_google">No hay una cuenta de Google en este celular. Agrégala en Ajustes o inicia sesión con tu correo.</string>
     <string name="error_demasiados_intentos">Hiciste muchos intentos seguidos. Espera unos minutos y vuelve a intentarlo.</string>
     <string name="error_desconocido">Algo salió mal. Inténtalo de nuevo.</string>
 
@@ -29,6 +30,8 @@
     <string name="login_titulo">Inicia sesión</string>
     <string name="login_olvidaste">¿Olvidaste tu contraseña?</string>
     <string name="login_iniciar_sesion">Iniciar sesión</string>
+    <string name="login_o">o</string>
+    <string name="login_google">Continuar con Google</string>
     <string name="login_sesion_guardada">Tu sesión quedará iniciada en este celular. Puedes usar la misma cuenta en otro celular del local.</string>
     <string name="login_sin_local">¿Tu local aún no está?</string>
     <string name="login_registralo">Regístralo</string>
