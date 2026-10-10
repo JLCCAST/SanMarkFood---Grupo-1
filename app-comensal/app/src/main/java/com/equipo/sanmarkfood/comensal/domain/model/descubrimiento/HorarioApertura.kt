@@ -42,7 +42,7 @@ fun Restaurante.estaAbiertoAhora(
 
     val abre = minutosDelDia(dia.abre) ?: return false
     val cierra = minutosDelDia(dia.cierra) ?: return false
-    val minutoActual = ahora.get(Calendar.HOUR_OF_DAY) * 60 + ahora.get(Calendar.MINUTE)
+    val minutoActual = ahora.get(Calendar.HOUR_OF_DAY) * 60 + abreMinutoActual(ahora)
 
     return if (cierra > abre) {
         minutoActual in abre until cierra
@@ -50,4 +50,15 @@ fun Restaurante.estaAbiertoAhora(
         // Cierra después de medianoche (por ejemplo, de 18:00 a 02:00).
         minutoActual >= abre || minutoActual < cierra
     }
+}
+
+private fun abreMinutoActual(ahora: Calendar): Int = ahora.get(Calendar.MINUTE)
+
+/** Devuelve la hora de cierre de hoy (formato "HH:mm") si el local está abierto ahora; null en caso contrario. */
+fun Restaurante.horaCierraHoy(
+    ahora: Calendar = Calendar.getInstance(ZONA_APERTURA)
+): String? {
+    if (!estaAbiertoAhora(ahora)) return null
+    val clave = ahora.get(Calendar.DAY_OF_WEEK).claveDia() ?: return null
+    return horario[clave]?.cierra
 }

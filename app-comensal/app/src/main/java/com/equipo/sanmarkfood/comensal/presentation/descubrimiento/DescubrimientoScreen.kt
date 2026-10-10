@@ -13,6 +13,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -60,13 +61,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,6 +80,8 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.CategoriaRest
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.ErrorDescubrimiento
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.FiltroDescubrimiento
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
+import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
+import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -85,7 +89,6 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import java.util.Locale
 
-// Tramos de precio del menú, en céntimos. Un valor null significa «sin límite».
 private enum class TramoPrecio(
     @param:StringRes val etiqueta: Int,
     val minimo: Int?,
@@ -106,23 +109,21 @@ private enum class CalificacionMinima(
     CUATRO_Y_MEDIO(R.string.descubrimiento_calif_45, 4.5)
 }
 
-// Alto de la hoja con la lista cuando está recogida: deja ver la primera tarjeta.
 private val ALTO_HOJA_RECOGIDA = 240.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DescubrimientoScreen(
     modifier: Modifier = Modifier,
+    restauranteAEnfocar: String? = null,
+    onRestauranteClick: (String) -> Unit = {},
     viewModel: DescubrimientoViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val contexto = LocalContext.current
 
-    // true cuando el usuario ya hizo lo que le toca: dar el permiso y encender la
-    // ubicación del celular. Mientras sea false se muestra el aviso con el botón.
     var ubicacionLista by remember { mutableStateOf(ubicacionDisponible(contexto)) }
 
-    // Vuelve a leer el estado real; si la ubicación acaba de quedar lista, recarga la lista.
     val actualizar: () -> Unit = {
         val ahora = ubicacionDisponible(contexto)
         if (ahora != ubicacionLista) {
@@ -131,8 +132,6 @@ fun DescubrimientoScreen(
         }
     }
 
-    // Se actualiza al instante cuando se enciende o apaga la ubicación del celular,
-    // también desde la barra de ajustes rápidos.
     DisposableEffect(contexto) {
         val receptor = object : BroadcastReceiver() {
             override fun onReceive(contexto: Context?, intent: Intent?) = actualizar()
@@ -147,15 +146,12 @@ fun DescubrimientoScreen(
         onDispose { contexto.unregisterReceiver(receptor) }
     }
 
-    // También al volver a la app (por ejemplo, desde los ajustes del sistema).
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { actualizar() }
 
-    // Plan B: si el cuadro de Google no está disponible, se abren los ajustes de ubicación.
     val abrirAjustesUbicacion = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { actualizar() }
 
-    // Respuesta del cuadro «activa la ubicación» de Google.
     val resolverAjustes = rememberLauncherForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { resultado ->
@@ -165,7 +161,6 @@ fun DescubrimientoScreen(
         }
     }
 
-    // Pide encender la ubicación con el cuadro de Google, como Maps o Uber.
     val pedirActivarUbicacion: () -> Unit = {
         val peticion = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10_000L).build()
         val ajustes = LocationSettingsRequest.Builder().addLocationRequest(peticion).build()
@@ -189,7 +184,6 @@ fun DescubrimientoScreen(
     ) { resultado ->
         val concedido = resultado.values.any { it }
         when {
-            // Permiso dado pero ubicación apagada: se pide encenderla.
             concedido && !ubicacionDelCelularActiva(contexto) -> pedirActivarUbicacion()
             else -> {
                 actualizar()
@@ -202,21 +196,15 @@ fun DescubrimientoScreen(
         viewModel.iniciar(usarUbicacion = tienePermisoDeUbicacion(contexto))
     }
 
-    // Botón «Activar ubicación» del aviso de la lista.
     val activarUbicacion: () -> Unit = {
         when {
-            // Sin permiso: se pide.
             !tienePermisoDeUbicacion(contexto) -> solicitarPermiso.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
-
-            // Con permiso, pero la ubicación del celular está apagada.
             !ubicacionDelCelularActiva(contexto) -> pedirActivarUbicacion()
-
-            // Todo listo: se actualiza el aviso y se vuelve a intentar.
             else -> {
                 actualizar()
                 viewModel.cargar(usarUbicacion = true)
@@ -224,61 +212,30 @@ fun DescubrimientoScreen(
         }
     }
 
-    // Local elegido, ya sea tocando su pin en el mapa o su tarjeta en la lista.
     var seleccionadoId by rememberSaveable { mutableStateOf<String?>(null) }
     var panelAbierto by rememberSaveable { mutableStateOf(false) }
+
+    // Primer toque (tarjeta o pin) selecciona y centra; tocar de nuevo lo ya seleccionado abre el detalle.
+    val onRestauranteSeleccionado: (String) -> Unit = { id ->
+        if (seleccionadoId == id) {
+            onRestauranteClick(id)
+        } else {
+            seleccionadoId = id
+        }
+    }
+
+    // Viene de "Ver en el mapa" en el detalle: selecciona y centra sin pasar por onRestauranteSeleccionado.
+    LaunchedEffect(restauranteAEnfocar) {
+        if (restauranteAEnfocar != null) seleccionadoId = restauranteAEnfocar
+    }
     val estadoLista = rememberLazyListState()
     val estadoHoja = rememberBottomSheetScaffoldState()
     val desplazamientoBotones = rememberScrollState()
 
-    // Los botones de filtros solo tienen sentido cuando ya hay una lista que mostrar.
     val cargandoSinDatos = state.isLoading && state.restaurantes.isEmpty()
     val errorSinDatos = state.error != null && state.restaurantes.isEmpty()
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = stringResource(R.string.home_tab_explorar),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 8.dp),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.ExtraBold
-        )
-
-        if (!cargandoSinDatos && !errorSinDatos) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(desplazamientoBotones)
-                    .padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ChipFiltro(
-                    texto = stringResource(R.string.descubrimiento_boton_filtros),
-                    seleccionado = state.filtro.hayFiltrosDelPanel(),
-                    onClick = { panelAbierto = true }
-                )
-                ChipFiltro(
-                    texto = stringResource(R.string.descubrimiento_chip_menu_hoy),
-                    seleccionado = state.filtro.soloConMenuHoy,
-                    onClick = {
-                        viewModel.filtrar(
-                            state.filtro.copy(soloConMenuHoy = !state.filtro.soloConMenuHoy)
-                        )
-                    }
-                )
-                ChipFiltro(
-                    texto = stringResource(R.string.descubrimiento_chip_abierto_ahora),
-                    seleccionado = state.filtro.soloAbiertoAhora,
-                    onClick = {
-                        viewModel.filtrar(
-                            state.filtro.copy(soloAbiertoAhora = !state.filtro.soloAbiertoAhora)
-                        )
-                    }
-                )
-            }
-        }
-
+    Box(modifier = modifier.fillMaxSize()) {
         when {
             cargandoSinDatos -> Cargando()
 
@@ -287,33 +244,77 @@ fun DescubrimientoScreen(
                 onReintentar = { viewModel.cargar(tienePermisoDeUbicacion(contexto)) }
             )
 
-            // Mapa al fondo y, encima, la lista como hoja que se desliza hacia arriba.
-            else -> BottomSheetScaffold(
-                scaffoldState = estadoHoja,
-                modifier = Modifier.weight(1f),
-                sheetPeekHeight = ALTO_HOJA_RECOGIDA,
-                sheetContent = {
-                    ListaRestaurantes(
+            else -> {
+                BottomSheetScaffold(
+                    scaffoldState = estadoHoja,
+                    modifier = Modifier.fillMaxSize(),
+                    sheetPeekHeight = ALTO_HOJA_RECOGIDA,
+                    sheetContent = {
+                        ListaRestaurantes(
+                            restaurantes = state.restaurantes,
+                            estadoLista = estadoLista,
+                            seleccionadoId = seleccionadoId,
+                            onSeleccionar = onRestauranteSeleccionado,
+                            hayFiltros = state.filtro != FiltroDescubrimiento(),
+                            onLimpiarFiltros = { viewModel.filtrar(FiltroDescubrimiento()) },
+                            mostrarAviso = !ubicacionLista,
+                            ubicacionActiva = ubicacionLista,
+                            onActivarUbicacion = activarUbicacion
+                        )
+                    }
+                ) { relleno ->
+                    MapaRestaurantes(
                         restaurantes = state.restaurantes,
-                        estadoLista = estadoLista,
                         seleccionadoId = seleccionadoId,
-                        onSeleccionar = { seleccionadoId = it },
-                        hayFiltros = state.filtro != FiltroDescubrimiento(),
-                        onLimpiarFiltros = { viewModel.filtrar(FiltroDescubrimiento()) },
-                        mostrarAviso = !ubicacionLista,
-                        onActivarUbicacion = activarUbicacion
+                        onSeleccionar = onRestauranteSeleccionado,
+                        mostrarMiUbicacion = ubicacionLista,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(relleno)
                     )
                 }
-            ) { relleno ->
-                MapaRestaurantes(
-                    restaurantes = state.restaurantes,
-                    seleccionadoId = seleccionadoId,
-                    onSeleccionar = { seleccionadoId = it },
-                    mostrarMiUbicacion = ubicacionLista,
+
+                // Chips flotando sobre el mapa
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(relleno)
-                )
+                        .fillMaxWidth()
+                        .horizontalScroll(desplazamientoBotones)
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ChipFiltro(
+                        texto = stringResource(R.string.descubrimiento_boton_filtros),
+                        seleccionado = state.filtro.hayFiltrosDelPanel(),
+                        onClick = { panelAbierto = true }
+                    )
+                    ChipFiltro(
+                        texto = stringResource(R.string.descubrimiento_chip_menu_hoy),
+                        seleccionado = state.filtro.soloConMenuHoy,
+                        onClick = {
+                            viewModel.filtrar(
+                                state.filtro.copy(soloConMenuHoy = !state.filtro.soloConMenuHoy)
+                            )
+                        }
+                    )
+                    ChipFiltro(
+                        texto = stringResource(R.string.descubrimiento_chip_abierto_ahora),
+                        seleccionado = state.filtro.soloAbiertoAhora,
+                        onClick = {
+                            viewModel.filtrar(
+                                state.filtro.copy(soloAbiertoAhora = !state.filtro.soloAbiertoAhora)
+                            )
+                        }
+                    )
+                    ChipFiltro(
+                        texto = stringResource(R.string.descubrimiento_chip_favoritos),
+                        seleccionado = state.filtro.soloFavoritos,
+                        onClick = {
+                            viewModel.filtrar(
+                                state.filtro.copy(soloFavoritos = !state.filtro.soloFavoritos)
+                            )
+                        }
+                    )
+                }
             }
         }
     }
@@ -327,32 +328,33 @@ fun DescubrimientoScreen(
     }
 }
 
-/** true si hay algún filtro del panel (categoría, precio o calificación); los botones no cuentan. */
 private fun FiltroDescubrimiento.hayFiltrosDelPanel(): Boolean =
     categoria != null ||
             precioMinimo != null ||
             precioMaximo != null ||
             calificacionMinima != null
 
-/** Botón en forma de chip: se ve oscuro cuando su filtro está activo. */
 @Composable
 private fun ChipFiltro(texto: String, seleccionado: Boolean, onClick: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    FilterChip(
-        selected = seleccionado,
-        onClick = onClick,
-        label = { Text(texto) },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = colors.onSurface,
-            selectedLabelColor = colors.surface
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 2.dp,
+        border = null
+    ) {
+        FilterChip(
+            selected = seleccionado,
+            onClick = onClick,
+            label = { Text(texto) },
+            border = null,
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = MaterialTheme.colorScheme.onSurface,
+                selectedLabelColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.surface
+            )
         )
-    )
+    }
 }
 
-/**
- * Panel «Filtrar locales»: Categoría, Rango de precio y Calificación. Los cambios se aplican
- * al instante; «Limpiar» borra solo estos tres filtros y «Listo» cierra el panel.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PanelFiltros(
@@ -362,7 +364,6 @@ private fun PanelFiltros(
 ) {
     val estadoPanel = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Tramo de precio que corresponde al filtro actual (ninguno si no hay filtro de precio).
     val tramoActual = TramoPrecio.entries.firstOrNull {
         it.minimo == filtro.precioMinimo && it.maximo == filtro.precioMaximo
     }
@@ -488,14 +489,14 @@ private fun ListaRestaurantes(
     hayFiltros: Boolean,
     onLimpiarFiltros: () -> Unit,
     mostrarAviso: Boolean,
+    ubicacionActiva: Boolean,
     onActivarUbicacion: () -> Unit
 ) {
-    // Al elegir un local (por ejemplo, tocando su pin) la lista se desplaza hasta su tarjeta.
-    // El aviso de ubicación, si está, ocupa el primer lugar de la lista.
-    val lugaresAntes = if (mostrarAviso) 1 else 0
+    val elementosEncabezado = if (mostrarAviso) 2 else 1
+
     LaunchedEffect(seleccionadoId) {
         val indice = restaurantes.indexOfFirst { it.id == seleccionadoId }
-        if (indice >= 0) estadoLista.animateScrollToItem(indice + lugaresAntes)
+        if (indice >= 0) estadoLista.animateScrollToItem(indice + elementosEncabezado)
     }
 
     LazyColumn(
@@ -506,6 +507,13 @@ private fun ListaRestaurantes(
     ) {
         if (mostrarAviso) {
             item { AvisoUbicacion(onActivar = onActivarUbicacion) }
+        }
+
+        item {
+            CabeceraLista(
+                cantidad = restaurantes.size,
+                ubicacionActiva = ubicacionActiva
+            )
         }
 
         if (restaurantes.isEmpty()) {
@@ -533,6 +541,35 @@ private fun ListaRestaurantes(
                 onClick = { onSeleccionar(restaurante.id) }
             )
         }
+    }
+}
+
+@Composable
+private fun CabeceraLista(cantidad: Int, ubicacionActiva: Boolean) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.descubrimiento_cerca_de_ti),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.ExtraBold
+        )
+
+        val textoConteo = if (ubicacionActiva) {
+            stringResource(R.string.descubrimiento_conteo_cercania, cantidad)
+        } else {
+            stringResource(R.string.descubrimiento_conteo_zona, cantidad)
+        }
+
+        Text(
+            text = textoConteo,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -590,12 +627,17 @@ private fun TarjetaRestaurante(
 ) {
     val colors = MaterialTheme.colorScheme
     val forma = RoundedCornerShape(16.dp)
+
+    val fondo = if (seleccionado) Color(0xFFFFF8F6) else colors.surfaceContainerHigh
+    val borde = if (seleccionado) BorderStroke(1.5.dp, Color(0xFF8B1D24)) else null
+
     Surface(
         modifier = Modifier
             .clip(forma)
             .clickable(onClick = onClick),
         shape = forma,
-        color = if (seleccionado) colors.primaryContainer else colors.surfaceContainerHigh
+        color = fondo,
+        border = borde
     ) {
         Row(
             modifier = Modifier
@@ -615,42 +657,57 @@ private fun TarjetaRestaurante(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = stringResource(restaurante.categoria.etiqueta()),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant
-                )
+
+                val partesDetalle = mutableListOf<String>()
+                partesDetalle.add(stringResource(restaurante.categoria.etiqueta()))
 
                 val promedio = restaurante.calificacionPromedio
+                if (promedio != null && restaurante.totalResenas > 0) {
+                    partesDetalle.add("★ ${formatearDecimal(promedio)}")
+                }
+
+                restaurante.distanciaMetros?.let { metros ->
+                    partesDetalle.add(textoDistancia(metros))
+                }
+
                 Text(
-                    text = if (promedio != null && restaurante.totalResenas > 0) {
-                        pluralStringResource(
-                            R.plurals.descubrimiento_calificacion,
-                            restaurante.totalResenas,
-                            formatearDecimal(promedio),
-                            restaurante.totalResenas
-                        )
-                    } else {
-                        stringResource(R.string.descubrimiento_sin_resenas)
-                    },
+                    text = partesDetalle.joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.onSurfaceVariant
                 )
 
-                restaurante.distanciaMetros?.let { metros ->
+                val horaCierra = restaurante.horaCierraHoy()
+                if (horaCierra != null) {
                     Text(
-                        text = textoDistancia(metros),
+                        text = "Abierto · hasta las $horaCierra",
                         style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF2E7D32)
                     )
-                }
-
-                if (restaurante.pausado) {
+                } else {
                     Text(
                         text = stringResource(R.string.descubrimiento_cerrado),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
                         color = colors.error
+                    )
+                }
+            }
+
+            val menu = restaurante.menuVigente()
+            if (menu != null) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "MENÚ HOY",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        fontWeight = FontWeight.Bold,
+                        color = colors.onSurfaceVariant
+                    )
+                    Text(
+                        text = "S/ ${menu.precio / 100}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF8B1D24)
                     )
                 }
             }
@@ -718,9 +775,9 @@ private fun ErrorConReintento(error: ErrorDescubrimiento, onReintentar: () -> Un
 @Composable
 private fun textoDistancia(metros: Int): String =
     if (metros < 1000) {
-        stringResource(R.string.descubrimiento_distancia_m, metros)
+        "${metros} m"
     } else {
-        stringResource(R.string.descubrimiento_distancia_km, formatearDecimal(metros / 1000.0))
+        "${formatearDecimal(metros / 1000.0)} km"
     }
 
 private fun formatearDecimal(valor: Double): String =
@@ -732,13 +789,11 @@ private fun tienePermisoDeUbicacion(contexto: Context): Boolean =
             ContextCompat.checkSelfPermission(contexto, Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
 
-/** true si el interruptor de ubicación del celular está encendido. */
 private fun ubicacionDelCelularActiva(contexto: Context): Boolean {
     val administrador = contexto.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
     return administrador != null && LocationManagerCompat.isLocationEnabled(administrador)
 }
 
-/** true si la app tiene el permiso y la ubicación del celular está encendida. */
 private fun ubicacionDisponible(contexto: Context): Boolean =
     tienePermisoDeUbicacion(contexto) && ubicacionDelCelularActiva(contexto)
 

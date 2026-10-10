@@ -7,13 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.EtiquetaPin
@@ -50,28 +45,25 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 import kotlin.math.roundToLong
 
-// Centro de Lima: posición inicial mientras no hay locales con ubicación.
 private val CENTRO_LIMA = LatLng(-12.0464, -77.0428)
-
-// Zoom cuando todos los puntos están casi en el mismo lugar: se ven las calles cercanas.
 private const val ZOOM_CERCA = 16f
-
-// Si todos los puntos caben en menos de este rango (en grados, unos 50 m), no se encuadra: se acerca.
 private const val RANGO_MINIMO_GRADOS = 0.0005
-
-// Margen en píxeles entre los pines y el borde del mapa.
 private const val MARGEN_ENCUADRE = 150
+private val ALTO_NIVEL_ETIQUETA = 36.dp
 
-// Cuánto sube el nombre de cada local que comparte lugar con otro, por nivel.
-private val ALTO_NIVEL_NOMBRE = 30.dp
+private val FormaPunta = GenericShape { tamano, _ ->
+    moveTo(0f, 0f)
+    lineTo(tamano.width, 0f)
+    lineTo(tamano.width / 2f, tamano.height)
+    close()
+}
 
 /**
- * Mapa con un pin por local: el nombre del restaurante sobre un icono de ubicación.
- * Dibuja la misma lista que la pantalla, así que respeta los filtros.
- * El encuadre incluye al usuario (si hay ubicación) y todos los locales, con margen.
- * Los botones + y − del mapa quedan a un costado, como en Google Maps.
+ * Mapa con un pin por local (SCRUM-149).
+ * Muestra el encuadre con los locales e incluye al usuario si la ubicación está activa.
  */
 @Composable
 fun MapaRestaurantes(
@@ -92,21 +84,25 @@ fun MapaRestaurantes(
         restaurante.ubicacion?.let { LatLng(it.latitud, it.longitud) }
     }
 
-    // Altura del nombre de cada local: 0 si está solo; 1, 2... si comparte lugar con otros.
     val niveles = remember(restaurantes) { nivelesPorLugar(restaurantes) }
 
-    // Lee la posición del usuario cuando la ubicación queda lista; la borra si se apaga.
     LaunchedEffect(mostrarMiUbicacion) {
         miPosicion = if (mostrarMiUbicacion) obtenerPosicionActual(contexto) else null
     }
 
-    // Encuadra al usuario y a los locales cada vez que cambia la lista (por ejemplo, al filtrar)
-    // o llega la posición del usuario.
+    // Encuadre inicial o cuando cambia la lista de restaurantes o mi posición.
     LaunchedEffect(mapaCargado, puntos, miPosicion) {
         if (!mapaCargado) return@LaunchedEffect
         val todos = puntos + listOfNotNull(miPosicion)
         if (todos.isEmpty()) return@LaunchedEffect
         camara.animate(encuadrar(todos))
+    }
+
+    // Centra el mapa en el local elegido al tocar su tarjeta en la lista.
+    LaunchedEffect(seleccionadoId) {
+        if (!mapaCargado || seleccionadoId == null) return@LaunchedEffect
+        val objetivo = restaurantes.firstOrNull { it.id == seleccionadoId }?.ubicacion ?: return@LaunchedEffect
+        camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(objetivo.latitud, objetivo.longitud), ZOOM_CERCA))
     }
 
     GoogleMap(
@@ -120,13 +116,12 @@ fun MapaRestaurantes(
         restaurantes.forEach { restaurante ->
             val ubicacion = restaurante.ubicacion ?: return@forEach
             val seleccionado = restaurante.id == seleccionadoId
-            val cerrado = restaurante.etiquetaPin() == EtiquetaPin.Cerrado
+            val etiqueta = restaurante.etiquetaPin()
             val nivel = niveles[restaurante.id] ?: 0
 
             key(restaurante.id) {
                 MarkerComposable(
-                    restaurante.nombre,
-                    cerrado,
+                    etiqueta,
                     seleccionado,
                     nivel,
                     state = rememberUpdatedMarkerState(
@@ -139,8 +134,7 @@ fun MapaRestaurantes(
                     }
                 ) {
                     PinRestaurante(
-                        nombre = restaurante.nombre,
-                        cerrado = cerrado,
+                        etiqueta = etiqueta,
                         seleccionado = seleccionado,
                         nivel = nivel
                     )
@@ -150,10 +144,6 @@ fun MapaRestaurantes(
     }
 }
 
-/**
- * Los locales que están en el mismo lugar (a menos de unos 11 m) se reparten niveles 0, 1, 2...
- * para que sus nombres no se tapen. Un local solo siempre queda en el nivel 0.
- */
 private fun nivelesPorLugar(restaurantes: List<Restaurante>): Map<String, Int> {
     val niveles = mutableMapOf<String, Int>()
     restaurantes
@@ -174,7 +164,6 @@ private fun nivelesPorLugar(restaurantes: List<Restaurante>): Map<String, Int> {
     return niveles
 }
 
-/** Mueve la cámara para que entren todos los puntos con margen; se acerca si están juntos. */
 private fun encuadrar(puntos: List<LatLng>): CameraUpdate {
     val latMin = puntos.minOf { it.latitude }
     val latMax = puntos.maxOf { it.latitude }
@@ -190,7 +179,6 @@ private fun encuadrar(puntos: List<LatLng>): CameraUpdate {
     return CameraUpdateFactory.newLatLngBounds(limites, MARGEN_ENCUADRE)
 }
 
-/** Posición actual del celular, o null si no se pudo leer. Solo se llama con el permiso dado. */
 @SuppressLint("MissingPermission")
 private suspend fun obtenerPosicionActual(contexto: Context): LatLng? =
     try {
@@ -205,50 +193,53 @@ private suspend fun obtenerPosicionActual(contexto: Context): LatLng? =
     }
 
 @Composable
-private fun PinRestaurante(nombre: String, cerrado: Boolean, seleccionado: Boolean, nivel: Int) {
+private fun PinRestaurante(etiqueta: EtiquetaPin, seleccionado: Boolean, nivel: Int) {
     val colors = MaterialTheme.colorScheme
+    val cerrado = etiqueta == EtiquetaPin.Cerrado
 
+    val texto = when (etiqueta) {
+        is EtiquetaPin.Precio ->
+            stringResource(R.string.mapa_pin_precio, formatearSoles(etiqueta.centimos))
+        is EtiquetaPin.Nombre -> etiqueta.texto
+        EtiquetaPin.Cerrado -> stringResource(R.string.mapa_pin_cerrado)
+    }
     val fondo = when {
         seleccionado -> colors.primary
-        cerrado -> colors.surfaceVariant
-        else -> colors.surface
-    }
-    val letra = when {
-        seleccionado -> colors.onPrimary
         cerrado -> colors.onSurfaceVariant
         else -> colors.onSurface
     }
-    val colorIcono = if (cerrado) colors.onSurfaceVariant else colors.primary
+    val letra = if (seleccionado) colors.onPrimary else colors.surface
 
-    // El icono queda abajo y al centro: su punta es el lugar exacto del local en el mapa.
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(shape = RoundedCornerShape(50), color = fondo, shadowElevation = 4.dp) {
             Text(
-                text = nombre,
-                modifier = Modifier
-                    .widthIn(max = 160.dp)
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                text = texto,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
-                color = letra,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                color = letra
             )
         }
-        // Línea que une el nombre con el icono cuando el nombre sube por compartir lugar.
         if (nivel > 0) {
             Box(
                 modifier = Modifier
                     .width(2.dp)
-                    .height(ALTO_NIVEL_NOMBRE * nivel)
-                    .background(colorIcono)
+                    .height(ALTO_NIVEL_ETIQUETA * nivel)
+                    .background(fondo)
             )
         }
-        Icon(
-            imageVector = Icons.Filled.Place,
-            contentDescription = null,
-            modifier = Modifier.size(if (seleccionado) 36.dp else 30.dp),
-            tint = colorIcono
+        Box(
+            modifier = Modifier
+                .width(14.dp)
+                .height(8.dp)
+                .background(color = fondo, shape = FormaPunta)
         )
     }
 }
+
+private fun formatearSoles(centimos: Int): String =
+    if (centimos % 100 == 0) {
+        (centimos / 100).toString()
+    } else {
+        String.format(Locale.forLanguageTag("es-PE"), "%.2f", centimos / 100.0)
+    }

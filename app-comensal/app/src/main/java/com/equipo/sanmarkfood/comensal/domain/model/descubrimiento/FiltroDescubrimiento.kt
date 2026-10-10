@@ -6,5 +6,6 @@ data class FiltroDescubrimiento(
     val precioMaximo: Int? = null,
     val calificacionMinima: Double? = null,
     val soloConMenuHoy: Boolean = false,
-    val soloAbiertoAhora: Boolean = false
+    val soloAbiertoAhora: Boolean = false,
+    val soloFavoritos: Boolean = false
 )

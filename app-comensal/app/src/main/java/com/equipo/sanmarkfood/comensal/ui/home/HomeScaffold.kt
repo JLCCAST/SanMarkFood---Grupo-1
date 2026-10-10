@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DescubrimientoScreen
+import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestauranteScreen
 import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
 private enum class Pestana(@param:StringRes val tituloRes: Int, val icono: ImageVector) {
@@ -45,6 +47,24 @@ fun HomeScaffold(
 ) {
     val colors = MaterialTheme.colorScheme
     var seleccionada by rememberSaveable { mutableIntStateOf(0) }
+    var restauranteSeleccionadoId by rememberSaveable { mutableStateOf<String?>(null) }
+    var restauranteAEnfocar by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Si hay un restaurante seleccionado, mostramos la pantalla de detalle a pantalla completa
+    val idActual = restauranteSeleccionadoId
+    if (idActual != null) {
+        DetalleRestauranteScreen(
+            restauranteId = idActual,
+            onVolver = { restauranteSeleccionadoId = null },
+            onVerEnMapa = { id ->
+                restauranteSeleccionadoId = null
+                restauranteAEnfocar = id
+                seleccionada = Pestana.EXPLORAR.ordinal
+            },
+            modifier = modifier
+        )
+        return
+    }
 
     Scaffold(
         modifier = modifier,
@@ -72,6 +92,8 @@ fun HomeScaffold(
     ) { innerPadding ->
         when (Pestana.entries[seleccionada]) {
             Pestana.EXPLORAR -> DescubrimientoScreen(
+                restauranteAEnfocar = restauranteAEnfocar,
+                onRestauranteClick = { id -> restauranteSeleccionadoId = id },
                 modifier = Modifier.padding(innerPadding)
             )
 
@@ -89,7 +111,6 @@ fun HomeScaffold(
     }
 }
 
-// Temporal: se reemplazará cuando existan las pantallas de otras historias.
 @Composable
 private fun PestanaProvisional(
     titulo: String,

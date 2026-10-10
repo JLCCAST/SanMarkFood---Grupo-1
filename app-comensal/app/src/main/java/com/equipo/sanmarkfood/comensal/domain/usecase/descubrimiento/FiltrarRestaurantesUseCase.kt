@@ -9,13 +9,18 @@ import javax.inject.Inject
 /** Filtra sobre la lista ya traída (D7): nada de volver a consultar Firestore. */
 class FiltrarRestaurantesUseCase @Inject constructor() {
 
-    operator fun invoke(lista: List<Restaurante>, filtro: FiltroDescubrimiento): List<Restaurante> =
+    operator fun invoke(
+        lista: List<Restaurante>,
+        filtro: FiltroDescubrimiento,
+        favoritos: Set<String> = emptySet()
+    ): List<Restaurante> =
         lista.filter {
             coincideCategoria(it, filtro) &&
                     coincidePrecio(it, filtro) &&
                     coincideCalificacion(it, filtro) &&
                     coincideMenuHoy(it, filtro) &&
-                    coincideAbiertoAhora(it, filtro)
+                    coincideAbiertoAhora(it, filtro) &&
+                    coincideFavorito(it, filtro, favoritos)
         }
 
     private fun coincideCategoria(restaurante: Restaurante, filtro: FiltroDescubrimiento): Boolean =
@@ -53,4 +58,12 @@ class FiltrarRestaurantesUseCase @Inject constructor() {
     /** «Abierto ahora»: según el `horario` del local, en hora de Lima. */
     private fun coincideAbiertoAhora(restaurante: Restaurante, filtro: FiltroDescubrimiento): Boolean =
         !filtro.soloAbiertoAhora || restaurante.estaAbiertoAhora()
+
+    /** «Favoritos»: el local está entre los que el comensal marcó. */
+    private fun coincideFavorito(
+        restaurante: Restaurante,
+        filtro: FiltroDescubrimiento,
+        favoritos: Set<String>
+    ): Boolean =
+        !filtro.soloFavoritos || restaurante.id in favoritos
 }

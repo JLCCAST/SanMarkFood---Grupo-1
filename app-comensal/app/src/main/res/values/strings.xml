@@ -191,4 +191,11 @@
     <string name="descubrimiento_panel_todas">Todas</string>
     <string name="descubrimiento_panel_todos">Todos</string>
     <string name="descubrimiento_panel_listo">Listo</string>
+    <string name="descubrimiento_cerca_de_ti">Cerca de ti</string>
+    <string name="descubrimiento_conteo_cercania">%1$d locales · por cercanía</string>
+    <string name="descubrimiento_conteo_zona">%1$d locales · en la zona</string>
+
+    <!-- Filtro de favoritos en Explorar -->
+    <string name="descubrimiento_chip_favoritos">Favoritos</string>
+    <string name="error_favorito_desconocido">No se pudo actualizar tus favoritos. Inténtalo de nuevo</string>
 </resources>
