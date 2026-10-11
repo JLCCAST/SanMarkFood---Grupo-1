@@ -201,4 +201,45 @@
     <string name="descubrimiento_buscar_placeholder">Busca un local o un plato</string>
     <string name="descubrimiento_campana_descripcion">Notificaciones</string>
     <string name="descubrimiento_avatar_descripcion">Tu perfil</string>
+    <!-- Detalle del restaurante (SCRUM-88) -->
+    <string name="detalle_volver">Volver</string>
+    <string name="detalle_favorito_agregar">Agregar a favoritos</string>
+    <string name="detalle_favorito_quitar">Quitar de favoritos</string>
+    <string name="detalle_pedido_titulo">Ver mi pedido</string>
+    <string name="detalle_pedido_subtitulo">Recojo o delivery</string>
+    <string name="detalle_precio_soles">S/ %1$s</string>
+    <string name="detalle_boton_reservar">Reservar mesa</string>
+    <string name="detalle_boton_preguntar">Preguntar</string>
+    <string name="detalle_abierto_hasta">Abierto · hasta las %1$s</string>
+    <string name="detalle_calificacion_resumen">Calificación general · Resumen</string>
+    <plurals name="detalle_resenas">
+        <item quantity="one">%1$d reseña</item>
+        <item quantity="other">%1$d reseñas</item>
+    </plurals>
+    <string name="detalle_menu_titulo">Menú de hoy</string>
+    <string name="detalle_menu_sirve_hasta">Se sirve hasta las %1$s</string>
+    <string name="detalle_menu_publicado">MENÚ PUBLICADO</string>
+    <string name="detalle_menu_consulta">Consulta los platos disponibles de hoy directamente en el local o al armar tu pedido.</string>
+    <string name="detalle_menu_disponible_hoy">Menú disponible hoy</string>
+    <string name="detalle_boton_armar_menu">Armar mi menú</string>
+    <string name="detalle_sin_menu">Este restaurante no ha publicado menú para el día de hoy.</string>
+    <string name="detalle_horario_ubicacion">HORARIO Y UBICACIÓN</string>
+    <string name="detalle_direccion_vacia">Dirección no especificada</string>
+    <string name="detalle_horario_no_disponible">Horario no disponible</string>
+    <string name="detalle_horario_cerrado">Cerrado</string>
+    <string name="detalle_horario_rango">%1$s – %2$s</string>
+    <string name="detalle_ver_en_mapa">Ver en el mapa</string>
+    <string name="detalle_dia_lunes">Lunes</string>
+    <string name="detalle_dia_martes">Martes</string>
+    <string name="detalle_dia_miercoles">Miércoles</string>
+    <string name="detalle_dia_jueves">Jueves</string>
+    <string name="detalle_dia_viernes">Viernes</string>
+    <string name="detalle_dia_sabado">Sábado</string>
+    <string name="detalle_dia_domingo">Domingo</string>
+
+    <!-- Tarjeta y distancia de la lista de Explorar (SCRUM-149) -->
+    <string name="descubrimiento_abierto_hasta">Abierto · hasta las %1$s</string>
+    <string name="descubrimiento_menu_hoy_etiqueta">MENÚ HOY</string>
+    <string name="descubrimiento_precio_soles">S/ %1$s</string>
+    <string name="descubrimiento_calificacion_valor">★ %1$s</string>
 </resources>

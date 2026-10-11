@@ -47,14 +47,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.CategoriaRestaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.ErrorDescubrimiento
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.HorarioDia
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
@@ -62,6 +63,17 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
 import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
 import java.util.Locale
+
+// Claves del horario guardado en Firestore y el nombre que se muestra de cada día.
+private val DIAS_DE_LA_SEMANA = listOf(
+    "lun" to R.string.detalle_dia_lunes,
+    "mar" to R.string.detalle_dia_martes,
+    "mie" to R.string.detalle_dia_miercoles,
+    "jue" to R.string.detalle_dia_jueves,
+    "vie" to R.string.detalle_dia_viernes,
+    "sab" to R.string.detalle_dia_sabado,
+    "dom" to R.string.detalle_dia_domingo
+)
 
 @Composable
 fun DetalleRestauranteScreen(
@@ -143,13 +155,16 @@ private fun DetalleRestauranteContent(
                 IconButton(onClick = onVolver) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver"
+                        contentDescription = stringResource(R.string.detalle_volver)
                     )
                 }
                 IconButton(onClick = onCambiarFavorito) {
                     Icon(
                         imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
+                        contentDescription = stringResource(
+                            if (esFavorito) R.string.detalle_favorito_quitar
+                            else R.string.detalle_favorito_agregar
+                        ),
                         tint = guinda
                     )
                 }
@@ -188,20 +203,20 @@ private fun DetalleRestauranteContent(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Ver mi pedido",
+                                text = stringResource(R.string.detalle_pedido_titulo),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                             Text(
-                                text = "Recojo o delivery",
+                                text = stringResource(R.string.detalle_pedido_subtitulo),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                             )
                         }
                     }
                     Text(
-                        text = "S/ 0.00",
+                        text = stringResource(R.string.detalle_precio_soles, "0.00"),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -254,10 +269,12 @@ private fun DetalleRestauranteContent(
                         fontWeight = FontWeight.ExtraBold
                     )
 
-                    val catNombre = restaurante.categoria.valor.replaceFirstChar { it.uppercase() }
-                    val distTexto = restaurante.distanciaMetros?.let { " · $it m" } ?: ""
+                    val categoria = stringResource(restaurante.categoria.etiquetaCategoria())
+                    val distancia = restaurante.distanciaMetros?.let {
+                        " · " + stringResource(R.string.descubrimiento_distancia_m, it)
+                    }.orEmpty()
                     Text(
-                        text = "$catNombre$distTexto",
+                        text = categoria + distancia,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -265,7 +282,7 @@ private fun DetalleRestauranteContent(
                     val horaCierra = restaurante.horaCierraHoy()
                     Text(
                         text = if (horaCierra != null) {
-                            "Abierto · hasta las $horaCierra"
+                            stringResource(R.string.detalle_abierto_hasta, horaCierra)
                         } else {
                             stringResource(R.string.descubrimiento_cerrado)
                         },
@@ -276,7 +293,7 @@ private fun DetalleRestauranteContent(
                 }
             }
 
-            // Acciones Rápidas
+            // Acciones rápidas (sin función: son de otras historias).
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -286,7 +303,7 @@ private fun DetalleRestauranteContent(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = guinda)
                 ) {
-                    Text("Reservar mesa")
+                    Text(stringResource(R.string.detalle_boton_reservar))
                 }
                 OutlinedButton(
                     onClick = { },
@@ -294,7 +311,7 @@ private fun DetalleRestauranteContent(
                 ) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null)
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Preguntar")
+                    Text(stringResource(R.string.detalle_boton_preguntar))
                 }
             }
 
@@ -317,13 +334,17 @@ private fun DetalleRestauranteContent(
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Calificación general · Resumen",
+                            text = stringResource(R.string.detalle_calificacion_resumen),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Text(
-                        text = "${restaurante.totalResenas} reseñas",
+                        text = pluralStringResource(
+                            R.plurals.detalle_resenas,
+                            restaurante.totalResenas,
+                            restaurante.totalResenas
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = guinda,
                         fontWeight = FontWeight.Bold
@@ -337,7 +358,7 @@ private fun DetalleRestauranteContent(
                 )
             }
 
-            // Tarjeta Menú de hoy (Dinámico de Firestore)
+            // Tarjeta Menú de hoy (dinámico, de Firestore)
             if (menuHoy != null) {
                 Card(
                     shape = RoundedCornerShape(20.dp),
@@ -356,20 +377,22 @@ private fun DetalleRestauranteContent(
                         ) {
                             Column {
                                 Text(
-                                    text = "Menú de hoy",
+                                    text = stringResource(R.string.detalle_menu_titulo),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.extendedColors.sobreSuperficieFija
                                 )
                                 Text(
-                                    text = "Se sirve hasta las ${menuHoy.horaFin}",
+                                    text = stringResource(R.string.detalle_menu_sirve_hasta, menuHoy.horaFin),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.extendedColors.sobreSuperficieFijaTenue
                                 )
                             }
-                            val precioSoles = String.format(Locale.US, "S/ %.2f", menuHoy.precio / 100.0)
                             Text(
-                                text = precioSoles,
+                                text = stringResource(
+                                    R.string.detalle_precio_soles,
+                                    String.format(Locale.US, "%.2f", menuHoy.precio / 100.0)
+                                ),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = dorado
@@ -385,12 +408,12 @@ private fun DetalleRestauranteContent(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "MENÚ PUBLICADO",
+                                    text = stringResource(R.string.detalle_menu_publicado),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = guinda
                                 )
-                                Text("Consulta los platos disponibles de hoy directamente en el local o al armar tu pedido.")
+                                Text(stringResource(R.string.detalle_menu_consulta))
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -398,7 +421,7 @@ private fun DetalleRestauranteContent(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Menú disponible hoy",
+                                        text = stringResource(R.string.detalle_menu_disponible_hoy),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -406,7 +429,7 @@ private fun DetalleRestauranteContent(
                                         onClick = { },
                                         colors = ButtonDefaults.buttonColors(containerColor = guinda)
                                     ) {
-                                        Text("Armar mi menú")
+                                        Text(stringResource(R.string.detalle_boton_armar_menu))
                                     }
                                 }
                             }
@@ -420,7 +443,7 @@ private fun DetalleRestauranteContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Este restaurante no ha publicado menú para el día de hoy.",
+                        text = stringResource(R.string.detalle_sin_menu),
                         modifier = Modifier.padding(16.dp),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -428,9 +451,9 @@ private fun DetalleRestauranteContent(
                 }
             }
 
-            // Horario y Ubicación Real de Firestore
+            // Horario y ubicación reales de Firestore
             Text(
-                text = "HORARIO Y UBICACIÓN",
+                text = stringResource(R.string.detalle_horario_ubicacion),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = guinda
@@ -449,21 +472,19 @@ private fun DetalleRestauranteContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = restaurante.direccion.ifBlank { "Dirección no especificada" },
+                        text = restaurante.direccion.ifBlank {
+                            stringResource(R.string.detalle_direccion_vacia)
+                        },
                         fontWeight = FontWeight.SemiBold
                     )
 
                     if (restaurante.horario.isNotEmpty()) {
-                        FilaHorario("Lunes", restaurante.horario["lun"])
-                        FilaHorario("Martes", restaurante.horario["mar"])
-                        FilaHorario("Miércoles", restaurante.horario["mie"])
-                        FilaHorario("Jueves", restaurante.horario["jue"])
-                        FilaHorario("Viernes", restaurante.horario["vie"])
-                        FilaHorario("Sábado", restaurante.horario["sab"])
-                        FilaHorario("Domingo", restaurante.horario["dom"])
+                        DIAS_DE_LA_SEMANA.forEach { (clave, etiqueta) ->
+                            FilaHorario(stringResource(etiqueta), restaurante.horario[clave])
+                        }
                     } else {
                         Text(
-                            text = "Horario no disponible",
+                            text = stringResource(R.string.detalle_horario_no_disponible),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -471,7 +492,7 @@ private fun DetalleRestauranteContent(
 
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Ver en el mapa",
+                        text = stringResource(R.string.detalle_ver_en_mapa),
                         color = guinda,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
@@ -494,9 +515,12 @@ private fun FilaHorario(dia: String, horarioDia: HorarioDia?) {
     ) {
         Text(dia)
         if (horarioDia != null && horarioDia.abierto) {
-            Text("${horarioDia.abre} – ${horarioDia.cierra}")
+            Text(stringResource(R.string.detalle_horario_rango, horarioDia.abre, horarioDia.cierra))
         } else {
-            Text("Cerrado", color = MaterialTheme.colorScheme.error)
+            Text(
+                text = stringResource(R.string.detalle_horario_cerrado),
+                color = MaterialTheme.colorScheme.error
+            )
         }
     }
 }
@@ -505,4 +529,14 @@ private fun FilaHorario(dia: String, horarioDia: HorarioDia?) {
 private fun ErrorDescubrimiento.mensajeFavorito(): Int = when (this) {
     ErrorDescubrimiento.SinConexion -> R.string.error_descubrimiento_sin_conexion
     ErrorDescubrimiento.Desconocido -> R.string.error_favorito_desconocido
+}
+
+@StringRes
+private fun CategoriaRestaurante.etiquetaCategoria(): Int = when (this) {
+    CategoriaRestaurante.CRIOLLA -> R.string.descubrimiento_categoria_criolla
+    CategoriaRestaurante.CHIFA -> R.string.descubrimiento_categoria_chifa
+    CategoriaRestaurante.POLLERIA -> R.string.descubrimiento_categoria_polleria
+    CategoriaRestaurante.MARINA -> R.string.descubrimiento_categoria_marina
+    CategoriaRestaurante.VEGETARIANA -> R.string.descubrimiento_categoria_vegetariana
+    CategoriaRestaurante.OTRA -> R.string.descubrimiento_categoria_otra
 }

@@ -732,8 +732,8 @@ private fun TarjetaRestaurante(
     val colors = MaterialTheme.colorScheme
     val forma = RoundedCornerShape(16.dp)
 
-    val fondo = if (seleccionado) Color(0xFFFFF8F6) else colors.surfaceContainerHigh
-    val borde = if (seleccionado) BorderStroke(1.5.dp, Color(0xFF8B1D24)) else null
+    val fondo = if (seleccionado) colors.surfaceContainerLowest else colors.surfaceContainerHigh
+    val borde = if (seleccionado) BorderStroke(1.5.dp, colors.primary) else null
 
     Surface(
         modifier = Modifier
@@ -767,7 +767,12 @@ private fun TarjetaRestaurante(
 
                 val promedio = restaurante.calificacionPromedio
                 if (promedio != null && restaurante.totalResenas > 0) {
-                    partesDetalle.add("★ ${formatearDecimal(promedio)}")
+                    partesDetalle.add(
+                        stringResource(
+                            R.string.descubrimiento_calificacion_valor,
+                            formatearDecimal(promedio)
+                        )
+                    )
                 }
 
                 restaurante.distanciaMetros?.let { metros ->
@@ -783,10 +788,10 @@ private fun TarjetaRestaurante(
                 val horaCierra = restaurante.horaCierraHoy()
                 if (horaCierra != null) {
                     Text(
-                        text = "Abierto · hasta las $horaCierra",
+                        text = stringResource(R.string.descubrimiento_abierto_hasta, horaCierra),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2E7D32)
+                        color = colors.tertiary
                     )
                 } else {
                     Text(
@@ -802,16 +807,19 @@ private fun TarjetaRestaurante(
             if (menu != null) {
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "MENÚ HOY",
+                        text = stringResource(R.string.descubrimiento_menu_hoy_etiqueta),
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         fontWeight = FontWeight.Bold,
                         color = colors.onSurfaceVariant
                     )
                     Text(
-                        text = "S/ ${menu.precio / 100}",
+                        text = stringResource(
+                            R.string.descubrimiento_precio_soles,
+                            (menu.precio / 100).toString()
+                        ),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF8B1D24)
+                        color = colors.primary
                     )
                 }
             }
@@ -879,9 +887,9 @@ private fun ErrorConReintento(error: ErrorDescubrimiento, onReintentar: () -> Un
 @Composable
 private fun textoDistancia(metros: Int): String =
     if (metros < 1000) {
-        "${metros} m"
+        stringResource(R.string.descubrimiento_distancia_m, metros)
     } else {
-        "${formatearDecimal(metros / 1000.0)} km"
+        stringResource(R.string.descubrimiento_distancia_km, formatearDecimal(metros / 1000.0))
     }
 
 private fun formatearDecimal(valor: Double): String =
