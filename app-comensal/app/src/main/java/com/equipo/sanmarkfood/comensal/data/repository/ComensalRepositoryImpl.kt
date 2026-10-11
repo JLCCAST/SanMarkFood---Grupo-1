@@ -78,14 +78,15 @@ class ComensalRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun subirFoto(uid: String, uri: Uri): Result<String> =
+    override suspend fun subirFoto(uid: String, rutaLocal: String): Result<String> =
         runCatching {
             // Las reglas de Storage leen email_verified del token de sesión, que se guarda
             // en caché; pedimos uno nuevo antes de subir.
             auth.currentUser?.getIdToken(true)?.await()
 
             val referencia = storage.reference.child("comensales/$uid/foto.jpg")
-            referencia.putFile(uri).await()
+            // El dominio entrega la ruta como texto; aquí, en data, se convierte a Uri para Storage.
+            referencia.putFile(Uri.parse(rutaLocal)).await()
             referencia.downloadUrl.await().toString()
         }
 

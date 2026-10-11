@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 
 @Composable
 fun AuthTextField(
@@ -142,4 +144,29 @@ fun ErrorMessage(text: String, modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.error
     )
+}
+
+/**
+ * Elige el texto que se muestra para cada error de autenticación.
+ * Reemplaza a MapeadorErroresAuth: el dominio solo conoce ErrorAuth y aquí,
+ * en presentation, es donde se decide el mensaje de strings.xml.
+ */
+@StringRes
+fun ErrorAuth.mensaje(): Int = when (this) {
+    ErrorAuth.SinConexion -> R.string.error_sin_conexion
+    ErrorAuth.CamposVacios -> R.string.error_login_campos_vacios
+    ErrorAuth.CredencialesInvalidas -> R.string.error_credenciales_incorrectas
+    ErrorAuth.CorreoYaRegistrado -> R.string.error_correo_en_uso
+    ErrorAuth.CorreoInvalido -> R.string.error_correo_invalido
+    ErrorAuth.DemasiadosIntentos -> R.string.error_demasiados_intentos
+    ErrorAuth.Desconocido -> R.string.error_generico
+    ErrorAuth.CuentaDeOtroRol -> R.string.error_cuenta_otro_rol
+    ErrorAuth.ContrasenaDebil -> R.string.error_contrasena_debil
+    ErrorAuth.ContrasenaCorta -> R.string.error_contrasena_longitud
+    ErrorAuth.ContrasenaSinNumero -> R.string.error_contrasena_numero
+    ErrorAuth.NombreVacio -> R.string.error_registro_nombre_vacio
+    ErrorAuth.TerminosNoAceptados -> R.string.error_registro_terminos
+    ErrorAuth.CorreoVacio -> R.string.error_recuperar_correo_vacio
+    ErrorAuth.CorreoNoRegistrado -> R.string.error_recuperar_correo_no_encontrado
+    ErrorAuth.CorreoSinVerificar -> R.string.error_verificacion_pendiente
 }

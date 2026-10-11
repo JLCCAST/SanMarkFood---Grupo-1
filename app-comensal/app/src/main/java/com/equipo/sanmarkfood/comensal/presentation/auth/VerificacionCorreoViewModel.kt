@@ -1,9 +1,8 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -17,7 +16,7 @@ import javax.inject.Inject
 
 data class VerificacionCorreoUiState(
     val isLoading: Boolean = false,
-    @StringRes val error: Int? = null,
+    val error: ErrorAuth? = null,
     val resendCooldown: Int = 0
 )
 
@@ -54,16 +53,13 @@ class VerificacionCorreoViewModel @Inject constructor(
                         gestorSesion.marcarAutenticado()
                     } else {
                         _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                error = R.string.error_verificacion_pendiente
-                            )
+                            it.copy(isLoading = false, error = ErrorAuth.CorreoSinVerificar)
                         }
                     }
                 }
                 .onFailure { e ->
                     _uiState.update {
-                        it.copy(isLoading = false, error = MapeadorErroresAuth.mapearError(e))
+                        it.copy(isLoading = false, error = e as? ErrorAuth ?: ErrorAuth.Desconocido)
                     }
                 }
         }
@@ -79,7 +75,7 @@ class VerificacionCorreoViewModel @Inject constructor(
                     iniciarEspera()
                 }
                 .onFailure { e ->
-                    _uiState.update { it.copy(error = MapeadorErroresAuth.mapearError(e)) }
+                    _uiState.update { it.copy(error = e as? ErrorAuth ?: ErrorAuth.Desconocido) }
                 }
         }
     }

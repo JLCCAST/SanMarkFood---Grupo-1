@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,21 +18,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DescubrimientoScreen
+import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestauranteScreen
 import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
-private enum class Pestana(@StringRes val tituloRes: Int, val icono: ImageVector) {
-    EXPLORAR(R.string.home_tab_explorar, Icons.Filled.Place),
-    ACTIVIDAD(R.string.home_tab_actividad, Icons.Filled.DateRange),
-    PERFIL(R.string.home_tab_perfil, Icons.Filled.Person)
+private enum class Pestana(
+    @param:StringRes val tituloRes: Int,
+    val icono: @Composable () -> Painter
+) {
+    EXPLORAR(R.string.home_tab_explorar, { painterResource(R.drawable.ic_explorar) }),
+    ACTIVIDAD(R.string.home_tab_actividad, { painterResource(R.drawable.ic_actividad) }),
+    PERFIL(R.string.home_tab_perfil, { rememberVectorPainter(Icons.Outlined.Person) })
 }
 
 @Composable
@@ -44,6 +50,24 @@ fun HomeScaffold(
 ) {
     val colors = MaterialTheme.colorScheme
     var seleccionada by rememberSaveable { mutableIntStateOf(0) }
+    var restauranteSeleccionadoId by rememberSaveable { mutableStateOf<String?>(null) }
+    var restauranteAEnfocar by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Si hay un restaurante seleccionado, mostramos la pantalla de detalle a pantalla completa
+    val idActual = restauranteSeleccionadoId
+    if (idActual != null) {
+        DetalleRestauranteScreen(
+            restauranteId = idActual,
+            onVolver = { restauranteSeleccionadoId = null },
+            onVerEnMapa = { id ->
+                restauranteSeleccionadoId = null
+                restauranteAEnfocar = id
+                seleccionada = Pestana.EXPLORAR.ordinal
+            },
+            modifier = modifier
+        )
+        return
+    }
 
     Scaffold(
         modifier = modifier,
@@ -56,7 +80,7 @@ fun HomeScaffold(
                         NavigationBarItem(
                             selected = seleccionada == index,
                             onClick = { seleccionada = index },
-                            icon = { Icon(pestana.icono, contentDescription = titulo) },
+                            icon = { Icon(painter = pestana.icono(), contentDescription = titulo) },
                             label = { Text(titulo) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = colors.primary,
@@ -70,9 +94,9 @@ fun HomeScaffold(
         }
     ) { innerPadding ->
         when (Pestana.entries[seleccionada]) {
-            Pestana.EXPLORAR -> PestanaProvisional(
-                titulo = stringResource(R.string.home_tab_explorar),
-                texto = stringResource(R.string.home_explorar_texto),
+            Pestana.EXPLORAR -> DescubrimientoScreen(
+                restauranteAEnfocar = restauranteAEnfocar,
+                onRestauranteClick = { id -> restauranteSeleccionadoId = id },
                 modifier = Modifier.padding(innerPadding)
             )
 
@@ -90,7 +114,6 @@ fun HomeScaffold(
     }
 }
 
-// Temporal: se reemplazará cuando existan las pantallas de otras historias.
 @Composable
 private fun PestanaProvisional(
     titulo: String,

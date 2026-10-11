@@ -1,8 +1,8 @@
 package com.equipo.sanmarkfood.comensal.presentation.auth
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ResultadoRegistro
 import com.equipo.sanmarkfood.comensal.domain.usecase.auth.RegistrarCuentaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 data class RegistroUiState(
     val isLoading: Boolean = false,
-    @StringRes val error: Int? = null
+    val error: ErrorAuth? = null
 )
 
 @HiltViewModel
@@ -38,12 +38,10 @@ class RegistroViewModel @Inject constructor(
                 }
 
                 is ResultadoRegistro.CampoInvalido ->
-                    _uiState.value = RegistroUiState(error = resultado.mensaje)
+                    _uiState.value = RegistroUiState(error = resultado.error)
 
                 is ResultadoRegistro.Fallo ->
-                    _uiState.value = RegistroUiState(
-                        error = MapeadorErroresAuth.mapearError(resultado.causa)
-                    )
+                    _uiState.value = RegistroUiState(error = resultado.error)
             }
         }
     }
