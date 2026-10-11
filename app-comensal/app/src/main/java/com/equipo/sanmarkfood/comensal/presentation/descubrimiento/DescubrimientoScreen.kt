@@ -33,14 +33,19 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -274,46 +279,63 @@ fun DescubrimientoScreen(
                     )
                 }
 
-                // Chips flotando sobre el mapa
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(desplazamientoBotones)
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                // Barra superior (búsqueda, campana, avatar) y chips flotando sobre el mapa
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ChipFiltro(
-                        texto = stringResource(R.string.descubrimiento_boton_filtros),
-                        seleccionado = state.filtro.hayFiltrosDelPanel(),
-                        onClick = { panelAbierto = true }
-                    )
-                    ChipFiltro(
-                        texto = stringResource(R.string.descubrimiento_chip_menu_hoy),
-                        seleccionado = state.filtro.soloConMenuHoy,
-                        onClick = {
-                            viewModel.filtrar(
-                                state.filtro.copy(soloConMenuHoy = !state.filtro.soloConMenuHoy)
-                            )
-                        }
-                    )
-                    ChipFiltro(
-                        texto = stringResource(R.string.descubrimiento_chip_abierto_ahora),
-                        seleccionado = state.filtro.soloAbiertoAhora,
-                        onClick = {
-                            viewModel.filtrar(
-                                state.filtro.copy(soloAbiertoAhora = !state.filtro.soloAbiertoAhora)
-                            )
-                        }
-                    )
-                    ChipFiltro(
-                        texto = stringResource(R.string.descubrimiento_chip_favoritos),
-                        seleccionado = state.filtro.soloFavoritos,
-                        onClick = {
-                            viewModel.filtrar(
-                                state.filtro.copy(soloFavoritos = !state.filtro.soloFavoritos)
-                            )
-                        }
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BarraBusqueda(modifier = Modifier.weight(1f))
+                        BotonCampana()
+                        AvatarComensal(nombre = state.nombreComensal)
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(desplazamientoBotones)
+                            .padding(start = 16.dp, end = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ChipFiltro(
+                            texto = stringResource(R.string.descubrimiento_boton_filtros),
+                            seleccionado = state.filtro.hayFiltrosDelPanel(),
+                            onClick = { panelAbierto = true }
+                        )
+                        ChipFiltro(
+                            texto = stringResource(R.string.descubrimiento_chip_menu_hoy),
+                            seleccionado = state.filtro.soloConMenuHoy,
+                            onClick = {
+                                viewModel.filtrar(
+                                    state.filtro.copy(soloConMenuHoy = !state.filtro.soloConMenuHoy)
+                                )
+                            }
+                        )
+                        ChipFiltro(
+                            texto = stringResource(R.string.descubrimiento_chip_abierto_ahora),
+                            seleccionado = state.filtro.soloAbiertoAhora,
+                            onClick = {
+                                viewModel.filtrar(
+                                    state.filtro.copy(soloAbiertoAhora = !state.filtro.soloAbiertoAhora)
+                                )
+                            }
+                        )
+                        ChipFiltro(
+                            texto = stringResource(R.string.descubrimiento_chip_favoritos),
+                            seleccionado = state.filtro.soloFavoritos,
+                            onClick = {
+                                viewModel.filtrar(
+                                    state.filtro.copy(soloFavoritos = !state.filtro.soloFavoritos)
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -333,6 +355,88 @@ private fun FiltroDescubrimiento.hayFiltrosDelPanel(): Boolean =
             precioMinimo != null ||
             precioMaximo != null ||
             calificacionMinima != null
+
+@Composable
+private fun BarraBusqueda(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = stringResource(R.string.descubrimiento_buscar_placeholder),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun BotonCampana(onClick: () -> Unit = {}) {
+    Surface(
+        modifier = Modifier.clickable(onClick = onClick),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp
+    ) {
+        Box(modifier = Modifier.padding(10.dp)) {
+            Icon(
+                imageVector = Icons.Filled.Notifications,
+                contentDescription = stringResource(R.string.descubrimiento_campana_descripcion),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(8.dp)
+                    .background(color = MaterialTheme.colorScheme.error, shape = CircleShape)
+            )
+        }
+    }
+}
+
+@Composable
+private fun AvatarComensal(nombre: String, onClick: () -> Unit = {}) {
+    Surface(
+        modifier = Modifier
+            .size(40.dp)
+            .clickable(onClick = onClick),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.tertiary
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = inicialesDe(nombre),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+        }
+    }
+}
+
+private fun inicialesDe(nombre: String): String {
+    val partes = nombre.trim().split(" ").filter { it.isNotBlank() }
+    return when {
+        partes.isEmpty() -> "?"
+        partes.size == 1 -> partes[0].take(1).uppercase()
+        else -> (partes[0].take(1) + partes[1].take(1)).uppercase()
+    }
+}
 
 @Composable
 private fun ChipFiltro(texto: String, seleccionado: Boolean, onClick: () -> Unit) {

@@ -198,4 +198,7 @@
     <!-- Filtro de favoritos en Explorar -->
     <string name="descubrimiento_chip_favoritos">Favoritos</string>
     <string name="error_favorito_desconocido">No se pudo actualizar tus favoritos. Inténtalo de nuevo</string>
+    <string name="descubrimiento_buscar_placeholder">Busca un local o un plato</string>
+    <string name="descubrimiento_campana_descripcion">Notificaciones</string>
+    <string name="descubrimiento_avatar_descripcion">Tu perfil</string>
 </resources>

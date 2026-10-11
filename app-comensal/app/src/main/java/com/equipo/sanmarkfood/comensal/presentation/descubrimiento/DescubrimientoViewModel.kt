@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.ErrorDescubrimiento
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.FiltroDescubrimiento
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
+import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.usecase.descubrimiento.AlternarFavoritoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.descubrimiento.FiltrarRestaurantesUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.descubrimiento.ObservarFavoritosUseCase
@@ -31,7 +32,9 @@ data class DescubrimientoUiState(
     val favoritos: Set<String> = emptySet(),
     val error: ErrorDescubrimiento? = null,
     /** Error al marcar/quitar un favorito; no bloquea la pantalla, solo se avisa. */
-    val errorFavorito: ErrorDescubrimiento? = null
+    val errorFavorito: ErrorDescubrimiento? = null,
+    /** Nombre del comensal con sesión activa, para las iniciales del avatar. */
+    val nombreComensal: String = ""
 )
 
 @HiltViewModel
@@ -39,7 +42,8 @@ class DescubrimientoViewModel @Inject constructor(
     private val obtenerRestaurantesCercanos: ObtenerRestaurantesCercanosUseCase,
     private val filtrarRestaurantes: FiltrarRestaurantesUseCase,
     private val observarFavoritos: ObservarFavoritosUseCase,
-    private val alternarFavorito: AlternarFavoritoUseCase
+    private val alternarFavorito: AlternarFavoritoUseCase,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DescubrimientoUiState())
@@ -54,6 +58,8 @@ class DescubrimientoViewModel @Inject constructor(
     private var restaurantesSinFiltrar: List<Restaurante> = emptyList()
 
     init {
+        _uiState.update { it.copy(nombreComensal = authRepository.currentUser?.nombre.orEmpty()) }
+
         // Los favoritos se escuchan siempre: si cambian (aquí o en otro celular), la lista se actualiza.
         viewModelScope.launch {
             observarFavoritos()

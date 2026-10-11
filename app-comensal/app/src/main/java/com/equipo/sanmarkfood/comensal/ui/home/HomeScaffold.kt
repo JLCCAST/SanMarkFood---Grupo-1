@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +23,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,10 +34,13 @@ import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.Descubrimient
 import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestauranteScreen
 import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
-private enum class Pestana(@param:StringRes val tituloRes: Int, val icono: ImageVector) {
-    EXPLORAR(R.string.home_tab_explorar, Icons.Filled.Place),
-    ACTIVIDAD(R.string.home_tab_actividad, Icons.Filled.DateRange),
-    PERFIL(R.string.home_tab_perfil, Icons.Filled.Person)
+private enum class Pestana(
+    @param:StringRes val tituloRes: Int,
+    val icono: @Composable () -> Painter
+) {
+    EXPLORAR(R.string.home_tab_explorar, { painterResource(R.drawable.ic_explorar) }),
+    ACTIVIDAD(R.string.home_tab_actividad, { painterResource(R.drawable.ic_actividad) }),
+    PERFIL(R.string.home_tab_perfil, { rememberVectorPainter(Icons.Outlined.Person) })
 }
 
 @Composable
@@ -77,7 +80,7 @@ fun HomeScaffold(
                         NavigationBarItem(
                             selected = seleccionada == index,
                             onClick = { seleccionada = index },
-                            icon = { Icon(pestana.icono, contentDescription = titulo) },
+                            icon = { Icon(painter = pestana.icono(), contentDescription = titulo) },
                             label = { Text(titulo) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = colors.primary,
