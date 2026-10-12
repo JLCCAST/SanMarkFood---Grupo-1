@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.presentation.auth
 
 import android.app.Activity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -13,13 +14,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -65,6 +70,7 @@ fun InicioSesionScreen(
         onCambiarCorreo = viewModel::onCambiarCorreo,
         onCambiarContrasena = viewModel::onCambiarContrasena,
         onIniciarSesion = viewModel::onIniciarSesion,
+        onContinuarConGoogle = viewModel::onContinuarConGoogle,
         onAbrirRecuperacion = viewModel::onAbrirRecuperacion,
         onRegistrarse = onRegistrarse,
     )
@@ -85,6 +91,7 @@ private fun InicioSesionContenido(
     onCambiarCorreo: (String) -> Unit,
     onCambiarContrasena: (String) -> Unit,
     onIniciarSesion: () -> Unit,
+    onContinuarConGoogle: () -> Unit,
     onAbrirRecuperacion: () -> Unit,
     onRegistrarse: () -> Unit,
 ) {
@@ -123,7 +130,14 @@ private fun InicioSesionContenido(
                 BotonPrincipal(
                     texto = stringResource(R.string.login_iniciar_sesion),
                     onClick = onIniciarSesion,
+                    habilitado = !uiState.cargandoGoogle,
                     cargando = uiState.cargando,
+                )
+                SeparadorO()
+                BotonGoogle(
+                    onClick = onContinuarConGoogle,
+                    habilitado = !uiState.cargando,
+                    cargando = uiState.cargandoGoogle,
                 )
                 uiState.error?.let { MensajeError(error = it) }
                 Text(
@@ -148,6 +162,35 @@ private fun InicioSesionContenido(
             TextButton(onClick = onRegistrarse) {
                 Text(text = stringResource(R.string.login_registralo), style = MaterialTheme.typography.labelLarge)
             }
+        }
+    }
+}
+
+@Composable
+private fun SeparadorO() {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+        Text(
+            text = stringResource(R.string.login_o),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+    }
+}
+
+@Composable
+private fun BotonGoogle(onClick: () -> Unit, habilitado: Boolean, cargando: Boolean) {
+    OutlinedButton(
+        onClick = onClick,
+        enabled = habilitado && !cargando,
+        modifier = Modifier.fillMaxWidth().height(52.dp),
+        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.onSurface),
+    ) {
+        if (cargando) {
+            CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+        } else {
+            Text(text = stringResource(R.string.login_google), style = MaterialTheme.typography.labelLarge)
         }
     }
 }
@@ -273,6 +316,7 @@ private fun InicioSesionPreview() {
                 onCambiarCorreo = {},
                 onCambiarContrasena = {},
                 onIniciarSesion = {},
+                onContinuarConGoogle = {},
                 onAbrirRecuperacion = {},
                 onRegistrarse = {},
             )

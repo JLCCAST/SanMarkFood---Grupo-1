@@ -25,6 +25,8 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun iniciarSesion(correo: String, contrasena: String) =
         authDataSource.iniciarSesion(correo, contrasena)
 
+    override suspend fun iniciarSesionConGoogle(): Boolean = authDataSource.iniciarSesionConGoogle()
+
     override suspend fun estadoSesion(): EstadoSesion {
         val usuario = authDataSource.usuarioActual() ?: return EstadoSesion.SinSesion
         if (!usuario.isEmailVerified) return EstadoSesion.SinVerificar(usuario.email.orEmpty())

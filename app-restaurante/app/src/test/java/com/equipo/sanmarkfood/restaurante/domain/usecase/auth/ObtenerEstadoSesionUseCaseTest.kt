@@ -35,6 +35,7 @@ class ObtenerEstadoSesionUseCaseTest {
             sesionCerrada = true
         }
         override suspend fun enviarRecuperacion(correo: String) = Unit
+        override suspend fun iniciarSesionConGoogle() = false
     }
 
     private class RestauranteFalso : RestauranteRepository {

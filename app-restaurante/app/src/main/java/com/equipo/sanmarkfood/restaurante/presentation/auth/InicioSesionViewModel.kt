@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
+import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.IniciarSesionConGoogleUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.IniciarSesionUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.RecuperarContrasenaUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.auth.RegistrarDispositivoUseCase
@@ -19,6 +20,7 @@ data class InicioSesionUiState(
     val correo: String = "",
     val contrasena: String = "",
     val cargando: Boolean = false,
+    val cargandoGoogle: Boolean = false,
     val error: ErrorAuth? = null,
     val sesion: EstadoSesion? = null,
     val recuperacion: RecuperacionUiState? = null,
@@ -33,6 +35,7 @@ data class RecuperacionUiState(
 @HiltViewModel
 class InicioSesionViewModel @Inject constructor(
     private val iniciarSesion: IniciarSesionUseCase,
+    private val iniciarSesionConGoogle: IniciarSesionConGoogleUseCase,
     private val recuperarContrasena: RecuperarContrasenaUseCase,
     private val registrarDispositivo: RegistrarDispositivoUseCase,
 ) : ViewModel() {
@@ -47,7 +50,7 @@ class InicioSesionViewModel @Inject constructor(
 
     fun onIniciarSesion() {
         val estado = _uiState.value
-        if (estado.cargando) return
+        if (estado.cargando || estado.cargandoGoogle) return
 
         _uiState.update { it.copy(cargando = true, error = null) }
         viewModelScope.launch {
@@ -57,6 +60,22 @@ class InicioSesionViewModel @Inject constructor(
                 _uiState.update { it.copy(cargando = false, sesion = sesion) }
             } catch (e: ErrorAuth) {
                 _uiState.update { it.copy(cargando = false, error = e) }
+            }
+        }
+    }
+
+    fun onContinuarConGoogle() {
+        val estado = _uiState.value
+        if (estado.cargando || estado.cargandoGoogle) return
+
+        _uiState.update { it.copy(cargandoGoogle = true, error = null) }
+        viewModelScope.launch {
+            try {
+                val sesion = iniciarSesionConGoogle()
+                if (sesion != null) registrarDispositivo(sesion)
+                _uiState.update { it.copy(cargandoGoogle = false, sesion = sesion) }
+            } catch (e: ErrorAuth) {
+                _uiState.update { it.copy(cargandoGoogle = false, error = e) }
             }
         }
     }

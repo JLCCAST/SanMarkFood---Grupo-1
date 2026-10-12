@@ -1,6 +1,6 @@
 package com.equipo.sanmarkfood.comensal.domain.usecase.auth
 
-import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ResultadoInicioSesion
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import javax.inject.Inject
@@ -15,10 +15,10 @@ class IniciarSesionUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(email: String, password: String): ResultadoInicioSesion {
         if (email.isBlank() || password.isEmpty()) {
-            return ResultadoInicioSesion.CampoInvalido(R.string.error_login_campos_vacios)
+            return ResultadoInicioSesion.CampoInvalido(ErrorAuth.CamposVacios)
         }
         if (!validarCorreo(email)) {
-            return ResultadoInicioSesion.CampoInvalido(R.string.error_correo_invalido)
+            return ResultadoInicioSesion.CampoInvalido(ErrorAuth.CorreoInvalido)
         }
 
         return repositorio.login(email.trim(), password).fold(
@@ -29,7 +29,8 @@ class IniciarSesionUseCase @Inject constructor(
                     ResultadoInicioSesion.PorVerificar(sesion.correo.ifBlank { email.trim() })
                 }
             },
-            onFailure = { ResultadoInicioSesion.Fallo(it) }
+            // El repositorio ya traduce Firebase a ErrorAuth; lo demás se trata como desconocido.
+            onFailure = { ResultadoInicioSesion.Fallo(it as? ErrorAuth ?: ErrorAuth.Desconocido) }
         )
     }
 }

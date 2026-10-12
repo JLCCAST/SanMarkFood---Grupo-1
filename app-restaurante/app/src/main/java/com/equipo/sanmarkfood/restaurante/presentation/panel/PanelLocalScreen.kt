@@ -19,6 +19,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,12 +30,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.avisos.puedeMostrarAvisos
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Horario
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Restaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Ubicacion
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.dashboard.NegocioScreen
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.EstadoLocal
@@ -44,6 +51,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.menu.MenuHoyScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
+import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
 /**
  * Panel del local con la barra inferior del prototipo: Pedidos · Reservas · Menú · Reseñas · Negocio.
@@ -64,11 +72,48 @@ fun PanelLocalScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    PanelLocalContenido(
+        uiState = uiState,
+        onElegirPestana = viewModel::onElegirPestana,
+        onReintentar = viewModel::onReintentar,
+        onCambiarRecepcion = viewModel::onCambiarRecepcion,
+        onCargarCarta = viewModel::onCargarCarta,
+        onElegirSeccionMenu = viewModel::onElegirSeccionMenu,
+        onEditarPerfil = onEditarPerfil,
+        onCorregir = onCorregir,
+        onEditarHorario = onEditarHorario,
+        onAgregarPlato = onAgregarPlato,
+        onAbrirPlato = onAbrirPlato,
+        onArmarMenu = onArmarMenu,
+        onFotoPizarra = onFotoPizarra,
+        onSesionCerrada = onSesionCerrada,
+    )
+}
+
+@Composable
+private fun PanelLocalContenido(
+    uiState: PanelLocalUiState,
+    onElegirPestana: (PestanaPanel) -> Unit,
+    onReintentar: () -> Unit,
+    onCambiarRecepcion: (Boolean) -> Unit,
+    onCargarCarta: () -> Unit,
+    onElegirSeccionMenu: (SeccionMenu) -> Unit,
+    onEditarPerfil: () -> Unit,
+    onCorregir: () -> Unit,
+    onEditarHorario: () -> Unit,
+    onAgregarPlato: () -> Unit,
+    onAbrirPlato: (platoId: String) -> Unit,
+    onArmarMenu: (ModoArmarMenu) -> Unit,
+    onFotoPizarra: () -> Unit,
+    onSesionCerrada: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     PedirPermisoDeAvisos(esperandoRevision = uiState.restaurante?.estado == EstadoRestaurante.PENDIENTE)
 
     Scaffold(
+        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = { BarraPanel(actual = uiState.pestana, onElegir = viewModel::onElegirPestana) },
+        bottomBar = { BarraPanel(actual = uiState.pestana, onElegir = onElegirPestana) },
     ) { relleno ->
         val contenido = Modifier.fillMaxSize().padding(relleno).consumeWindowInsets(relleno)
         val aprobado = uiState.restaurante?.estado == EstadoRestaurante.APROBADO
@@ -76,10 +121,10 @@ fun PanelLocalScreen(
         when (uiState.pestana) {
             PestanaPanel.PEDIDOS -> PestanaPedidos(
                 uiState = uiState,
-                onReintentar = viewModel::onReintentar,
-                onCambiarRecepcion = viewModel::onCambiarRecepcion,
+                onReintentar = onReintentar,
+                onCambiarRecepcion = onCambiarRecepcion,
                 onCorregir = onCorregir,
-                onCargarCarta = viewModel::onCargarCarta,
+                onCargarCarta = onCargarCarta,
                 modifier = contenido,
             )
             PestanaPanel.RESERVAS -> PestanaProvisional(
@@ -91,13 +136,13 @@ fun PanelLocalScreen(
             )
             PestanaPanel.MENU -> when (uiState.seccionMenu) {
                 SeccionMenu.HOY -> MenuHoyScreen(
-                    onElegirSeccion = viewModel::onElegirSeccionMenu,
+                    onElegirSeccion = onElegirSeccionMenu,
                     onArmarMenu = onArmarMenu,
                     onFotoPizarra = onFotoPizarra,
                     modifier = contenido,
                 )
                 SeccionMenu.CARTA -> CartaScreen(
-                    onElegirSeccion = viewModel::onElegirSeccionMenu,
+                    onElegirSeccion = onElegirSeccionMenu,
                     onAgregarPlato = onAgregarPlato,
                     onAbrirPlato = onAbrirPlato,
                     modifier = contenido,
@@ -222,6 +267,51 @@ private fun BarraPanel(actual: PestanaPanel, onElegir: (PestanaPanel) -> Unit) {
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
+            )
+        }
+    }
+}
+
+private val restauranteDeEjemplo = Restaurante(
+    datos = DatosLocal(
+        nombre = "La Sazón de Doña Carmen",
+        categoria = CategoriaRestaurante.CRIOLLA,
+        direccion = "Av. Venezuela 3450",
+        ubicacion = Ubicacion.CiudadUniversitaria,
+        telefono = "987654321",
+        portadaUrl = null,
+        logoUrl = null,
+    ),
+    estado = EstadoRestaurante.APROBADO,
+    horario = Horario.PorDefecto,
+    rechazo = null,
+    pausado = false,
+)
+
+@Preview(showBackground = true, widthDp = 390, heightDp = 844)
+@Composable
+private fun PanelLocalPreview() {
+    ApprestauranteTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            PanelLocalContenido(
+                uiState = PanelLocalUiState(
+                    pestana = PestanaPanel.PEDIDOS,
+                    restaurante = restauranteDeEjemplo,
+                    platosEnCarta = 5,
+                ),
+                onElegirPestana = {},
+                onReintentar = {},
+                onCambiarRecepcion = {},
+                onCargarCarta = {},
+                onElegirSeccionMenu = {},
+                onEditarPerfil = {},
+                onCorregir = {},
+                onEditarHorario = {},
+                onAgregarPlato = {},
+                onAbrirPlato = {},
+                onArmarMenu = {},
+                onFotoPizarra = {},
+                onSesionCerrada = {},
             )
         }
     }
