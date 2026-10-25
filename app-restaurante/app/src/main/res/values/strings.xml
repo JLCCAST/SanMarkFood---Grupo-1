@@ -350,6 +350,18 @@
     <string name="pedidos_esperando">%1$s · esperando al comensal</string>
     <string name="pedidos_sin_conexion">Sin conexión. Los pedidos nuevos llegarán cuando vuelvas a tener internet.</string>
 
+    <!-- Aceptar un pedido con su tiempo estimado (O1, SCRUM-163) -->
+    <string name="pedidos_aceptar">Aceptar</string>
+    <string name="pedidos_hoja_aceptar_titulo">¿En cuánto estará listo?</string>
+    <string name="pedidos_hoja_aceptar_texto">%1$s verá la hora estimada en su seguimiento.</string>
+    <string name="pedidos_minutos">min</string>
+    <string name="pedidos_minutos_descripcion">%1$d minutos</string>
+    <string name="pedidos_volver">Volver</string>
+    <string name="pedidos_aceptar_listo">Aceptar · listo %1$s</string>
+    <string name="pedidos_aceptado">Aceptado. %1$s verá «listo aprox. a las %2$s».</string>
+    <string name="pedidos_ok">OK</string>
+    <string name="error_pedido_ya_cambio">Este pedido ya cambió de estado. Revisa la bandeja.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>

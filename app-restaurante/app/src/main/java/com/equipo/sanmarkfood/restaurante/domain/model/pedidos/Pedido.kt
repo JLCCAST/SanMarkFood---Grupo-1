@@ -2,6 +2,8 @@ package com.equipo.sanmarkfood.restaurante.domain.model.pedidos
 
 import java.util.Date
 
+val TIEMPOS_ESTIMADOS = listOf(10, 15, 20, 30)
+
 enum class EstadoPedido { RECIBIDO, PREPARANDO, LISTO, EN_CAMINO, ENTREGADO, RECHAZADO, CANCELADO }
 
 enum class Modalidad { RECOJO, DELIVERY }

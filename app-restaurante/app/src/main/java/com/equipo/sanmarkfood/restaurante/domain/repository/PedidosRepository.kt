@@ -6,4 +6,6 @@ import java.util.Date
 
 interface PedidosRepository {
     fun observarPedidosDesde(desde: Date): Flow<PedidosDeHoy>
+
+    suspend fun aceptar(pedidoId: String, minutos: Int)
 }

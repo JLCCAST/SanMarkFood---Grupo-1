@@ -8,24 +8,42 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +58,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ItemPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Pedido
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.TIEMPOS_ESTIMADOS
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
 import com.equipo.sanmarkfood.restaurante.presentation.menu.precioTexto
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
@@ -54,15 +73,57 @@ fun BandejaPedidos(
     viewModel: PedidosViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    BandejaPedidosContenido(uiState = uiState, onReintentar = viewModel::onReintentar, modifier = modifier)
+    BandejaPedidosContenido(
+        uiState = uiState,
+        onReintentar = viewModel::onReintentar,
+        onAceptar = viewModel::onAceptar,
+        onElegirMinutos = viewModel::onElegirMinutos,
+        onCerrarHoja = viewModel::onCerrarHoja,
+        onConfirmarAceptar = viewModel::onConfirmarAceptar,
+        onAceptadoMostrado = viewModel::onAceptadoMostrado,
+        modifier = modifier,
+    )
 }
 
 @Composable
 fun BandejaPedidosContenido(
     uiState: PedidosUiState,
     onReintentar: () -> Unit,
+    onAceptar: (Pedido) -> Unit,
+    onElegirMinutos: (Int) -> Unit,
+    onCerrarHoja: () -> Unit,
+    onConfirmarAceptar: () -> Unit,
+    onAceptadoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val avisos = remember { SnackbarHostState() }
+    val aceptado = uiState.aceptado
+    val textoAceptado = aceptado?.let { stringResource(R.string.pedidos_aceptado, it.comensal, horaLima(it.listoA)) }
+    val ok = stringResource(R.string.pedidos_ok)
+    LaunchedEffect(aceptado) {
+        if (textoAceptado != null) {
+            avisos.showSnackbar(textoAceptado, actionLabel = ok, duration = SnackbarDuration.Long)
+            onAceptadoMostrado()
+        }
+    }
+
+    Box(modifier = modifier) {
+        ListaPedidos(uiState = uiState, onReintentar = onReintentar, onAceptar = onAceptar)
+        SnackbarHost(hostState = avisos, modifier = Modifier.align(Alignment.BottomCenter))
+    }
+    uiState.hojaAceptar?.let { hoja ->
+        HojaAceptar(
+            hoja = hoja,
+            onElegirMinutos = onElegirMinutos,
+            onCerrar = onCerrarHoja,
+            onConfirmar = onConfirmarAceptar,
+        )
+    }
+}
+
+@Composable
+private fun ListaPedidos(uiState: PedidosUiState, onReintentar: () -> Unit, onAceptar: (Pedido) -> Unit) {
+    val modifier = Modifier.fillMaxSize()
     val error = uiState.error
     when {
         error != null -> Column(
@@ -89,7 +150,9 @@ fun BandejaPedidosContenido(
             if (uiState.sinConexion) {
                 item { AvisoSinConexion() }
             }
-            items(uiState.nuevos, key = { it.id }) { pedido -> TarjetaPedidoNuevo(pedido) }
+            items(uiState.nuevos, key = { it.id }) { pedido ->
+                TarjetaPedidoNuevo(pedido = pedido, onAceptar = { onAceptar(pedido) })
+            }
             item {
                 SeccionPedidos(
                     titulo = R.string.pedidos_seccion_preparacion,
@@ -135,7 +198,7 @@ private fun AvisoSinConexion() {
 }
 
 @Composable
-private fun TarjetaPedidoNuevo(pedido: Pedido) {
+private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit) {
     val forma = RoundedCornerShape(18.dp)
     Column(
         modifier = Modifier
@@ -195,7 +258,115 @@ private fun TarjetaPedidoNuevo(pedido: Pedido) {
                 )
                 Text(text = precioTexto(pedido.total), style = MaterialTheme.typography.titleMedium)
             }
+            Button(
+                onClick = onAceptar,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(48.dp),
+            ) {
+                Text(text = stringResource(R.string.pedidos_aceptar), style = MaterialTheme.typography.labelLarge)
+            }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HojaAceptar(
+    hoja: HojaAceptar,
+    onElegirMinutos: (Int) -> Unit,
+    onCerrar: () -> Unit,
+    onConfirmar: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCerrar,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outline) },
+    ) {
+        Column(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text(text = stringResource(R.string.pedidos_hoja_aceptar_titulo), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = stringResource(R.string.pedidos_hoja_aceptar_texto, hoja.pedido.comensalNombre),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TIEMPOS_ESTIMADOS.forEach { minutos ->
+                    OpcionMinutos(
+                        minutos = minutos,
+                        elegido = minutos == hoja.minutos,
+                        habilitado = !hoja.enviando,
+                        onElegir = { onElegirMinutos(minutos) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            hoja.error?.let {
+                Text(
+                    text = stringResource(it.mensaje()),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = onCerrar, modifier = Modifier.height(48.dp)) {
+                    Text(text = stringResource(R.string.pedidos_volver), style = MaterialTheme.typography.labelLarge)
+                }
+                Button(
+                    onClick = onConfirmar,
+                    enabled = !hoja.enviando,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                ) {
+                    if (hoja.enviando) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = LocalContentColor.current,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        val listoA = Date(System.currentTimeMillis() + hoja.minutos * 60_000L)
+                        Text(
+                            text = stringResource(R.string.pedidos_aceptar_listo, horaLima(listoA)),
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OpcionMinutos(
+    minutos: Int,
+    elegido: Boolean,
+    habilitado: Boolean,
+    onElegir: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val forma = RoundedCornerShape(14.dp)
+    val contenido = if (elegido) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface
+    val descripcion = stringResource(R.string.pedidos_minutos_descripcion, minutos)
+    Column(
+        modifier = modifier
+            .height(56.dp)
+            .clip(forma)
+            .border(
+                1.5.dp,
+                if (elegido) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                forma,
+            )
+            .background(if (elegido) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceContainerLowest)
+            .selectable(selected = elegido, enabled = habilitado, role = Role.RadioButton, onClick = onElegir)
+            .semantics { contentDescription = descripcion },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = minutos.toString(), style = MaterialTheme.typography.titleMedium, color = contenido)
+        Text(text = stringResource(R.string.pedidos_minutos), style = MaterialTheme.typography.labelSmall, color = contenido)
     }
 }
 
@@ -314,6 +485,7 @@ private fun Modalidad.texto(): Int = when (this) {
 @StringRes
 private fun ErrorPedidos.mensaje(): Int = when (this) {
     ErrorPedidos.SinConexion -> R.string.error_sin_conexion
+    ErrorPedidos.YaCambio -> R.string.error_pedido_ya_cambio
     ErrorPedidos.Desconocido -> R.string.error_desconocido
 }
 
@@ -363,6 +535,11 @@ private fun BandejaPedidosPreview() {
                     ),
                 ),
                 onReintentar = {},
+                onAceptar = {},
+                onElegirMinutos = {},
+                onCerrarHoja = {},
+                onConfirmarAceptar = {},
+                onAceptadoMostrado = {},
             )
         }
     }
