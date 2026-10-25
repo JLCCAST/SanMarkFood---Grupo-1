@@ -2,11 +2,13 @@ package com.equipo.sanmarkfood.comensal.core.di
 
 import com.equipo.sanmarkfood.comensal.data.repository.AuthRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.ComensalRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.FavoritosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.UbicacionRepositoryImpl
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.FavoritosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.UbicacionRepository
@@ -39,4 +41,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindFavoritosRepository(impl: FavoritosRepositoryImpl): FavoritosRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDispositivosRepository(impl: DispositivosRepositoryImpl): DispositivosRepository
 }

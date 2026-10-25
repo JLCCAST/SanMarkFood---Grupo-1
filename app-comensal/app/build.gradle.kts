@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     // Versión fijada por docs/arquitectura-proyecto.md: las más nuevas traen kotlin-stdlib 2.4.
     implementation("com.google.maps.android:maps-compose:8.3.1")
