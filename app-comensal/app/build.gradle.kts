@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
@@ -74,6 +75,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("com.google.dagger:hilt-android:2.60.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.androidx.navigation.compose)
     ksp("com.google.dagger:hilt-compiler:2.60.1")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
