@@ -1,8 +1,14 @@
-package com.equipo.sanmarkfood.comensal.data
+package com.equipo.sanmarkfood.comensal.core.di
 
+import com.equipo.sanmarkfood.comensal.data.repository.AuthRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.ComensalRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.FavoritosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.UbicacionRepositoryImpl
+import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.FavoritosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.UbicacionRepository
@@ -14,7 +20,15 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DescubrimientoModule {
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindComensalRepository(impl: ComensalRepositoryImpl): ComensalRepository
 
     @Binds
     @Singleton
@@ -27,4 +41,8 @@ abstract class DescubrimientoModule {
     @Binds
     @Singleton
     abstract fun bindFavoritosRepository(impl: FavoritosRepositoryImpl): FavoritosRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDispositivosRepository(impl: DispositivosRepositoryImpl): DispositivosRepository
 }

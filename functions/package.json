@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log --only revisarLocal"
+    "logs": "firebase functions:log --only revisarLocal",
+    "datos-ejemplo": "npm run build && node lib/scripts/datosEjemplo.js"
   },
   "dependencies": {
     "firebase-admin": "^14.5.0",

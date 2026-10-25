@@ -38,3 +38,7 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Claves de cuentas de servicio de Firebase (nunca se suben)
+*-firebase-adminsdk-*.json
+clave-servicio*.json
