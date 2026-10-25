@@ -5,3 +5,4 @@ initializeApp();
 export { revisarLocal } from "./revisarLocal.js";
 export { crearPedido } from "./crearPedido.js";
 export { reservas } from "./reservas.js";
+export { resenas } from "./resenas.js";
