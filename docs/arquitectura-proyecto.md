@@ -327,7 +327,7 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 
 `crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
 
-**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. El comensal lee las franjas del día para tachar las llenas en B5.
+**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. Mientras el local no configure `cupoPorFranja` (SCRUM-165), sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5.
 
 **El recordatorio (SCRUM-103)** no pasa por el servidor: al crear o modificar la reserva, la app del comensal programa un trabajo de WorkManager para 30 min, 1 h o 2 h antes, y lo cancela si la reserva se cancela o se rechaza.
 
@@ -338,11 +338,33 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 - **En la app del comensal (SCRUM-169):** guardar su token de avisos en `usuarios/{uid}/dispositivos/{token}` con `app: "comensal"`, como ya lo hace el restaurante (`RegistrarDispositivoUseCase`). Sin eso no le llega ningún aviso.
 - **`resenas` (SCRUM-170):** recibe `{ pedidoId, estrellas, comentario, platos }` (`platos`: el «me gustó» o «no me gustó» por `platoId`, opcional), solo de un pedido `entregado` y una sola vez. Guarda `restaurantes/{uid}/resenas/{pedidoId}` y recalcula `calificacion { promedio, total }` del local. Errores: `estado_invalido`, `ya_calificado`, `no_autorizado`, `datos_invalidos`.
 
-### Reglas de Firestore
+### Datos de ejemplo (SCRUM-168)
 
-- `pedidos/{id}` y `reservas/{id}`: los leen solo su comensal (`comensalUid`) y su local (`restauranteUid`); nadie los escribe desde una app.
+Para programar O1, O4, B7, el historial o las reseñas sin esperar a las funciones, el script `functions/src/scripts/datosEjemplo.ts` carga en Firestore, para un local y un comensal reales de prueba:
+
+- **12 pedidos:** 2 `recibido` (recojo en efectivo y delivery con billetera), `preparando`, `listo` con código, `en_camino`, 2 `rechazado` (plato agotado y el automático), `cancelado` y 4 `entregado` de días anteriores. Usan los platos y el menú de hoy del local, o nombres de ejemplo si no tiene carta.
+- **5 reservas:** 2 `pendiente` (una modificada, con `horarioAnterior`), `confirmada`, `rechazada` por grupo grande y `cancelada`, con su cupo sumado en `franjas`.
+- **4 reseñas** de los pedidos entregados (de 1 a 5 estrellas, dos negativas para HU15), y la `calificacion` del local recalculada.
+
+Todo lleva `ejemplo: true`, así que se borra sin tocar datos reales. Cómo usarlo:
+
+1. Una vez: en Firebase → Configuración del proyecto → **Cuentas de servicio** → «Generar nueva clave privada». Guarda el JSON **fuera del repositorio** (por si acaso, `.gitignore` ya ignora `*-firebase-adminsdk-*.json`). Esa clave da acceso total al proyecto: no se comparte ni se sube.
+2. En la terminal, dentro de `functions/` (con `npm ci` hecho), apunta a la clave: `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\ruta\a\la\clave.json"` en PowerShell, o `export GOOGLE_APPLICATION_CREDENTIALS=...` en Git Bash.
+3. Cargar: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal>`. Los `uid` se ven en Firebase → Authentication. Se puede correr varias veces: cada vez agrega otro juego.
+4. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
+
+**La reseña (`restaurantes/{uid}/resenas/{pedidoId}`):** `{ comensalUid, comensalNombre, estrellas, comentario, platos, creadoEn }`, con `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»). HU15 le agrega `sentimiento` y `motivo`, y HU21 la `respuesta` del local.
+
+### Reglas de Firestore e índices (SCRUM-91)
+
+Ya están en `firestore.rules`:
+
+- `pedidos/{id}` y `reservas/{id}`: los leen solo su comensal (`comensalUid`) y su local (`restauranteUid`), con el correo verificado; los pedidos, también el administrador (para HU26). Nadie los escribe desde una app. Por eso cada consulta de las apps tiene que filtrar por `comensalUid` o `restauranteUid` igual al `uid` de la sesión, o Firestore la rechaza.
 - `restaurantes/{uid}/franjas/{id}`: la lee cualquier cuenta con sesión; nadie la escribe desde una app.
-- `usuarios/{uid}/notificaciones/{id}`: la lee su dueño, que solo puede marcarla como leída.
+- `usuarios/{uid}/notificaciones/{id}`: la lee su dueño, que solo puede marcarla como leída (`leida: true`).
+- **Pendiente (SCRUM-165):** que el cambio de horario del local acepte `cupoPorFranja`.
+
+Los índices compuestos están en `firestore.indexes.json` (registrado en `firebase.json`): pedidos por local y por comensal ordenados por `creadoEn`, reservas por local ordenadas por `fecha` y `hora`, reservas por comensal por `fecha`, y los de `vencimientos` (pedidos por `estado` y `creadoEn`; reservas por `estado` y `fecha`). Se publican junto con las reglas: `firebase deploy --only firestore`.
 
 ## El documento del local (`restaurantes/{uid}`)
 
