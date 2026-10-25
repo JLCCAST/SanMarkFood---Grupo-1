@@ -50,6 +50,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.menu.CartaScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.MenuHoyScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
+import com.equipo.sanmarkfood.restaurante.presentation.pedidos.BandejaPedidos
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
@@ -197,13 +198,7 @@ private fun PestanaPedidos(
                 error = uiState.errorPausa,
                 onCambiarRecepcion = onCambiarRecepcion,
             )
-            EstadoLocal(
-                restaurante = restaurante,
-                platosEnCarta = uiState.platosEnCarta,
-                onCorregir = onCorregir,
-                onCargarCarta = onCargarCarta,
-                modifier = Modifier.weight(1f),
-            )
+            BandejaPedidos(modifier = Modifier.weight(1f))
         }
         else -> EstadoLocal(
             restaurante = restaurante,

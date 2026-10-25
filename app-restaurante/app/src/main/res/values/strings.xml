@@ -326,6 +326,30 @@
     <string name="pedidos_pausado_titulo">Pausado.</string>
     <string name="pedidos_pausado_texto">Tu local aparece como «Cerrado» y no recibe pedidos nuevos. Los que ya tienes siguen aquí.</string>
 
+    <!-- Bandeja de pedidos (O1, SCRUM-99) -->
+    <string name="pedidos_nuevo">PEDIDO NUEVO</string>
+    <string name="pedidos_numero">#%1$s</string>
+    <string name="pedidos_numero_y_comensal">#%1$s · %2$s</string>
+    <string name="pedidos_modalidad_y_hora">%1$s · %2$s</string>
+    <string name="pedidos_recojo">Recojo</string>
+    <string name="pedidos_delivery">Delivery</string>
+    <string name="pedidos_item">%1$d × %2$s</string>
+    <string name="pedidos_opciones_menu">%1$s + %2$s</string>
+    <string name="pedidos_pagado">Pagado · %1$s</string>
+    <string name="pedidos_por_cobrar">Cobrar al entregar · %1$s</string>
+    <string name="pedidos_efectivo">efectivo</string>
+    <string name="pedidos_billetera">billetera</string>
+    <string name="pedidos_tarjeta">tarjeta</string>
+    <string name="pedidos_seccion_preparacion">EN PREPARACIÓN</string>
+    <string name="pedidos_seccion_listos">LISTOS PARA RECOGER</string>
+    <string name="pedidos_seccion_en_camino">EN CAMINO</string>
+    <string name="pedidos_vacio_preparacion">Nada en cocina ahora.</string>
+    <string name="pedidos_vacio_listos">Ningún pedido esperando.</string>
+    <string name="pedidos_vacio_en_camino">Ningún delivery en camino.</string>
+    <string name="pedidos_listo_aprox">%1$s · listo ~%2$s</string>
+    <string name="pedidos_esperando">%1$s · esperando al comensal</string>
+    <string name="pedidos_sin_conexion">Sin conexión. Los pedidos nuevos llegarán cuando vuelvas a tener internet.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>
