@@ -6,8 +6,8 @@ export function fechaLima(dias = 0): string {
   return new Date(Date.now() + dias * 86_400_000).toLocaleDateString("en-CA", { timeZone: ZONA });
 }
 
-export function horaLima(): string {
-  return new Date().toLocaleTimeString("en-GB", { timeZone: ZONA, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+export function horaLima(fecha = new Date()): string {
+  return fecha.toLocaleTimeString("en-GB", { timeZone: ZONA, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 }
 
 export function diaLima(fecha = fechaLima()): string {

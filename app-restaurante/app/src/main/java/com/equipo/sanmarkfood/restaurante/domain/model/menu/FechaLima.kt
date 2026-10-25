@@ -12,6 +12,13 @@ private fun formatoFecha() = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).apply {
 
 fun fechaDeHoy(): String = formatoFecha().format(Date())
 
+fun inicioDeHoy(): Date = Calendar.getInstance(zonaLima).apply {
+    set(Calendar.HOUR_OF_DAY, 0)
+    set(Calendar.MINUTE, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+}.time
+
 fun fechaDeAyer(): String {
     val ayer = Calendar.getInstance(zonaLima).apply { add(Calendar.DAY_OF_MONTH, -1) }
     return formatoFecha().format(ayer.time)
