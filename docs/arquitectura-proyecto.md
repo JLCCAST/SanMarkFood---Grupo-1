@@ -52,7 +52,7 @@ HEAD
 - **App Comensal — HU19 (SCRUM-37) completa:** gestión de perfil — nombre, teléfono y foto (SCRUM-83, en Firestore + Storage), direcciones frecuentes (SCRUM-84), switches de notificaciones de reservas y reseñas (SCRUM-158), tema claro/oscuro (SCRUM-159) y listener en tiempo real del perfil (SCRUM-85). Con ella entraron `domain/model/perfil/`, `domain/usecase/perfil/` y `presentation/perfil/`.
 - **App Comensal — carpetas por proceso (acuerdo del 3 oct):** aplicado en `auth/` y `perfil/`, igual que en el restaurante.
 - **App Comensal — `domain/` sin Android (SCRUM-86):** los errores de auth se devuelven como `ErrorAuth` (sealed class en `domain/model/auth/`), con la traducción de las excepciones de Firebase hecha en `data/repository/AuthRepositoryImpl.kt`, siguiendo el mismo patrón que ya usa `app-restaurante`.
-- Todavía en app-comensal: sin Navigation Compose (el cambio de pantalla es un `when` en `AuthGate`, dentro de `MainActivity.kt`) y sin `core/di/` (los módulos de Hilt, `AuthModule.kt` y `ComensalModule.kt`, están en `data/` en vez de `core/di/`).
+- **App Comensal — misma estructura que el restaurante (refactor previo a HU08):** Navigation Compose con rutas tipadas en `core/navigation/` (`Rutas.kt` y `ComensalNavGraph`), Hilt en `core/di/` (`FirebaseModule` y `RepositoryModule`) y la barra inferior en `presentation/panel/PanelComensalScreen.kt`. El `GestorSesion` sigue siendo la fuente única de la sesión: el NavGraph lo observa y lleva a la pantalla que corresponde (inicio de sesión, verificación, invitado o panel). El detalle del local es su propia ruta y comparte el `DescubrimientoViewModel` del panel. Todavía sin `data/firebase/` (los `RepositoryImpl` usan Firestore directo).
 feature/SCRUM-86-comensal-busqueda-restaurantes
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
@@ -63,7 +63,7 @@ HEAD
 - En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, `ai/alerta_resenas/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
 - En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos`, `vencimientos` y `resumenResenas`). Hoy solo existe `revisarLocal` (SCRUM-78).
 =======
-- En `app-comensal`: `core/`, Navigation Compose (hoy un `when` en `AuthGate`), Room, `workers/`, `ai/`, y los procesos que no son auth ni perfil (`descubrimiento/`, `reservas/`, `pedidos/`, `resenas/`, `historial/`, `notificaciones/`).
+- En `app-comensal`: `data/firebase/`, Room, `workers/`, `ai/`, y los procesos que no son auth ni perfil (`descubrimiento/`, `reservas/`, `pedidos/`, `resenas/`, `historial/`, `notificaciones/`).
 - En `app-restaurante`: `core/util/`, `data/remote/`, Room en `data/local/`, `workers/`, `ai/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `aprobacion/`, `moderacion/` y `dashboard_global/`.
 - La carpeta `functions/`, con las Cloud Functions (HU07).
 >>>>>>> feature/SCRUM-86-comensal-busqueda-restaurantes

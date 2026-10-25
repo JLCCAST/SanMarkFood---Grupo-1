@@ -1,4 +1,4 @@
-package com.equipo.sanmarkfood.comensal.ui.home
+package com.equipo.sanmarkfood.comensal.presentation.panel
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -16,9 +16,9 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DescubrimientoScreen
-import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestauranteScreen
 import com.equipo.sanmarkfood.comensal.presentation.perfil.PerfilScreen
 
 private enum class Pestana(
@@ -44,29 +43,17 @@ private enum class Pestana(
 }
 
 @Composable
-fun HomeScaffold(
+fun PanelComensalScreen(
+    restauranteAEnfocar: String?,
+    onAbrirRestaurante: (String) -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.colorScheme
     var seleccionada by rememberSaveable { mutableIntStateOf(0) }
-    var restauranteSeleccionadoId by rememberSaveable { mutableStateOf<String?>(null) }
-    var restauranteAEnfocar by rememberSaveable { mutableStateOf<String?>(null) }
 
-    // Si hay un restaurante seleccionado, mostramos la pantalla de detalle a pantalla completa
-    val idActual = restauranteSeleccionadoId
-    if (idActual != null) {
-        DetalleRestauranteScreen(
-            restauranteId = idActual,
-            onVolver = { restauranteSeleccionadoId = null },
-            onVerEnMapa = { id ->
-                restauranteSeleccionadoId = null
-                restauranteAEnfocar = id
-                seleccionada = Pestana.EXPLORAR.ordinal
-            },
-            modifier = modifier
-        )
-        return
+    LaunchedEffect(restauranteAEnfocar) {
+        if (restauranteAEnfocar != null) seleccionada = Pestana.EXPLORAR.ordinal
     }
 
     Scaffold(
@@ -96,7 +83,7 @@ fun HomeScaffold(
         when (Pestana.entries[seleccionada]) {
             Pestana.EXPLORAR -> DescubrimientoScreen(
                 restauranteAEnfocar = restauranteAEnfocar,
-                onRestauranteClick = { id -> restauranteSeleccionadoId = id },
+                onRestauranteClick = onAbrirRestaurante,
                 modifier = Modifier.padding(innerPadding)
             )
 
