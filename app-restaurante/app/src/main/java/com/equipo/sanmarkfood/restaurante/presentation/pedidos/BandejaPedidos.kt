@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.presentation.pedidos
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,17 +17,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,20 +54,27 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Agotado
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ItemPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Modalidad
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Pedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.TIEMPOS_ESTIMADOS
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.agotables
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
+import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.menu.precioTexto
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import java.text.SimpleDateFormat
@@ -81,6 +95,12 @@ fun BandejaPedidos(
         onElegirMinutos = viewModel::onElegirMinutos,
         onCerrarHoja = viewModel::onCerrarHoja,
         onConfirmarAceptar = viewModel::onConfirmarAceptar,
+        onRechazar = viewModel::onRechazar,
+        onElegirMotivo = viewModel::onElegirMotivo,
+        onCambiarDetalle = viewModel::onCambiarDetalle,
+        onAlternarAgotado = viewModel::onAlternarAgotado,
+        onCerrarHojaRechazar = viewModel::onCerrarHojaRechazar,
+        onConfirmarRechazar = viewModel::onConfirmarRechazar,
         onAvanzar = viewModel::onAvanzar,
         onEntregar = viewModel::onEntregar,
         onAvisoMostrado = viewModel::onAvisoMostrado,
@@ -96,6 +116,12 @@ fun BandejaPedidosContenido(
     onElegirMinutos: (Int) -> Unit,
     onCerrarHoja: () -> Unit,
     onConfirmarAceptar: () -> Unit,
+    onRechazar: (Pedido) -> Unit,
+    onElegirMotivo: (MotivoRechazo) -> Unit,
+    onCambiarDetalle: (String) -> Unit,
+    onAlternarAgotado: (Agotado) -> Unit,
+    onCerrarHojaRechazar: () -> Unit,
+    onConfirmarRechazar: () -> Unit,
     onAvanzar: (Pedido) -> Unit,
     onEntregar: (Pedido) -> Unit,
     onAvisoMostrado: () -> Unit,
@@ -117,6 +143,7 @@ fun BandejaPedidosContenido(
             uiState = uiState,
             onReintentar = onReintentar,
             onAceptar = onAceptar,
+            onRechazar = onRechazar,
             onAvanzar = onAvanzar,
             onEntregar = onEntregar,
         )
@@ -130,6 +157,16 @@ fun BandejaPedidosContenido(
             onConfirmar = onConfirmarAceptar,
         )
     }
+    uiState.hojaRechazar?.let { hoja ->
+        HojaRechazar(
+            hoja = hoja,
+            onElegirMotivo = onElegirMotivo,
+            onCambiarDetalle = onCambiarDetalle,
+            onAlternarAgotado = onAlternarAgotado,
+            onCerrar = onCerrarHojaRechazar,
+            onConfirmar = onConfirmarRechazar,
+        )
+    }
 }
 
 @Composable
@@ -137,6 +174,7 @@ private fun ListaPedidos(
     uiState: PedidosUiState,
     onReintentar: () -> Unit,
     onAceptar: (Pedido) -> Unit,
+    onRechazar: (Pedido) -> Unit,
     onAvanzar: (Pedido) -> Unit,
     onEntregar: (Pedido) -> Unit,
 ) {
@@ -168,7 +206,7 @@ private fun ListaPedidos(
                 item { AvisoSinConexion() }
             }
             items(uiState.nuevos, key = { it.id }) { pedido ->
-                TarjetaPedidoNuevo(pedido = pedido, onAceptar = { onAceptar(pedido) })
+                TarjetaPedidoNuevo(pedido = pedido, onAceptar = { onAceptar(pedido) }, onRechazar = { onRechazar(pedido) })
             }
             item {
                 SeccionPedidos(
@@ -237,7 +275,7 @@ private fun AvisoSinConexion() {
 }
 
 @Composable
-private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit) {
+private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit, onRechazar: () -> Unit) {
     val forma = RoundedCornerShape(18.dp)
     Column(
         modifier = Modifier
@@ -297,11 +335,21 @@ private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit) {
                 )
                 Text(text = precioTexto(pedido.total), style = MaterialTheme.typography.titleMedium)
             }
-            Button(
-                onClick = onAceptar,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(48.dp),
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(text = stringResource(R.string.pedidos_aceptar), style = MaterialTheme.typography.labelLarge)
+                OutlinedButton(
+                    onClick = onRechazar,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.error),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    Text(text = stringResource(R.string.pedidos_rechazar), style = MaterialTheme.typography.labelLarge)
+                }
+                Button(onClick = onAceptar, modifier = Modifier.weight(1f).height(48.dp)) {
+                    Text(text = stringResource(R.string.pedidos_aceptar), style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }
@@ -376,6 +424,176 @@ private fun HojaAceptar(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HojaRechazar(
+    hoja: HojaRechazar,
+    onElegirMotivo: (MotivoRechazo) -> Unit,
+    onCambiarDetalle: (String) -> Unit,
+    onAlternarAgotado: (Agotado) -> Unit,
+    onCerrar: () -> Unit,
+    onConfirmar: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCerrar,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outline) },
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.pedidos_hoja_rechazar_titulo, numero(hoja.pedido)),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Text(
+                text = stringResource(
+                    if (hoja.pedido.pago == EstadoPago.PAGADO) R.string.pedidos_hoja_rechazar_texto_pagado
+                    else R.string.pedidos_hoja_rechazar_texto
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(text = stringResource(R.string.pedidos_motivo), style = MaterialTheme.typography.labelLarge)
+            MotivoRechazo.entries.forEach { motivo ->
+                OpcionMotivoRechazo(
+                    texto = stringResource(motivo.texto()),
+                    elegido = motivo == hoja.motivo,
+                    habilitado = !hoja.enviando,
+                    onElegir = { onElegirMotivo(motivo) },
+                )
+            }
+            if (hoja.motivo == MotivoRechazo.PLATO_AGOTADO) {
+                Text(
+                    text = stringResource(R.string.pedidos_que_se_agoto),
+                    modifier = Modifier.padding(top = 4.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                hoja.pedido.agotables().forEach { agotado ->
+                    OpcionAgotado(
+                        texto = textoAgotado(agotado),
+                        marcado = agotado in hoja.agotados,
+                        habilitado = !hoja.enviando,
+                        onAlternar = { onAlternarAgotado(agotado) },
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.pedidos_agotado_nota),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (hoja.motivo == MotivoRechazo.OTRO) {
+                CampoFormulario(
+                    etiqueta = stringResource(R.string.pedidos_detalle_otro),
+                    valor = hoja.detalle,
+                    onValorChange = onCambiarDetalle,
+                    tipoTeclado = KeyboardType.Text,
+                    capitalizacion = KeyboardCapitalization.Sentences,
+                    ejemplo = stringResource(R.string.pedidos_detalle_ejemplo),
+                )
+            }
+            hoja.error?.let {
+                Text(
+                    text = stringResource(it.mensaje()),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                TextButton(onClick = onCerrar, modifier = Modifier.height(48.dp)) {
+                    Text(text = stringResource(R.string.pedidos_volver), style = MaterialTheme.typography.labelLarge)
+                }
+                Button(
+                    onClick = onConfirmar,
+                    enabled = hoja.completa && !hoja.enviando,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+                ) {
+                    if (hoja.enviando) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = LocalContentColor.current,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Text(text = stringResource(R.string.pedidos_rechazar_confirmar), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OpcionMotivoRechazo(texto: String, elegido: Boolean, habilitado: Boolean, onElegir: () -> Unit) {
+    val forma = RoundedCornerShape(12.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clip(forma)
+            .border(
+                1.5.dp,
+                if (elegido) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                forma,
+            )
+            .selectable(selected = elegido, enabled = habilitado, role = Role.RadioButton, onClick = onElegir)
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        RadioButton(selected = elegido, onClick = null, enabled = habilitado)
+        Text(text = texto, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+private fun OpcionAgotado(texto: String, marcado: Boolean, habilitado: Boolean, onAlternar: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 44.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .toggleable(value = marcado, enabled = habilitado, role = Role.Checkbox, onValueChange = { onAlternar() })
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Checkbox(checked = marcado, onCheckedChange = null, enabled = habilitado)
+        Text(text = texto, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+private fun textoAgotado(agotado: Agotado): String = when (agotado) {
+    is Agotado.Plato -> agotado.nombre
+    is Agotado.Opcion -> stringResource(
+        if (agotado.tipo == TipoOpcion.ENTRADA) R.string.pedidos_agotado_entrada else R.string.pedidos_agotado_segundo,
+        agotado.nombre,
+    )
+}
+
+@StringRes
+private fun MotivoRechazo.texto(): Int = when (this) {
+    MotivoRechazo.PLATO_AGOTADO -> R.string.pedidos_motivo_plato_agotado
+    MotivoRechazo.COCINA_SATURADA -> R.string.pedidos_motivo_cocina_saturada
+    MotivoRechazo.LOCAL_POR_CERRAR -> R.string.pedidos_motivo_local_por_cerrar
+    MotivoRechazo.OTRO -> R.string.pedidos_motivo_otro
 }
 
 @Composable
@@ -517,6 +735,10 @@ private fun textoDelAviso(aviso: AvisoBandeja): String = when (aviso) {
         numero(aviso.numero),
     )
     is AvisoBandeja.Entregado -> stringResource(R.string.pedidos_aviso_entregado, numero(aviso.numero))
+    is AvisoBandeja.Rechazado -> stringResource(
+        if (aviso.pagoRevertido) R.string.pedidos_aviso_rechazado else R.string.pedidos_aviso_rechazado_sin_pago,
+        aviso.comensal,
+    )
     is AvisoBandeja.Fallo -> stringResource(aviso.error.mensaje())
 }
 
@@ -622,6 +844,12 @@ private fun BandejaPedidosPreview() {
                 onElegirMinutos = {},
                 onCerrarHoja = {},
                 onConfirmarAceptar = {},
+                onRechazar = {},
+                onElegirMotivo = {},
+                onCambiarDetalle = {},
+                onAlternarAgotado = {},
+                onCerrarHojaRechazar = {},
+                onConfirmarRechazar = {},
                 onAvanzar = {},
                 onEntregar = {},
                 onAvisoMostrado = {},

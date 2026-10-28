@@ -16,6 +16,9 @@ data class AccionPedidoDto(
     val minutos: Int? = null,
     val codigo: String? = null,
     val sinCodigo: Boolean? = null,
+    val motivo: String? = null,
+    val detalle: String? = null,
+    val platoAgotado: String? = null,
 )
 
 @Serializable

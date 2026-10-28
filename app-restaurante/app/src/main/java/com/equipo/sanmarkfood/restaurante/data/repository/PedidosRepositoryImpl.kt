@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.data.remote.AccionPedidoDto
 import com.equipo.sanmarkfood.restaurante.data.remote.FuncionesApi
 import com.equipo.sanmarkfood.restaurante.data.remote.llamarFuncion
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ErrorPedidos
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.PedidosDeHoy
 import com.equipo.sanmarkfood.restaurante.domain.repository.PedidosRepository
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,20 @@ class PedidosRepositoryImpl @Inject constructor(
         llamarFuncion(json) {
             funcionesApi.actualizarPedido(
                 AccionPedidoDto(pedidoId = pedidoId, accion = "entregar", codigo = codigo, sinCodigo = codigo == null)
+            )
+        }
+    }
+
+    override suspend fun rechazar(pedidoId: String, motivo: MotivoRechazo, detalle: String?, platoAgotado: String?) {
+        llamarFuncion(json) {
+            funcionesApi.actualizarPedido(
+                AccionPedidoDto(
+                    pedidoId = pedidoId,
+                    accion = "rechazar",
+                    motivo = motivo.name.lowercase(),
+                    detalle = detalle,
+                    platoAgotado = platoAgotado,
+                )
             )
         }
     }

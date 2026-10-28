@@ -26,6 +26,7 @@ private fun Any?.aItemPedido(): ItemPedido {
         cantidad = (campos["cantidad"] as? Number)?.toInt() ?: throw ErrorPedidos.Desconocido,
         nombre = campos["nombre"] as? String ?: throw ErrorPedidos.Desconocido,
         precio = (campos["precio"] as? Number)?.toInt() ?: throw ErrorPedidos.Desconocido,
+        platoId = campos["platoId"] as? String,
         entrada = campos["entrada"] as? String,
         segundo = campos["segundo"] as? String,
     )

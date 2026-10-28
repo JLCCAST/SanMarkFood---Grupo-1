@@ -370,6 +370,26 @@
     <string name="pedidos_aviso_en_camino">#%1$s va en camino. Le avisamos al comensal.</string>
     <string name="pedidos_aviso_entregado">#%1$s marcado como entregado.</string>
 
+    <!-- Rechazar un pedido con motivo (O1, SCRUM-152) -->
+    <string name="pedidos_rechazar">Rechazar</string>
+    <string name="pedidos_hoja_rechazar_titulo">Rechazar pedido #%1$s</string>
+    <string name="pedidos_hoja_rechazar_texto_pagado">El comensal verá el motivo y se le revertirá el pago.</string>
+    <string name="pedidos_hoja_rechazar_texto">El comensal verá el motivo.</string>
+    <string name="pedidos_motivo">Motivo</string>
+    <string name="pedidos_motivo_plato_agotado">Plato agotado</string>
+    <string name="pedidos_motivo_cocina_saturada">Cocina saturada</string>
+    <string name="pedidos_motivo_local_por_cerrar">Local por cerrar</string>
+    <string name="pedidos_motivo_otro">Otro</string>
+    <string name="pedidos_que_se_agoto">¿Qué se agotó?</string>
+    <string name="pedidos_agotado_entrada">Entrada: %1$s</string>
+    <string name="pedidos_agotado_segundo">Segundo: %1$s</string>
+    <string name="pedidos_agotado_nota">También se marcará como agotado en tu carta.</string>
+    <string name="pedidos_detalle_otro">Cuéntale al comensal qué pasó</string>
+    <string name="pedidos_detalle_ejemplo">Ej.: se fue la luz en la cocina</string>
+    <string name="pedidos_rechazar_confirmar">Rechazar pedido</string>
+    <string name="pedidos_aviso_rechazado">Pedido rechazado. %1$s verá el motivo y se le revirtió el pago.</string>
+    <string name="pedidos_aviso_rechazado_sin_pago">Pedido rechazado. %1$s verá el motivo.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>
