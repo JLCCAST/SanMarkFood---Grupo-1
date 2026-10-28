@@ -32,4 +32,16 @@ class PedidosRepositoryImpl @Inject constructor(
             funcionesApi.actualizarPedido(AccionPedidoDto(pedidoId = pedidoId, accion = "aceptar", minutos = minutos))
         }
     }
+
+    override suspend fun avanzar(pedidoId: String) {
+        llamarFuncion(json) { funcionesApi.actualizarPedido(AccionPedidoDto(pedidoId = pedidoId, accion = "avanzar")) }
+    }
+
+    override suspend fun entregar(pedidoId: String, codigo: String?) {
+        llamarFuncion(json) {
+            funcionesApi.actualizarPedido(
+                AccionPedidoDto(pedidoId = pedidoId, accion = "entregar", codigo = codigo, sinCodigo = codigo == null)
+            )
+        }
+    }
 }

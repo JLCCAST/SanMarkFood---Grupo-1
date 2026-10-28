@@ -362,6 +362,14 @@
     <string name="pedidos_ok">OK</string>
     <string name="error_pedido_ya_cambio">Este pedido ya cambió de estado. Revisa la bandeja.</string>
 
+    <!-- Cambio de estado desde la bandeja (O1, SCRUM-100) -->
+    <string name="pedidos_listo">Listo</string>
+    <string name="pedidos_en_camino">En camino</string>
+    <string name="pedidos_entregado">Entregado</string>
+    <string name="pedidos_aviso_listo">#%1$s está listo. Le avisamos al comensal.</string>
+    <string name="pedidos_aviso_en_camino">#%1$s va en camino. Le avisamos al comensal.</string>
+    <string name="pedidos_aviso_entregado">#%1$s marcado como entregado.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>

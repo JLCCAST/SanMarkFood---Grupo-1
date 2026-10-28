@@ -20,6 +20,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -80,7 +81,9 @@ fun BandejaPedidos(
         onElegirMinutos = viewModel::onElegirMinutos,
         onCerrarHoja = viewModel::onCerrarHoja,
         onConfirmarAceptar = viewModel::onConfirmarAceptar,
-        onAceptadoMostrado = viewModel::onAceptadoMostrado,
+        onAvanzar = viewModel::onAvanzar,
+        onEntregar = viewModel::onEntregar,
+        onAvisoMostrado = viewModel::onAvisoMostrado,
         modifier = modifier,
     )
 }
@@ -93,22 +96,30 @@ fun BandejaPedidosContenido(
     onElegirMinutos: (Int) -> Unit,
     onCerrarHoja: () -> Unit,
     onConfirmarAceptar: () -> Unit,
-    onAceptadoMostrado: () -> Unit,
+    onAvanzar: (Pedido) -> Unit,
+    onEntregar: (Pedido) -> Unit,
+    onAvisoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val avisos = remember { SnackbarHostState() }
-    val aceptado = uiState.aceptado
-    val textoAceptado = aceptado?.let { stringResource(R.string.pedidos_aceptado, it.comensal, horaLima(it.listoA)) }
+    val aviso = uiState.aviso
+    val textoAviso = aviso?.let { textoDelAviso(it) }
     val ok = stringResource(R.string.pedidos_ok)
-    LaunchedEffect(aceptado) {
-        if (textoAceptado != null) {
-            avisos.showSnackbar(textoAceptado, actionLabel = ok, duration = SnackbarDuration.Long)
-            onAceptadoMostrado()
+    LaunchedEffect(aviso) {
+        if (textoAviso != null) {
+            avisos.showSnackbar(textoAviso, actionLabel = ok, duration = SnackbarDuration.Long)
+            onAvisoMostrado()
         }
     }
 
     Box(modifier = modifier) {
-        ListaPedidos(uiState = uiState, onReintentar = onReintentar, onAceptar = onAceptar)
+        ListaPedidos(
+            uiState = uiState,
+            onReintentar = onReintentar,
+            onAceptar = onAceptar,
+            onAvanzar = onAvanzar,
+            onEntregar = onEntregar,
+        )
         SnackbarHost(hostState = avisos, modifier = Modifier.align(Alignment.BottomCenter))
     }
     uiState.hojaAceptar?.let { hoja ->
@@ -122,7 +133,13 @@ fun BandejaPedidosContenido(
 }
 
 @Composable
-private fun ListaPedidos(uiState: PedidosUiState, onReintentar: () -> Unit, onAceptar: (Pedido) -> Unit) {
+private fun ListaPedidos(
+    uiState: PedidosUiState,
+    onReintentar: () -> Unit,
+    onAceptar: (Pedido) -> Unit,
+    onAvanzar: (Pedido) -> Unit,
+    onEntregar: (Pedido) -> Unit,
+) {
     val modifier = Modifier.fillMaxSize()
     val error = uiState.error
     when {
@@ -158,25 +175,47 @@ private fun ListaPedidos(uiState: PedidosUiState, onReintentar: () -> Unit, onAc
                     titulo = R.string.pedidos_seccion_preparacion,
                     vacio = R.string.pedidos_vacio_preparacion,
                     pedidos = uiState.enPreparacion,
-                ) { pedido ->
-                    val hora = pedido.listoAprox?.let { horaLima(it) }
-                    if (hora == null) resumen(pedido.items)
-                    else stringResource(R.string.pedidos_listo_aprox, resumen(pedido.items), hora)
-                }
+                    detalle = { pedido ->
+                        val hora = pedido.listoAprox?.let { horaLima(it) }
+                        if (hora == null) resumen(pedido.items)
+                        else stringResource(R.string.pedidos_listo_aprox, resumen(pedido.items), hora)
+                    },
+                    accion = { pedido ->
+                        BotonFila(
+                            texto = stringResource(
+                                if (pedido.modalidad == Modalidad.DELIVERY) R.string.pedidos_en_camino
+                                else R.string.pedidos_listo
+                            ),
+                            oscuro = false,
+                            habilitado = pedido.id !in uiState.procesando,
+                            onClick = { onAvanzar(pedido) },
+                        )
+                    },
+                )
             }
             item {
                 SeccionPedidos(
                     titulo = R.string.pedidos_seccion_listos,
                     vacio = R.string.pedidos_vacio_listos,
                     pedidos = uiState.listos,
-                ) { pedido -> stringResource(R.string.pedidos_esperando, resumen(pedido.items)) }
+                    detalle = { pedido -> stringResource(R.string.pedidos_esperando, resumen(pedido.items)) },
+                )
             }
             item {
                 SeccionPedidos(
                     titulo = R.string.pedidos_seccion_en_camino,
                     vacio = R.string.pedidos_vacio_en_camino,
                     pedidos = uiState.enCamino,
-                ) { pedido -> pedido.direccion ?: resumen(pedido.items) }
+                    detalle = { pedido -> pedido.direccion ?: resumen(pedido.items) },
+                    accion = { pedido ->
+                        BotonFila(
+                            texto = stringResource(R.string.pedidos_entregado),
+                            oscuro = true,
+                            habilitado = pedido.id !in uiState.procesando,
+                            onClick = { onEntregar(pedido) },
+                        )
+                    },
+                )
             }
         }
     }
@@ -393,6 +432,7 @@ private fun SeccionPedidos(
     @StringRes vacio: Int,
     pedidos: List<Pedido>,
     detalle: @Composable (Pedido) -> String,
+    accion: (@Composable (Pedido) -> Unit)? = null,
 ) {
     Column {
         Text(
@@ -409,17 +449,29 @@ private fun SeccionPedidos(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        pedidos.forEach { pedido -> FilaPedido(pedido = pedido, detalle = detalle(pedido)) }
+        pedidos.forEach { pedido ->
+            FilaPedido(pedido = pedido, detalle = detalle(pedido), accion = accion?.let { { it(pedido) } })
+        }
     }
 }
 
 @Composable
-private fun FilaPedido(pedido: Pedido, detalle: String) {
+private fun FilaPedido(pedido: Pedido, detalle: String, accion: (@Composable () -> Unit)?) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        DatosFila(pedido = pedido, detalle = detalle, modifier = Modifier.weight(1f))
+        accion?.invoke()
+    }
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun DatosFila(pedido: Pedido, detalle: String, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .padding(vertical = 8.dp),
+        modifier = modifier.padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -436,7 +488,36 @@ private fun FilaPedido(pedido: Pedido, detalle: String) {
         }
         Text(text = detalle, style = MaterialTheme.typography.bodySmall)
     }
-    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun BotonFila(texto: String, oscuro: Boolean, habilitado: Boolean, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        enabled = habilitado,
+        modifier = Modifier.height(40.dp),
+        colors = if (oscuro) {
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface,
+            )
+        } else {
+            ButtonDefaults.buttonColors()
+        },
+    ) {
+        Text(text = texto, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+private fun textoDelAviso(aviso: AvisoBandeja): String = when (aviso) {
+    is AvisoBandeja.Aceptado -> stringResource(R.string.pedidos_aceptado, aviso.comensal, horaLima(aviso.listoA))
+    is AvisoBandeja.Avanzado -> stringResource(
+        if (aviso.modalidad == Modalidad.DELIVERY) R.string.pedidos_aviso_en_camino else R.string.pedidos_aviso_listo,
+        numero(aviso.numero),
+    )
+    is AvisoBandeja.Entregado -> stringResource(R.string.pedidos_aviso_entregado, numero(aviso.numero))
+    is AvisoBandeja.Fallo -> stringResource(aviso.error.mensaje())
 }
 
 @Composable
@@ -489,7 +570,9 @@ private fun ErrorPedidos.mensaje(): Int = when (this) {
     ErrorPedidos.Desconocido -> R.string.error_desconocido
 }
 
-private fun numero(pedido: Pedido): String = "%04d".format(Locale.ROOT, pedido.numero)
+private fun numero(pedido: Pedido): String = numero(pedido.numero)
+
+private fun numero(numero: Int): String = "%04d".format(Locale.ROOT, numero)
 
 private fun horaLima(fecha: Date): String =
     SimpleDateFormat("HH:mm", Locale.ROOT).apply { timeZone = TimeZone.getTimeZone("America/Lima") }.format(fecha)
@@ -539,7 +622,9 @@ private fun BandejaPedidosPreview() {
                 onElegirMinutos = {},
                 onCerrarHoja = {},
                 onConfirmarAceptar = {},
-                onAceptadoMostrado = {},
+                onAvanzar = {},
+                onEntregar = {},
+                onAvisoMostrado = {},
             )
         }
     }

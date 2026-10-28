@@ -8,4 +8,8 @@ interface PedidosRepository {
     fun observarPedidosDesde(desde: Date): Flow<PedidosDeHoy>
 
     suspend fun aceptar(pedidoId: String, minutos: Int)
+
+    suspend fun avanzar(pedidoId: String)
+
+    suspend fun entregar(pedidoId: String, codigo: String?)
 }

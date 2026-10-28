@@ -241,12 +241,12 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 
 ## Pedidos y reservas (acuerdo del 25 de octubre)
 
-Es el contrato entre HU07, HU09 y HU12 (Jose: funciones y restaurante), HU08 y HU10 (Camila: comensal) y HU14 y HU15 (Rodrigo: reseñas con IA). Lo acordaron Jose y Claude; el resto del equipo se adapta a lo que vaya avanzando. Si alguien necesita cambiar un nombre o un campo, lo cambia aquí primero y avisa.
+Es el contrato entre HU07, HU09 y HU12 (Jose: funciones y restaurante), HU08 y HU10 (Camila: comensal) y HU14, HU15 y HU26 (Rodrigo: reseñas con IA y dashboard del administrador). Lo acordaron Jose y Claude; el resto del equipo se adapta a lo que vaya avanzando. Si alguien necesita cambiar un nombre o un campo, lo cambia aquí primero y avisa.
 
 **Quién escribe qué función** (todas en `functions/`):
 
 - **Jose (HU07, HU09 y HU12):** la base que usan todas (verificar el token, responder errores, enviar avisos), `crearPedido`, `actualizarPedido`, `reservas` (con la validación del cupo), `resenas` (SCRUM-170), `vencimientos`, los datos de ejemplo (SCRUM-168), los avisos en la app del comensal (SCRUM-169), las reglas, los índices y el despliegue. También el campo `cupoPorFranja` en O8 y su regla (SCRUM-165).
-- **Rodrigo (HU14 y HU15):** `resumenResenas` (programada) y la función que se dispara con cada reseña nueva, las dos con Gemini, usando la base de Jose para los avisos.
+- **Rodrigo (HU14, HU15 y HU26):** `resumenResenas` (programada) y la función que se dispara con cada reseña nueva, las dos con Gemini, usando la base de Jose para los avisos. HU26 (dashboard global) no necesita funciones: usa consultas de agregación de Firestore (`count()`) sobre `restaurantes` y `pedidos`, que las reglas ya le permiten al administrador.
 - **Camila (HU08 y HU10):** solo la app del comensal; no escribe funciones.
 
 ### Orden del Sprint 2 (hasta el 9 de noviembre)
@@ -256,12 +256,12 @@ Para que nadie espere a nadie, lo primero de Jose es lo que usan los otros dos, 
 | | Semana 1 (26 oct – 1 nov) | Semana 2 (2 – 9 nov) |
 | --- | --- | --- |
 | **Jose** | Días 1 y 2: la base de las funciones, los datos de ejemplo (SCRUM-168), las reglas y los índices. Después: `crearPedido`, `reservas`, los avisos del comensal (SCRUM-169) y la bandeja O1 con los datos de ejemplo (SCRUM-99) | `actualizarPedido` con aceptar, avanzar, rechazar y entregar (SCRUM-163, 100, 152, 164), el cupo en O8 (SCRUM-165), las reservas en O4 (SCRUM-106, 107), el aviso de pedido nuevo (SCRUM-162), `vencimientos` (SCRUM-153, 155), los avisos al comensal (SCRUM-101, 108), `resenas` (SCRUM-170) y el despliegue final |
-| **Rodrigo** | Con las reseñas de ejemplo: la clasificación del sentimiento y el motivo con Gemini (SCRUM-121, 122) y el resumen (SCRUM-116) | El resumen en caché (SCRUM-117), el aviso al local por reseña negativa (SCRUM-123) y probarlo con reseñas reales cuando exista `resenas` |
+| **Rodrigo** | Con las reseñas de ejemplo: la clasificación del sentimiento y el motivo con Gemini (SCRUM-121, 122) y el resumen (SCRUM-116). El dashboard global con los pedidos de ejemplo: métricas con `count()` (SCRUM-133, 134) | El resumen en caché (SCRUM-117), el aviso al local por reseña negativa (SCRUM-123), el gráfico de pedidos por semana (SCRUM-135) y probarlo todo con datos reales |
 | **Camila** | Lo que no necesita servidor: el carrito con Room (SCRUM-93), el menú (SCRUM-150), modalidad y pago (SCRUM-94), Geocoding (SCRUM-167), la biometría (SCRUM-95), el formulario de reserva (SCRUM-102) y el recordatorio con WorkManager (SCRUM-103) | Conectar con `crearPedido` y `reservas`, el seguimiento (SCRUM-96), el rechazo (SCRUM-151), el menú vencido (SCRUM-156), cancelar (SCRUM-98, 104), modificar (SCRUM-105) y la calificación (SCRUM-97) |
 
 Las únicas esperas que quedan: Camila necesita `crearPedido` y `reservas` al empezar la semana 2, y Rodrigo necesita los datos de ejemplo desde el día 2. Por eso Jose los entrega primero. Mientras tanto, todos prueban con los datos de ejemplo.
 
-Si el sprint se aprieta, estos criterios pueden pasar al Sprint 3 sin perder ningún requisito del curso: modificar la reserva (SCRUM-105), la entrega con código (SCRUM-164), el sonido que se repite (SCRUM-162) y la calificación (SCRUM-97).
+HU26 volvió al Sprint 2 el 27 oct: la profesora ya enseñó los dashboards con librerías, así que ese requisito también entra en este sprint. Si el sprint se aprieta, estos criterios pueden pasar al Sprint 3 sin perder ningún requisito del curso: modificar la reserva (SCRUM-105), la entrega con código (SCRUM-164), el sonido que se repite (SCRUM-162) y la calificación (SCRUM-97).
 
 ### Cómo llaman las apps a las funciones
 
