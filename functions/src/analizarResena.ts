@@ -11,7 +11,7 @@ export const analizarResena = onDocumentCreated(
     if (!Number.isInteger(estrellas) || estrellas < 1 || estrellas > 5) return;
     const comentario = resena.get("comentario");
 
-    const { sentimiento } = await clasificarResena(estrellas, typeof comentario === "string" ? comentario : "");
-    await resena.ref.update({ sentimiento });
+    const { sentimiento, motivo } = await clasificarResena(estrellas, typeof comentario === "string" ? comentario : "");
+    await resena.ref.update({ sentimiento, ...(motivo !== undefined ? { motivo } : {}) });
   },
 );
