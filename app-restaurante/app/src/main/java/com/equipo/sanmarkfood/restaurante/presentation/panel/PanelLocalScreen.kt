@@ -68,6 +68,7 @@ fun PanelLocalScreen(
     onAbrirPlato: (platoId: String) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
+    onEntregarConCodigo: () -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -87,6 +88,7 @@ fun PanelLocalScreen(
         onAbrirPlato = onAbrirPlato,
         onArmarMenu = onArmarMenu,
         onFotoPizarra = onFotoPizarra,
+        onEntregarConCodigo = onEntregarConCodigo,
         onSesionCerrada = onSesionCerrada,
     )
 }
@@ -106,6 +108,7 @@ private fun PanelLocalContenido(
     onAbrirPlato: (platoId: String) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
+    onEntregarConCodigo: () -> Unit,
     onSesionCerrada: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -126,6 +129,7 @@ private fun PanelLocalContenido(
                 onCambiarRecepcion = onCambiarRecepcion,
                 onCorregir = onCorregir,
                 onCargarCarta = onCargarCarta,
+                onEntregarConCodigo = onEntregarConCodigo,
                 modifier = contenido,
             )
             PestanaPanel.RESERVAS -> PestanaProvisional(
@@ -174,6 +178,7 @@ private fun PestanaPedidos(
     onCambiarRecepcion: (Boolean) -> Unit,
     onCorregir: () -> Unit,
     onCargarCarta: () -> Unit,
+    onEntregarConCodigo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val restaurante = uiState.restaurante
@@ -197,8 +202,9 @@ private fun PestanaPedidos(
                 cambiando = uiState.cambiandoPausa,
                 error = uiState.errorPausa,
                 onCambiarRecepcion = onCambiarRecepcion,
+                onEntregarConCodigo = onEntregarConCodigo,
             )
-            BandejaPedidos(modifier = Modifier.weight(1f))
+            BandejaPedidos(onEntregarConCodigo = onEntregarConCodigo, modifier = Modifier.weight(1f))
         }
         else -> EstadoLocal(
             restaurante = restaurante,
@@ -306,6 +312,7 @@ private fun PanelLocalPreview() {
                 onAbrirPlato = {},
                 onArmarMenu = {},
                 onFotoPizarra = {},
+                onEntregarConCodigo = {},
                 onSesionCerrada = {},
             )
         }

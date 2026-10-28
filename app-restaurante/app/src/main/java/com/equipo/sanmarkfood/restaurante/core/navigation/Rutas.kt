@@ -42,3 +42,6 @@ data class ArmarMenu(val modo: ModoArmarMenu)
 
 @Serializable
 data object Camara
+
+@Serializable
+data object EntregarCodigo

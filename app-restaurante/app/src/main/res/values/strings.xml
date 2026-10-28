@@ -390,6 +390,20 @@
     <string name="pedidos_aviso_rechazado">Pedido rechazado. %1$s verá el motivo y se le revirtió el pago.</string>
     <string name="pedidos_aviso_rechazado_sin_pago">Pedido rechazado. %1$s verá el motivo.</string>
 
+    <!-- Entregar con código (O3, SCRUM-164) -->
+    <string name="pedidos_entregar_con_codigo">Entregar con código</string>
+    <string name="pedidos_entregar">Entregar</string>
+    <string name="codigo_cerrar">Cerrar</string>
+    <string name="codigo_instrucciones">Pide al comensal el código de 4 dígitos que ve en su app.</string>
+    <string name="codigo_vacio">Código vacío</string>
+    <string name="codigo_descripcion">Código: %1$s</string>
+    <string name="codigo_entregar_pedido">Entregar pedido</string>
+    <string name="codigo_no_encontrado">No hay ningún pedido listo con el código %1$s. Revisa el número con el comensal.</string>
+    <string name="codigo_entregado">#%1$s entregado a %2$s</string>
+    <string name="codigo_entregar_otro">Entregar otro</string>
+    <string name="codigo_borrar">Borrar</string>
+    <string name="error_pedido_codigo_incorrecto">El código no coincide con el del pedido.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>

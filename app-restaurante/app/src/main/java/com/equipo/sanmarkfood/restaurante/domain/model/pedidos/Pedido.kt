@@ -45,6 +45,7 @@ data class Pedido(
     val estado: EstadoPedido,
     val creadoEn: Date,
     val listoAprox: Date?,
+    val codigoRecojo: String? = null,
 )
 
 fun Pedido.agotables(): List<Agotado> = items.flatMap { item ->
@@ -57,6 +58,10 @@ fun Pedido.agotables(): List<Agotado> = items.flatMap { item ->
         else -> emptyList()
     }
 }.distinct()
+
+fun List<Pedido>.listoConCodigo(codigo: String): Pedido? = firstOrNull {
+    it.estado == EstadoPedido.LISTO && it.modalidad == Modalidad.RECOJO && it.codigoRecojo == codigo
+}
 
 data class PedidosDeHoy(
     val pedidos: List<Pedido>,

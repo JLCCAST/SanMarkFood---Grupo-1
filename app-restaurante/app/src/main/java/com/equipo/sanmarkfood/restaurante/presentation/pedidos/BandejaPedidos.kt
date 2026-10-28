@@ -84,6 +84,7 @@ import java.util.TimeZone
 
 @Composable
 fun BandejaPedidos(
+    onEntregarConCodigo: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PedidosViewModel = hiltViewModel(),
 ) {
@@ -103,6 +104,7 @@ fun BandejaPedidos(
         onConfirmarRechazar = viewModel::onConfirmarRechazar,
         onAvanzar = viewModel::onAvanzar,
         onEntregar = viewModel::onEntregar,
+        onEntregarConCodigo = onEntregarConCodigo,
         onAvisoMostrado = viewModel::onAvisoMostrado,
         modifier = modifier,
     )
@@ -124,6 +126,7 @@ fun BandejaPedidosContenido(
     onConfirmarRechazar: () -> Unit,
     onAvanzar: (Pedido) -> Unit,
     onEntregar: (Pedido) -> Unit,
+    onEntregarConCodigo: () -> Unit,
     onAvisoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -146,6 +149,7 @@ fun BandejaPedidosContenido(
             onRechazar = onRechazar,
             onAvanzar = onAvanzar,
             onEntregar = onEntregar,
+            onEntregarConCodigo = onEntregarConCodigo,
         )
         SnackbarHost(hostState = avisos, modifier = Modifier.align(Alignment.BottomCenter))
     }
@@ -177,6 +181,7 @@ private fun ListaPedidos(
     onRechazar: (Pedido) -> Unit,
     onAvanzar: (Pedido) -> Unit,
     onEntregar: (Pedido) -> Unit,
+    onEntregarConCodigo: () -> Unit,
 ) {
     val modifier = Modifier.fillMaxSize()
     val error = uiState.error
@@ -237,6 +242,14 @@ private fun ListaPedidos(
                     vacio = R.string.pedidos_vacio_listos,
                     pedidos = uiState.listos,
                     detalle = { pedido -> stringResource(R.string.pedidos_esperando, resumen(pedido.items)) },
+                    accion = {
+                        BotonFila(
+                            texto = stringResource(R.string.pedidos_entregar),
+                            oscuro = true,
+                            habilitado = true,
+                            onClick = onEntregarConCodigo,
+                        )
+                    },
                 )
             }
             item {
@@ -761,11 +774,11 @@ private fun ChipModalidad(modalidad: Modalidad) {
 }
 
 @Composable
-private fun resumen(items: List<ItemPedido>): String =
+internal fun resumen(items: List<ItemPedido>): String =
     items.map { stringResource(R.string.pedidos_item, it.cantidad, it.nombre) }.joinToString(" + ")
 
 @Composable
-private fun textoPago(pedido: Pedido): String {
+internal fun textoPago(pedido: Pedido): String {
     val metodo = stringResource(
         when (pedido.metodoPago) {
             MetodoPago.EFECTIVO -> R.string.pedidos_efectivo
@@ -786,15 +799,16 @@ private fun Modalidad.texto(): Int = when (this) {
 }
 
 @StringRes
-private fun ErrorPedidos.mensaje(): Int = when (this) {
+internal fun ErrorPedidos.mensaje(): Int = when (this) {
     ErrorPedidos.SinConexion -> R.string.error_sin_conexion
     ErrorPedidos.YaCambio -> R.string.error_pedido_ya_cambio
+    ErrorPedidos.CodigoIncorrecto -> R.string.error_pedido_codigo_incorrecto
     ErrorPedidos.Desconocido -> R.string.error_desconocido
 }
 
-private fun numero(pedido: Pedido): String = numero(pedido.numero)
+internal fun numero(pedido: Pedido): String = numero(pedido.numero)
 
-private fun numero(numero: Int): String = "%04d".format(Locale.ROOT, numero)
+internal fun numero(numero: Int): String = "%04d".format(Locale.ROOT, numero)
 
 private fun horaLima(fecha: Date): String =
     SimpleDateFormat("HH:mm", Locale.ROOT).apply { timeZone = TimeZone.getTimeZone("America/Lima") }.format(fecha)
@@ -852,6 +866,7 @@ private fun BandejaPedidosPreview() {
                 onConfirmarRechazar = {},
                 onAvanzar = {},
                 onEntregar = {},
+                onEntregarConCodigo = {},
                 onAvisoMostrado = {},
             )
         }

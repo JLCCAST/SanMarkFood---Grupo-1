@@ -18,6 +18,7 @@ internal fun DocumentSnapshot.aPedido(): Pedido = Pedido(
     estado = opcion("estado"),
     creadoEn = getTimestamp("creadoEn")?.toDate() ?: throw ErrorPedidos.Desconocido,
     listoAprox = getTimestamp("listoAprox")?.toDate(),
+    codigoRecojo = getString("codigoRecojo"),
 )
 
 private fun Any?.aItemPedido(): ItemPedido {
