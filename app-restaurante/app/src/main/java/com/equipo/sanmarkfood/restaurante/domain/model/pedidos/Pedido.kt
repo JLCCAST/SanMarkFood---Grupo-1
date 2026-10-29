@@ -46,6 +46,7 @@ data class Pedido(
     val creadoEn: Date,
     val listoAprox: Date?,
     val codigoRecojo: String? = null,
+    val entregadoEn: Date? = null,
 )
 
 fun Pedido.agotables(): List<Agotado> = items.flatMap { item ->

@@ -45,3 +45,6 @@ data object Camara
 
 @Serializable
 data object EntregarCodigo
+
+@Serializable
+data class PedidoDetalle(val pedidoId: String)

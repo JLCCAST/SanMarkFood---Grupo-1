@@ -69,6 +69,7 @@ fun PanelLocalScreen(
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
     onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -89,6 +90,7 @@ fun PanelLocalScreen(
         onArmarMenu = onArmarMenu,
         onFotoPizarra = onFotoPizarra,
         onEntregarConCodigo = onEntregarConCodigo,
+        onAbrirPedido = onAbrirPedido,
         onSesionCerrada = onSesionCerrada,
     )
 }
@@ -109,6 +111,7 @@ private fun PanelLocalContenido(
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
     onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     onSesionCerrada: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -130,6 +133,7 @@ private fun PanelLocalContenido(
                 onCorregir = onCorregir,
                 onCargarCarta = onCargarCarta,
                 onEntregarConCodigo = onEntregarConCodigo,
+                onAbrirPedido = onAbrirPedido,
                 modifier = contenido,
             )
             PestanaPanel.RESERVAS -> PestanaProvisional(
@@ -179,6 +183,7 @@ private fun PestanaPedidos(
     onCorregir: () -> Unit,
     onCargarCarta: () -> Unit,
     onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val restaurante = uiState.restaurante
@@ -204,7 +209,11 @@ private fun PestanaPedidos(
                 onCambiarRecepcion = onCambiarRecepcion,
                 onEntregarConCodigo = onEntregarConCodigo,
             )
-            BandejaPedidos(onEntregarConCodigo = onEntregarConCodigo, modifier = Modifier.weight(1f))
+            BandejaPedidos(
+                onEntregarConCodigo = onEntregarConCodigo,
+                onAbrirPedido = onAbrirPedido,
+                modifier = Modifier.weight(1f),
+            )
         }
         else -> EstadoLocal(
             restaurante = restaurante,
@@ -313,6 +322,7 @@ private fun PanelLocalPreview() {
                 onArmarMenu = {},
                 onFotoPizarra = {},
                 onEntregarConCodigo = {},
+                onAbrirPedido = {},
                 onSesionCerrada = {},
             )
         }

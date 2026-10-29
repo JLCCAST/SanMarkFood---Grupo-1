@@ -404,6 +404,30 @@
     <string name="codigo_borrar">Borrar</string>
     <string name="error_pedido_codigo_incorrecto">El código no coincide con el del pedido.</string>
 
+    <!-- Detalle del pedido (O2, SCRUM-164) -->
+    <string name="detalle_titulo">Pedido #%1$s</string>
+    <string name="detalle_sub_listo">%1$s · listo aprox. %2$s</string>
+    <string name="detalle_paso_recibido">Recibido</string>
+    <string name="detalle_paso_preparando">Preparando</string>
+    <string name="detalle_paso_listo">Listo</string>
+    <string name="detalle_paso_en_camino">En camino</string>
+    <string name="detalle_paso_entregado">Entregado</string>
+    <string name="detalle_llego">Llegó %1$s</string>
+    <string name="detalle_entregar_en">ENTREGAR EN</string>
+    <string name="detalle_entregado">Pedido entregado. Le pediremos al comensal que lo califique.</string>
+    <string name="detalle_entregado_a_las">Pedido entregado a las %1$s. Le pediremos al comensal que lo califique.</string>
+    <string name="detalle_rechazado">Este pedido fue rechazado.</string>
+    <string name="detalle_cancelado">El comensal canceló este pedido.</string>
+    <string name="detalle_marcar_listo">Marcar como listo</string>
+    <string name="detalle_marcar_en_camino">Marcar en camino</string>
+    <string name="detalle_marcar_entregado">Marcar entregado</string>
+    <string name="detalle_entregar_sin_codigo">Entregar sin código</string>
+    <string name="detalle_sin_codigo_titulo">¿Entregar sin código?</string>
+    <string name="detalle_sin_codigo_texto">Confirma que se lo das a %1$s. Úsalo solo si el comensal no puede mostrar su código.</string>
+    <string name="detalle_si_entregar">Sí, entregar</string>
+    <string name="detalle_volver_a_pedidos">Volver a pedidos</string>
+    <string name="detalle_no_encontrado">No encontramos este pedido. Puede ser de otro día.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>

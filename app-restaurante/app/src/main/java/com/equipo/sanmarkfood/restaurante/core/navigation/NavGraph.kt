@@ -23,6 +23,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.PlatoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.EntregarCodigoScreen
+import com.equipo.sanmarkfood.restaurante.presentation.pedidos.PedidoDetalleScreen
 
 @Composable
 fun RestauranteNavGraph() {
@@ -91,11 +92,18 @@ fun RestauranteNavGraph() {
                 onArmarMenu = { modo -> navController.navigate(ArmarMenu(modo)) { launchSingleTop = true } },
                 onFotoPizarra = { navController.navigate(Camara) { launchSingleTop = true } },
                 onEntregarConCodigo = { navController.navigate(EntregarCodigo) { launchSingleTop = true } },
+                onAbrirPedido = { pedidoId -> navController.navigate(PedidoDetalle(pedidoId)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
             )
         }
         composable<EntregarCodigo> {
             EntregarCodigoScreen(onCerrar = { navController.navigateUp() })
+        }
+        composable<PedidoDetalle> {
+            PedidoDetalleScreen(
+                onVolver = { navController.navigateUp() },
+                onEntregarConCodigo = { navController.navigate(EntregarCodigo) { launchSingleTop = true } },
+            )
         }
         composable<ArmarMenu> {
             ArmarMenuScreen(

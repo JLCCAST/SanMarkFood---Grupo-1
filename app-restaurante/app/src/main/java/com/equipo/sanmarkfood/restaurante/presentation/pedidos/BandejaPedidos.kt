@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,6 +86,7 @@ import java.util.TimeZone
 @Composable
 fun BandejaPedidos(
     onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PedidosViewModel = hiltViewModel(),
 ) {
@@ -105,6 +107,7 @@ fun BandejaPedidos(
         onAvanzar = viewModel::onAvanzar,
         onEntregar = viewModel::onEntregar,
         onEntregarConCodigo = onEntregarConCodigo,
+        onAbrirPedido = onAbrirPedido,
         onAvisoMostrado = viewModel::onAvisoMostrado,
         modifier = modifier,
     )
@@ -127,6 +130,7 @@ fun BandejaPedidosContenido(
     onAvanzar: (Pedido) -> Unit,
     onEntregar: (Pedido) -> Unit,
     onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     onAvisoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -150,6 +154,7 @@ fun BandejaPedidosContenido(
             onAvanzar = onAvanzar,
             onEntregar = onEntregar,
             onEntregarConCodigo = onEntregarConCodigo,
+            onAbrirPedido = onAbrirPedido,
         )
         SnackbarHost(hostState = avisos, modifier = Modifier.align(Alignment.BottomCenter))
     }
@@ -182,6 +187,7 @@ private fun ListaPedidos(
     onAvanzar: (Pedido) -> Unit,
     onEntregar: (Pedido) -> Unit,
     onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
 ) {
     val modifier = Modifier.fillMaxSize()
     val error = uiState.error
@@ -218,6 +224,7 @@ private fun ListaPedidos(
                     titulo = R.string.pedidos_seccion_preparacion,
                     vacio = R.string.pedidos_vacio_preparacion,
                     pedidos = uiState.enPreparacion,
+                    onAbrir = onAbrirPedido,
                     detalle = { pedido ->
                         val hora = pedido.listoAprox?.let { horaLima(it) }
                         if (hora == null) resumen(pedido.items)
@@ -241,6 +248,7 @@ private fun ListaPedidos(
                     titulo = R.string.pedidos_seccion_listos,
                     vacio = R.string.pedidos_vacio_listos,
                     pedidos = uiState.listos,
+                    onAbrir = onAbrirPedido,
                     detalle = { pedido -> stringResource(R.string.pedidos_esperando, resumen(pedido.items)) },
                     accion = {
                         BotonFila(
@@ -257,6 +265,7 @@ private fun ListaPedidos(
                     titulo = R.string.pedidos_seccion_en_camino,
                     vacio = R.string.pedidos_vacio_en_camino,
                     pedidos = uiState.enCamino,
+                    onAbrir = onAbrirPedido,
                     detalle = { pedido -> pedido.direccion ?: resumen(pedido.items) },
                     accion = { pedido ->
                         BotonFila(
@@ -662,6 +671,7 @@ private fun SeccionPedidos(
     @StringRes titulo: Int,
     @StringRes vacio: Int,
     pedidos: List<Pedido>,
+    onAbrir: (pedidoId: String) -> Unit,
     detalle: @Composable (Pedido) -> String,
     accion: (@Composable (Pedido) -> Unit)? = null,
 ) {
@@ -681,19 +691,24 @@ private fun SeccionPedidos(
             )
         }
         pedidos.forEach { pedido ->
-            FilaPedido(pedido = pedido, detalle = detalle(pedido), accion = accion?.let { { it(pedido) } })
+            FilaPedido(
+                pedido = pedido,
+                detalle = detalle(pedido),
+                onAbrir = { onAbrir(pedido.id) },
+                accion = accion?.let { { it(pedido) } },
+            )
         }
     }
 }
 
 @Composable
-private fun FilaPedido(pedido: Pedido, detalle: String, accion: (@Composable () -> Unit)?) {
+private fun FilaPedido(pedido: Pedido, detalle: String, onAbrir: () -> Unit, accion: (@Composable () -> Unit)?) {
     Row(
         modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        DatosFila(pedido = pedido, detalle = detalle, modifier = Modifier.weight(1f))
+        DatosFila(pedido = pedido, detalle = detalle, modifier = Modifier.weight(1f).clickable(onClick = onAbrir))
         accion?.invoke()
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -810,7 +825,7 @@ internal fun numero(pedido: Pedido): String = numero(pedido.numero)
 
 internal fun numero(numero: Int): String = "%04d".format(Locale.ROOT, numero)
 
-private fun horaLima(fecha: Date): String =
+internal fun horaLima(fecha: Date): String =
     SimpleDateFormat("HH:mm", Locale.ROOT).apply { timeZone = TimeZone.getTimeZone("America/Lima") }.format(fecha)
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
@@ -867,6 +882,7 @@ private fun BandejaPedidosPreview() {
                 onAvanzar = {},
                 onEntregar = {},
                 onEntregarConCodigo = {},
+                onAbrirPedido = {},
                 onAvisoMostrado = {},
             )
         }
