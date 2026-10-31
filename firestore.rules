@@ -39,6 +39,12 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    function participa(datos) {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && (datos.comensalUid == request.auth.uid || datos.restauranteUid == request.auth.uid);
+    }
+
     match /usuarios/{uid} {
       allow read: if esDuenio(uid) || esAdministrador();
       allow create: if esDuenio(uid) && request.resource.data.rol in ['comensal', 'restaurante'];
@@ -53,6 +59,24 @@ service cloud.firestore {
           && request.resource.data.app in ['restaurante', 'comensal']
           && request.resource.data.actualizadoEn == request.time;
       }
+
+      match /notificaciones/{notificacionId} {
+        allow read: if esDuenio(uid);
+        allow update: if esDuenio(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['leida'])
+          && request.resource.data.leida == true;
+        allow create, delete: if false;
+      }
+    }
+
+    match /pedidos/{pedidoId} {
+      allow read: if participa(resource.data) || esAdministrador();
+      allow write: if false;
+    }
+
+    match /reservas/{reservaId} {
+      allow read: if participa(resource.data);
+      allow write: if false;
     }
 
     match /restaurantes/{uid} {
@@ -257,6 +281,11 @@ service cloud.firestore {
           && request.resource.data.estado in ['publicado', 'terminado']
           && request.resource.data.origen in ['ayer', 'cero', 'ia'];
         allow delete: if false;
+      }
+
+      match /franjas/{franjaId} {
+        allow read: if request.auth != null;
+        allow write: if false;
       }
     }
   }

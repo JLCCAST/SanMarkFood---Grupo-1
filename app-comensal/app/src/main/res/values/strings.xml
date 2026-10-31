@@ -98,6 +98,14 @@
     <string name="home_explorar_texto">Pronto verás aquí el mapa, los menús del día y las reseñas de los restaurantes.</string>
     <string name="home_actividad_texto">Pronto verás aquí tus pedidos y reservas.</string>
 
+    <!-- Avisos (SCRUM-169) -->
+    <string name="canal_pedidos_id" translatable="false">pedidos</string>
+    <string name="canal_pedidos">Estado de tus pedidos</string>
+    <string name="canal_pedidos_descripcion">Te avisamos cuando tu pedido cambia de estado.</string>
+    <string name="canal_reservas_id" translatable="false">reservas</string>
+    <string name="canal_reservas">Reservas</string>
+    <string name="canal_reservas_descripcion">Te avisamos cuando el local responde tu reserva.</string>
+
     <!-- Invitado -->
     <string name="invitado_titulo">Estás explorando sin cuenta</string>
     <string name="invitado_texto">Pronto verás aquí el mapa, los menús del día y las reseñas de los restaurantes. Para reservar o pedir necesitas una cuenta.</string>

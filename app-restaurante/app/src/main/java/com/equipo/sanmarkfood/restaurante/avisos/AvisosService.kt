@@ -19,6 +19,6 @@ class AvisosService : FirebaseMessagingService() {
 
     override fun onMessageReceived(mensaje: RemoteMessage) {
         val aviso = mensaje.notification ?: return
-        mostrarAvisoEstadoLocal(this, aviso.title, aviso.body)
+        mostrarAviso(this, aviso.channelId, aviso.title, aviso.body)
     }
 }
