@@ -35,6 +35,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.MetricasPlataforma
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.PedidosSemana
 import com.equipo.sanmarkfood.restaurante.presentation.admin.CabeceraAdministracion
 import com.equipo.sanmarkfood.restaurante.presentation.admin.MensajeErrorAdmin
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
@@ -155,6 +156,7 @@ private fun CifrasPlataforma(metricas: MetricasPlataforma, modifier: Modifier = 
                 modifier = Modifier.weight(1f).fillMaxHeight(),
             )
         }
+        GraficoPedidosPorSemana(semanas = metricas.pedidosPorSemana, modifier = Modifier.padding(top = 6.dp))
     }
 }
 
@@ -191,6 +193,8 @@ private fun TarjetaCifra(
 private fun horaLima(fecha: Date): String =
     SimpleDateFormat("HH:mm", Locale.ROOT).apply { timeZone = TimeZone.getTimeZone("America/Lima") }.format(fecha)
 
+private const val MILISEGUNDOS_POR_SEMANA = 7L * 24 * 60 * 60 * 1000
+
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
 @Composable
 private fun MetricasPreview() {
@@ -206,6 +210,9 @@ private fun MetricasPreview() {
                         resenasReportadas = 2,
                         pedidosEstaSemana = 540,
                         pedidosSemanaAnterior = 512,
+                        pedidosPorSemana = listOf(210, 265, 298, 330, 402, 455, 512, 540).mapIndexed { semana, pedidos ->
+                            PedidosSemana(Date(semana * MILISEGUNDOS_POR_SEMANA), pedidos)
+                        },
                     ),
                     actualizadoEn = Date(),
                 ),
