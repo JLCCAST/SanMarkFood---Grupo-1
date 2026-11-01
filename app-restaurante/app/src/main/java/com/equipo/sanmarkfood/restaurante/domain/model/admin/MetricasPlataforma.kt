@@ -11,6 +11,7 @@ data class MetricasPlataforma(
     val pedidosEstaSemana: Int,
     val pedidosSemanaAnterior: Int,
     val pedidosPorSemana: List<PedidosSemana> = emptyList(),
+    val localesConMasPedidos: List<LocalConPedidos> = emptyList(),
 ) {
     val variacionPedidos: Int?
         get() = if (pedidosSemanaAnterior == 0) {
@@ -21,3 +22,7 @@ data class MetricasPlataforma(
 }
 
 data class PedidosSemana(val inicio: Date, val pedidos: Int)
+
+data class LocalAprobado(val uid: String, val nombre: String)
+
+data class LocalConPedidos(val nombre: String, val pedidos: Int)

@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.domain.usecase.admin
 
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.LocalAprobado
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.LocalConPedidos
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
 import kotlinx.coroutines.runBlocking
@@ -18,8 +20,10 @@ class ObtenerMetricasUseCaseTest {
     private class RepositorioFalso(
         private val pedidosEstaSemana: Int = 21,
         private val pedidosSemanaAnterior: Int = 20,
+        private val pedidosPorLocal: Map<String, Int> = emptyMap(),
     ) : MetricasRepository {
         val rangosPedidos: MutableList<Pair<Date, Date>> = Collections.synchronizedList(mutableListOf())
+        val rangosDeLocal: MutableList<Pair<Date, Date>> = Collections.synchronizedList(mutableListOf())
         var inicioEstaSemana: Date? = null
 
         override suspend fun contarRestaurantes(estado: EstadoRestaurante): Int =
@@ -32,6 +36,14 @@ class ObtenerMetricasUseCaseTest {
         override suspend fun contarPedidos(desde: Date, hasta: Date): Int {
             rangosPedidos.add(desde to hasta)
             return if (desde == inicioEstaSemana) pedidosEstaSemana else pedidosSemanaAnterior
+        }
+
+        override suspend fun listarAprobados(): List<LocalAprobado> =
+            pedidosPorLocal.keys.map { LocalAprobado(uid = it, nombre = "Local $it") }
+
+        override suspend fun contarPedidosDeLocal(uid: String, desde: Date, hasta: Date): Int {
+            rangosDeLocal.add(desde to hasta)
+            return pedidosPorLocal.getValue(uid)
         }
     }
 
@@ -105,6 +117,36 @@ class ObtenerMetricasUseCaseTest {
         assertEquals(21, semanas.last().pedidos)
         assertTrue(repositorio.rangosPedidos.contains(lima("2026-10-19 00:00") to lima("2026-10-26 00:00")))
         assertTrue(repositorio.rangosPedidos.contains(lima("2026-10-26 00:00") to ahora))
+    }
+
+    @Test
+    fun ordenaLosCuatroLocalesConMasPedidosDeLaSemana() = runBlocking {
+        val ahora = lima("2026-10-28 12:00")
+        val repositorio = RepositorioFalso(
+            pedidosPorLocal = mapOf("a" to 3, "b" to 0, "c" to 9, "d" to 1, "e" to 5, "f" to 2),
+        )
+
+        val locales = ObtenerMetricasUseCase(repositorio)(ahora).localesConMasPedidos
+
+        assertEquals(
+            listOf(
+                LocalConPedidos("Local c", 9),
+                LocalConPedidos("Local e", 5),
+                LocalConPedidos("Local a", 3),
+                LocalConPedidos("Local f", 2),
+            ),
+            locales,
+        )
+        assertEquals(setOf(lima("2026-10-26 00:00") to ahora), repositorio.rangosDeLocal.toSet())
+    }
+
+    @Test
+    fun noListaLocalesSinPedidos() = runBlocking {
+        val repositorio = RepositorioFalso(pedidosPorLocal = mapOf("a" to 0, "b" to 0))
+
+        val locales = ObtenerMetricasUseCase(repositorio)(lima("2026-10-28 12:00")).localesConMasPedidos
+
+        assertEquals(emptyList<LocalConPedidos>(), locales)
     }
 
     @Test

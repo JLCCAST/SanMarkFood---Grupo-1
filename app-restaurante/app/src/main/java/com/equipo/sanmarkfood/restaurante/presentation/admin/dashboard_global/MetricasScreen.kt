@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.LocalConPedidos
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.MetricasPlataforma
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.PedidosSemana
 import com.equipo.sanmarkfood.restaurante.presentation.admin.CabeceraAdministracion
@@ -157,6 +158,7 @@ private fun CifrasPlataforma(metricas: MetricasPlataforma, modifier: Modifier = 
             )
         }
         GraficoPedidosPorSemana(semanas = metricas.pedidosPorSemana, modifier = Modifier.padding(top = 6.dp))
+        LocalesConMasPedidos(locales = metricas.localesConMasPedidos, modifier = Modifier.padding(top = 6.dp))
     }
 }
 
@@ -213,6 +215,12 @@ private fun MetricasPreview() {
                         pedidosPorSemana = listOf(210, 265, 298, 330, 402, 455, 512, 540).mapIndexed { semana, pedidos ->
                             PedidosSemana(Date(semana * MILISEGUNDOS_POR_SEMANA), pedidos)
                         },
+                        localesConMasPedidos = listOf(
+                            LocalConPedidos("La Sazón de Doña Carmen", 86),
+                            LocalConPedidos("Chifa Dragón Dorado", 71),
+                            LocalConPedidos("Verde Campus", 58),
+                            LocalConPedidos("La Brasa Sanmarquina", 44),
+                        ),
                     ),
                     actualizadoEn = Date(),
                 ),

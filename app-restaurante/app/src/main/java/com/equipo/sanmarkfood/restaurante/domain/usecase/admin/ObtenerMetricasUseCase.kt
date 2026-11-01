@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.domain.usecase.admin
 
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.LocalConPedidos
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.MetricasPlataforma
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.PedidosSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
@@ -22,6 +23,7 @@ class ObtenerMetricasUseCase @Inject constructor(
         val semanaAnterior = async {
             metricasRepository.contarPedidos(inicioDeSemana(ahora, semanasAtras = 1), Date(ahora.time - UNA_SEMANA))
         }
+        val localesConMasPedidos = async { localesConMasPedidos(inicioDeSemana(ahora), ahora) }
         val semanas = (SEMANAS_DEL_GRAFICO - 1 downTo 0).map { atras ->
             async {
                 val inicio = inicioDeSemana(ahora, atras)
@@ -38,11 +40,24 @@ class ObtenerMetricasUseCase @Inject constructor(
             pedidosEstaSemana = semanas.last().pedidos,
             pedidosSemanaAnterior = semanaAnterior.await(),
             pedidosPorSemana = semanas,
+            localesConMasPedidos = localesConMasPedidos.await(),
         )
+    }
+
+    private suspend fun localesConMasPedidos(desde: Date, hasta: Date): List<LocalConPedidos> = coroutineScope {
+        metricasRepository.listarAprobados()
+            .map { local ->
+                async { LocalConPedidos(local.nombre, metricasRepository.contarPedidosDeLocal(local.uid, desde, hasta)) }
+            }
+            .awaitAll()
+            .filter { it.pedidos > 0 }
+            .sortedByDescending { it.pedidos }
+            .take(LOCALES_DEL_RANKING)
     }
 
     private companion object {
         const val UNA_SEMANA = 7L * 24 * 60 * 60 * 1000
         const val SEMANAS_DEL_GRAFICO = 8
+        const val LOCALES_DEL_RANKING = 4
     }
 }

@@ -458,6 +458,8 @@
     <string name="metricas_pedidos_por_semana">Pedidos totales por semana</string>
     <string name="metricas_grafico_descripcion">Pedidos por semana: %1$s</string>
     <string name="metricas_sin_pedidos">Todavía no hay pedidos en estas semanas.</string>
+    <string name="metricas_locales_titulo">Locales con más pedidos esta semana</string>
+    <string name="metricas_locales_vacio">Todavía no hay pedidos esta semana.</string>
     <string name="metricas_variacion">%1$+d %% vs. anterior</string>
     <plurals name="metricas_reenviados">
         <item quantity="one">%d reenviado</item>

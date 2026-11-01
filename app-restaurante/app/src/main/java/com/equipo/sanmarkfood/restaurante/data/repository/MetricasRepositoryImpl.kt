@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.data.repository
 
 import com.equipo.sanmarkfood.restaurante.data.firebase.MetricasDataSource
+import com.equipo.sanmarkfood.restaurante.domain.model.admin.LocalAprobado
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.EstadoRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
 import java.util.Date
@@ -18,4 +19,9 @@ class MetricasRepositoryImpl @Inject constructor(
     override suspend fun contarResenasReportadas(): Int = metricasDataSource.contarResenasReportadas()
 
     override suspend fun contarPedidos(desde: Date, hasta: Date): Int = metricasDataSource.contarPedidos(desde, hasta)
+
+    override suspend fun listarAprobados(): List<LocalAprobado> = metricasDataSource.listarAprobados()
+
+    override suspend fun contarPedidosDeLocal(uid: String, desde: Date, hasta: Date): Int =
+        metricasDataSource.contarPedidosDeLocal(uid, desde, hasta)
 }
