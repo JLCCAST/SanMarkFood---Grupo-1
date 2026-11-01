@@ -41,6 +41,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - Re-evaluación por cambios sensibles (regla agregada a la historia): si un local `aprobado` cambia la dirección, la ubicación, la portada o el logo, vuelve a `pendiente`; si cambia solo el nombre, la categoría o el teléfono, sigue aprobado. Antes de guardar, O7 avisa con «¿Enviar tu local a revisión?» (`RequiereNuevaRevisionUseCase`), y el panel pasa solo a la pestaña Pedidos para mostrar «En revisión». El administrador lo ve en A1 con la etiqueta «Actualizado» y en A2 con el aviso «Actualización de datos» y los campos que cambiaron.
   - Las reglas de Firestore ya viven en el repositorio, en `firestore.rules` (ver «Reglas de seguridad», más abajo).
 - **Backend — HU07 (SCRUM-39):** en `functions/`, la base de las funciones HTTPS (`https.ts`, `notificar.ts`), `crearPedido`, `reservas` y `resenas`, desplegadas; las reglas e índices de pedidos y reservas; el script de datos de ejemplo; y en la app del comensal, el registro del token de avisos (SCRUM-169). Falta la primera llamada con Retrofit desde una app para cerrar SCRUM-90 (ver «Pedidos y reservas», más abajo).
+- **Backend y App Comensal — HU14 (SCRUM-46) completa:** en `functions/`, `resumenResenas` corre cada día a las 3:00 a. m. (hora de Lima) y guarda en cada local aprobado un resumen de sus reseñas hecho con Gemini (SCRUM-116; la regla está en «Resumen de reseñas», más abajo). El detalle del local lo muestra en la fila de la calificación, con «· Resumen IA»; sin resumen, dice «Calificación general». La lista de reseñas (B3) y su estado vacío (G3) quedan para HU22.
 - **Backend — HU15 (SCRUM-48) completa:** en `functions/`, `analizarResena` se dispara con cada reseña nueva y le guarda el `sentimiento` y, si es negativa, el `motivo` (SCRUM-121 y 122; la regla está en «Análisis de reseñas», más abajo). Si la reseña es negativa, avisa al local con `notificar` en el canal «Reseñas» (SCRUM-123), que la app del restaurante crea al abrir junto con «Estado del local»; con la app abierta, `AvisosService` muestra cada aviso en el canal que trae.
 - **App Restaurante — HU09 (SCRUM-41), en curso:** SCRUM-99, la bandeja O1 en la pestaña Pedidos de un local aprobado (`presentation/pedidos/BandejaPedidos.kt`, `PedidosViewModel`): escucha en vivo los pedidos del día (`PedidosDataSource`, `ObservarPedidosDeHoyUseCase`), muestra arriba los pedidos nuevos y debajo «En preparación», «Listos para recoger» y «En camino», en orden de llegada, y avisa cuando está sin conexión. Los botones de aceptar, rechazar, listo y entregado y la cuenta regresiva llegan con SCRUM-163, 152, 100, 164 y 162.
 - **App Comensal — HU05 (SCRUM-36) completa:** inicio de sesión, registro, verificación de correo, recuperación de contraseña y exploración sin cuenta, con rol de la cuenta: documento `usuarios/{uid}` con `rol: comensal`, creado al registrarse, y rechazo de cuentas de otro rol al iniciar sesión (cuentas antiguas sin documento se crean como comensal). Ya con Hilt, Firestore y capa `domain/`, alineada con esta arquitectura.
@@ -55,7 +56,7 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 
 - En `app-comensal`: `data/firebase/`, Room, `workers/`, `ai/` y los procesos `pedidos/`, `reservas/`, `resenas/`, `historial/` y `notificaciones/`.
 - En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
-- En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos`, `vencimientos` y `resumenResenas`). Hoy solo existe `revisarLocal` (SCRUM-78).
+- En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos` y `vencimientos`). Hoy solo existe `revisarLocal` (SCRUM-78).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
 
@@ -97,8 +98,7 @@ SanMarkFood---Grupo-1/
 │           │   └── perfil/                  # Perfil, tema claro/oscuro y preferencias de aviso
 │           ├── workers/                     # WorkManager (recordatorio de reserva, HU10)
 │           └── ai/
-│               ├── chatbot/                 # HU11 — chatbot con entrada por voz
-│               └── resumen_resenas/         # HU14 — resumen de reseñas con IA
+│               └── chatbot/                 # HU11 — chatbot con entrada por voz
 │
 ├── app-restaurante/                         # Proyecto Android independiente
 │   └── app/src/main/
@@ -129,7 +129,7 @@ SanMarkFood---Grupo-1/
 │           └── ai/
 │               └── digitalizacion_carta/    # HU04 — digitalización de carta con IA — la pizarra ✔ (LectorPizarra)
 │
-├── functions/                               # Cloud Functions (TypeScript, Node 22) — revisarLocal ✔ (SCRUM-78) y analizarResena ✔ (HU15); el resto, HU07
+├── functions/                               # Cloud Functions (TypeScript, Node 22) — revisarLocal ✔ (SCRUM-78), analizarResena ✔ (HU15) y resumenResenas ✔ (HU14); el resto, HU07
 │   └── src/                                 # index.ts, una función por archivo (revisarLocal.ts) y sus ayudas (avisos.ts)
 ├── firestore.rules                          # Reglas de seguridad de Firestore ✔ (se publican con la CLI)
 ├── firebase.json, .firebaserc               # Configuración de la CLI de Firebase: proyecto, reglas y funciones ✔
@@ -181,6 +181,7 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | App Check (HU04) | **Aplicado en Firebase AI Logic**: el servidor solo acepta pedidos de la app original. En las versiones debug, el proveedor de depuración (`src/debug/…/ProveedorAppCheck.kt`); en release, Play Integrity (`src/release/…`). `RestauranteApp` lo instala al abrir la app | La configuración de Firebase va dentro del APK y cualquiera podría usarla para llamar a Gemini a costa del proyecto. Play Integrity solo certifica apps instaladas desde Play Store, por eso en desarrollo cada celular usa un token de depuración (ver «App Check», más abajo). El proveedor de depuración no entra en el APK de release. Firestore y Storage no lo exigen todavía. |
 | Chatbot (HU11, acuerdo del 25 oct) | **Gemini con Firebase AI Logic**, como la pizarra. El prompt lleva los datos del local (horario, menú de hoy, carta) y el pedido o la reserva activa del comensal, leídos de Firestore. La voz entra con `SpeechRecognizer` | Ya está configurado en el proyecto (crédito de Google Cloud, App Check) y no necesita clave ni servidor. No pasa por Retrofit: ese requisito ya lo cubren las funciones de HU07 y Geocoding. La conversación no se guarda. |
 | Análisis de reseñas (HU15) | La función `analizarResena` decide el `sentimiento` sin IA cuando puede: 4 o 5 estrellas son `positiva`, y sin comentario manda la nota (1 o 2 estrellas, `negativa`; 3, `neutra`). Solo las de 3 estrellas o menos con comentario van a **Gemini** (`@google/genai` en Vertex AI, ubicación `global`, `gemini-3.5-flash`, el mismo modelo de la pizarra), que elige entre `neutra` y `negativa` y, en la misma llamada, saca el `motivo` | Gemini se usa solo donde hay que leer el texto: una reseña de 4 o 5 estrellas no es una alerta, y sin comentario no hay motivo que sacar. El motivo se guarda como lo muestra O5 («Negativa · motivo detectado: …»): hasta 60 caracteres, en minúscula y sin punto final (`motivo.ts`). |
+| Resumen de reseñas (HU14) | La función programada `resumenResenas` toma las 30 reseñas más recientes de cada local aprobado y, si hay al menos 3 con comentario, le pide a **Gemini** 2 o 3 líneas cortas (hasta 140 caracteres). Guarda el resumen en el documento del local. Si `calificacion.total` sigue igual que al generarlo (`resumenResenas.totalResenas`), no vuelve a llamar a Gemini | El resumen se lee con el documento del local, sin consultas de más, y Gemini solo se usa cuando hay reseñas nuevas. Con menos de 3 comentarios, una sola opinión definiría todo el resumen; por eso el diseño dice que se genera «cuando haya suficientes opiniones». |
 | Cámara (HU04, SCRUM-71) | **CameraX** 1.6.2 con `LifecycleCameraController` y `PreviewView` (`camera-view`) | El controlador junta la vista previa, la foto y el ciclo de vida: se enciende al abrir M2 y se apaga al salir, sin código propio. La galería usa el mismo selector de fotos de HU02, que no pide permisos. |
 | Mapa (HU02) | **Maps Compose** (`maps-compose`). La clave va en `local.properties` como `MAPS_API_KEY` y el Gradle la pasa al manifiesto | La clave no se sube al repositorio. Cada integrante agrega la suya; sin ella la app compila y abre, pero el mapa sale en blanco. |
 | Versiones fijadas (HU02) | Coil 3.4.0 y maps-compose 8.3.1 | Las versiones más nuevas traen `kotlin-stdlib` 2.4 y el proyecto compila con Kotlin 2.2.10, que no puede leerla. Para subirlas hay que actualizar Kotlin en todo el proyecto. |
@@ -390,7 +391,7 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | `menuHoy` | mapa | el local (HU03) | `{ fecha, precio, horaFin, estado }`: copia del menú del día, que se escribe junto con él. Los pines del mapa del comensal muestran ese precio, o «Carta» si no hay menú hoy. |
 | `rangoCarta` | mapa | el local (HU03) | `{ min, max }` en céntimos: el plato más barato y el más caro. Se recalcula al guardar o eliminar un plato. Es el segundo filtro de precio del comensal; el primero es `menuHoy.precio` (HU06). |
 | `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos (SCRUM-165). |
-| `calificacion`, `resumenResenas`, `ultimoNumeroPedido` | mapa, mapa, entero | las funciones | `{ promedio, total }` de las reseñas; `{ texto, generadoEn }`, el resumen de la IA (SCRUM-117); el último número de pedido del local («#0132»). |
+| `calificacion`, `resumenResenas`, `ultimoNumeroPedido` | mapa, mapa, entero | las funciones | `{ promedio, total }` de las reseñas; `{ texto, totalResenas, generadoEn }`, el resumen de la IA y cuántas reseñas tenía el local al generarlo (SCRUM-117); el último número de pedido del local («#0132»). |
 | `revisadoEn` | fecha | el administrador (HU24) | Cuándo se aprobó o rechazó. |
 
 Qué garantizan las reglas de Firestore:
