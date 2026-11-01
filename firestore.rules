@@ -74,6 +74,10 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /{ruta=**}/reportes/{comensalUid} {
+      allow read: if esAdministrador();
+    }
+
     match /reservas/{reservaId} {
       allow read: if participa(resource.data);
       allow write: if false;
