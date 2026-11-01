@@ -447,7 +447,19 @@
     <string name="admin_reportes">Reportes</string>
     <string name="admin_metricas">Métricas</string>
     <string name="admin_reportes_provisional">Aquí verás las reseñas que reportan los comensales.</string>
-    <string name="admin_metricas_provisional">Aquí verás las métricas de toda la plataforma.</string>
+    <string name="metricas_titulo">Métricas de la plataforma</string>
+    <string name="metricas_subtitulo">Toda la plataforma</string>
+    <string name="metricas_actualizado">Actualizado hoy a las %1$s</string>
+    <string name="metricas_restaurantes_activos">Restaurantes activos</string>
+    <string name="metricas_pendientes">Pendientes de aprobación</string>
+    <string name="metricas_pedidos_semana">Pedidos esta semana</string>
+    <string name="metricas_resenas_reportadas">Reseñas reportadas</string>
+    <string name="metricas_por_revisar">por revisar</string>
+    <string name="metricas_variacion">%1$+d %% vs. anterior</string>
+    <plurals name="metricas_reenviados">
+        <item quantity="one">%d reenviado</item>
+        <item quantity="other">%d reenviados</item>
+    </plurals>
 
     <string name="solicitudes_titulo">Solicitudes de locales</string>
     <string name="solicitudes_subtitulo">Aprueba solo negocios reales. Un local aprobado aparece en el mapa de inmediato.</string>
