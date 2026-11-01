@@ -45,7 +45,7 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - [ ] Corrutinas + Retrofit (consumo de las Cloud Functions del equipo y de Geocoding API)
 - [ ] WorkManager
 - [ ] SQLite (Room) — en uso en la App Restaurante: el borrador del menú del día (HU04); falta el carrito de la App Comensal (HU08)
-- [ ] Dashboards (restaurante y administrador)
+- [ ] Dashboards (restaurante y administrador) — hecho el del administrador (HU26, con Vico); falta el del restaurante (HU13)
 - [ ] Mínimo 3 recursos del móvil (cámara, GPS, biometría, micrófono — el proyecto cubre los 4) — cámara hecha en la App Restaurante (HU04, CameraX)
 - [ ] Mínimo 3 funcionalidades de IA (el proyecto cubre 4: digitalización de carta, chatbot con voz, resumen de reseñas, alerta de reseñas negativas) — digitalización hecha para la pizarra del menú del día (HU04, Gemini con Firebase AI Logic); falta la carta. Resumen de reseñas (HU14) y alerta de reseñas negativas (HU15) hechas, con Gemini en las Cloud Functions
 - [ ] Despliegue en Google Play Store (2 apps)
@@ -64,7 +64,7 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - **Backend propio:** Cloud Functions de Firebase sobre la misma base Firestore (HU07); todos los datos viven en Firestore
 - **Tareas en background:** WorkManager
 - **Inyección de dependencias:** Hilt (con KSP)
-- **Dashboards:** Vico o MPAndroidChart
+- **Dashboards:** Vico
 
 ## Planificación (Jira)
 
