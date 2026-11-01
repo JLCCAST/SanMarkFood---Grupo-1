@@ -219,7 +219,8 @@
     <string name="detalle_boton_reservar">Reservar mesa</string>
     <string name="detalle_boton_preguntar">Preguntar</string>
     <string name="detalle_abierto_hasta">Abierto · hasta las %1$s</string>
-    <string name="detalle_calificacion_resumen">Calificación general · Resumen</string>
+    <string name="detalle_calificacion_general">Calificación general</string>
+    <string name="detalle_resumen_ia">%1$s · Resumen IA</string>
     <plurals name="detalle_resenas">
         <item quantity="one">%1$d reseña</item>
         <item quantity="other">%1$d reseñas</item>

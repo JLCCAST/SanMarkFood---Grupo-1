@@ -8,3 +8,4 @@ export { actualizarPedido } from "./actualizarPedido.js";
 export { reservas } from "./reservas.js";
 export { resenas } from "./resenas.js";
 export { analizarResena } from "./analizarResena.js";
+export { resumenResenas } from "./resumenResenas.js";
