@@ -5,6 +5,7 @@ import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.Collections
@@ -68,7 +69,7 @@ class ObtenerMetricasUseCaseTest {
             lima("2026-10-26 00:00") to ahora,
             lima("2026-10-19 00:00") to lima("2026-10-21 12:00"),
         )
-        assertEquals(esperados, rangosDe(ahora, lima("2026-10-26 00:00")))
+        assertTrue(rangosDe(ahora, lima("2026-10-26 00:00")).containsAll(esperados))
     }
 
     @Test
@@ -78,7 +79,7 @@ class ObtenerMetricasUseCaseTest {
             lima("2026-10-26 00:00") to ahora,
             lima("2026-10-19 00:00") to lima("2026-10-25 23:00"),
         )
-        assertEquals(esperados, rangosDe(ahora, lima("2026-10-26 00:00")))
+        assertTrue(rangosDe(ahora, lima("2026-10-26 00:00")).containsAll(esperados))
     }
 
     @Test
@@ -88,7 +89,22 @@ class ObtenerMetricasUseCaseTest {
             lima("2026-12-28 00:00") to ahora,
             lima("2026-12-21 00:00") to lima("2026-12-25 10:00"),
         )
-        assertEquals(esperados, rangosDe(ahora, lima("2026-12-28 00:00")))
+        assertTrue(rangosDe(ahora, lima("2026-12-28 00:00")).containsAll(esperados))
+    }
+
+    @Test
+    fun graficaLasOchoSemanasDeLaMasAntiguaALaActual() = runBlocking {
+        val ahora = lima("2026-10-28 12:00")
+        val repositorio = RepositorioFalso().apply { inicioEstaSemana = lima("2026-10-26 00:00") }
+
+        val semanas = ObtenerMetricasUseCase(repositorio)(ahora).pedidosPorSemana
+
+        assertEquals(8, semanas.size)
+        assertEquals(lima("2026-09-07 00:00"), semanas.first().inicio)
+        assertEquals(lima("2026-10-26 00:00"), semanas.last().inicio)
+        assertEquals(21, semanas.last().pedidos)
+        assertTrue(repositorio.rangosPedidos.contains(lima("2026-10-19 00:00") to lima("2026-10-26 00:00")))
+        assertTrue(repositorio.rangosPedidos.contains(lima("2026-10-26 00:00") to ahora))
     }
 
     @Test
