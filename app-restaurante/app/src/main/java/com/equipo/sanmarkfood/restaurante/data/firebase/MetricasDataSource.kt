@@ -5,6 +5,7 @@ import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import javax.inject.Inject
 
 class MetricasDataSource @Inject constructor(
@@ -22,6 +23,12 @@ class MetricasDataSource @Inject constructor(
     )
 
     suspend fun contarResenasReportadas(): Int = contar(firestore.collectionGroup("reportes"))
+
+    suspend fun contarPedidos(desde: Date, hasta: Date): Int = contar(
+        firestore.collection("pedidos")
+            .whereGreaterThanOrEqualTo("creadoEn", desde)
+            .whereLessThan("creadoEn", hasta)
+    )
 
     private suspend fun contar(consulta: Query): Int = llamarFirebaseAdmin {
         consulta.count().get(AggregateSource.SERVER).await().count.toInt()
