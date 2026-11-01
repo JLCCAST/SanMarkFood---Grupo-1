@@ -3,6 +3,7 @@ import { logger } from "firebase-functions";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { leerComentariosRecientes } from "./resenasRecientes.js";
 import { generarResumen } from "./resumen.js";
+import { resumenAlDia, totalDeResenas } from "./resumenAlDia.js";
 
 const MIN_COMENTARIOS = 3;
 
@@ -12,11 +13,15 @@ export const resumenResenas = onSchedule(
     const locales = await getFirestore().collection("restaurantes").where("estado", "==", "aprobado").get();
 
     for (const local of locales.docs) {
+      if (resumenAlDia(local)) continue;
+
       try {
         const comentarios = await leerComentariosRecientes(local.ref);
         if (comentarios.length < MIN_COMENTARIOS) continue;
         const texto = await generarResumen(comentarios);
-        await local.ref.update({ resumenResenas: { texto, generadoEn: FieldValue.serverTimestamp() } });
+        await local.ref.update({
+          resumenResenas: { texto, totalResenas: totalDeResenas(local), generadoEn: FieldValue.serverTimestamp() },
+        });
       } catch (error) {
         logger.error("No se pudo generar el resumen de reseñas", { uid: local.id, error });
       }
