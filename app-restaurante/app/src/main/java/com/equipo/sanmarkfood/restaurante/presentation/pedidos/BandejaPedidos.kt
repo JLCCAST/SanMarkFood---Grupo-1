@@ -45,10 +45,12 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -62,12 +64,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
+import com.equipo.sanmarkfood.restaurante.avisos.cancelarAvisoPedidoNuevo
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Agotado
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ItemPedido
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MINUTOS_PARA_ACEPTAR
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MotivoRechazo
@@ -82,6 +86,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.delay
 
 @Composable
 fun BandejaPedidos(
@@ -134,6 +139,9 @@ fun BandejaPedidosContenido(
     onAvisoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(uiState.nuevos.map { it.id }) { cancelarAvisoPedidoNuevo(context) }
+
     val avisos = remember { SnackbarHostState() }
     val aviso = uiState.aviso
     val textoAviso = aviso?.let { textoDelAviso(it) }
@@ -307,15 +315,7 @@ private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit, onRechazar
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .semantics { liveRegion = LiveRegionMode.Assertive },
     ) {
-        Text(
-            text = stringResource(R.string.pedidos_nuevo),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondary)
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-        )
+        BandaPedidoNuevo(pedido)
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -646,6 +646,42 @@ private fun OpcionMinutos(
     ) {
         Text(text = minutos.toString(), style = MaterialTheme.typography.titleMedium, color = contenido)
         Text(text = stringResource(R.string.pedidos_minutos), style = MaterialTheme.typography.labelSmall, color = contenido)
+    }
+}
+
+@Composable
+private fun BandaPedidoNuevo(pedido: Pedido) {
+    val ahora by produceState(System.currentTimeMillis()) {
+        while (true) {
+            value = System.currentTimeMillis()
+            delay(1_000)
+        }
+    }
+    val restante = (pedido.creadoEn.time + MINUTOS_PARA_ACEPTAR * 60_000L - ahora).coerceAtLeast(0) / 1_000
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.pedidos_nuevo),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        Text(
+            text = stringResource(R.string.pedidos_se_rechaza_en),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        Text(
+            text = "%d:%02d".format(Locale.ROOT, restante / 60, restante % 60),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
     }
 }
 

@@ -123,7 +123,7 @@ SanMarkFood---Grupo-1/
 │           │       ├── aprobacion/          # HU24 — aprobación de restaurantes — solicitudes, filtros y revisión ✔ (SCRUM-76, SCRUM-77)
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
 │           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma
-│           ├── avisos/                      # Avisos push (FCM): AvisosService y el canal «Estado del local» ✔ (SCRUM-78)
+│           ├── avisos/                      # Avisos push (FCM): AvisosService y los canales «Estado del local» ✔ (SCRUM-78), «Pedidos nuevos» ✔ (SCRUM-162), «Cambios en tus pedidos» y «Reservas»
 │           ├── workers/                     # WorkManager: sin uso por ahora (el recordatorio de HU10 vive en el comensal)
 │           └── ai/
 │               ├── digitalizacion_carta/    # HU04 — digitalización de carta con IA — la pizarra ✔ (LectorPizarra)
@@ -338,6 +338,7 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 
 - **`vencimientos`** (cada minuto): un pedido que sigue `recibido` 10 minutos después de `creadoEn` pasa a `rechazado` con `sin_respuesta` y `automatico: true`, y su `pago` a `revertido` si estaba `pagado`. Una reserva `pendiente` a la que le faltan 60 minutos o menos pasa a `rechazada` igual y libera su franja.
 - **Avisos push**: cada función que cambia un estado avisa al otro lado, con los tokens de `usuarios/{uid}/dispositivos`, y guarda el aviso en `usuarios/{uid}/notificaciones` (C5). Al local: pedido nuevo (**alta prioridad**, para que suene aunque el celular esté en reposo, SCRUM-162) y reserva nueva o modificada. Al comensal: cada cambio de estado del pedido (fijo, no se puede apagar, decisión C4) y la respuesta a la reserva (solo si tiene activado el aviso de reservas en su perfil).
+- **El aviso de pedido nuevo (SCRUM-162)** sale como mensaje de solo datos (`soloDatos: true` en `notificar`, con `titulo`, `cuerpo`, `canal` y `pedidoId` en `data`). Así lo arma siempre `AvisosService` de la app del restaurante, aun con la app cerrada, en el canal «Pedidos nuevos» (importancia alta) y con sonido insistente: suena hasta que se abre la cortina de avisos o la bandeja O1, que lo quita en cuanto ve el pedido. Si la app ya está al frente, suena una sola vez (Firestore puede traer el pedido a la bandeja antes que llegue el aviso), y la bandeja lo quita al aceptar o rechazar. La tarjeta «PEDIDO NUEVO» de O1 muestra la cuenta regresiva de 10 minutos antes del rechazo automático. Los demás avisos llevan `notification` con su canal: `estado_local`, `pedidos` y `reservas` en el restaurante; `pedidos` y `reservas` en el comensal.
 - **En la app del comensal (SCRUM-169):** guardar su token de avisos en `usuarios/{uid}/dispositivos/{token}` con `app: "comensal"`, como ya lo hace el restaurante (`RegistrarDispositivoUseCase`). Sin eso no le llega ningún aviso.
 - **`resenas` (SCRUM-170):** recibe `{ pedidoId, estrellas, comentario?, platos? }`: `estrellas` de 1 a 5, `comentario` de hasta 500 caracteres y `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»), solo con platos de ese pedido. Vale solo para el comensal del pedido, con el pedido `entregado` y una sola vez. Guarda `restaurantes/{uid}/resenas/{pedidoId}` y actualiza `calificacion { promedio, total }` del local en la misma transacción (el promedio se guarda sin redondear; la app lo muestra con un decimal). Devuelve `{ pedidoId }`. Errores: `estado_invalido`, `ya_calificado`, `no_autorizado`, `datos_invalidos`.
 
@@ -354,7 +355,8 @@ Todo lleva `ejemplo: true`, así que se borra sin tocar datos reales. Cómo usar
 1. Una vez: en Firebase → Configuración del proyecto → **Cuentas de servicio** → «Generar nueva clave privada». Guarda el JSON **fuera del repositorio** (por si acaso, `.gitignore` ya ignora `*-firebase-adminsdk-*.json`). Esa clave da acceso total al proyecto: no se comparte ni se sube.
 2. En la terminal, dentro de `functions/` (con `npm ci` hecho), apunta a la clave: `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\ruta\a\la\clave.json"` en PowerShell, o `export GOOGLE_APPLICATION_CREDENTIALS=...` en Git Bash.
 3. Cargar: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal>`. Los `uid` se ven en Firebase → Authentication. Se puede correr varias veces: cada vez agrega otro juego.
-4. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
+4. Probar el aviso de pedido nuevo: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal> --nuevo` crea un solo pedido `recibido` con la hora actual y le manda al local el mismo aviso que `crearPedido`.
+5. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
 
 **La reseña (`restaurantes/{uid}/resenas/{pedidoId}`):** `{ comensalUid, comensalNombre, estrellas, comentario, platos, creadoEn }`, con `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»). HU15 le agrega `sentimiento` y `motivo`, y HU21 la `respuesta` del local.
 

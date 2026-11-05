@@ -115,7 +115,10 @@ private fun PanelLocalContenido(
     onSesionCerrada: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PedirPermisoDeAvisos(esperandoRevision = uiState.restaurante?.estado == EstadoRestaurante.PENDIENTE)
+    PedirPermisoDeAvisos(
+        pedir = uiState.restaurante?.estado == EstadoRestaurante.PENDIENTE ||
+            uiState.restaurante?.estado == EstadoRestaurante.APROBADO,
+    )
 
     Scaffold(
         modifier = modifier,
@@ -249,12 +252,12 @@ private fun PestanaProvisional(@DrawableRes icono: Int, texto: String, modifier:
 }
 
 @Composable
-private fun PedirPermisoDeAvisos(esperandoRevision: Boolean) {
+private fun PedirPermisoDeAvisos(pedir: Boolean) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
     val context = LocalContext.current
     val pedirPermiso = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
-    LaunchedEffect(esperandoRevision) {
-        if (esperandoRevision && !puedeMostrarAvisos(context)) {
+    LaunchedEffect(pedir) {
+        if (pedir && !puedeMostrarAvisos(context)) {
             pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

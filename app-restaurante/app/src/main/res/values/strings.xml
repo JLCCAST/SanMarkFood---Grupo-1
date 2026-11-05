@@ -328,6 +328,7 @@
 
     <!-- Bandeja de pedidos (O1, SCRUM-99) -->
     <string name="pedidos_nuevo">PEDIDO NUEVO</string>
+    <string name="pedidos_se_rechaza_en">Se rechaza solo en</string>
     <string name="pedidos_numero">#%1$s</string>
     <string name="pedidos_numero_y_comensal">#%1$s · %2$s</string>
     <string name="pedidos_modalidad_y_hora">%1$s · %2$s</string>
@@ -435,6 +436,15 @@
     <string name="canal_estado_local_id" translatable="false">estado_local</string>
     <string name="canal_estado_local">Estado del local</string>
     <string name="canal_estado_local_descripcion">Te avisamos cuando revisamos el registro de tu local.</string>
+    <string name="canal_pedidos_nuevos_id" translatable="false">pedidos_nuevos</string>
+    <string name="canal_pedidos_nuevos">Pedidos nuevos</string>
+    <string name="canal_pedidos_nuevos_descripcion">Suena hasta que abras el pedido, para que no se rechace solo.</string>
+    <string name="canal_pedidos_id" translatable="false">pedidos</string>
+    <string name="canal_pedidos">Cambios en tus pedidos</string>
+    <string name="canal_pedidos_descripcion">Te avisamos cuando un comensal cancela su pedido.</string>
+    <string name="canal_reservas_id" translatable="false">reservas</string>
+    <string name="canal_reservas">Reservas</string>
+    <string name="canal_reservas_descripcion">Te avisamos cuando llega, cambia o se cancela una reserva.</string>
     <string name="estado_en_revision_texto">Aún no apareces en el mapa ni recibes pedidos o reservas. Te avisaremos apenas terminemos la revisión.</string>
     <string name="estado_rechazado">REGISTRO RECHAZADO</string>
     <string name="estado_rechazado_texto">Corrige tus datos y vuelve a enviarlos; tu carta y tu horario se conservan.</string>

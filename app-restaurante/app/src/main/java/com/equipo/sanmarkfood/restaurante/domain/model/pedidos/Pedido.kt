@@ -5,6 +5,8 @@ import java.util.Date
 
 val TIEMPOS_ESTIMADOS = listOf(10, 15, 20, 30)
 
+const val MINUTOS_PARA_ACEPTAR = 10
+
 enum class EstadoPedido { RECIBIDO, PREPARANDO, LISTO, EN_CAMINO, ENTREGADO, RECHAZADO, CANCELADO }
 
 enum class Modalidad { RECOJO, DELIVERY }
