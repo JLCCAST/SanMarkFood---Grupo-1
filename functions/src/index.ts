@@ -7,3 +7,4 @@ export { crearPedido } from "./crearPedido.js";
 export { actualizarPedido } from "./actualizarPedido.js";
 export { reservas } from "./reservas.js";
 export { resenas } from "./resenas.js";
+export { vencimientos } from "./vencimientos.js";
