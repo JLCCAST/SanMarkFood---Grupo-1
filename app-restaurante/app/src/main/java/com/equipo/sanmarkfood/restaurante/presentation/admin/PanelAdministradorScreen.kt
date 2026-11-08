@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.presentation.admin.aprobacion.SolicitudesScreen
 import com.equipo.sanmarkfood.restaurante.presentation.admin.aprobacion.SolicitudesViewModel
+import com.equipo.sanmarkfood.restaurante.presentation.admin.dashboard_global.MetricasScreen
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
 
 @Composable
@@ -65,9 +66,7 @@ fun PanelAdministradorScreen(
                 onSalir = viewModel::onCerrarSesion,
                 modifier = contenido,
             )
-            PestanaAdmin.METRICAS -> PestanaProvisionalAdmin(
-                pestana = PestanaAdmin.METRICAS,
-                texto = R.string.admin_metricas_provisional,
+            PestanaAdmin.METRICAS -> MetricasScreen(
                 onSalir = viewModel::onCerrarSesion,
                 modifier = contenido,
             )

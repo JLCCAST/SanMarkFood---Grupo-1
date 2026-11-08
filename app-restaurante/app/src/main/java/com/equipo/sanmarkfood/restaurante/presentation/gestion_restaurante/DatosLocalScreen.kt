@@ -88,7 +88,6 @@ fun DatosLocalScreen(
         )
     }
 
-    // Fuera del formulario, para no perder el scroll al abrir y cerrar el selector de ubicación.
     val scroll = rememberScrollState()
     when {
         uiState.eligiendoUbicacion -> SelectorUbicacion(

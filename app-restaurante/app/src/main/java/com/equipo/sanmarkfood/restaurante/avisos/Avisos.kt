@@ -51,6 +51,13 @@ fun crearCanalesDeAvisos(context: Context) {
             R.string.canal_reservas_descripcion,
             NotificationManager.IMPORTANCE_DEFAULT,
         ),
+        canal(
+            context,
+            R.string.canal_resenas_id,
+            R.string.canal_resenas,
+            R.string.canal_resenas_descripcion,
+            NotificationManager.IMPORTANCE_DEFAULT,
+        ),
     )
     context.getSystemService(NotificationManager::class.java).createNotificationChannels(canales)
 }
@@ -103,13 +110,16 @@ fun mostrarAviso(
     ) {
         return
     }
+    val gestor = NotificationManagerCompat.from(context)
+    val canalId = canal.takeIf { gestor.getNotificationChannel(it) != null }
+        ?: context.getString(R.string.canal_estado_local_id)
     val abrirApp = PendingIntent.getActivity(
         context,
         0,
         Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
-    val aviso = NotificationCompat.Builder(context, canal)
+    val aviso = NotificationCompat.Builder(context, canalId)
         .setSmallIcon(R.drawable.ic_aviso)
         .setContentTitle(titulo)
         .setContentText(texto)
@@ -119,5 +129,5 @@ fun mostrarAviso(
         .setPriority(if (insistente) NotificationCompat.PRIORITY_MAX else NotificationCompat.PRIORITY_DEFAULT)
         .build()
     if (insistente) aviso.flags = aviso.flags or Notification.FLAG_INSISTENT
-    NotificationManagerCompat.from(context).notify(id, aviso)
+    gestor.notify(id, aviso)
 }

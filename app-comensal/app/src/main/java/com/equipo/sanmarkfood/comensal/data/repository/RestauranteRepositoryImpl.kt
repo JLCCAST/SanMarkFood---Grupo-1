@@ -66,6 +66,7 @@ class RestauranteRepositoryImpl @Inject constructor(
             pausado = getBoolean("pausado") ?: false,
             calificacionPromedio = (calificacion?.get("promedio") as? Number)?.toDouble(),
             totalResenas = (calificacion?.get("total") as? Number)?.toInt() ?: 0,
+            resumenResenas = ((get("resumenResenas") as? Map<*, *>)?.get("texto") as? String)?.takeIf { it.isNotBlank() },
             menuHoy = (get("menuHoy") as? Map<*, *>)?.aMenuDelDia(),
             rangoCarta = (get("rangoCarta") as? Map<*, *>)?.aRangoCarta(),
             horario = (get("horario") as? Map<*, *>)?.aHorario().orEmpty()
