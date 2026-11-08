@@ -22,7 +22,22 @@ data class Hora(val hora: Int, val minuto: Int) : Comparable<Hora> {
 /** Un día cerrado conserva sus horas, para que al volver a abrirlo no haya que elegirlas otra vez. */
 data class HorarioDia(val abierto: Boolean, val abre: Hora, val cierra: Hora)
 
-data class Horario(val dias: Map<DiaSemana, HorarioDia>) {
+data class CupoReservas(val acepta: Boolean, val porFranja: Int) {
+    init {
+        require(porFranja in CUPO_MINIMO..CUPO_MAXIMO) { "Cupo fuera de rango: $porFranja" }
+    }
+
+    companion object {
+        const val CUPO_MINIMO = 2
+        const val CUPO_MAXIMO = 60
+        val PorDefecto = CupoReservas(acepta = true, porFranja = 12)
+    }
+}
+
+data class Horario(
+    val dias: Map<DiaSemana, HorarioDia>,
+    val reservas: CupoReservas = CupoReservas.PorDefecto,
+) {
     init {
         require(dias.keys == DiaSemana.entries.toSet()) { "El horario debe tener los siete días" }
     }

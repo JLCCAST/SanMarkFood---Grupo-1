@@ -131,6 +131,13 @@
     <string name="horario_atras">Atrás</string>
     <string name="horario_listo">Listo</string>
     <string name="horario_cierre_antes">La hora de cierre tiene que ser después de la de apertura.</string>
+    <string name="reservas_acepto">Acepto reservas</string>
+    <string name="reservas_acepto_ayuda">Los comensales piden mesa y tú confirmas</string>
+    <string name="reservas_cupo">Cupo por franja de 30 min</string>
+    <string name="reservas_cupo_ayuda">Comensales que puedes recibir con reserva a la misma hora</string>
+    <string name="reservas_cupo_nota">Cuando las reservas pendientes y confirmadas llenan una franja, los comensales la ven tachada.</string>
+    <string name="reservas_menos_cupo">Menos cupo</string>
+    <string name="reservas_mas_cupo">Más cupo</string>
 
     <!-- Días de la semana -->
     <string name="dia_lunes">Lunes</string>
@@ -143,8 +150,7 @@
 
     <!-- Edición del perfil y del horario (HU02, SCRUM-64) -->
     <string name="perfil_titulo">Perfil del local</string>
-    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
-    <string name="horario_editar_titulo">Horario de atención</string>
+    <string name="horario_editar_titulo">Horario y reservas</string>
     <string name="editar_guardar">Guardar cambios</string>
     <string name="descartar_titulo">¿Descartar los cambios?</string>
     <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
@@ -160,9 +166,8 @@
     <string name="negocio_tu_local">Tu local</string>
     <string name="negocio_perfil">Perfil del local</string>
     <string name="negocio_perfil_ayuda">Nombre, fotos, dirección y teléfono</string>
-    <!-- «Horario y reservas / Días de atención y cupo por franja» cuando HU12 agregue el cupo. -->
-    <string name="negocio_horario">Horario de atención</string>
-    <string name="negocio_horario_ayuda">Días y horas de atención</string>
+    <string name="negocio_horario">Horario y reservas</string>
+    <string name="negocio_horario_ayuda">Días de atención y cupo por franja</string>
     <string name="negocio_cerrar_sesion">Cerrar sesión</string>
     <string name="negocio_cerrar_sesion_ayuda">Podrás volver a entrar con tu correo</string>
 
@@ -479,8 +484,7 @@
     <string name="preparacion_datos_ayuda">Nombre, categoría, dirección y fotos</string>
     <string name="preparacion_datos_direccion">Revisa la dirección</string>
     <string name="preparacion_datos_revisar">Revisa lo que te indicamos arriba</string>
-    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
-    <string name="preparacion_horario">Horario de atención</string>
+    <string name="preparacion_horario">Horario y reservas</string>
     <string name="preparacion_horario_falta">Aún no lo configuras</string>
     <string name="preparacion_carta">Carta</string>
     <string name="preparacion_carta_ayuda">Aún no tienes platos</string>
