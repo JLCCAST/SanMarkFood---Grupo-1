@@ -62,6 +62,7 @@ data class Restaurante(
     val pausado: Boolean,
     val calificacionPromedio: Double?,
     val totalResenas: Int,
+    val resumenResenas: String? = null,
     val menuHoy: MenuDelDia? = null,
     val rangoCarta: RangoCarta? = null,
     /** Claves `lun`, `mar`, `mie`, `jue`, `vie`, `sab`, `dom`; vacío si el local no tiene horario. */

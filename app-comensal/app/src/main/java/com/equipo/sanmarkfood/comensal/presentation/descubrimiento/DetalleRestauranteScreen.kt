@@ -334,7 +334,9 @@ private fun DetalleRestauranteContent(
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(R.string.detalle_calificacion_resumen),
+                            text = restaurante.resumenResenas
+                                ?.let { stringResource(R.string.detalle_resumen_ia, it.trimEnd('.')) }
+                                ?: stringResource(R.string.detalle_calificacion_general),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
