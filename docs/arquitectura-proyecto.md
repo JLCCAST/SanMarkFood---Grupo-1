@@ -331,9 +331,9 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 | `confirmar` | local | `reservaId` | `{ estado }` |
 | `rechazar` | local | `reservaId`, `motivo`, `detalle?` | `{ estado }` |
 
-`crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
+`crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal, y que el local acepte reservas. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `sin_reservas`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
 
-**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. Mientras el local no configure `cupoPorFranja` (SCRUM-165), sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5.
+**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. El local lo configura en R4 y O8, de 2 a 60 comensales (12 por defecto); mientras no lo guarde, sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5. En la misma sección, el interruptor «Acepto reservas» guarda `aceptaReservas`: si es `false`, `crear` y `modificar` responden `sin_reservas`, y **el comensal no muestra «Reservar» en ese local** (sin el campo, el local acepta reservas).
 
 **El recordatorio (SCRUM-103)** no pasa por el servidor: al crear o modificar la reserva, la app del comensal programa un trabajo de WorkManager para 30 min, 1 h o 2 h antes, y lo cancela si la reserva se cancela o se rechaza.
 
@@ -371,7 +371,7 @@ Ya están en `firestore.rules`:
 - `restaurantes/{uid}/resenas/{pedidoId}/reportes/{comensalUid}`: los lee el administrador, en todos los locales (para HU26).
 - `restaurantes/{uid}/franjas/{id}`: la lee cualquier cuenta con sesión; nadie la escribe desde una app.
 - `usuarios/{uid}/notificaciones/{id}`: la lee su dueño, que solo puede marcarla como leída (`leida: true`).
-- **Pendiente (SCRUM-165):** que el cambio de horario del local acepte `cupoPorFranja`.
+- El cambio de horario del local (R4 y O8) acepta también `aceptaReservas` (booleano) y `cupoPorFranja` (entero de 2 a 60), SCRUM-165.
 
 Los índices compuestos están en `firestore.indexes.json` (registrado en `firebase.json`): pedidos por local y por comensal ordenados por `creadoEn`, reservas por local ordenadas por `fecha` y `hora`, reservas por comensal por `fecha`, y los de `vencimientos` (pedidos por `estado` y `creadoEn`; reservas por `estado` y `fecha`). Se publican junto con las reglas: `firebase deploy --only firestore`.
 
@@ -394,7 +394,8 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | `creadoEn`, `enviadoEn`, `actualizadoEn` | fecha | el local | Siempre la hora del servidor. `enviadoEn` es el último envío a revisión. |
 | `menuHoy` | mapa | el local (HU03) | `{ fecha, precio, horaFin, estado }`: copia del menú del día, que se escribe junto con él. Los pines del mapa del comensal muestran ese precio, o «Carta» si no hay menú hoy. |
 | `rangoCarta` | mapa | el local (HU03) | `{ min, max }` en céntimos: el plato más barato y el más caro. Se recalcula al guardar o eliminar un plato. Es el segundo filtro de precio del comensal; el primero es `menuHoy.precio` (HU06). |
-| `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos (SCRUM-165). |
+| `aceptaReservas` | booleano | el local (R4, O8) | Interruptor «Acepto reservas». Sin el campo, acepta. Si es `false`, el comensal no ve «Reservar» (SCRUM-165). |
+| `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos, de 2 a 60. Sin el campo, las franjas no tienen límite (SCRUM-165). |
 | `calificacion`, `resumenResenas`, `ultimoNumeroPedido` | mapa, mapa, entero | las funciones | `{ promedio, total }` de las reseñas; `{ texto, totalResenas, generadoEn }`, el resumen de la IA y cuántas reseñas tenía el local al generarlo (SCRUM-117); el último número de pedido del local («#0132»). |
 | `revisadoEn` | fecha | el administrador (HU24) | Cuándo se aprobó o rechazó. |
 
@@ -403,12 +404,11 @@ Qué garantizan las reglas de Firestore:
 - El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos seis:
   - cambiar los datos y las fotos;
   - enviar a revisión (de `borrador` a `pendiente`, con el horario);
-  - cambiar el horario;
+  - cambiar el horario, junto con `aceptaReservas` y `cupoPorFranja`;
   - pausar o reanudar los pedidos (solo si está `aprobado`);
   - reenviar después de un rechazo (de `rechazado` a `pendiente`);
   - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
-- **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
 - Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.

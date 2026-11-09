@@ -4,6 +4,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.admin.CampoCorregido
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.DetalleSolicitud
 import com.equipo.sanmarkfood.restaurante.domain.model.admin.SolicitudLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CategoriaRestaurante
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CupoReservas
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DatosLocal
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
@@ -47,7 +48,7 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
         ),
         estado = EstadoRestaurante.entries.firstOrNull { it.valor() == getString("estado") }
             ?: throw ErrorRestaurante.Desconocido,
-        horario = (get("horario") as? Map<*, *>)?.aHorario(),
+        horario = (get("horario") as? Map<*, *>)?.aHorario(aCupoReservas()),
         rechazo = (get("rechazo") as? Map<*, *>)?.aRechazo(),
         // Sin el campo, el local recibe pedidos: solo se escribe cuando el local pausa por primera vez.
         pausado = getBoolean("pausado") ?: false,
@@ -135,15 +136,29 @@ internal fun Horario.aCampos(): Map<String, Any> = dias.entries.associate { (dia
     )
 }
 
-private fun Map<*, *>.aHorario(): Horario = Horario(
-    DiaSemana.entries.associateWith { dia ->
+internal fun Horario.aCamposDelLocal(): Map<String, Any> = mapOf(
+    "horario" to aCampos(),
+    "aceptaReservas" to reservas.acepta,
+    "cupoPorFranja" to reservas.porFranja,
+)
+
+private fun Map<*, *>.aHorario(reservas: CupoReservas): Horario = Horario(
+    dias = DiaSemana.entries.associateWith { dia ->
         val campos = this[dia.clave()] as? Map<*, *> ?: throw ErrorRestaurante.Desconocido
         HorarioDia(
             abierto = campos["abierto"] as? Boolean ?: throw ErrorRestaurante.Desconocido,
             abre = horaDe(campos["abre"]),
             cierra = horaDe(campos["cierra"]),
         )
-    }
+    },
+    reservas = reservas,
+)
+
+private fun DocumentSnapshot.aCupoReservas(): CupoReservas = CupoReservas(
+    acepta = getBoolean("aceptaReservas") ?: CupoReservas.PorDefecto.acepta,
+    porFranja = getLong("cupoPorFranja")?.toInt()
+        ?.takeIf { it in CupoReservas.CUPO_MINIMO..CupoReservas.CUPO_MAXIMO }
+        ?: CupoReservas.PorDefecto.porFranja,
 )
 
 private fun DiaSemana.clave(): String = when (this) {

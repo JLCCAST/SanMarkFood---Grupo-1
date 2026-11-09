@@ -52,6 +52,7 @@ import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.SeccionMenu
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.BandejaPedidos
 import com.equipo.sanmarkfood.restaurante.presentation.pedidos.CabeceraPedidos
+import com.equipo.sanmarkfood.restaurante.presentation.reservas.ReservasScreen
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
 /**
@@ -139,13 +140,18 @@ private fun PanelLocalContenido(
                 onAbrirPedido = onAbrirPedido,
                 modifier = contenido,
             )
-            PestanaPanel.RESERVAS -> PestanaProvisional(
-                icono = R.drawable.ic_reservas,
-                texto = stringResource(
-                    if (aprobado) R.string.provisional_reservas_aprobado else R.string.provisional_reservas_pendiente
-                ),
-                modifier = contenido,
-            )
+            PestanaPanel.RESERVAS -> {
+                val horario = uiState.restaurante?.horario
+                if (aprobado && horario != null) {
+                    ReservasScreen(horario = horario, onEditarHorario = onEditarHorario, modifier = contenido)
+                } else {
+                    PestanaProvisional(
+                        icono = R.drawable.ic_reservas,
+                        texto = stringResource(R.string.provisional_reservas_pendiente),
+                        modifier = contenido,
+                    )
+                }
+            }
             PestanaPanel.MENU -> when (uiState.seccionMenu) {
                 SeccionMenu.HOY -> MenuHoyScreen(
                     onElegirSeccion = onElegirSeccionMenu,

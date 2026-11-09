@@ -230,6 +230,7 @@ async function validarCupo(
   hora: string,
   personas: number,
 ): Promise<void> {
+  if (local?.aceptaReservas === false) throw new ErrorFuncion("sin_reservas", 409);
   const cupo = local?.cupoPorFranja;
   if (typeof cupo !== "number") return;
   const ocupados = Number((await transaccion.get(franja(localRef, fecha, hora))).get("ocupados") ?? 0);
