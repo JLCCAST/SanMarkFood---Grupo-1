@@ -68,6 +68,8 @@ fun PanelLocalScreen(
     onAbrirPlato: (platoId: String) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
+    onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     onSesionCerrada: () -> Unit,
     viewModel: PanelLocalViewModel = hiltViewModel(),
 ) {
@@ -87,6 +89,8 @@ fun PanelLocalScreen(
         onAbrirPlato = onAbrirPlato,
         onArmarMenu = onArmarMenu,
         onFotoPizarra = onFotoPizarra,
+        onEntregarConCodigo = onEntregarConCodigo,
+        onAbrirPedido = onAbrirPedido,
         onSesionCerrada = onSesionCerrada,
     )
 }
@@ -106,10 +110,15 @@ private fun PanelLocalContenido(
     onAbrirPlato: (platoId: String) -> Unit,
     onArmarMenu: (ModoArmarMenu) -> Unit,
     onFotoPizarra: () -> Unit,
+    onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     onSesionCerrada: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    PedirPermisoDeAvisos(esperandoRevision = uiState.restaurante?.estado == EstadoRestaurante.PENDIENTE)
+    PedirPermisoDeAvisos(
+        pedir = uiState.restaurante?.estado == EstadoRestaurante.PENDIENTE ||
+            uiState.restaurante?.estado == EstadoRestaurante.APROBADO,
+    )
 
     Scaffold(
         modifier = modifier,
@@ -126,6 +135,8 @@ private fun PanelLocalContenido(
                 onCambiarRecepcion = onCambiarRecepcion,
                 onCorregir = onCorregir,
                 onCargarCarta = onCargarCarta,
+                onEntregarConCodigo = onEntregarConCodigo,
+                onAbrirPedido = onAbrirPedido,
                 modifier = contenido,
             )
             PestanaPanel.RESERVAS -> PestanaProvisional(
@@ -174,6 +185,8 @@ private fun PestanaPedidos(
     onCambiarRecepcion: (Boolean) -> Unit,
     onCorregir: () -> Unit,
     onCargarCarta: () -> Unit,
+    onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val restaurante = uiState.restaurante
@@ -197,8 +210,13 @@ private fun PestanaPedidos(
                 cambiando = uiState.cambiandoPausa,
                 error = uiState.errorPausa,
                 onCambiarRecepcion = onCambiarRecepcion,
+                onEntregarConCodigo = onEntregarConCodigo,
             )
-            BandejaPedidos(modifier = Modifier.weight(1f))
+            BandejaPedidos(
+                onEntregarConCodigo = onEntregarConCodigo,
+                onAbrirPedido = onAbrirPedido,
+                modifier = Modifier.weight(1f),
+            )
         }
         else -> EstadoLocal(
             restaurante = restaurante,
@@ -234,12 +252,12 @@ private fun PestanaProvisional(@DrawableRes icono: Int, texto: String, modifier:
 }
 
 @Composable
-private fun PedirPermisoDeAvisos(esperandoRevision: Boolean) {
+private fun PedirPermisoDeAvisos(pedir: Boolean) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
     val context = LocalContext.current
     val pedirPermiso = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
-    LaunchedEffect(esperandoRevision) {
-        if (esperandoRevision && !puedeMostrarAvisos(context)) {
+    LaunchedEffect(pedir) {
+        if (pedir && !puedeMostrarAvisos(context)) {
             pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
@@ -306,6 +324,8 @@ private fun PanelLocalPreview() {
                 onAbrirPlato = {},
                 onArmarMenu = {},
                 onFotoPizarra = {},
+                onEntregarConCodigo = {},
+                onAbrirPedido = {},
                 onSesionCerrada = {},
             )
         }

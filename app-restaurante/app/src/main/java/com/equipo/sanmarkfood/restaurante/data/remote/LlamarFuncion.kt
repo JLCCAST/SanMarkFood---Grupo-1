@@ -11,6 +11,7 @@ internal suspend fun <T> llamarFuncion(json: Json, llamada: suspend () -> T): T 
     } catch (e: HttpException) {
         throw when (codigoDeError(json, e)) {
             "estado_invalido" -> ErrorPedidos.YaCambio
+            "codigo_incorrecto" -> ErrorPedidos.CodigoIncorrecto
             else -> ErrorPedidos.Desconocido
         }
     } catch (e: IOException) {
