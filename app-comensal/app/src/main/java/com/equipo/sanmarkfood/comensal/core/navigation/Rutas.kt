@@ -19,3 +19,6 @@ data object PanelComensal
 
 @Serializable
 data class DetalleRestaurante(val restauranteId: String)
+
+@Serializable
+data object TuPedido

@@ -251,4 +251,45 @@
     <string name="descubrimiento_menu_hoy_etiqueta">MENÚ HOY</string>
     <string name="descubrimiento_precio_soles">S/ %1$s</string>
     <string name="descubrimiento_calificacion_valor">★ %1$s</string>
+
+
+    <string name="carta_titulo">La carta</string>
+    <string name="carta_subtitulo">Platos de siempre</string>
+    <string name="carta_vacia">Este local aún no tiene platos en su carta.</string>
+    <string name="carta_agotado">Agotado hoy</string>
+    <string name="carta_agregar">Agregar %1$s al pedido</string>
+    <string name="carta_quitar_uno">Quitar uno</string>
+    <string name="carta_agregar_uno">Agregar uno</string>
+    <string name="carta_reintentar">Reintentar</string>
+    <string name="carta_error_sin_conexion">Sin conexión. No pudimos cargar la carta.</string>
+    <string name="carta_error_desconocido">No pudimos cargar la carta. Inténtalo de nuevo.</string>
+    <string name="carta_limite">Máximo 20 unidades por plato y 20 platos distintos por pedido.</string>
+    <string name="pedido_en_local">Pedido en %1$s</string>
+    <string name="pedido_nuevo_titulo">¿Empezar un pedido nuevo?</string>
+    <plurals name="pedido_nuevo_texto">
+        <item quantity="one">Tu pedido tiene %1$d plato de %2$s. Cada pedido es de un solo local: si agregas %3$s, se vaciará el pedido actual.</item>
+        <item quantity="other">Tu pedido tiene %1$d platos de %2$s. Cada pedido es de un solo local: si agregas %3$s, se vaciará el pedido actual.</item>
+    </plurals>
+    <string name="pedido_nuevo_mantener">Mantener el actual</string>
+    <string name="pedido_nuevo_vaciar">Vaciar y agregar</string>
+    <string name="pedido_titulo">Tu pedido</string>
+    <string name="pedido_como_recibes">¿Cómo lo recibes?</string>
+    <string name="pedido_recojo">Recojo en local</string>
+    <string name="pedido_recojo_detalle">Listo en ~15 min, sin fila</string>
+    <string name="pedido_delivery">Delivery</string>
+    <string name="pedido_delivery_detalle">A tu dirección frecuente</string>
+    <string name="pedido_ticket">TICKET</string>
+    <string name="pedido_subtotal">Subtotal</string>
+    <string name="pedido_total">Total</string>
+    <string name="pedido_metodo_pago">Método de pago</string>
+    <string name="pedido_pago_billetera">Billetera digital</string>
+    <string name="pedido_pago_billetera_detalle">Yape / Plin</string>
+    <string name="pedido_pago_tarjeta">Tarjeta</string>
+    <string name="pedido_pago_tarjeta_detalle">Crédito o débito</string>
+    <string name="pedido_pago_efectivo">Efectivo</string>
+    <string name="pedido_pago_efectivo_detalle">Al recibir</string>
+    <string name="pedido_confirmar_pagar">Confirmar y pagar S/ %1$s</string>
+    <string name="pedido_confirmar">Confirmar pedido S/ %1$s</string>
+    <string name="pedido_aviso_biometria">Se te pedirá tu huella o rostro antes de procesar el pago</string>
+    <string name="pedido_vacio">Tu pedido está vacío</string>
 </resources>

@@ -61,6 +61,12 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.HorarioDia
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaUiState
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaViewModel
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.DialogoPedidoNuevo
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.LaCarta
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.formatoSoles
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
 import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
 import java.util.Locale
 
@@ -80,10 +86,13 @@ fun DetalleRestauranteScreen(
     restauranteId: String,
     onVolver: () -> Unit,
     onVerEnMapa: (String) -> Unit,
+    onVerPedido: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DescubrimientoViewModel = hiltViewModel()
+    viewModel: DescubrimientoViewModel = hiltViewModel(),
+    cartaViewModel: CartaViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val carta by cartaViewModel.uiState.collectAsState()
     // Se busca en la lista completa, no en la filtrada: un filtro activo no debe esconder el local.
     val restaurante = state.todosLosRestaurantes.firstOrNull { it.id == restauranteId }
 
@@ -102,6 +111,14 @@ fun DetalleRestauranteScreen(
         onErrorFavoritoMostrado = { viewModel.limpiarErrorFavorito() },
         onVolver = onVolver,
         onVerEnMapa = { onVerEnMapa(restauranteId) },
+        onVerPedido = onVerPedido,
+        carta = carta,
+        onAgregarPlato = { cartaViewModel.agregar(it, restaurante.nombre) },
+        onCambiarCantidad = cartaViewModel::cambiarCantidad,
+        onReintentarCarta = cartaViewModel::reintentar,
+        onMantenerPedido = cartaViewModel::mantenerActual,
+        onVaciarYAgregar = cartaViewModel::vaciarYAgregar,
+        onLimiteMostrado = cartaViewModel::limpiarLimite,
         modifier = modifier
     )
 }
@@ -115,6 +132,14 @@ private fun DetalleRestauranteContent(
     onErrorFavoritoMostrado: () -> Unit,
     onVolver: () -> Unit,
     onVerEnMapa: () -> Unit,
+    onVerPedido: () -> Unit,
+    carta: CartaUiState,
+    onAgregarPlato: (Plato) -> Unit,
+    onCambiarCantidad: (String, Int) -> Unit,
+    onReintentarCarta: () -> Unit,
+    onMantenerPedido: () -> Unit,
+    onVaciarYAgregar: () -> Unit,
+    onLimiteMostrado: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val guinda = MaterialTheme.colorScheme.primary
@@ -139,6 +164,26 @@ private fun DetalleRestauranteContent(
                 onErrorFavoritoMostrado()
             }
         }
+    }
+
+    val mensajeLimite = stringResource(R.string.carta_limite)
+    LaunchedEffect(carta.limiteAlcanzado) {
+        if (carta.limiteAlcanzado) {
+            try {
+                snackbarHostState.showSnackbar(mensajeLimite)
+            } finally {
+                onLimiteMostrado()
+            }
+        }
+    }
+
+    carta.platoPendiente?.let { pendiente ->
+        DialogoPedidoNuevo(
+            pendiente = pendiente,
+            platosEnPedido = carta.carrito?.cantidadTotal ?: 0,
+            onMantener = onMantenerPedido,
+            onVaciar = onVaciarYAgregar
+        )
     }
 
     Scaffold(
@@ -171,10 +216,13 @@ private fun DetalleRestauranteContent(
             }
         },
         bottomBar = {
-            Surface(
+            val carrito = carta.carrito
+            if (carrito != null && carrito.items.isNotEmpty()) Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(28.dp))
+                    .clickable(onClick = onVerPedido),
                 shape = RoundedCornerShape(28.dp),
                 color = guinda,
                 shadowElevation = 8.dp
@@ -194,7 +242,7 @@ private fun DetalleRestauranteContent(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
-                                    text = "0",
+                                    text = carrito.cantidadTotal.toString(),
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSecondary
                                 )
@@ -209,14 +257,14 @@ private fun DetalleRestauranteContent(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                             Text(
-                                text = stringResource(R.string.detalle_pedido_subtitulo),
+                                text = stringResource(R.string.pedido_en_local, carrito.restauranteNombre),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                             )
                         }
                     }
                     Text(
-                        text = stringResource(R.string.detalle_precio_soles, "0.00"),
+                        text = stringResource(R.string.detalle_precio_soles, formatoSoles(carrito.total)),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -452,6 +500,13 @@ private fun DetalleRestauranteContent(
                     )
                 }
             }
+
+            LaCarta(
+                estado = carta,
+                onAgregar = onAgregarPlato,
+                onCambiarCantidad = onCambiarCantidad,
+                onReintentar = onReintentarCarta
+            )
 
             // Horario y ubicación reales de Firestore
             Text(
