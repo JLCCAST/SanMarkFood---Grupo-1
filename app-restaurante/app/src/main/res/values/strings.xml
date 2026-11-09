@@ -204,6 +204,23 @@
     <string name="reservas_dia_cerrado">Ese día tu local no atiende.</string>
     <string name="reservas_leyenda">Amarillo: solicitudes pendientes, que también ocupan cupo. Una franja llena se muestra tachada a los comensales.</string>
     <string name="reservas_sin_conexion">Sin conexión. Las reservas nuevas llegarán cuando vuelvas a tener internet.</string>
+    <string name="reservas_rechazar">Rechazar</string>
+    <string name="reservas_confirmar">Confirmar</string>
+    <string name="reservas_hoja_rechazar_titulo">Rechazar la reserva de %1$s</string>
+    <string name="reservas_hoja_rechazar_texto">El comensal verá el motivo y podrá probar otro horario.</string>
+    <string name="reservas_motivo">Motivo</string>
+    <string name="reservas_motivo_sin_mesas">Sin mesas disponibles a esa hora</string>
+    <string name="reservas_motivo_local_cerrado">Local cerrado ese día</string>
+    <string name="reservas_motivo_grupo_grande">Grupo demasiado grande</string>
+    <string name="reservas_motivo_otro">Otro</string>
+    <string name="reservas_detalle_otro">Cuéntale al comensal qué pasa</string>
+    <string name="reservas_detalle_ejemplo">Ej.: tenemos un evento privado</string>
+    <string name="reservas_volver">Volver</string>
+    <string name="reservas_rechazar_confirmar">Rechazar reserva</string>
+    <string name="reservas_aviso_confirmada">Reserva de %1$s confirmada. Le avisamos por notificación.</string>
+    <string name="reservas_aviso_rechazada">Reserva rechazada. El comensal verá el motivo.</string>
+    <string name="reservas_ok">OK</string>
+    <string name="error_reserva_ya_cambio">Esta reserva ya cambió (la canceló el comensal o se rechazó sola). Revisa la lista.</string>
     <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
 

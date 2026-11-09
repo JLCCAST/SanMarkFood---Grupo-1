@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.presentation.reservas
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,18 +21,33 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +62,8 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,12 +77,15 @@ import com.equipo.sanmarkfood.restaurante.domain.model.reservas.ErrorReservas
 import com.equipo.sanmarkfood.restaurante.domain.model.reservas.EstadoReserva
 import com.equipo.sanmarkfood.restaurante.domain.model.reservas.Franja
 import com.equipo.sanmarkfood.restaurante.domain.model.reservas.HorarioReserva
+import com.equipo.sanmarkfood.restaurante.domain.model.reservas.MotivoRechazoReserva
 import com.equipo.sanmarkfood.restaurante.domain.model.reservas.Reserva
 import com.equipo.sanmarkfood.restaurante.domain.model.reservas.franjasDelDia
 import com.equipo.sanmarkfood.restaurante.domain.model.reservas.horaDelRechazo
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
+import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.nombre
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.nombreCorto
+import com.equipo.sanmarkfood.restaurante.presentation.pedidos.OpcionMotivoRechazo
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import java.util.Locale
 
@@ -80,6 +103,13 @@ fun ReservasScreen(
         onElegirDia = viewModel::onElegirDia,
         onReintentar = viewModel::onReintentar,
         onEditarHorario = onEditarHorario,
+        onConfirmar = viewModel::onConfirmar,
+        onRechazar = viewModel::onRechazar,
+        onElegirMotivo = viewModel::onElegirMotivo,
+        onCambiarDetalle = viewModel::onCambiarDetalle,
+        onCerrarHoja = viewModel::onCerrarHoja,
+        onConfirmarRechazo = viewModel::onConfirmarRechazo,
+        onAvisoMostrado = viewModel::onAvisoMostrado,
         modifier = modifier,
     )
 }
@@ -91,9 +121,60 @@ private fun ReservasContenido(
     onElegirDia: (String) -> Unit,
     onReintentar: () -> Unit,
     onEditarHorario: () -> Unit,
+    onConfirmar: (Reserva) -> Unit,
+    onRechazar: (Reserva) -> Unit,
+    onElegirMotivo: (MotivoRechazoReserva) -> Unit,
+    onCambiarDetalle: (String) -> Unit,
+    onCerrarHoja: () -> Unit,
+    onConfirmarRechazo: () -> Unit,
+    onAvisoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier) {
+    val avisos = remember { SnackbarHostState() }
+    val aviso = uiState.aviso
+    val textoAviso = aviso?.let { textoDelAviso(it) }
+    val ok = stringResource(R.string.reservas_ok)
+    LaunchedEffect(aviso) {
+        if (textoAviso != null) {
+            avisos.showSnackbar(textoAviso, actionLabel = ok, duration = SnackbarDuration.Long)
+            onAvisoMostrado()
+        }
+    }
+
+    Box(modifier = modifier) {
+        ListaConDias(
+            uiState = uiState,
+            horario = horario,
+            onElegirDia = onElegirDia,
+            onReintentar = onReintentar,
+            onEditarHorario = onEditarHorario,
+            onConfirmar = onConfirmar,
+            onRechazar = onRechazar,
+        )
+        SnackbarHost(hostState = avisos, modifier = Modifier.align(Alignment.BottomCenter))
+    }
+    uiState.hojaRechazar?.let { hoja ->
+        HojaRechazar(
+            hoja = hoja,
+            onElegirMotivo = onElegirMotivo,
+            onCambiarDetalle = onCambiarDetalle,
+            onCerrar = onCerrarHoja,
+            onConfirmar = onConfirmarRechazo,
+        )
+    }
+}
+
+@Composable
+private fun ListaConDias(
+    uiState: ReservasUiState,
+    horario: Horario,
+    onElegirDia: (String) -> Unit,
+    onReintentar: () -> Unit,
+    onEditarHorario: () -> Unit,
+    onConfirmar: (Reserva) -> Unit,
+    onRechazar: (Reserva) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = stringResource(R.string.reservas_titulo),
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 12.dp),
@@ -127,6 +208,8 @@ private fun ReservasContenido(
                 uiState = uiState,
                 horario = horario,
                 onEditarHorario = onEditarHorario,
+                onConfirmar = onConfirmar,
+                onRechazar = onRechazar,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -205,6 +288,8 @@ private fun ListaReservas(
     uiState: ReservasUiState,
     horario: Horario,
     onEditarHorario: () -> Unit,
+    onConfirmar: (Reserva) -> Unit,
+    onRechazar: (Reserva) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pendientes = uiState.pendientes
@@ -230,7 +315,14 @@ private fun ListaReservas(
         }
         items(pendientes, key = { it.id }) { reserva ->
             val confirmados = franjas.firstOrNull { it.hora == reserva.hora }?.confirmados ?: 0
-            TarjetaReserva(reserva = reserva, ocupacion = confirmados + reserva.personas, cupo = cupo)
+            TarjetaReserva(
+                reserva = reserva,
+                ocupacion = confirmados + reserva.personas,
+                cupo = cupo,
+                procesando = reserva.id in uiState.procesando,
+                onConfirmar = { onConfirmar(reserva) },
+                onRechazar = { onRechazar(reserva) },
+            )
         }
         item {
             CabeceraFranjas(
@@ -287,7 +379,14 @@ private fun AvisoSinConexion() {
 }
 
 @Composable
-private fun TarjetaReserva(reserva: Reserva, ocupacion: Int, cupo: Int) {
+private fun TarjetaReserva(
+    reserva: Reserva,
+    ocupacion: Int,
+    cupo: Int,
+    procesando: Boolean,
+    onConfirmar: () -> Unit,
+    onRechazar: () -> Unit,
+) {
     val forma = RoundedCornerShape(16.dp)
     Column(
         modifier = Modifier
@@ -341,7 +440,132 @@ private fun TarjetaReserva(reserva: Reserva, ocupacion: Int, cupo: Int) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = onRechazar,
+                enabled = !procesando,
+                modifier = Modifier.weight(1f).height(44.dp),
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.error),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            ) {
+                Text(text = stringResource(R.string.reservas_rechazar), style = MaterialTheme.typography.labelLarge)
+            }
+            Button(onClick = onConfirmar, enabled = !procesando, modifier = Modifier.weight(1f).height(44.dp)) {
+                if (procesando) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = LocalContentColor.current,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(text = stringResource(R.string.reservas_confirmar), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HojaRechazar(
+    hoja: HojaRechazarReserva,
+    onElegirMotivo: (MotivoRechazoReserva) -> Unit,
+    onCambiarDetalle: (String) -> Unit,
+    onCerrar: () -> Unit,
+    onConfirmar: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCerrar,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outline) },
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.reservas_hoja_rechazar_titulo, hoja.reserva.comensalNombre),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Text(
+                text = stringResource(R.string.reservas_hoja_rechazar_texto),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(text = stringResource(R.string.reservas_motivo), style = MaterialTheme.typography.labelLarge)
+            MotivoRechazoReserva.entries.forEach { motivo ->
+                OpcionMotivoRechazo(
+                    texto = stringResource(motivo.texto()),
+                    elegido = motivo == hoja.motivo,
+                    habilitado = !hoja.enviando,
+                    onElegir = { onElegirMotivo(motivo) },
+                )
+            }
+            if (hoja.motivo == MotivoRechazoReserva.OTRO) {
+                CampoFormulario(
+                    etiqueta = stringResource(R.string.reservas_detalle_otro),
+                    valor = hoja.detalle,
+                    onValorChange = onCambiarDetalle,
+                    tipoTeclado = KeyboardType.Text,
+                    capitalizacion = KeyboardCapitalization.Sentences,
+                    ejemplo = stringResource(R.string.reservas_detalle_ejemplo),
+                )
+            }
+            hoja.error?.let {
+                Text(
+                    text = stringResource(it.mensaje()),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                TextButton(onClick = onCerrar, modifier = Modifier.height(48.dp)) {
+                    Text(text = stringResource(R.string.reservas_volver), style = MaterialTheme.typography.labelLarge)
+                }
+                Button(
+                    onClick = onConfirmar,
+                    enabled = hoja.completa && !hoja.enviando,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+                ) {
+                    if (hoja.enviando) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = LocalContentColor.current,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Text(text = stringResource(R.string.reservas_rechazar_confirmar), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@StringRes
+private fun MotivoRechazoReserva.texto(): Int = when (this) {
+    MotivoRechazoReserva.SIN_MESAS -> R.string.reservas_motivo_sin_mesas
+    MotivoRechazoReserva.LOCAL_CERRADO -> R.string.reservas_motivo_local_cerrado
+    MotivoRechazoReserva.GRUPO_GRANDE -> R.string.reservas_motivo_grupo_grande
+    MotivoRechazoReserva.OTRO -> R.string.reservas_motivo_otro
+}
+
+@Composable
+private fun textoDelAviso(aviso: AvisoReservas): String = when (aviso) {
+    is AvisoReservas.Confirmada -> stringResource(R.string.reservas_aviso_confirmada, aviso.comensal)
+    AvisoReservas.Rechazada -> stringResource(R.string.reservas_aviso_rechazada)
+    is AvisoReservas.Fallo -> stringResource(aviso.error.mensaje())
 }
 
 @Composable
@@ -451,6 +675,7 @@ private fun BarraFranja(franja: Franja, cupo: Int, llena: Boolean, modifier: Mod
 
 private fun ErrorReservas.mensaje(): Int = when (this) {
     ErrorReservas.SinConexion -> R.string.error_sin_conexion
+    ErrorReservas.YaCambio -> R.string.error_reserva_ya_cambio
     ErrorReservas.Desconocido -> R.string.error_desconocido
 }
 
@@ -477,6 +702,13 @@ private fun ReservasPreview() {
                 onElegirDia = {},
                 onReintentar = {},
                 onEditarHorario = {},
+                onConfirmar = {},
+                onRechazar = {},
+                onElegirMotivo = {},
+                onCambiarDetalle = {},
+                onCerrarHoja = {},
+                onConfirmarRechazo = {},
+                onAvisoMostrado = {},
             )
         }
     }

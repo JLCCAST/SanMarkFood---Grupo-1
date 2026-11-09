@@ -6,6 +6,8 @@ const val MINUTOS_ANTES_DEL_RECHAZO = 60
 
 enum class EstadoReserva { PENDIENTE, CONFIRMADA, RECHAZADA, CANCELADA }
 
+enum class MotivoRechazoReserva { SIN_MESAS, LOCAL_CERRADO, GRUPO_GRANDE, OTRO }
+
 data class HorarioReserva(val fecha: String, val hora: String)
 
 data class Reserva(

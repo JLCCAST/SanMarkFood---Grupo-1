@@ -561,7 +561,7 @@ private fun HojaRechazar(
 }
 
 @Composable
-private fun OpcionMotivoRechazo(texto: String, elegido: Boolean, habilitado: Boolean, onElegir: () -> Unit) {
+internal fun OpcionMotivoRechazo(texto: String, elegido: Boolean, habilitado: Boolean, onElegir: () -> Unit) {
     val forma = RoundedCornerShape(12.dp)
     Row(
         modifier = Modifier
