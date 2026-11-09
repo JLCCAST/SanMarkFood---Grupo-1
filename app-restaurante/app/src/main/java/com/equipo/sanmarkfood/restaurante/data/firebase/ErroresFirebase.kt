@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Campo
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.menu.ErrorMenu
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ErrorPedidos
+import com.equipo.sanmarkfood.restaurante.domain.model.reservas.ErrorReservas
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -90,6 +91,12 @@ internal fun FirebaseException.aErrorPedidos(): ErrorPedidos = when {
     this is FirebaseNetworkException -> ErrorPedidos.SinConexion
     this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE -> ErrorPedidos.SinConexion
     else -> ErrorPedidos.Desconocido
+}
+
+internal fun FirebaseException.aErrorReservas(): ErrorReservas = when {
+    this is FirebaseNetworkException -> ErrorReservas.SinConexion
+    this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE -> ErrorReservas.SinConexion
+    else -> ErrorReservas.Desconocido
 }
 
 internal suspend fun <T> llamarFirebaseAdmin(llamada: suspend () -> T): T =

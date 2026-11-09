@@ -125,7 +125,7 @@ SanMarkFood---Grupo-1/
 │           │       ├── aprobacion/          # HU24 — aprobación de restaurantes — solicitudes, filtros y revisión ✔ (SCRUM-76, SCRUM-77)
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
 │           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma ✔
-│           ├── avisos/                      # Avisos push (FCM): AvisosService y los canales «Estado del local» (SCRUM-78) y «Reseñas» (SCRUM-123) ✔
+│           ├── avisos/                      # Avisos push (FCM): AvisosService y los canales «Estado del local» ✔ (SCRUM-78), «Reseñas» ✔ (SCRUM-123), «Pedidos nuevos» ✔ (SCRUM-162), «Cambios en tus pedidos» y «Reservas»
 │           ├── workers/                     # WorkManager: sin uso por ahora (el recordatorio de HU10 vive en el comensal)
 │           └── ai/
 │               └── digitalizacion_carta/    # HU04 — digitalización de carta con IA — la pizarra ✔ (LectorPizarra)
@@ -244,12 +244,12 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 
 ## Pedidos y reservas (acuerdo del 25 de octubre)
 
-Es el contrato entre HU07, HU09 y HU12 (Jose: funciones y restaurante), HU08 y HU10 (Camila: comensal) y HU14 y HU15 (Rodrigo: reseñas con IA). Lo acordaron Jose y Claude; el resto del equipo se adapta a lo que vaya avanzando. Si alguien necesita cambiar un nombre o un campo, lo cambia aquí primero y avisa.
+Es el contrato entre HU07, HU09 y HU12 (Jose: funciones y restaurante), HU08 y HU10 (Camila: comensal) y HU14, HU15 y HU26 (Rodrigo: reseñas con IA y dashboard del administrador). Lo acordaron Jose y Claude; el resto del equipo se adapta a lo que vaya avanzando. Si alguien necesita cambiar un nombre o un campo, lo cambia aquí primero y avisa.
 
 **Quién escribe qué función** (todas en `functions/`):
 
 - **Jose (HU07, HU09 y HU12):** la base que usan todas (verificar el token, responder errores, enviar avisos), `crearPedido`, `actualizarPedido`, `reservas` (con la validación del cupo), `resenas` (SCRUM-170), `vencimientos`, los datos de ejemplo (SCRUM-168), los avisos en la app del comensal (SCRUM-169), las reglas, los índices y el despliegue. También el campo `cupoPorFranja` en O8 y su regla (SCRUM-165).
-- **Rodrigo (HU14 y HU15):** `resumenResenas` (programada) y `analizarResena`, que se dispara con cada reseña nueva, las dos con Gemini, usando la base de Jose para los avisos.
+- **Rodrigo (HU14, HU15 y HU26):** `resumenResenas` (programada) y `analizarResena`, que se dispara con cada reseña nueva, las dos con Gemini, usando la base de Jose para los avisos. HU26 (dashboard global) no necesita funciones: usa consultas de agregación de Firestore (`count()`) sobre `restaurantes` y `pedidos`, que las reglas ya le permiten al administrador.
 - **Camila (HU08 y HU10):** solo la app del comensal; no escribe funciones.
 
 ### Orden del Sprint 2 (hasta el 9 de noviembre)
@@ -259,12 +259,12 @@ Para que nadie espere a nadie, lo primero de Jose es lo que usan los otros dos, 
 | | Semana 1 (26 oct – 1 nov) | Semana 2 (2 – 9 nov) |
 | --- | --- | --- |
 | **Jose** | Días 1 y 2: la base de las funciones, los datos de ejemplo (SCRUM-168), las reglas y los índices. Después: `crearPedido`, `reservas`, los avisos del comensal (SCRUM-169) y la bandeja O1 con los datos de ejemplo (SCRUM-99) | `actualizarPedido` con aceptar, avanzar, rechazar y entregar (SCRUM-163, 100, 152, 164), el cupo en O8 (SCRUM-165), las reservas en O4 (SCRUM-106, 107), el aviso de pedido nuevo (SCRUM-162), `vencimientos` (SCRUM-153, 155), los avisos al comensal (SCRUM-101, 108), `resenas` (SCRUM-170) y el despliegue final |
-| **Rodrigo** | Con las reseñas de ejemplo: la clasificación del sentimiento y el motivo con Gemini (SCRUM-121, 122) y el resumen (SCRUM-116) | El resumen en caché (SCRUM-117), el aviso al local por reseña negativa (SCRUM-123) y probarlo con reseñas reales cuando exista `resenas` |
+| **Rodrigo** | Con las reseñas de ejemplo: la clasificación del sentimiento y el motivo con Gemini (SCRUM-121, 122) y el resumen (SCRUM-116). El dashboard global con los pedidos de ejemplo: métricas con `count()` (SCRUM-133, 134) | El resumen en caché (SCRUM-117), el aviso al local por reseña negativa (SCRUM-123), el gráfico de pedidos por semana (SCRUM-135) y probarlo todo con datos reales |
 | **Camila** | Lo que no necesita servidor: el carrito con Room (SCRUM-93), el menú (SCRUM-150), modalidad y pago (SCRUM-94), Geocoding (SCRUM-167), la biometría (SCRUM-95), el formulario de reserva (SCRUM-102) y el recordatorio con WorkManager (SCRUM-103) | Conectar con `crearPedido` y `reservas`, el seguimiento (SCRUM-96), el rechazo (SCRUM-151), el menú vencido (SCRUM-156), cancelar (SCRUM-98, 104), modificar (SCRUM-105) y la calificación (SCRUM-97) |
 
 Las únicas esperas que quedan: Camila necesita `crearPedido` y `reservas` al empezar la semana 2, y Rodrigo necesita los datos de ejemplo desde el día 2. Por eso Jose los entrega primero. Mientras tanto, todos prueban con los datos de ejemplo.
 
-Si el sprint se aprieta, estos criterios pueden pasar al Sprint 3 sin perder ningún requisito del curso: modificar la reserva (SCRUM-105), la entrega con código (SCRUM-164), el sonido que se repite (SCRUM-162) y la calificación (SCRUM-97).
+HU26 volvió al Sprint 2 el 27 oct: la profesora ya enseñó los dashboards con librerías, así que ese requisito también entra en este sprint. Si el sprint se aprieta, estos criterios pueden pasar al Sprint 3 sin perder ningún requisito del curso: modificar la reserva (SCRUM-105), la entrega con código (SCRUM-164), el sonido que se repite (SCRUM-162) y la calificación (SCRUM-97).
 
 ### Cómo llaman las apps a las funciones
 
@@ -331,16 +331,17 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 | `confirmar` | local | `reservaId` | `{ estado }` |
 | `rechazar` | local | `reservaId`, `motivo`, `detalle?` | `{ estado }` |
 
-`crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
+`crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal, y que el local acepte reservas. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `sin_reservas`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
 
-**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. Mientras el local no configure `cupoPorFranja` (SCRUM-165), sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5.
+**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. El local lo configura en R4 y O8, de 2 a 60 comensales (12 por defecto); mientras no lo guarde, sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5. En la misma sección, el interruptor «Acepto reservas» guarda `aceptaReservas`: si es `false`, `crear` y `modificar` responden `sin_reservas`, y **el comensal no muestra «Reservar» en ese local** (sin el campo, el local acepta reservas).
 
 **El recordatorio (SCRUM-103)** no pasa por el servidor: al crear o modificar la reserva, la app del comensal programa un trabajo de WorkManager para 30 min, 1 h o 2 h antes, y lo cancela si la reserva se cancela o se rechaza.
 
 ### Lo que hace el servidor solo
 
-- **`vencimientos`** (cada minuto): un pedido que sigue `recibido` 10 minutos después de `creadoEn` pasa a `rechazado` con `sin_respuesta` y `automatico: true`, y su `pago` a `revertido` si estaba `pagado`. Una reserva `pendiente` a la que le faltan 60 minutos o menos pasa a `rechazada` igual y libera su franja.
+- **`vencimientos`** (cada minuto): un pedido que sigue `recibido` 10 minutos después de `creadoEn` pasa a `rechazado` con `sin_respuesta` y `automatico: true`, y su `pago` a `revertido` si estaba `pagado`. Una reserva `pendiente` a la que le faltan 60 minutos o menos pasa a `rechazada` igual y libera su franja. En los dos casos avisa al comensal y lo guarda en su bandeja: «<local> no respondió a tiempo» (`pedido_rechazado`, canal `pedidos`) y «Tu reserva fue rechazada» (`reserva_rechazada`, canal `reservas`, solo si tiene activado ese aviso). Como corre cada minuto, el pedido puede seguir en la bandeja hasta un minuto después de que la cuenta regresiva llegue a 0:00. Está en `functions/src/vencimientos.ts` (SCRUM-153 y SCRUM-155).
 - **Avisos push**: cada función que cambia un estado avisa al otro lado, con los tokens de `usuarios/{uid}/dispositivos`, y guarda el aviso en `usuarios/{uid}/notificaciones` (C5). Al local: pedido nuevo (**alta prioridad**, para que suene aunque el celular esté en reposo, SCRUM-162) y reserva nueva o modificada. Al comensal: cada cambio de estado del pedido (fijo, no se puede apagar, decisión C4) y la respuesta a la reserva (solo si tiene activado el aviso de reservas en su perfil).
+- **El aviso de pedido nuevo (SCRUM-162)** sale como mensaje de solo datos (`soloDatos: true` en `notificar`, con `titulo`, `cuerpo`, `canal` y `pedidoId` en `data`). Así lo arma siempre `AvisosService` de la app del restaurante, aun con la app cerrada, en el canal «Pedidos nuevos» (importancia alta) y con sonido insistente: suena hasta que se abre la cortina de avisos o la bandeja O1, que lo quita en cuanto ve el pedido. Si la app ya está al frente, suena una sola vez (Firestore puede traer el pedido a la bandeja antes que llegue el aviso), y la bandeja lo quita al aceptar o rechazar. La tarjeta «PEDIDO NUEVO» de O1 muestra la cuenta regresiva de 10 minutos antes del rechazo automático. Los demás avisos llevan `notification` con su canal: `estado_local`, `pedidos` y `reservas` en el restaurante; `pedidos` y `reservas` en el comensal.
 - **En la app del comensal (SCRUM-169):** guardar su token de avisos en `usuarios/{uid}/dispositivos/{token}` con `app: "comensal"`, como ya lo hace el restaurante (`RegistrarDispositivoUseCase`). Sin eso no le llega ningún aviso.
 - **`resenas` (SCRUM-170):** recibe `{ pedidoId, estrellas, comentario?, platos? }`: `estrellas` de 1 a 5, `comentario` de hasta 500 caracteres y `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»), solo con platos de ese pedido. Vale solo para el comensal del pedido, con el pedido `entregado` y una sola vez. Guarda `restaurantes/{uid}/resenas/{pedidoId}` y actualiza `calificacion { promedio, total }` del local en la misma transacción (el promedio se guarda sin redondear; la app lo muestra con un decimal). Devuelve `{ pedidoId }`. Errores: `estado_invalido`, `ya_calificado`, `no_autorizado`, `datos_invalidos`.
 
@@ -357,7 +358,8 @@ Todo lleva `ejemplo: true`, así que se borra sin tocar datos reales. Cómo usar
 1. Una vez: en Firebase → Configuración del proyecto → **Cuentas de servicio** → «Generar nueva clave privada». Guarda el JSON **fuera del repositorio** (por si acaso, `.gitignore` ya ignora `*-firebase-adminsdk-*.json`). Esa clave da acceso total al proyecto: no se comparte ni se sube.
 2. En la terminal, dentro de `functions/` (con `npm ci` hecho), apunta a la clave: `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\ruta\a\la\clave.json"` en PowerShell, o `export GOOGLE_APPLICATION_CREDENTIALS=...` en Git Bash.
 3. Cargar: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal>`. Los `uid` se ven en Firebase → Authentication. Se puede correr varias veces: cada vez agrega otro juego.
-4. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
+4. Probar el aviso de pedido nuevo: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal> --nuevo` crea un solo pedido `recibido` con la hora actual y le manda al local el mismo aviso que `crearPedido`.
+5. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
 
 **La reseña (`restaurantes/{uid}/resenas/{pedidoId}`):** `{ comensalUid, comensalNombre, estrellas, comentario, platos, creadoEn }`, con `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»). HU15 le agrega `sentimiento` (`positiva`, `neutra` o `negativa`) y, en las negativas que analizó Gemini, `motivo`: una frase corta como «llegó frío y faltó la bebida». HU21 le agrega la `respuesta` del local.
 
@@ -369,7 +371,7 @@ Ya están en `firestore.rules`:
 - `restaurantes/{uid}/resenas/{pedidoId}/reportes/{comensalUid}`: los lee el administrador, en todos los locales (para HU26).
 - `restaurantes/{uid}/franjas/{id}`: la lee cualquier cuenta con sesión; nadie la escribe desde una app.
 - `usuarios/{uid}/notificaciones/{id}`: la lee su dueño, que solo puede marcarla como leída (`leida: true`).
-- **Pendiente (SCRUM-165):** que el cambio de horario del local acepte `cupoPorFranja`.
+- El cambio de horario del local (R4 y O8) acepta también `aceptaReservas` (booleano) y `cupoPorFranja` (entero de 2 a 60), SCRUM-165.
 
 Los índices compuestos están en `firestore.indexes.json` (registrado en `firebase.json`): pedidos por local y por comensal ordenados por `creadoEn`, reservas por local ordenadas por `fecha` y `hora`, reservas por comensal por `fecha`, y los de `vencimientos` (pedidos por `estado` y `creadoEn`; reservas por `estado` y `fecha`). Se publican junto con las reglas: `firebase deploy --only firestore`.
 
@@ -392,7 +394,8 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | `creadoEn`, `enviadoEn`, `actualizadoEn` | fecha | el local | Siempre la hora del servidor. `enviadoEn` es el último envío a revisión. |
 | `menuHoy` | mapa | el local (HU03) | `{ fecha, precio, horaFin, estado }`: copia del menú del día, que se escribe junto con él. Los pines del mapa del comensal muestran ese precio, o «Carta» si no hay menú hoy. |
 | `rangoCarta` | mapa | el local (HU03) | `{ min, max }` en céntimos: el plato más barato y el más caro. Se recalcula al guardar o eliminar un plato. Es el segundo filtro de precio del comensal; el primero es `menuHoy.precio` (HU06). |
-| `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos (SCRUM-165). |
+| `aceptaReservas` | booleano | el local (R4, O8) | Interruptor «Acepto reservas». Sin el campo, acepta. Si es `false`, el comensal no ve «Reservar» (SCRUM-165). |
+| `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos, de 2 a 60. Sin el campo, las franjas no tienen límite (SCRUM-165). |
 | `calificacion`, `resumenResenas`, `ultimoNumeroPedido` | mapa, mapa, entero | las funciones | `{ promedio, total }` de las reseñas; `{ texto, totalResenas, generadoEn }`, el resumen de la IA y cuántas reseñas tenía el local al generarlo (SCRUM-117); el último número de pedido del local («#0132»). |
 | `revisadoEn` | fecha | el administrador (HU24) | Cuándo se aprobó o rechazó. |
 
@@ -401,12 +404,11 @@ Qué garantizan las reglas de Firestore:
 - El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos seis:
   - cambiar los datos y las fotos;
   - enviar a revisión (de `borrador` a `pendiente`, con el horario);
-  - cambiar el horario;
+  - cambiar el horario, junto con `aceptaReservas` y `cupoPorFranja`;
   - pausar o reanudar los pedidos (solo si está `aprobado`);
   - reenviar después de un rechazo (de `rechazado` a `pendiente`);
   - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
-- **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
 - Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.

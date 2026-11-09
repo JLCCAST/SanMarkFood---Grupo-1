@@ -131,6 +131,13 @@
     <string name="horario_atras">Atrás</string>
     <string name="horario_listo">Listo</string>
     <string name="horario_cierre_antes">La hora de cierre tiene que ser después de la de apertura.</string>
+    <string name="reservas_acepto">Acepto reservas</string>
+    <string name="reservas_acepto_ayuda">Los comensales piden mesa y tú confirmas</string>
+    <string name="reservas_cupo">Cupo por franja de 30 min</string>
+    <string name="reservas_cupo_ayuda">Comensales que puedes recibir con reserva a la misma hora</string>
+    <string name="reservas_cupo_nota">Cuando las reservas pendientes y confirmadas llenan una franja, los comensales la ven tachada.</string>
+    <string name="reservas_menos_cupo">Menos cupo</string>
+    <string name="reservas_mas_cupo">Más cupo</string>
 
     <!-- Días de la semana -->
     <string name="dia_lunes">Lunes</string>
@@ -143,8 +150,7 @@
 
     <!-- Edición del perfil y del horario (HU02, SCRUM-64) -->
     <string name="perfil_titulo">Perfil del local</string>
-    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
-    <string name="horario_editar_titulo">Horario de atención</string>
+    <string name="horario_editar_titulo">Horario y reservas</string>
     <string name="editar_guardar">Guardar cambios</string>
     <string name="descartar_titulo">¿Descartar los cambios?</string>
     <string name="descartar_texto">Los cambios que hiciste no se guardarán.</string>
@@ -160,9 +166,8 @@
     <string name="negocio_tu_local">Tu local</string>
     <string name="negocio_perfil">Perfil del local</string>
     <string name="negocio_perfil_ayuda">Nombre, fotos, dirección y teléfono</string>
-    <!-- «Horario y reservas / Días de atención y cupo por franja» cuando HU12 agregue el cupo. -->
-    <string name="negocio_horario">Horario de atención</string>
-    <string name="negocio_horario_ayuda">Días y horas de atención</string>
+    <string name="negocio_horario">Horario y reservas</string>
+    <string name="negocio_horario_ayuda">Días de atención y cupo por franja</string>
     <string name="negocio_cerrar_sesion">Cerrar sesión</string>
     <string name="negocio_cerrar_sesion_ayuda">Podrás volver a entrar con tu correo</string>
 
@@ -173,9 +178,49 @@
     <string name="panel_resenas">Reseñas</string>
     <string name="panel_negocio">Negocio</string>
 
-    <!-- Pestañas que todavía no existen: las reemplazan HU12 (Reservas) y HU21 (Reseñas) -->
+    <!-- Pestañas que todavía no existen: Reservas mientras el local no está aprobado, y Reseñas hasta HU21 -->
     <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
-    <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
+
+    <!-- Reservas (O4, HU12) -->
+    <string name="reservas_titulo">Reservas</string>
+    <string name="reservas_hoy">HOY</string>
+    <string name="reservas_con_pendientes">con solicitudes por responder</string>
+    <string name="reservas_por_responder">POR RESPONDER (%1$d)</string>
+    <string name="reservas_sin_pendientes">No hay solicitudes pendientes para este día.</string>
+    <plurals name="reservas_hora_personas">
+        <item quantity="one">%1$s · %2$d comensal</item>
+        <item quantity="other">%1$s · %2$d comensales</item>
+    </plurals>
+    <string name="reservas_cambio_hora">Cambió su reserva de las %1$s a las %2$s; su mesa de las %1$s ya se liberó.</string>
+    <string name="reservas_cambio_dia">Cambió su reserva del %1$s a las %2$s; esa mesa ya se liberó.</string>
+    <string name="reservas_franja_queda">Con esta reserva la franja queda en %1$d de %2$d comensales.</string>
+    <string name="reservas_se_rechaza">Se rechaza sola a las %1$s si no respondes</string>
+    <string name="reservas_confirmadas_por_franja">CONFIRMADAS POR FRANJA</string>
+    <string name="reservas_cupo_cambiar">Cupo: %1$d · cambiar</string>
+    <string name="reservas_apagadas_cambiar">Reservas apagadas · cambiar</string>
+    <string name="reservas_lleno">Lleno</string>
+    <string name="reservas_de_cupo">%1$d de %2$d</string>
+    <string name="reservas_franja_descripcion">%1$s: %2$d confirmados y %3$d pendientes de %4$d</string>
+    <string name="reservas_dia_cerrado">Ese día tu local no atiende.</string>
+    <string name="reservas_leyenda">Amarillo: solicitudes pendientes, que también ocupan cupo. Una franja llena se muestra tachada a los comensales.</string>
+    <string name="reservas_sin_conexion">Sin conexión. Las reservas nuevas llegarán cuando vuelvas a tener internet.</string>
+    <string name="reservas_rechazar">Rechazar</string>
+    <string name="reservas_confirmar">Confirmar</string>
+    <string name="reservas_hoja_rechazar_titulo">Rechazar la reserva de %1$s</string>
+    <string name="reservas_hoja_rechazar_texto">El comensal verá el motivo y podrá probar otro horario.</string>
+    <string name="reservas_motivo">Motivo</string>
+    <string name="reservas_motivo_sin_mesas">Sin mesas disponibles a esa hora</string>
+    <string name="reservas_motivo_local_cerrado">Local cerrado ese día</string>
+    <string name="reservas_motivo_grupo_grande">Grupo demasiado grande</string>
+    <string name="reservas_motivo_otro">Otro</string>
+    <string name="reservas_detalle_otro">Cuéntale al comensal qué pasa</string>
+    <string name="reservas_detalle_ejemplo">Ej.: tenemos un evento privado</string>
+    <string name="reservas_volver">Volver</string>
+    <string name="reservas_rechazar_confirmar">Rechazar reserva</string>
+    <string name="reservas_aviso_confirmada">Reserva de %1$s confirmada. Le avisamos por notificación.</string>
+    <string name="reservas_aviso_rechazada">Reserva rechazada. El comensal verá el motivo.</string>
+    <string name="reservas_ok">OK</string>
+    <string name="error_reserva_ya_cambio">Esta reserva ya cambió (la canceló el comensal o se rechazó sola). Revisa la lista.</string>
     <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
 
@@ -328,6 +373,7 @@
 
     <!-- Bandeja de pedidos (O1, SCRUM-99) -->
     <string name="pedidos_nuevo">PEDIDO NUEVO</string>
+    <string name="pedidos_se_rechaza_en">Se rechaza solo en</string>
     <string name="pedidos_numero">#%1$s</string>
     <string name="pedidos_numero_y_comensal">#%1$s · %2$s</string>
     <string name="pedidos_modalidad_y_hora">%1$s · %2$s</string>
@@ -362,6 +408,72 @@
     <string name="pedidos_ok">OK</string>
     <string name="error_pedido_ya_cambio">Este pedido ya cambió de estado. Revisa la bandeja.</string>
 
+    <!-- Cambio de estado desde la bandeja (O1, SCRUM-100) -->
+    <string name="pedidos_listo">Listo</string>
+    <string name="pedidos_en_camino">En camino</string>
+    <string name="pedidos_entregado">Entregado</string>
+    <string name="pedidos_aviso_listo">#%1$s está listo. Le avisamos al comensal.</string>
+    <string name="pedidos_aviso_en_camino">#%1$s va en camino. Le avisamos al comensal.</string>
+    <string name="pedidos_aviso_entregado">#%1$s marcado como entregado.</string>
+
+    <!-- Rechazar un pedido con motivo (O1, SCRUM-152) -->
+    <string name="pedidos_rechazar">Rechazar</string>
+    <string name="pedidos_hoja_rechazar_titulo">Rechazar pedido #%1$s</string>
+    <string name="pedidos_hoja_rechazar_texto_pagado">El comensal verá el motivo y se le revertirá el pago.</string>
+    <string name="pedidos_hoja_rechazar_texto">El comensal verá el motivo.</string>
+    <string name="pedidos_motivo">Motivo</string>
+    <string name="pedidos_motivo_plato_agotado">Plato agotado</string>
+    <string name="pedidos_motivo_cocina_saturada">Cocina saturada</string>
+    <string name="pedidos_motivo_local_por_cerrar">Local por cerrar</string>
+    <string name="pedidos_motivo_otro">Otro</string>
+    <string name="pedidos_que_se_agoto">¿Qué se agotó?</string>
+    <string name="pedidos_agotado_entrada">Entrada: %1$s</string>
+    <string name="pedidos_agotado_segundo">Segundo: %1$s</string>
+    <string name="pedidos_agotado_nota">También se marcará como agotado en tu carta.</string>
+    <string name="pedidos_detalle_otro">Cuéntale al comensal qué pasó</string>
+    <string name="pedidos_detalle_ejemplo">Ej.: se fue la luz en la cocina</string>
+    <string name="pedidos_rechazar_confirmar">Rechazar pedido</string>
+    <string name="pedidos_aviso_rechazado">Pedido rechazado. %1$s verá el motivo y se le revirtió el pago.</string>
+    <string name="pedidos_aviso_rechazado_sin_pago">Pedido rechazado. %1$s verá el motivo.</string>
+
+    <!-- Entregar con código (O3, SCRUM-164) -->
+    <string name="pedidos_entregar_con_codigo">Entregar con código</string>
+    <string name="pedidos_entregar">Entregar</string>
+    <string name="codigo_cerrar">Cerrar</string>
+    <string name="codigo_instrucciones">Pide al comensal el código de 4 dígitos que ve en su app.</string>
+    <string name="codigo_vacio">Código vacío</string>
+    <string name="codigo_descripcion">Código: %1$s</string>
+    <string name="codigo_entregar_pedido">Entregar pedido</string>
+    <string name="codigo_no_encontrado">No hay ningún pedido listo con el código %1$s. Revisa el número con el comensal.</string>
+    <string name="codigo_entregado">#%1$s entregado a %2$s</string>
+    <string name="codigo_entregar_otro">Entregar otro</string>
+    <string name="codigo_borrar">Borrar</string>
+    <string name="error_pedido_codigo_incorrecto">El código no coincide con el del pedido.</string>
+
+    <!-- Detalle del pedido (O2, SCRUM-164) -->
+    <string name="detalle_titulo">Pedido #%1$s</string>
+    <string name="detalle_sub_listo">%1$s · listo aprox. %2$s</string>
+    <string name="detalle_paso_recibido">Recibido</string>
+    <string name="detalle_paso_preparando">Preparando</string>
+    <string name="detalle_paso_listo">Listo</string>
+    <string name="detalle_paso_en_camino">En camino</string>
+    <string name="detalle_paso_entregado">Entregado</string>
+    <string name="detalle_llego">Llegó %1$s</string>
+    <string name="detalle_entregar_en">ENTREGAR EN</string>
+    <string name="detalle_entregado">Pedido entregado. Le pediremos al comensal que lo califique.</string>
+    <string name="detalle_entregado_a_las">Pedido entregado a las %1$s. Le pediremos al comensal que lo califique.</string>
+    <string name="detalle_rechazado">Este pedido fue rechazado.</string>
+    <string name="detalle_cancelado">El comensal canceló este pedido.</string>
+    <string name="detalle_marcar_listo">Marcar como listo</string>
+    <string name="detalle_marcar_en_camino">Marcar en camino</string>
+    <string name="detalle_marcar_entregado">Marcar entregado</string>
+    <string name="detalle_entregar_sin_codigo">Entregar sin código</string>
+    <string name="detalle_sin_codigo_titulo">¿Entregar sin código?</string>
+    <string name="detalle_sin_codigo_texto">Confirma que se lo das a %1$s. Úsalo solo si el comensal no puede mostrar su código.</string>
+    <string name="detalle_si_entregar">Sí, entregar</string>
+    <string name="detalle_volver_a_pedidos">Volver a pedidos</string>
+    <string name="detalle_no_encontrado">No encontramos este pedido. Puede ser de otro día.</string>
+
     <!-- Estado del local (R5 y R6, SCRUM-65). El aviso de aprobado es provisional hasta HU09 (Pedidos). -->
     <string name="estado_categoria_direccion">%1$s · %2$s</string>
     <string name="estado_en_revision">EN REVISIÓN</string>
@@ -369,6 +481,15 @@
     <string name="canal_estado_local_id" translatable="false">estado_local</string>
     <string name="canal_estado_local">Estado del local</string>
     <string name="canal_estado_local_descripcion">Te avisamos cuando revisamos el registro de tu local.</string>
+    <string name="canal_pedidos_nuevos_id" translatable="false">pedidos_nuevos</string>
+    <string name="canal_pedidos_nuevos">Pedidos nuevos</string>
+    <string name="canal_pedidos_nuevos_descripcion">Suena hasta que abras el pedido, para que no se rechace solo.</string>
+    <string name="canal_pedidos_id" translatable="false">pedidos</string>
+    <string name="canal_pedidos">Cambios en tus pedidos</string>
+    <string name="canal_pedidos_descripcion">Te avisamos cuando un comensal cancela su pedido.</string>
+    <string name="canal_reservas_id" translatable="false">reservas</string>
+    <string name="canal_reservas">Reservas</string>
+    <string name="canal_reservas_descripcion">Te avisamos cuando llega, cambia o se cancela una reserva.</string>
     <string name="canal_resenas_id" translatable="false">resenas</string>
     <string name="canal_resenas">Reseñas</string>
     <string name="canal_resenas_descripcion">Te avisamos cuando llega una reseña negativa.</string>
@@ -406,8 +527,7 @@
     <string name="preparacion_datos_ayuda">Nombre, categoría, dirección y fotos</string>
     <string name="preparacion_datos_direccion">Revisa la dirección</string>
     <string name="preparacion_datos_revisar">Revisa lo que te indicamos arriba</string>
-    <!-- «Horario y reservas» en el prototipo; se vuelve a ese texto cuando HU12 agregue el cupo. -->
-    <string name="preparacion_horario">Horario de atención</string>
+    <string name="preparacion_horario">Horario y reservas</string>
     <string name="preparacion_horario_falta">Aún no lo configuras</string>
     <string name="preparacion_carta">Carta</string>
     <string name="preparacion_carta_ayuda">Aún no tienes platos</string>

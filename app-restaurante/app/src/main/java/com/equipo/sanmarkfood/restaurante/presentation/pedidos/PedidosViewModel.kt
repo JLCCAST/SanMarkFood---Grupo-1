@@ -2,11 +2,18 @@ package com.equipo.sanmarkfood.restaurante.presentation.pedidos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Agotado
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ErrorPedidos
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPedido
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Modalidad
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Pedido
 import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.AceptarPedidoUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.AvanzarPedidoUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.EntregarPedidoUseCase
 import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.ObservarPedidosDeHoyUseCase
+import com.equipo.sanmarkfood.restaurante.domain.usecase.pedidos.RechazarPedidoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +32,30 @@ data class HojaAceptar(
     val error: ErrorPedidos? = null,
 )
 
-data class PedidoAceptado(val comensal: String, val listoA: Date)
+data class HojaRechazar(
+    val pedido: Pedido,
+    val motivo: MotivoRechazo? = null,
+    val detalle: String = "",
+    val agotados: Set<Agotado> = emptySet(),
+    val enviando: Boolean = false,
+    val error: ErrorPedidos? = null,
+) {
+    val completa: Boolean
+        get() = when (motivo) {
+            null -> false
+            MotivoRechazo.OTRO -> detalle.trim().length >= 3
+            MotivoRechazo.PLATO_AGOTADO -> agotados.isNotEmpty()
+            else -> true
+        }
+}
+
+sealed interface AvisoBandeja {
+    data class Aceptado(val comensal: String, val listoA: Date) : AvisoBandeja
+    data class Avanzado(val numero: Int, val modalidad: Modalidad) : AvisoBandeja
+    data class Entregado(val numero: Int) : AvisoBandeja
+    data class Rechazado(val comensal: String, val pagoRevertido: Boolean) : AvisoBandeja
+    data class Fallo(val error: ErrorPedidos) : AvisoBandeja
+}
 
 data class PedidosUiState(
     val cargando: Boolean = true,
@@ -36,13 +66,18 @@ data class PedidosUiState(
     val sinConexion: Boolean = false,
     val error: ErrorPedidos? = null,
     val hojaAceptar: HojaAceptar? = null,
-    val aceptado: PedidoAceptado? = null,
+    val hojaRechazar: HojaRechazar? = null,
+    val procesando: Set<String> = emptySet(),
+    val aviso: AvisoBandeja? = null,
 )
 
 @HiltViewModel
 class PedidosViewModel @Inject constructor(
     private val observarPedidosDeHoy: ObservarPedidosDeHoyUseCase,
     private val aceptarPedido: AceptarPedidoUseCase,
+    private val avanzarPedido: AvanzarPedidoUseCase,
+    private val entregarPedido: EntregarPedidoUseCase,
+    private val rechazarPedido: RechazarPedidoUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PedidosUiState())
@@ -73,7 +108,7 @@ class PedidosViewModel @Inject constructor(
                 aceptarPedido(hoja.pedido, hoja.minutos)
                 val listoA = Date(System.currentTimeMillis() + hoja.minutos * 60_000L)
                 _uiState.update {
-                    it.copy(hojaAceptar = null, aceptado = PedidoAceptado(hoja.pedido.comensalNombre, listoA))
+                    it.copy(hojaAceptar = null, aviso = AvisoBandeja.Aceptado(hoja.pedido.comensalNombre, listoA))
                 }
             } catch (e: ErrorPedidos) {
                 _uiState.update { it.copy(hojaAceptar = it.hojaAceptar?.copy(enviando = false, error = e)) }
@@ -81,7 +116,63 @@ class PedidosViewModel @Inject constructor(
         }
     }
 
-    fun onAceptadoMostrado() = _uiState.update { it.copy(aceptado = null) }
+    fun onRechazar(pedido: Pedido) = _uiState.update { it.copy(hojaRechazar = HojaRechazar(pedido)) }
+
+    fun onElegirMotivo(motivo: MotivoRechazo) = cambiarHojaRechazar { it.copy(motivo = motivo) }
+
+    fun onCambiarDetalle(detalle: String) = cambiarHojaRechazar { it.copy(detalle = detalle) }
+
+    fun onAlternarAgotado(agotado: Agotado) = cambiarHojaRechazar {
+        it.copy(agotados = if (agotado in it.agotados) it.agotados - agotado else it.agotados + agotado)
+    }
+
+    fun onCerrarHojaRechazar() = _uiState.update { it.copy(hojaRechazar = null) }
+
+    fun onConfirmarRechazar() {
+        val hoja = _uiState.value.hojaRechazar ?: return
+        val motivo = hoja.motivo ?: return
+        if (hoja.enviando || !hoja.completa) return
+
+        _uiState.update { it.copy(hojaRechazar = hoja.copy(enviando = true, error = null)) }
+        viewModelScope.launch {
+            try {
+                rechazarPedido(hoja.pedido, motivo, hoja.detalle, hoja.agotados)
+                val aviso = AvisoBandeja.Rechazado(hoja.pedido.comensalNombre, hoja.pedido.pago == EstadoPago.PAGADO)
+                _uiState.update { it.copy(hojaRechazar = null, aviso = aviso) }
+            } catch (e: ErrorPedidos) {
+                _uiState.update { it.copy(hojaRechazar = it.hojaRechazar?.copy(enviando = false, error = e)) }
+            }
+        }
+    }
+
+    private fun cambiarHojaRechazar(cambio: (HojaRechazar) -> HojaRechazar) =
+        _uiState.update { estado -> estado.copy(hojaRechazar = estado.hojaRechazar?.let { cambio(it).copy(error = null) }) }
+
+    fun onAvanzar(pedido: Pedido) = procesar(pedido) {
+        avanzarPedido(pedido)
+        AvisoBandeja.Avanzado(pedido.numero, pedido.modalidad)
+    }
+
+    fun onEntregar(pedido: Pedido) = procesar(pedido) {
+        entregarPedido(pedido)
+        AvisoBandeja.Entregado(pedido.numero)
+    }
+
+    fun onAvisoMostrado() = _uiState.update { it.copy(aviso = null) }
+
+    private fun procesar(pedido: Pedido, accion: suspend () -> AvisoBandeja) {
+        if (pedido.id in _uiState.value.procesando) return
+
+        _uiState.update { it.copy(procesando = it.procesando + pedido.id) }
+        viewModelScope.launch {
+            val aviso = try {
+                accion()
+            } catch (e: ErrorPedidos) {
+                AvisoBandeja.Fallo(e)
+            }
+            _uiState.update { it.copy(procesando = it.procesando - pedido.id, aviso = aviso) }
+        }
+    }
 
     private fun observar() {
         observacion?.cancel()

@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.domain.model.menu
 
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -30,7 +31,14 @@ fun inicioDeSemana(fecha: Date, semanasAtras: Int = 0): Date = Calendar.getInsta
     add(Calendar.WEEK_OF_YEAR, -semanasAtras)
 }.time
 
-fun fechaDeAyer(): String {
-    val ayer = Calendar.getInstance(zonaLima).apply { add(Calendar.DAY_OF_MONTH, -1) }
-    return formatoFecha().format(ayer.time)
+fun fechaDeAyer(): String = fechaDentroDe(-1)
+
+fun fechaDentroDe(dias: Int): String {
+    val dia = Calendar.getInstance(zonaLima).apply { add(Calendar.DAY_OF_MONTH, dias) }
+    return formatoFecha().format(dia.time)
+}
+
+fun diaSemanaDe(fecha: String): DiaSemana {
+    val dia = Calendar.getInstance(zonaLima).apply { time = formatoFecha().parse(fecha) ?: Date() }
+    return DiaSemana.entries[(dia.get(Calendar.DAY_OF_WEEK) + 5) % 7]
 }

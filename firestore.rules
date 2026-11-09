@@ -130,6 +130,11 @@ service cloud.firestore {
           && (h.lun.abierto || h.mar.abierto || h.mie.abierto || h.jue.abierto
               || h.vie.abierto || h.sab.abierto || h.dom.abierto);
       }
+      function reservasValidas(d) {
+        return (!('aceptaReservas' in d) || d.aceptaReservas is bool)
+          && (!('cupoPorFranja' in d)
+              || (d.cupoPorFranja is int && d.cupoPorFranja >= 2 && d.cupoPorFranja <= 60));
+      }
       function menuHoyValido(m) {
         return m is map
           && m.keys().hasAll(['fecha', 'precio', 'horaFin', 'estado'])
@@ -185,15 +190,18 @@ service cloud.firestore {
           && 'portadaUrl' in resource.data
           && request.resource.data.estado == 'pendiente'
           && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['horario', 'estado', 'enviadoEn', 'actualizadoEn'])
+            .hasOnly(['horario', 'aceptaReservas', 'cupoPorFranja', 'estado', 'enviadoEn', 'actualizadoEn'])
           && horarioValido(request.resource.data.horario)
+          && reservasValidas(request.resource.data)
           && request.resource.data.enviadoEn == request.time
           && request.resource.data.actualizadoEn == request.time;
       }
       function cambiaHorario() {
         return resource.data.estado != 'borrador'
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['horario', 'actualizadoEn'])
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['horario', 'aceptaReservas', 'cupoPorFranja', 'actualizadoEn'])
           && horarioValido(request.resource.data.horario)
+          && reservasValidas(request.resource.data)
           && request.resource.data.actualizadoEn == request.time;
       }
       function cambiaPausa() {
