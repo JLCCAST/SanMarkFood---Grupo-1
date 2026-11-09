@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.restaurante.data.repository.DispositivosRepository
 import com.equipo.sanmarkfood.restaurante.data.repository.MenuRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MetricasRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.PedidosRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.ReservasRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.PizarraRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.VerificacionTelefonoRepositoryImpl
@@ -17,6 +18,7 @@ import com.equipo.sanmarkfood.restaurante.domain.repository.DispositivosReposito
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.PedidosRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.ReservasRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.PizarraRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.VerificacionTelefonoRepository
@@ -77,4 +79,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMetricasRepository(impl: MetricasRepositoryImpl): MetricasRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReservasRepository(impl: ReservasRepositoryImpl): ReservasRepository
 }

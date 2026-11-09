@@ -178,9 +178,32 @@
     <string name="panel_resenas">Reseñas</string>
     <string name="panel_negocio">Negocio</string>
 
-    <!-- Pestañas que todavía no existen: las reemplazan HU12 (Reservas) y HU21 (Reseñas) -->
+    <!-- Pestañas que todavía no existen: Reservas mientras el local no está aprobado, y Reseñas hasta HU21 -->
     <string name="provisional_reservas_pendiente">Recibirás reservas cuando aprobemos tu local.</string>
-    <string name="provisional_reservas_aprobado">Aquí verás las reservas de tus comensales.</string>
+
+    <!-- Reservas (O4, HU12) -->
+    <string name="reservas_titulo">Reservas</string>
+    <string name="reservas_hoy">HOY</string>
+    <string name="reservas_con_pendientes">con solicitudes por responder</string>
+    <string name="reservas_por_responder">POR RESPONDER (%1$d)</string>
+    <string name="reservas_sin_pendientes">No hay solicitudes pendientes para este día.</string>
+    <plurals name="reservas_hora_personas">
+        <item quantity="one">%1$s · %2$d comensal</item>
+        <item quantity="other">%1$s · %2$d comensales</item>
+    </plurals>
+    <string name="reservas_cambio_hora">Cambió su reserva de las %1$s a las %2$s; su mesa de las %1$s ya se liberó.</string>
+    <string name="reservas_cambio_dia">Cambió su reserva del %1$s a las %2$s; esa mesa ya se liberó.</string>
+    <string name="reservas_franja_queda">Con esta reserva la franja queda en %1$d de %2$d comensales.</string>
+    <string name="reservas_se_rechaza">Se rechaza sola a las %1$s si no respondes</string>
+    <string name="reservas_confirmadas_por_franja">CONFIRMADAS POR FRANJA</string>
+    <string name="reservas_cupo_cambiar">Cupo: %1$d · cambiar</string>
+    <string name="reservas_apagadas_cambiar">Reservas apagadas · cambiar</string>
+    <string name="reservas_lleno">Lleno</string>
+    <string name="reservas_de_cupo">%1$d de %2$d</string>
+    <string name="reservas_franja_descripcion">%1$s: %2$d confirmados y %3$d pendientes de %4$d</string>
+    <string name="reservas_dia_cerrado">Ese día tu local no atiende.</string>
+    <string name="reservas_leyenda">Amarillo: solicitudes pendientes, que también ocupan cupo. Una franja llena se muestra tachada a los comensales.</string>
+    <string name="reservas_sin_conexion">Sin conexión. Las reservas nuevas llegarán cuando vuelvas a tener internet.</string>
     <string name="provisional_resenas_pendiente">Tus comensales podrán dejarte reseñas cuando aprobemos tu local.</string>
     <string name="provisional_resenas_aprobado">Aquí verás las reseñas de tus comensales.</string>
 
