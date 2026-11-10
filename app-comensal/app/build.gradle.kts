@@ -33,6 +33,11 @@ android {
 
         // Se usa en el AndroidManifest.xml como ${MAPS_API_KEY}.
         manifestPlaceholders["MAPS_API_KEY"] = propiedadesLocales.getProperty("MAPS_API_KEY", "")
+        buildConfigField(
+            "String",
+            "GEOCODING_API_KEY",
+            "\"${propiedadesLocales.getProperty("GEOCODING_API_KEY", "")}\""
+        )
     }
 
     buildTypes {
@@ -48,6 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

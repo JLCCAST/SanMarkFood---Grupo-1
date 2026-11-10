@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.comensal.core.di
 
 import com.equipo.sanmarkfood.comensal.data.remote.AutenticacionInterceptor
 import com.equipo.sanmarkfood.comensal.data.remote.FuncionesApi
+import com.equipo.sanmarkfood.comensal.data.remote.GeocodingApi
 import com.google.firebase.FirebaseApp
 import dagger.Module
 import dagger.Provides
@@ -37,4 +38,13 @@ object RedModule {
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
         .create(FuncionesApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideGeocodingApi(json: Json): GeocodingApi = Retrofit.Builder()
+        .baseUrl("https://maps.googleapis.com/")
+        .client(OkHttpClient())
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .build()
+        .create(GeocodingApi::class.java)
 }
