@@ -57,6 +57,15 @@ fun TuPedidoScreen(
     val estado by viewModel.uiState.collectAsState()
     val carrito = estado.carrito?.takeIf { it.items.isNotEmpty() }
 
+    if (estado.agregandoDireccion) {
+        DialogoNuevaDireccion(
+            guardando = estado.guardandoDireccion,
+            error = estado.errorDireccion,
+            onGuardar = viewModel::guardarDireccion,
+            onCancelar = viewModel::cerrarNuevaDireccion
+        )
+    }
+
     Scaffold(
         topBar = { BarraSuperior(onVolver) },
         bottomBar = {
@@ -105,7 +114,20 @@ fun TuPedidoScreen(
                     )
                 }
 
-                Ticket(carrito, viewModel::cambiarCantidad)
+                if (estado.modalidad == Modalidad.DELIVERY) {
+                    SeccionDireccionEntrega(
+                        direcciones = estado.direcciones,
+                        elegida = estado.direccionElegida,
+                        onElegir = viewModel::elegirDireccion,
+                        onAgregar = viewModel::abrirNuevaDireccion
+                    )
+                }
+
+                Ticket(
+                    carrito = carrito,
+                    delivery = estado.modalidad == Modalidad.DELIVERY,
+                    onCambiarCantidad = viewModel::cambiarCantidad
+                )
 
                 Text(
                     text = stringResource(R.string.pedido_metodo_pago),
@@ -192,7 +214,7 @@ private fun OpcionModalidad(
 }
 
 @Composable
-private fun Ticket(carrito: Carrito, onCambiarCantidad: (String, Int) -> Unit) {
+private fun Ticket(carrito: Carrito, delivery: Boolean, onCambiarCantidad: (String, Int) -> Unit) {
     val forma = RoundedCornerShape(16.dp)
     Column(
         modifier = Modifier
@@ -229,6 +251,22 @@ private fun Ticket(carrito: Carrito, onCambiarCantidad: (String, Int) -> Unit) {
             monto = carrito.total,
             destacado = false
         )
+        if (delivery) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.pedido_envio),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = stringResource(R.string.pedido_envio_detalle),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
         FilaTotal(
             etiqueta = stringResource(R.string.pedido_total),
             monto = carrito.total,

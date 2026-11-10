@@ -288,6 +288,13 @@
     <string name="pedido_confirmar">Confirmar pedido S/ %1$s</string>
     <string name="pedido_aviso_biometria">Se te pedirá tu huella o rostro antes de procesar el pago</string>
     <string name="pedido_vacio">Tu pedido está vacío</string>
+    <string name="pedido_direccion_titulo">Dirección de entrega (tus frecuentes)</string>
+    <string name="pedido_direccion_vacia">Aún no tienes direcciones guardadas. Agrega una para recibir tu pedido.</string>
+    <string name="pedido_direccion_agregar">+ Agregar dirección</string>
+    <string name="pedido_direccion_nueva_titulo">Nueva dirección</string>
+    <string name="pedido_direccion_cancelar">Cancelar</string>
+    <string name="pedido_envio">Envío</string>
+    <string name="pedido_envio_detalle">Lo coordina el restaurante</string>
     <string name="pedido_item_menu">Menú del día</string>
     <string name="pedido_item_menu_detalle">%1$s + %2$s</string>
     <string name="menu_elige_entrada">ENTRADA · ELIGE 1</string>
