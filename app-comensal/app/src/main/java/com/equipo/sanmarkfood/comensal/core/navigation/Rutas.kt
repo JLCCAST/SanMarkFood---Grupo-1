@@ -22,3 +22,6 @@ data class DetalleRestaurante(val restauranteId: String)
 
 @Serializable
 data object TuPedido
+
+@Serializable
+data class SeguimientoPedido(val pedidoId: String)

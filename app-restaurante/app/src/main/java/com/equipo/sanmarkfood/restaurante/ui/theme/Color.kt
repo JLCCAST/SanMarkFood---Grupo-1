@@ -77,6 +77,7 @@ val DarkSurfaceTint = Color(0xFFFFB2B9)
 val DarkScrim = Color(0xFF000000)
 
 val Pizarra = Color(0xFF23332C)
+val PizarraMarco = Color(0xFF7A5634)
 
 // Superficies que siguen oscuras en los dos temas: cabecera del menú del día y aviso de pedido en curso.
 val LightSuperficieFija = Color(0xFF1E1B16)
