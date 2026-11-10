@@ -1,5 +1,7 @@
 package com.equipo.sanmarkfood.comensal.data.repository
 
+import com.equipo.sanmarkfood.comensal.data.firebase.PedidosDataSource
+import com.equipo.sanmarkfood.comensal.data.firebase.aErrorPedidos
 import com.equipo.sanmarkfood.comensal.data.remote.CrearPedidoDto
 import com.equipo.sanmarkfood.comensal.data.remote.DireccionDto
 import com.equipo.sanmarkfood.comensal.data.remote.FuncionesApi
@@ -11,16 +13,23 @@ import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Pedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PedidoCreado
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PlatoDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.repository.PedidosRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class PedidosRepositoryImpl @Inject constructor(
     private val api: FuncionesApi,
     private val json: Json,
+    private val dataSource: PedidosDataSource,
 ) : PedidosRepository {
+
+    override fun observarPedido(pedidoId: String): Flow<Pedido?> =
+        dataSource.observarPedido(pedidoId).catch { throw it.aErrorPedidos() }
 
     override suspend fun crearPedido(
         carrito: Carrito,
