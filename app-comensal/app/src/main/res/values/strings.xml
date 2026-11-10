@@ -292,6 +292,13 @@
     <string name="pago_biometria_subtitulo">S/ %1$s · %2$s</string>
     <string name="pago_biometria_cancelar">Cancelar</string>
     <string name="pago_cancelado">Pago cancelado. Tu pedido no se envió; puedes intentarlo de nuevo.</string>
+    <string name="pago_bloqueado_mensaje">Demasiados intentos. Confirma con el bloqueo de pantalla de tu celular.</string>
+    <string name="pago_usar_bloqueo">Usar PIN, patrón o contraseña</string>
+    <string name="pago_sin_biometria_titulo">Tu celular no tiene huella ni rostro configurados</string>
+    <string name="pago_sin_biometria_mensaje">Para pagar con billetera o tarjeta necesitamos confirmar que eres tú. Puedes usar el bloqueo de pantalla de tu celular.</string>
+    <string name="pago_sin_biometria_sin_bloqueo">Para pagar con billetera o tarjeta necesitamos confirmar que eres tú. Configura tu huella o un bloqueo de pantalla, o paga en efectivo.</string>
+    <string name="pago_configurar_huella">Configurar huella en Ajustes</string>
+    <string name="pago_mejor_efectivo">Mejor pago en efectivo al recibir</string>
     <string name="envio_sin_conexion_titulo">No pudimos enviar tu pedido</string>
     <string name="envio_sin_conexion_mensaje">Parece que no tienes conexión. No se hizo ningún cobro y tu pedido sigue armado aquí.</string>
     <string name="envio_ahora_no">Ahora no</string>

@@ -37,8 +37,10 @@ data class TuPedidoUiState(
     val agregandoDireccion: Boolean = false,
     val guardandoDireccion: Boolean = false,
     val errorDireccion: Boolean = false,
-    val verificandoPago: Boolean = false,
+    val verificacion: Verificacion? = null,
     val pagoCancelado: Boolean = false,
+    val pagoBloqueado: Boolean = false,
+    val sinBiometria: Boolean = false,
     val enviando: Boolean = false,
     val errorEnvio: Exception? = null,
     val menuRetirado: MenuRetirado? = null,
@@ -47,7 +49,7 @@ data class TuPedidoUiState(
     val puedeConfirmar: Boolean
         get() = carrito?.items?.isNotEmpty() == true &&
                 !enviando &&
-                !verificandoPago &&
+                verificacion == null &&
                 pedidoEnviado == null &&
                 (modalidad == Modalidad.RECOJO || direccionElegida != null)
 }
@@ -103,15 +105,42 @@ class TuPedidoViewModel @Inject constructor(
         if (estado.metodoPago == MetodoPago.EFECTIVO) {
             confirmar()
         } else {
-            _uiState.update { it.copy(verificandoPago = true, pagoCancelado = false, errorEnvio = null) }
+            verificar(Verificacion.BIOMETRIA)
         }
     }
 
+    fun usarBloqueoDePantalla() {
+        verificar(Verificacion.BLOQUEO_DE_PANTALLA)
+    }
+
     fun resultadoBiometria(resultado: ResultadoBiometria) {
-        _uiState.update { it.copy(verificandoPago = false) }
+        _uiState.update { it.copy(verificacion = null) }
         when (resultado) {
             ResultadoBiometria.CONFIRMADO -> confirmar()
             ResultadoBiometria.CANCELADO -> _uiState.update { it.copy(pagoCancelado = true) }
+            ResultadoBiometria.BLOQUEADO -> _uiState.update { it.copy(pagoBloqueado = true) }
+            ResultadoBiometria.NO_DISPONIBLE -> _uiState.update { it.copy(sinBiometria = true) }
+        }
+    }
+
+    fun cancelarVerificacion() {
+        _uiState.update { it.copy(pagoBloqueado = false, sinBiometria = false, pagoCancelado = true) }
+    }
+
+    fun pagarEnEfectivo() {
+        _uiState.update { it.copy(sinBiometria = false, metodoPago = MetodoPago.EFECTIVO) }
+    }
+
+    private fun verificar(verificacion: Verificacion) {
+        if (!_uiState.value.puedeConfirmar) return
+        _uiState.update {
+            it.copy(
+                verificacion = verificacion,
+                pagoCancelado = false,
+                pagoBloqueado = false,
+                sinBiometria = false,
+                errorEnvio = null,
+            )
         }
     }
 

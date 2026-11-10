@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -116,13 +117,34 @@ fun TuPedidoScreen(
         }.orEmpty(),
         cancelar = stringResource(R.string.pago_biometria_cancelar)
     )
-    LaunchedEffect(estado.verificandoPago) {
-        if (!estado.verificandoPago) return@LaunchedEffect
+    LaunchedEffect(estado.verificacion) {
+        val verificacion = estado.verificacion ?: return@LaunchedEffect
         if (actividad == null) {
             viewModel.resultadoBiometria(ResultadoBiometria.CANCELADO)
         } else {
-            confirmarConBiometria(actividad, textosBiometria, viewModel::resultadoBiometria)
+            confirmarConBiometria(actividad, textosBiometria, verificacion, viewModel::resultadoBiometria)
         }
+    }
+
+    if (estado.pagoBloqueado) {
+        DialogoPagoBloqueado(
+            onUsarBloqueo = viewModel::usarBloqueoDePantalla,
+            onCancelar = viewModel::cancelarVerificacion
+        )
+    }
+
+    if (estado.sinBiometria) {
+        val contexto = LocalContext.current
+        HojaSinBiometria(
+            puedeUsarBloqueo = remember { tieneBloqueoDePantalla(contexto) },
+            onUsarBloqueo = viewModel::usarBloqueoDePantalla,
+            onConfigurar = {
+                viewModel.cancelarVerificacion()
+                abrirAjustesDeBiometria(contexto)
+            },
+            onPagarEnEfectivo = viewModel::pagarEnEfectivo,
+            onCerrar = viewModel::cancelarVerificacion
+        )
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
