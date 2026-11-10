@@ -300,7 +300,10 @@
     <string name="envio_error_local_cerrado">El local está cerrado en este momento. Tu pedido sigue armado aquí.</string>
     <string name="envio_error_plato_agotado">Uno de tus platos se agotó. Quítalo de tu pedido e inténtalo de nuevo.</string>
     <string name="envio_error_opcion_agotada">Una opción de tu menú se agotó. Vuelve a armarlo desde la carta.</string>
-    <string name="envio_error_menu_vencido">El menú de hoy ya no se puede pedir.</string>
+    <string name="menu_vencido_titulo">El menú de hoy ya no está disponible</string>
+    <string name="menu_vencido_mensaje_hora">%1$s sirvió su menú hasta las %2$s. Lo quitamos de tu pedido; el resto sigue igual.</string>
+    <string name="menu_vencido_mensaje">%1$s ya no tiene menú disponible hoy. Lo quitamos de tu pedido; el resto sigue igual.</string>
+    <string name="menu_vencido_seguir">Seguir sin el menú</string>
     <string name="envio_error_direccion_no_encontrada">No encontramos esa dirección en el mapa. Escríbela con calle y número, o elige otra.</string>
     <string name="envio_error_ubicacion">No pudimos ubicar tu dirección. Inténtalo de nuevo en un momento.</string>
     <string name="envio_error_desconocido">Algo salió mal y no se hizo ningún cobro. Inténtalo de nuevo.</string>

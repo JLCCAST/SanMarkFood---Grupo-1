@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCrearPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorUbicacion
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuRetirado
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PedidoCreado
@@ -14,6 +15,7 @@ import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CambiarCantidadCar
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CrearPedidoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarCarritoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.QuitarDelCarritoUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.RetirarMenuVencidoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.AgregarDireccionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ObservarPerfilUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +39,7 @@ data class TuPedidoUiState(
     val errorDireccion: Boolean = false,
     val enviando: Boolean = false,
     val errorEnvio: Exception? = null,
+    val menuRetirado: MenuRetirado? = null,
     val pedidoEnviado: PedidoCreado? = null,
 ) {
     val puedeConfirmar: Boolean
@@ -54,6 +57,7 @@ class TuPedidoViewModel @Inject constructor(
     private val quitarDelCarrito: QuitarDelCarritoUseCase,
     private val agregarDireccion: AgregarDireccionUseCase,
     private val crearPedido: CrearPedidoUseCase,
+    private val retirarMenuVencido: RetirarMenuVencidoUseCase,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
@@ -98,6 +102,9 @@ class TuPedidoViewModel @Inject constructor(
             try {
                 val pedido = crearPedido(estado.modalidad, estado.metodoPago, estado.direccionElegida)
                 _uiState.update { it.copy(enviando = false, pedidoEnviado = pedido) }
+            } catch (e: ErrorCrearPedido.MenuVencido) {
+                val retirado = retirarMenuVencido()
+                _uiState.update { it.copy(enviando = false, menuRetirado = retirado) }
             } catch (e: ErrorCrearPedido) {
                 _uiState.update { it.copy(enviando = false, errorEnvio = e) }
             } catch (e: ErrorUbicacion) {
@@ -108,6 +115,10 @@ class TuPedidoViewModel @Inject constructor(
 
     fun cerrarErrorEnvio() {
         _uiState.update { it.copy(errorEnvio = null) }
+    }
+
+    fun cerrarMenuRetirado() {
+        _uiState.update { it.copy(menuRetirado = null) }
     }
 
     fun elegirDireccion(direccion: Direccion) {

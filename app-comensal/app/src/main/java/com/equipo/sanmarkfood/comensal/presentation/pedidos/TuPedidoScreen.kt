@@ -68,6 +68,17 @@ fun TuPedidoScreen(
         )
     }
 
+    estado.menuRetirado?.let { retirado ->
+        DialogoMenuVencido(
+            menuRetirado = retirado,
+            onVolverALaCarta = {
+                viewModel.cerrarMenuRetirado()
+                onVolver()
+            },
+            onSeguirSinMenu = viewModel::cerrarMenuRetirado
+        )
+    }
+
     estado.errorEnvio?.let { error ->
         if (esErrorSinConexion(error)) {
             DialogoSinConexion(

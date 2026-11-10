@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCrearPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorUbicacion
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuRetirado
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 
 fun esErrorSinConexion(error: Exception): Boolean =
@@ -47,7 +48,6 @@ fun mensajeDeErrorEnvio(error: Exception): Int = when (error) {
     ErrorCrearPedido.LocalCerrado -> R.string.envio_error_local_cerrado
     ErrorCrearPedido.PlatoAgotado -> R.string.envio_error_plato_agotado
     ErrorCrearPedido.OpcionAgotada -> R.string.envio_error_opcion_agotada
-    ErrorCrearPedido.MenuVencido -> R.string.envio_error_menu_vencido
     ErrorUbicacion.NoEncontrada -> R.string.envio_error_direccion_no_encontrada
     ErrorUbicacion.Desconocido -> R.string.envio_error_ubicacion
     else -> R.string.envio_error_desconocido
@@ -83,6 +83,41 @@ fun DialogoErrorEnvio(@StringRes mensaje: Int, onCerrar: () -> Unit) {
         text = { Text(stringResource(mensaje)) },
         confirmButton = {
             TextButton(onClick = onCerrar) { Text(stringResource(R.string.envio_entendido)) }
+        }
+    )
+}
+
+@Composable
+fun DialogoMenuVencido(
+    menuRetirado: MenuRetirado,
+    onVolverALaCarta: () -> Unit,
+    onSeguirSinMenu: () -> Unit,
+) {
+    val horaFin = menuRetirado.horaFin
+    AlertDialog(
+        onDismissRequest = onSeguirSinMenu,
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_reloj),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = { Text(stringResource(R.string.menu_vencido_titulo)) },
+        text = {
+            Text(
+                if (horaFin != null) {
+                    stringResource(R.string.menu_vencido_mensaje_hora, menuRetirado.restauranteNombre, horaFin)
+                } else {
+                    stringResource(R.string.menu_vencido_mensaje, menuRetirado.restauranteNombre)
+                }
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onSeguirSinMenu) { Text(stringResource(R.string.menu_vencido_seguir)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onVolverALaCarta) { Text(stringResource(R.string.seguimiento_volver_carta)) }
         }
     )
 }

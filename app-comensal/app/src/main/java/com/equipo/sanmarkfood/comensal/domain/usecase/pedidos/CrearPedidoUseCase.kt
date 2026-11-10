@@ -1,6 +1,8 @@
 package com.equipo.sanmarkfood.comensal.domain.usecase.pedidos
 
+import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.fechaDeHoy
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCrearPedido
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PedidoCreado
@@ -21,6 +23,8 @@ class CrearPedidoUseCase @Inject constructor(
     ): PedidoCreado {
         val carrito = carritoRepository.leerCarrito()?.takeIf { it.items.isNotEmpty() }
             ?: throw ErrorCrearPedido.DatosInvalidos
+        val hoy = fechaDeHoy()
+        if (carrito.items.any { it is MenuDelCarrito && it.fecha != hoy }) throw ErrorCrearPedido.MenuVencido
         val entrega = if (modalidad == Modalidad.DELIVERY) {
             ubicarDireccionEntrega(direccion ?: throw ErrorCrearPedido.SinDireccion)
         } else {
