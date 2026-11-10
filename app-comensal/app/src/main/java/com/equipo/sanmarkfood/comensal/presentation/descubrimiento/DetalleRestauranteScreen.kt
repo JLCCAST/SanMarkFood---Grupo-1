@@ -27,8 +27,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,10 +62,11 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaUiState
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaViewModel
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.DialogoPedidoNuevo
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.HojaArmarMenu
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.LaCarta
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.TarjetaMenuDeHoy
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.formatoSoles
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
-import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
 import java.util.Locale
 
 // Claves del horario guardado en Firestore y el nombre que se muestra de cada día.
@@ -119,6 +118,11 @@ fun DetalleRestauranteScreen(
         onMantenerPedido = cartaViewModel::mantenerActual,
         onVaciarYAgregar = cartaViewModel::vaciarYAgregar,
         onLimiteMostrado = cartaViewModel::limpiarLimite,
+        onArmarMenu = cartaViewModel::abrirArmadoMenu,
+        onElegirEntrada = cartaViewModel::elegirEntrada,
+        onElegirSegundo = cartaViewModel::elegirSegundo,
+        onAgregarMenu = { cartaViewModel.agregarMenu(restaurante.nombre) },
+        onCerrarArmadoMenu = cartaViewModel::cerrarArmadoMenu,
         modifier = modifier
     )
 }
@@ -140,6 +144,11 @@ private fun DetalleRestauranteContent(
     onMantenerPedido: () -> Unit,
     onVaciarYAgregar: () -> Unit,
     onLimiteMostrado: () -> Unit,
+    onArmarMenu: () -> Unit,
+    onElegirEntrada: (String) -> Unit,
+    onElegirSegundo: (String) -> Unit,
+    onAgregarMenu: () -> Unit,
+    onCerrarArmadoMenu: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val guinda = MaterialTheme.colorScheme.primary
@@ -183,6 +192,20 @@ private fun DetalleRestauranteContent(
             platosEnPedido = carta.carrito?.cantidadTotal ?: 0,
             onMantener = onMantenerPedido,
             onVaciar = onVaciarYAgregar
+        )
+    }
+
+    val menuParaArmar = carta.menu
+    val armado = carta.armado
+    if (menuParaArmar != null && armado != null) {
+        HojaArmarMenu(
+            menu = menuParaArmar,
+            armado = armado,
+            puedeAgregar = carta.menuArmado != null,
+            onElegirEntrada = onElegirEntrada,
+            onElegirSegundo = onElegirSegundo,
+            onAgregar = onAgregarMenu,
+            onCerrar = onCerrarArmadoMenu
         )
     }
 
@@ -408,84 +431,16 @@ private fun DetalleRestauranteContent(
                 )
             }
 
-            // Tarjeta Menú de hoy (dinámico, de Firestore)
             if (menuHoy != null) {
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.extendedColors.superficieFija
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.detalle_menu_titulo),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.extendedColors.sobreSuperficieFija
-                                )
-                                Text(
-                                    text = stringResource(R.string.detalle_menu_sirve_hasta, menuHoy.horaFin),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.extendedColors.sobreSuperficieFijaTenue
-                                )
-                            }
-                            Text(
-                                text = stringResource(
-                                    R.string.detalle_precio_soles,
-                                    String.format(Locale.US, "%.2f", menuHoy.precio / 100.0)
-                                ),
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = dorado
-                            )
-                        }
-
-                        Surface(
-                            color = MaterialTheme.colorScheme.surface,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.detalle_menu_publicado),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = guinda
-                                )
-                                Text(stringResource(R.string.detalle_menu_consulta))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.detalle_menu_disponible_hoy),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Button(
-                                        onClick = { },
-                                        colors = ButtonDefaults.buttonColors(containerColor = guinda)
-                                    ) {
-                                        Text(stringResource(R.string.detalle_boton_armar_menu))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                TarjetaMenuDeHoy(
+                    precio = menuHoy.precio,
+                    horaFin = menuHoy.horaFin,
+                    menu = carta.menu,
+                    menusEnPedido = carta.carrito
+                        ?.takeIf { it.restauranteId == restaurante.id }
+                        ?.cantidadDeMenus ?: 0,
+                    onArmar = onArmarMenu
+                )
             } else {
                 Surface(
                     shape = RoundedCornerShape(16.dp),

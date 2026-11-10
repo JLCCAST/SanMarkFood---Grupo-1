@@ -40,6 +40,8 @@ data class Carrito(
 
     val cantidadTotal: Int get() = items.sumOf { it.cantidad }
 
+    val cantidadDeMenus: Int get() = items.filterIsInstance<MenuDelCarrito>().sumOf { it.cantidad }
+
     fun cantidadDe(clave: String): Int = items.firstOrNull { it.clave == clave }?.cantidad ?: 0
 
     companion object {

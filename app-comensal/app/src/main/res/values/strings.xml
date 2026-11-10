@@ -227,9 +227,6 @@
     </plurals>
     <string name="detalle_menu_titulo">Menú de hoy</string>
     <string name="detalle_menu_sirve_hasta">Se sirve hasta las %1$s</string>
-    <string name="detalle_menu_publicado">MENÚ PUBLICADO</string>
-    <string name="detalle_menu_consulta">Consulta los platos disponibles de hoy directamente en el local o al armar tu pedido.</string>
-    <string name="detalle_menu_disponible_hoy">Menú disponible hoy</string>
     <string name="detalle_boton_armar_menu">Armar mi menú</string>
     <string name="detalle_sin_menu">Este restaurante no ha publicado menú para el día de hoy.</string>
     <string name="detalle_horario_ubicacion">HORARIO Y UBICACIÓN</string>
@@ -294,4 +291,19 @@
     <string name="pedido_vacio">Tu pedido está vacío</string>
     <string name="pedido_item_menu">Menú del día</string>
     <string name="pedido_item_menu_detalle">%1$s + %2$s</string>
+    <string name="menu_elige_entrada">ENTRADA · ELIGE 1</string>
+    <string name="menu_elige_segundo">SEGUNDO · ELIGE 1</string>
+    <string name="menu_opcion_agotada">(agotado)</string>
+    <string name="menu_incluye">Incluye: %1$s</string>
+    <string name="menu_incluidos_por_defecto">Refresco y postre incluidos</string>
+    <plurals name="menu_en_pedido">
+        <item quantity="one">%1$d menú en tu pedido</item>
+        <item quantity="other">%1$d menús en tu pedido</item>
+    </plurals>
+    <string name="menu_arma_titulo">Arma tu menú</string>
+    <string name="menu_cerrar">Cerrar</string>
+    <string name="menu_se_agoto">Se agotó</string>
+    <string name="menu_incluido_uno">Incluido: %1$s.</string>
+    <string name="menu_incluido_dos">Incluido: %1$s y %2$s.</string>
+    <string name="menu_agregar">Agregar menú · S/ %1$s</string>
 </resources>
