@@ -37,6 +37,8 @@ data class TuPedidoUiState(
     val agregandoDireccion: Boolean = false,
     val guardandoDireccion: Boolean = false,
     val errorDireccion: Boolean = false,
+    val verificandoPago: Boolean = false,
+    val pagoCancelado: Boolean = false,
     val enviando: Boolean = false,
     val errorEnvio: Exception? = null,
     val menuRetirado: MenuRetirado? = null,
@@ -45,6 +47,7 @@ data class TuPedidoUiState(
     val puedeConfirmar: Boolean
         get() = carrito?.items?.isNotEmpty() == true &&
                 !enviando &&
+                !verificandoPago &&
                 pedidoEnviado == null &&
                 (modalidad == Modalidad.RECOJO || direccionElegida != null)
 }
@@ -94,7 +97,29 @@ class TuPedidoViewModel @Inject constructor(
         viewModelScope.launch { quitarDelCarrito(clave) }
     }
 
-    fun confirmar() {
+    fun solicitarConfirmacion() {
+        val estado = _uiState.value
+        if (!estado.puedeConfirmar) return
+        if (estado.metodoPago == MetodoPago.EFECTIVO) {
+            confirmar()
+        } else {
+            _uiState.update { it.copy(verificandoPago = true, pagoCancelado = false, errorEnvio = null) }
+        }
+    }
+
+    fun resultadoBiometria(resultado: ResultadoBiometria) {
+        _uiState.update { it.copy(verificandoPago = false) }
+        when (resultado) {
+            ResultadoBiometria.CONFIRMADO -> confirmar()
+            ResultadoBiometria.CANCELADO -> _uiState.update { it.copy(pagoCancelado = true) }
+        }
+    }
+
+    fun pagoCanceladoMostrado() {
+        _uiState.update { it.copy(pagoCancelado = false) }
+    }
+
+    private fun confirmar() {
         val estado = _uiState.value
         if (!estado.puedeConfirmar) return
         _uiState.update { it.copy(enviando = true, errorEnvio = null) }

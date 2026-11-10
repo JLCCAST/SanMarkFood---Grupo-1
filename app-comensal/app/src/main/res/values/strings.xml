@@ -288,6 +288,10 @@
     <string name="pedido_confirmar">Confirmar pedido S/ %1$s</string>
     <string name="pedido_aviso_biometria">Se te pedirá tu huella o rostro antes de procesar el pago</string>
     <string name="pedido_aviso_efectivo">Pagas en efectivo al recibir; no se pide huella ni rostro</string>
+    <string name="pago_biometria_titulo">Confirma tu pago</string>
+    <string name="pago_biometria_subtitulo">S/ %1$s · %2$s</string>
+    <string name="pago_biometria_cancelar">Cancelar</string>
+    <string name="pago_cancelado">Pago cancelado. Tu pedido no se envió; puedes intentarlo de nuevo.</string>
     <string name="envio_sin_conexion_titulo">No pudimos enviar tu pedido</string>
     <string name="envio_sin_conexion_mensaje">Parece que no tienes conexión. No se hizo ningún cobro y tu pedido sigue armado aquí.</string>
     <string name="envio_ahora_no">Ahora no</string>

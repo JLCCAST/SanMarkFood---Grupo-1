@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.comensal.presentation.pedidos
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,10 +30,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +47,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
@@ -83,7 +89,7 @@ fun TuPedidoScreen(
         if (esErrorSinConexion(error)) {
             DialogoSinConexion(
                 onAhoraNo = viewModel::cerrarErrorEnvio,
-                onReintentar = viewModel::confirmar
+                onReintentar = viewModel::solicitarConfirmacion
             )
         } else {
             DialogoErrorEnvio(
@@ -102,7 +108,37 @@ fun TuPedidoScreen(
         )
     }
 
+    val actividad = LocalActivity.current as? FragmentActivity
+    val textosBiometria = TextosBiometria(
+        titulo = stringResource(R.string.pago_biometria_titulo),
+        subtitulo = carrito?.let {
+            stringResource(R.string.pago_biometria_subtitulo, formatoSoles(it.total), it.restauranteNombre)
+        }.orEmpty(),
+        cancelar = stringResource(R.string.pago_biometria_cancelar)
+    )
+    LaunchedEffect(estado.verificandoPago) {
+        if (!estado.verificandoPago) return@LaunchedEffect
+        if (actividad == null) {
+            viewModel.resultadoBiometria(ResultadoBiometria.CANCELADO)
+        } else {
+            confirmarConBiometria(actividad, textosBiometria, viewModel::resultadoBiometria)
+        }
+    }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val mensajePagoCancelado = stringResource(R.string.pago_cancelado)
+    LaunchedEffect(estado.pagoCancelado) {
+        if (estado.pagoCancelado) {
+            try {
+                snackbarHostState.showSnackbar(mensajePagoCancelado)
+            } finally {
+                viewModel.pagoCanceladoMostrado()
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = { BarraSuperior(onVolver) },
         bottomBar = {
             if (carrito != null) {
@@ -111,7 +147,7 @@ fun TuPedidoScreen(
                     metodoPago = estado.metodoPago,
                     habilitado = estado.puedeConfirmar,
                     enviando = estado.enviando,
-                    onConfirmar = viewModel::confirmar
+                    onConfirmar = viewModel::solicitarConfirmacion
                 )
             }
         }
