@@ -228,7 +228,6 @@
     <string name="detalle_menu_titulo">Menú de hoy</string>
     <string name="detalle_menu_sirve_hasta">Se sirve hasta las %1$s</string>
     <string name="detalle_boton_armar_menu">Armar mi menú</string>
-    <string name="detalle_sin_menu">Este restaurante no ha publicado menú para el día de hoy.</string>
     <string name="detalle_horario_ubicacion">HORARIO Y UBICACIÓN</string>
     <string name="detalle_direccion_vacia">Dirección no especificada</string>
     <string name="detalle_horario_no_disponible">Horario no disponible</string>
@@ -306,4 +305,13 @@
     <string name="menu_incluido_uno">Incluido: %1$s.</string>
     <string name="menu_incluido_dos">Incluido: %1$s y %2$s.</string>
     <string name="menu_agregar">Agregar menú · S/ %1$s</string>
+    <string name="menu_agotado_titulo">Menú agotado</string>
+    <string name="menu_agotado_etiqueta">Agotado</string>
+    <string name="menu_agotado_mensaje">Ya no quedan menús por hoy. Puedes pedir de la carta.</string>
+    <string name="menu_terminado_titulo">El menú de hoy terminó</string>
+    <string name="menu_terminado_etiqueta">Hasta las %1$s</string>
+    <string name="menu_terminado_mensaje">Se sirvió hasta las %1$s. Vuelve mañana o pide de la carta.</string>
+    <string name="menu_sin_publicar_titulo">El menú de hoy aún no se publica</string>
+    <string name="menu_sin_publicar_etiqueta">Por publicar</string>
+    <string name="menu_sin_publicar_mensaje">Cuando el local lo publique, lo verás aquí. Mientras tanto, puedes pedir de la carta.</string>
 </resources>

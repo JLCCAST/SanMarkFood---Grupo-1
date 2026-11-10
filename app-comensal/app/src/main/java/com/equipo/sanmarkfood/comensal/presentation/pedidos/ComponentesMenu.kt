@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.comensal.presentation.pedidos
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,13 +39,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DisponibilidadMenu
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDeHoy
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.OpcionMenu
 import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
@@ -138,6 +146,82 @@ fun TarjetaMenuDeHoy(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TarjetaMenuNoDisponible(disponibilidad: DisponibilidadMenu) {
+    val (titulo, etiqueta, mensaje) = when (disponibilidad) {
+        DisponibilidadMenu.Agotado -> Triple(
+            stringResource(R.string.menu_agotado_titulo),
+            stringResource(R.string.menu_agotado_etiqueta),
+            stringResource(R.string.menu_agotado_mensaje)
+        )
+        is DisponibilidadMenu.Terminado -> Triple(
+            stringResource(R.string.menu_terminado_titulo),
+            stringResource(R.string.menu_terminado_etiqueta, disponibilidad.horaFin),
+            stringResource(R.string.menu_terminado_mensaje, disponibilidad.horaFin)
+        )
+        DisponibilidadMenu.SinPublicar, is DisponibilidadMenu.Disponible -> Triple(
+            stringResource(R.string.menu_sin_publicar_titulo),
+            stringResource(R.string.menu_sin_publicar_etiqueta),
+            stringResource(R.string.menu_sin_publicar_mensaje)
+        )
+    }
+    val borde = MaterialTheme.colorScheme.outline
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .drawBehind {
+                drawRoundRect(
+                    color = borde,
+                    style = Stroke(
+                        width = 1.5.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 5.dp.toPx()))
+                    ),
+                    cornerRadius = CornerRadius(18.dp.toPx())
+                )
+            }
+            .semantics(mergeDescendants = true) { }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_reloj),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.weight(1f)
+            )
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
+            ) {
+                Text(
+                    text = etiqueta,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
+        }
+        Text(
+            text = mensaje,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

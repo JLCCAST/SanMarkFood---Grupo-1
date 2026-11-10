@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.equipo.sanmarkfood.comensal.core.navigation.DetalleRestaurante
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DisponibilidadMenu
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDeHoy
@@ -18,7 +19,7 @@ import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.AgregarAlCarritoUs
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CambiarCantidadCarritoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarCarritoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarCartaUseCase
-import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarMenuDeHoyUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarDisponibilidadMenuUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.QuitarDelCarritoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -44,13 +45,16 @@ data class ArmadoMenu(
 data class CartaUiState(
     val cargando: Boolean = true,
     val secciones: List<SeccionCarta> = emptyList(),
-    val menu: MenuDeHoy? = null,
+    val disponibilidadMenu: DisponibilidadMenu? = null,
     val armado: ArmadoMenu? = null,
     val carrito: Carrito? = null,
     val error: ErrorPedidos? = null,
     val itemPendiente: ItemPendiente? = null,
     val limiteAlcanzado: Boolean = false,
 ) {
+    val menu: MenuDeHoy?
+        get() = (disponibilidadMenu as? DisponibilidadMenu.Disponible)?.menu
+
     val menuArmado: MenuDelCarrito?
         get() {
             val entrada = armado?.entrada ?: return null
@@ -63,7 +67,7 @@ data class CartaUiState(
 class CartaViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val observarCarta: ObservarCartaUseCase,
-    private val observarMenuDeHoy: ObservarMenuDeHoyUseCase,
+    private val observarDisponibilidadMenu: ObservarDisponibilidadMenuUseCase,
     observarCarrito: ObservarCarritoUseCase,
     private val agregarAlCarrito: AgregarAlCarritoUseCase,
     private val cambiarCantidadCarrito: CambiarCantidadCarritoUseCase,
@@ -157,9 +161,16 @@ class CartaViewModel @Inject constructor(
         cartaJob?.cancel()
         cartaJob = viewModelScope.launch {
             launch {
-                observarMenuDeHoy(restauranteId)
-                    .catch { emit(null) }
-                    .collect { menu -> _uiState.update { it.copy(menu = menu) } }
+                observarDisponibilidadMenu(restauranteId)
+                    .catch { _uiState.update { it.copy(disponibilidadMenu = null, armado = null) } }
+                    .collect { disponibilidad ->
+                        _uiState.update {
+                            it.copy(
+                                disponibilidadMenu = disponibilidad,
+                                armado = it.armado.takeIf { disponibilidad is DisponibilidadMenu.Disponible },
+                            )
+                        }
+                    }
             }
             observarCarta(restauranteId)
                 .catch { e ->

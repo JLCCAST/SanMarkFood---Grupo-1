@@ -65,6 +65,8 @@ import com.equipo.sanmarkfood.comensal.presentation.pedidos.DialogoPedidoNuevo
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.HojaArmarMenu
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.LaCarta
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.TarjetaMenuDeHoy
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.TarjetaMenuNoDisponible
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DisponibilidadMenu
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.formatoSoles
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
 import java.util.Locale
@@ -155,7 +157,6 @@ private fun DetalleRestauranteContent(
     val dorado = MaterialTheme.colorScheme.secondary
     val verdeEstado = MaterialTheme.colorScheme.tertiary
 
-    // Solo cuenta el menú que es de hoy y está publicado.
     val menuHoy = restaurante.menuVigente()
 
     // Si el local no tiene logo, se usa su portada (igual que la lista).
@@ -431,29 +432,29 @@ private fun DetalleRestauranteContent(
                 )
             }
 
-            if (menuHoy != null) {
-                TarjetaMenuDeHoy(
-                    precio = menuHoy.precio,
-                    horaFin = menuHoy.horaFin,
-                    menu = carta.menu,
-                    menusEnPedido = carta.carrito
-                        ?.takeIf { it.restauranteId == restaurante.id }
-                        ?.cantidadDeMenus ?: 0,
+            val menusEnPedido = carta.carrito
+                ?.takeIf { it.restauranteId == restaurante.id }
+                ?.cantidadDeMenus ?: 0
+            when (val disponibilidad = carta.disponibilidadMenu) {
+                is DisponibilidadMenu.Disponible -> TarjetaMenuDeHoy(
+                    precio = disponibilidad.menu.precio,
+                    horaFin = disponibilidad.menu.horaFin,
+                    menu = disponibilidad.menu,
+                    menusEnPedido = menusEnPedido,
                     onArmar = onArmarMenu
                 )
-            } else {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(R.string.detalle_sin_menu),
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                null -> if (menuHoy != null) {
+                    TarjetaMenuDeHoy(
+                        precio = menuHoy.precio,
+                        horaFin = menuHoy.horaFin,
+                        menu = null,
+                        menusEnPedido = menusEnPedido,
+                        onArmar = onArmarMenu
                     )
+                } else {
+                    TarjetaMenuNoDisponible(DisponibilidadMenu.SinPublicar)
                 }
+                else -> TarjetaMenuNoDisponible(disponibilidad)
             }
 
             LaCarta(
