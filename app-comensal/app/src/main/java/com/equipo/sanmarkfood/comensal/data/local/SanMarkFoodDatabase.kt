@@ -7,7 +7,7 @@ import com.equipo.sanmarkfood.comensal.data.local.entity.ItemCarritoEntity
 
 @Database(
     entities = [ItemCarritoEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class SanMarkFoodDatabase : RoomDatabase() {

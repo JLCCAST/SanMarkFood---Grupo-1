@@ -33,7 +33,11 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorPedidos
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PlatoDelCarrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.claveDePlato
 import java.util.Locale
 
 internal fun formatoSoles(centimos: Int): String = String.format(Locale.US, "%.2f", centimos / 100.0)
@@ -45,7 +49,7 @@ fun LaCarta(
     onCambiarCantidad: (String, Int) -> Unit,
     onReintentar: () -> Unit
 ) {
-    val cantidades = estado.carrito?.items?.associate { it.platoId to it.cantidad }.orEmpty()
+    val carrito = estado.carrito
     val error = estado.error
 
     Row(
@@ -92,11 +96,12 @@ fun LaCarta(
                     color = MaterialTheme.colorScheme.primary
                 )
                 seccion.platos.forEach { plato ->
+                    val clave = claveDePlato(plato.id)
                     FilaPlato(
                         plato = plato,
-                        cantidad = cantidades[plato.id] ?: 0,
+                        cantidad = carrito?.cantidadDe(clave) ?: 0,
                         onAgregar = { onAgregar(plato) },
-                        onCambiarCantidad = { onCambiarCantidad(plato.id, it) }
+                        onCambiarCantidad = { onCambiarCantidad(clave, it) }
                     )
                 }
             }
@@ -230,8 +235,14 @@ private fun ErrorCarta(error: ErrorPedidos, onReintentar: () -> Unit) {
 }
 
 @Composable
+fun nombreDelItem(item: ItemCarrito): String = when (item) {
+    is PlatoDelCarrito -> item.nombre
+    is MenuDelCarrito -> stringResource(R.string.pedido_item_menu)
+}
+
+@Composable
 fun DialogoPedidoNuevo(
-    pendiente: PlatoPendiente,
+    pendiente: ItemPendiente,
     platosEnPedido: Int,
     onMantener: () -> Unit,
     onVaciar: () -> Unit
@@ -246,7 +257,7 @@ fun DialogoPedidoNuevo(
                     platosEnPedido,
                     platosEnPedido,
                     pendiente.restauranteActual,
-                    pendiente.plato.nombre
+                    nombreDelItem(pendiente.item)
                 )
             )
         },

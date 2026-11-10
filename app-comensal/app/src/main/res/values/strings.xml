@@ -292,4 +292,6 @@
     <string name="pedido_confirmar">Confirmar pedido S/ %1$s</string>
     <string name="pedido_aviso_biometria">Se te pedirá tu huella o rostro antes de procesar el pago</string>
     <string name="pedido_vacio">Tu pedido está vacío</string>
+    <string name="pedido_item_menu">Menú del día</string>
+    <string name="pedido_item_menu_detalle">%1$s + %2$s</string>
 </resources>

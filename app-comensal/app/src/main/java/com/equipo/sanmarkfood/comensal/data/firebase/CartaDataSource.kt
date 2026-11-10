@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.comensal.data.firebase
 
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.CategoriaCarta
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDeHoy
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,6 +21,18 @@ class CartaDataSource @Inject constructor(
 
     fun observarPlatos(restauranteId: String): Flow<List<Plato>> =
         observar(local(restauranteId).collection("platos")) { it.aPlato() }
+
+    fun observarMenu(restauranteId: String, fecha: String): Flow<MenuDeHoy?> = callbackFlow {
+        val registro = local(restauranteId).collection("menus").document(fecha)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                trySend(snapshot?.takeIf { it.exists() }?.aMenuDeHoy())
+            }
+        awaitClose { registro.remove() }
+    }
 
     private fun <T : Any> observar(consulta: Query, mapear: (DocumentSnapshot) -> T?): Flow<List<T>> =
         callbackFlow {

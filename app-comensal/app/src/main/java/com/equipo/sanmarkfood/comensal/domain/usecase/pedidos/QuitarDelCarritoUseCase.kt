@@ -6,5 +6,5 @@ import javax.inject.Inject
 class QuitarDelCarritoUseCase @Inject constructor(
     private val carritoRepository: CarritoRepository
 ) {
-    suspend operator fun invoke(platoId: String) = carritoRepository.quitar(platoId)
+    suspend operator fun invoke(clave: String) = carritoRepository.quitar(clave)
 }

@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
@@ -220,7 +221,7 @@ private fun Ticket(carrito: Carrito, onCambiarCantidad: (String, Int) -> Unit) {
         }
 
         carrito.items.forEach { item ->
-            FilaItem(item) { onCambiarCantidad(item.platoId, it) }
+            FilaItem(item) { onCambiarCantidad(item.clave, it) }
         }
 
         FilaTotal(
@@ -248,13 +249,21 @@ private fun FilaItem(item: ItemCarrito, onCambiarCantidad: (Int) -> Unit) {
             onMenos = { onCambiarCantidad(item.cantidad - 1) },
             onMas = { onCambiarCantidad(item.cantidad + 1) }
         )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = nombreDelItem(item),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            if (item is MenuDelCarrito) {
+                Text(
+                    text = stringResource(R.string.pedido_item_menu_detalle, item.entrada, item.segundo),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Text(
-            text = item.nombre,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            text = stringResource(R.string.detalle_precio_soles, formatoSoles(item.precio * item.cantidad)),
+            text = stringResource(R.string.detalle_precio_soles, formatoSoles(item.subtotal)),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -355,7 +364,6 @@ private fun PieConfirmar(total: Int, metodoPago: MetodoPago) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Se conecta con crearPedido y la confirmación biométrica en SCRUM-94 y SCRUM-95.
         Button(
             onClick = { },
             modifier = Modifier

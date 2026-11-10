@@ -9,6 +9,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PlatoDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ResultadoAgregarAlCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.SeccionCarta
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.AgregarAlCarritoUseCase
@@ -26,8 +27,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class PlatoPendiente(
-    val plato: Plato,
+data class ItemPendiente(
+    val item: ItemCarrito,
     val restauranteNombre: String,
     val restauranteActual: String,
 )
@@ -37,7 +38,7 @@ data class CartaUiState(
     val secciones: List<SeccionCarta> = emptyList(),
     val carrito: Carrito? = null,
     val error: ErrorPedidos? = null,
-    val platoPendiente: PlatoPendiente? = null,
+    val itemPendiente: ItemPendiente? = null,
     val limiteAlcanzado: Boolean = false,
 )
 
@@ -72,29 +73,36 @@ class CartaViewModel @Inject constructor(
 
     fun agregar(plato: Plato, restauranteNombre: String) {
         if (plato.agotadoHoy) return
-        viewModelScope.launch { resolver(plato, restauranteNombre, vaciarSiOtroLocal = false) }
+        val item = PlatoDelCarrito(
+            platoId = plato.id,
+            nombre = plato.nombre,
+            precio = plato.precio,
+            cantidad = 1,
+            fotoUrl = plato.fotoUrl,
+        )
+        viewModelScope.launch { resolver(item, restauranteNombre, vaciarSiOtroLocal = false) }
     }
 
     fun vaciarYAgregar() {
-        val pendiente = _uiState.value.platoPendiente ?: return
-        _uiState.update { it.copy(platoPendiente = null) }
-        viewModelScope.launch { resolver(pendiente.plato, pendiente.restauranteNombre, vaciarSiOtroLocal = true) }
+        val pendiente = _uiState.value.itemPendiente ?: return
+        _uiState.update { it.copy(itemPendiente = null) }
+        viewModelScope.launch { resolver(pendiente.item, pendiente.restauranteNombre, vaciarSiOtroLocal = true) }
     }
 
     fun mantenerActual() {
-        _uiState.update { it.copy(platoPendiente = null) }
+        _uiState.update { it.copy(itemPendiente = null) }
     }
 
     fun limpiarLimite() {
         _uiState.update { it.copy(limiteAlcanzado = false) }
     }
 
-    fun cambiarCantidad(platoId: String, cantidad: Int) {
-        viewModelScope.launch { cambiarCantidadCarrito(platoId, cantidad) }
+    fun cambiarCantidad(clave: String, cantidad: Int) {
+        viewModelScope.launch { cambiarCantidadCarrito(clave, cantidad) }
     }
 
-    fun quitar(platoId: String) {
-        viewModelScope.launch { quitarDelCarrito(platoId) }
+    fun quitar(clave: String) {
+        viewModelScope.launch { quitarDelCarrito(clave) }
     }
 
     private fun escucharCarta() {
@@ -112,18 +120,11 @@ class CartaViewModel @Inject constructor(
         }
     }
 
-    private suspend fun resolver(plato: Plato, restauranteNombre: String, vaciarSiOtroLocal: Boolean) {
-        val item = ItemCarrito(
-            platoId = plato.id,
-            nombre = plato.nombre,
-            precio = plato.precio,
-            cantidad = 1,
-            fotoUrl = plato.fotoUrl,
-        )
+    private suspend fun resolver(item: ItemCarrito, restauranteNombre: String, vaciarSiOtroLocal: Boolean) {
         when (val resultado = agregarAlCarrito(restauranteId, restauranteNombre, item, vaciarSiOtroLocal)) {
             ResultadoAgregarAlCarrito.Agregado -> Unit
             is ResultadoAgregarAlCarrito.OtroLocal -> _uiState.update {
-                it.copy(platoPendiente = PlatoPendiente(plato, restauranteNombre, resultado.restauranteActual))
+                it.copy(itemPendiente = ItemPendiente(item, restauranteNombre, resultado.restauranteActual))
             }
             ResultadoAgregarAlCarrito.LimiteAlcanzado -> _uiState.update { it.copy(limiteAlcanzado = true) }
         }

@@ -49,11 +49,11 @@ class TuPedidoViewModel @Inject constructor(
         _uiState.update { it.copy(metodoPago = metodo) }
     }
 
-    fun cambiarCantidad(platoId: String, cantidad: Int) {
-        viewModelScope.launch { cambiarCantidadCarrito(platoId, cantidad) }
+    fun cambiarCantidad(clave: String, cantidad: Int) {
+        viewModelScope.launch { cambiarCantidadCarrito(clave, cantidad) }
     }
 
-    fun quitar(platoId: String) {
-        viewModelScope.launch { quitarDelCarrito(platoId) }
+    fun quitar(clave: String) {
+        viewModelScope.launch { quitarDelCarrito(clave) }
     }
 }

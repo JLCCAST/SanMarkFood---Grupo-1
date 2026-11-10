@@ -1,28 +1,49 @@
 package com.equipo.sanmarkfood.comensal.domain.model.pedidos
 
-/** Un plato del carrito. `precio` va en céntimos y se copia al agregarlo. */
-data class ItemCarrito(
+sealed interface ItemCarrito {
+    val clave: String
+    val precio: Int
+    val cantidad: Int
+    val subtotal: Int get() = precio * cantidad
+}
+
+data class PlatoDelCarrito(
     val platoId: String,
     val nombre: String,
-    val precio: Int,
-    val cantidad: Int,
-    val fotoUrl: String? = null
-)
+    override val precio: Int,
+    override val cantidad: Int,
+    val fotoUrl: String? = null,
+) : ItemCarrito {
+    override val clave: String get() = claveDePlato(platoId)
+}
 
-/** Lo que el comensal va a pedir: platos de un solo local. Sin platos no hay carrito. */
+data class MenuDelCarrito(
+    val fecha: String,
+    val entrada: String,
+    val segundo: String,
+    override val precio: Int,
+    override val cantidad: Int,
+) : ItemCarrito {
+    override val clave: String get() = claveDeMenu(entrada, segundo)
+}
+
+fun claveDePlato(platoId: String): String = "plato:$platoId"
+
+fun claveDeMenu(entrada: String, segundo: String): String = "menu:$entrada|$segundo"
+
 data class Carrito(
     val restauranteId: String,
     val restauranteNombre: String,
-    val items: List<ItemCarrito>
+    val items: List<ItemCarrito>,
 ) {
-    /** Total en céntimos. */
-    val total: Int get() = items.sumOf { it.precio * it.cantidad }
+    val total: Int get() = items.sumOf { it.subtotal }
 
     val cantidadTotal: Int get() = items.sumOf { it.cantidad }
 
+    fun cantidadDe(clave: String): Int = items.firstOrNull { it.clave == clave }?.cantidad ?: 0
+
     companion object {
-        /** Los mismos topes que valida la función crearPedido. */
-        const val MAX_CANTIDAD_POR_PLATO = 20
-        const val MAX_PLATOS_DISTINTOS = 20
+        const val MAX_CANTIDAD_POR_ITEM = 20
+        const val MAX_ITEMS_DISTINTOS = 20
     }
 }

@@ -7,9 +7,12 @@ import com.equipo.sanmarkfood.comensal.data.remote.ItemPedidoDto
 import com.equipo.sanmarkfood.comensal.data.remote.llamarFuncion
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DireccionEntrega
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PedidoCreado
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PlatoDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.repository.PedidosRepository
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -30,9 +33,7 @@ class PedidosRepositoryImpl @Inject constructor(
                 restauranteUid = carrito.restauranteId,
                 modalidad = modalidad.valor(),
                 metodoPago = metodoPago.valor(),
-                items = carrito.items.map {
-                    ItemPedidoDto(tipo = "plato", cantidad = it.cantidad, platoId = it.platoId)
-                },
+                items = carrito.items.map { it.aDto() },
                 direccion = direccion
                     ?.takeIf { modalidad == Modalidad.DELIVERY }
                     ?.let { DireccionDto(it.texto, it.latitud, it.longitud) },
@@ -40,6 +41,11 @@ class PedidosRepositoryImpl @Inject constructor(
         )
         PedidoCreado(pedidoId = respuesta.pedidoId, numero = respuesta.numero)
     }
+}
+
+private fun ItemCarrito.aDto(): ItemPedidoDto = when (this) {
+    is PlatoDelCarrito -> ItemPedidoDto(tipo = "plato", cantidad = cantidad, platoId = platoId)
+    is MenuDelCarrito -> ItemPedidoDto(tipo = "menu", cantidad = cantidad, entrada = entrada, segundo = segundo)
 }
 
 private fun Modalidad.valor(): String = when (this) {

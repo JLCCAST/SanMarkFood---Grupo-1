@@ -177,7 +177,7 @@ private fun DetalleRestauranteContent(
         }
     }
 
-    carta.platoPendiente?.let { pendiente ->
+    carta.itemPendiente?.let { pendiente ->
         DialogoPedidoNuevo(
             pendiente = pendiente,
             platosEnPedido = carta.carrito?.cantidadTotal ?: 0,

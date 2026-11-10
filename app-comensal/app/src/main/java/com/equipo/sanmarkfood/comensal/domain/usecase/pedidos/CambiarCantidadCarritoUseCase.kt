@@ -7,7 +7,7 @@ import javax.inject.Inject
 class CambiarCantidadCarritoUseCase @Inject constructor(
     private val carritoRepository: CarritoRepository
 ) {
-    suspend operator fun invoke(platoId: String, cantidad: Int) {
-        carritoRepository.cambiarCantidad(platoId, cantidad.coerceAtMost(Carrito.MAX_CANTIDAD_POR_PLATO))
+    suspend operator fun invoke(clave: String, cantidad: Int) {
+        carritoRepository.cambiarCantidad(clave, cantidad.coerceAtMost(Carrito.MAX_CANTIDAD_POR_ITEM))
     }
 }
