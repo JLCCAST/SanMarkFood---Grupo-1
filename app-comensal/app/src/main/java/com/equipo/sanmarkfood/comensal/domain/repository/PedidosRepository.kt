@@ -17,4 +17,6 @@ interface PedidosRepository {
     ): PedidoCreado
 
     fun observarPedido(pedidoId: String): Flow<Pedido?>
+
+    suspend fun cancelarPedido(pedidoId: String)
 }

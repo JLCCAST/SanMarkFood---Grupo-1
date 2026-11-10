@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.comensal.data.repository
 
 import com.equipo.sanmarkfood.comensal.data.firebase.PedidosDataSource
 import com.equipo.sanmarkfood.comensal.data.firebase.aErrorPedidos
+import com.equipo.sanmarkfood.comensal.data.remote.ActualizarPedidoDto
 import com.equipo.sanmarkfood.comensal.data.remote.CrearPedidoDto
 import com.equipo.sanmarkfood.comensal.data.remote.DireccionDto
 import com.equipo.sanmarkfood.comensal.data.remote.FuncionesApi
@@ -9,6 +10,7 @@ import com.equipo.sanmarkfood.comensal.data.remote.ItemPedidoDto
 import com.equipo.sanmarkfood.comensal.data.remote.llamarFuncion
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DireccionEntrega
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCancelarPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
@@ -31,6 +33,12 @@ class PedidosRepositoryImpl @Inject constructor(
     override fun observarPedido(pedidoId: String): Flow<Pedido?> =
         dataSource.observarPedido(pedidoId).catch { throw it.aErrorPedidos() }
 
+    override suspend fun cancelarPedido(pedidoId: String) {
+        llamarFuncion(json, ErrorCancelarPedido.SinConexion, ::errorDeCancelar) {
+            api.actualizarPedido(ActualizarPedidoDto(pedidoId = pedidoId, accion = "cancelar"))
+        }
+    }
+
     override suspend fun crearPedido(
         carrito: Carrito,
         modalidad: Modalidad,
@@ -50,6 +58,11 @@ class PedidosRepositoryImpl @Inject constructor(
         )
         PedidoCreado(pedidoId = respuesta.pedidoId, numero = respuesta.numero)
     }
+}
+
+private fun errorDeCancelar(codigo: String?): Exception = when (codigo) {
+    "estado_invalido" -> ErrorCancelarPedido.YaAceptado
+    else -> ErrorCancelarPedido.Desconocido
 }
 
 private fun ItemCarrito.aDto(): ItemPedidoDto = when (this) {

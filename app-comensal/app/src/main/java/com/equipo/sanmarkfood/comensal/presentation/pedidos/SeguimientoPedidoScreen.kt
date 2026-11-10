@@ -1,10 +1,12 @@
 package com.equipo.sanmarkfood.comensal.presentation.pedidos
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,18 +32,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,9 +62,11 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCancelarPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.EstadoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.EstadoPedido
@@ -80,7 +91,30 @@ fun SeguimientoPedidoScreen(
     val pedido = estado.pedido
     val error = estado.error
 
-    Scaffold(topBar = { BarraSeguimiento(pedido, onCerrar) }) { padding ->
+    if (estado.confirmandoCancelacion && pedido != null) {
+        DialogoCancelarPedido(
+            pedido = pedido,
+            onMantener = viewModel::mantenerPedido,
+            onCancelar = viewModel::cancelar
+        )
+    }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val mensajeErrorCancelar = estado.errorCancelar?.let { stringResource(it.mensaje()) }
+    LaunchedEffect(estado.errorCancelar) {
+        if (mensajeErrorCancelar != null) {
+            try {
+                snackbarHostState.showSnackbar(mensajeErrorCancelar)
+            } finally {
+                viewModel.errorCancelarMostrado()
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = { BarraSeguimiento(pedido, onCerrar) }
+    ) { padding ->
         when {
             estado.cargando -> Box(
                 modifier = Modifier
@@ -140,6 +174,12 @@ fun SeguimientoPedidoScreen(
                         if (pedido.modalidad == Modalidad.RECOJO && codigo != null) TarjetaCodigoRecojo(codigo)
                         if (pedido.modalidad == Modalidad.DELIVERY) TarjetaEntrega(pedido.direccion)
                         LineaDeTiempo(pedido)
+                        if (pedido.estado == EstadoPedido.RECIBIDO) {
+                            SeccionCancelar(
+                                cancelando = estado.cancelando,
+                                onCancelar = viewModel::pedirCancelacion
+                            )
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -507,6 +547,73 @@ private fun FilaPaso(
             )
         }
     }
+}
+
+@Composable
+private fun SeccionCancelar(cancelando: Boolean, onCancelar: () -> Unit) {
+    val rojo = MaterialTheme.colorScheme.error
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        OutlinedButton(
+            onClick = onCancelar,
+            enabled = !cancelando,
+            border = BorderStroke(1.5.dp, rojo),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = rojo),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+        ) {
+            if (cancelando) {
+                CircularProgressIndicator(color = rojo, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+            } else {
+                Text(stringResource(R.string.cancelar_pedido), fontWeight = FontWeight.SemiBold)
+            }
+        }
+        Text(
+            text = stringResource(R.string.cancelar_pedido_pista),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun DialogoCancelarPedido(pedido: Pedido, onMantener: () -> Unit, onCancelar: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onMantener,
+        title = { Text(stringResource(R.string.cancelar_pedido_titulo)) },
+        text = {
+            Text(
+                stringResource(
+                    if (pedido.pago == EstadoPago.PAGADO) R.string.cancelar_pedido_mensaje_pagado
+                    else R.string.cancelar_pedido_mensaje,
+                    pedido.restauranteNombre
+                )
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onCancelar,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(stringResource(R.string.cancelar_pedido), fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onMantener) { Text(stringResource(R.string.cancelar_pedido_mantener)) }
+        }
+    )
+}
+
+@StringRes
+private fun ErrorCancelarPedido.mensaje(): Int = when (this) {
+    ErrorCancelarPedido.SinConexion -> R.string.cancelar_pedido_error_sin_conexion
+    ErrorCancelarPedido.YaAceptado -> R.string.cancelar_pedido_error_ya_aceptado
+    ErrorCancelarPedido.Desconocido -> R.string.cancelar_pedido_error
 }
 
 @Composable

@@ -389,6 +389,15 @@
     <string name="seguimiento_rechazado_titulo">Pedido rechazado</string>
     <string name="seguimiento_rechazado_mensaje">El restaurante no pudo aceptar tu pedido.</string>
     <string name="seguimiento_volver_carta">Volver a la carta</string>
+    <string name="cancelar_pedido">Cancelar pedido</string>
+    <string name="cancelar_pedido_pista">Puedes cancelar mientras el restaurante no lo acepte</string>
+    <string name="cancelar_pedido_titulo">¿Cancelar tu pedido?</string>
+    <string name="cancelar_pedido_mensaje_pagado">Avisaremos a %1$s y se revertirá el pago. No se puede deshacer.</string>
+    <string name="cancelar_pedido_mensaje">Avisaremos a %1$s. No se puede deshacer.</string>
+    <string name="cancelar_pedido_mantener">Mantener pedido</string>
+    <string name="cancelar_pedido_error_sin_conexion">Sin conexión. No pudimos cancelar tu pedido.</string>
+    <string name="cancelar_pedido_error_ya_aceptado">El restaurante ya aceptó tu pedido; ya no se puede cancelar.</string>
+    <string name="cancelar_pedido_error">No pudimos cancelar tu pedido. Inténtalo de nuevo.</string>
     <string name="seguimiento_error_sin_conexion">Sin conexión. No pudimos cargar tu pedido.</string>
     <string name="seguimiento_error">No pudimos cargar tu pedido. Inténtalo de nuevo.</string>
     <string name="seguimiento_no_encontrado">No encontramos este pedido.</string>

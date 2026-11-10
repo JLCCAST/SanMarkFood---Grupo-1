@@ -7,7 +7,19 @@ import retrofit2.http.POST
 interface FuncionesApi {
     @POST("crearPedido")
     suspend fun crearPedido(@Body pedido: CrearPedidoDto): PedidoCreadoDto
+
+    @POST("actualizarPedido")
+    suspend fun actualizarPedido(@Body cambio: ActualizarPedidoDto): EstadoDto
 }
+
+@Serializable
+data class ActualizarPedidoDto(
+    val pedidoId: String,
+    val accion: String,
+)
+
+@Serializable
+data class EstadoDto(val estado: String)
 
 @Serializable
 data class CrearPedidoDto(

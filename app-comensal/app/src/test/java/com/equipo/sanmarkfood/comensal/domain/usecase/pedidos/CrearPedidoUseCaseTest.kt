@@ -56,6 +56,8 @@ class CrearPedidoUseCaseTest {
         }
 
         override fun observarPedido(pedidoId: String): Flow<Pedido?> = emptyFlow()
+
+        override suspend fun cancelarPedido(pedidoId: String) = Unit
     }
 
     private class GeocodificacionFalsa(private val error: Exception? = null) : GeocodificacionRepository {
