@@ -305,6 +305,9 @@
     <string name="menu_incluido_uno">Incluido: %1$s.</string>
     <string name="menu_incluido_dos">Incluido: %1$s y %2$s.</string>
     <string name="menu_agregar">Agregar menú · S/ %1$s</string>
+    <string name="detalle_pausado_estado">Cerrado por ahora · no recibe pedidos</string>
+    <string name="detalle_pausado_titulo">No está recibiendo pedidos por ahora.</string>
+    <string name="detalle_pausado_mensaje">Puedes ver la carta y reservar; vuelve en un rato para pedir.</string>
     <string name="menu_agotado_titulo">Menú agotado</string>
     <string name="menu_agotado_etiqueta">Agotado</string>
     <string name="menu_agotado_mensaje">Ya no quedan menús por hoy. Puedes pedir de la carta.</string>

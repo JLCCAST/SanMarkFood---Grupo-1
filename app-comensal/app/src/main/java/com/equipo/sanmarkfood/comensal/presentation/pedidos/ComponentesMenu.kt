@@ -63,6 +63,7 @@ fun TarjetaMenuDeHoy(
     horaFin: String,
     menu: MenuDeHoy?,
     menusEnPedido: Int,
+    puedeArmar: Boolean,
     onArmar: () -> Unit,
 ) {
     val fijos = MaterialTheme.extendedColors
@@ -140,7 +141,7 @@ fun TarjetaMenuDeHoy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f)
                     )
-                    Button(onClick = onArmar, enabled = menu != null) {
+                    Button(onClick = onArmar, enabled = menu != null && puedeArmar) {
                         Text(stringResource(R.string.detalle_boton_armar_menu))
                     }
                 }

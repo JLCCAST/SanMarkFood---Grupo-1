@@ -59,6 +59,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.HorarioDia
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.AvisoLocalEnPausa
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaUiState
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaViewModel
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.DialogoPedidoNuevo
@@ -353,14 +354,18 @@ private fun DetalleRestauranteContent(
 
                     val horaCierra = restaurante.horaCierraHoy()
                     Text(
-                        text = if (horaCierra != null) {
-                            stringResource(R.string.detalle_abierto_hasta, horaCierra)
-                        } else {
-                            stringResource(R.string.descubrimiento_cerrado)
+                        text = when {
+                            restaurante.pausado -> stringResource(R.string.detalle_pausado_estado)
+                            horaCierra != null -> stringResource(R.string.detalle_abierto_hasta, horaCierra)
+                            else -> stringResource(R.string.descubrimiento_cerrado)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (horaCierra != null) verdeEstado else MaterialTheme.colorScheme.error
+                        color = when {
+                            restaurante.pausado -> MaterialTheme.colorScheme.onSurfaceVariant
+                            horaCierra != null -> verdeEstado
+                            else -> MaterialTheme.colorScheme.error
+                        }
                     )
                 }
             }
@@ -432,6 +437,9 @@ private fun DetalleRestauranteContent(
                 )
             }
 
+            if (restaurante.pausado) AvisoLocalEnPausa()
+
+            val recibePedidos = !restaurante.pausado
             val menusEnPedido = carta.carrito
                 ?.takeIf { it.restauranteId == restaurante.id }
                 ?.cantidadDeMenus ?: 0
@@ -441,6 +449,7 @@ private fun DetalleRestauranteContent(
                     horaFin = disponibilidad.menu.horaFin,
                     menu = disponibilidad.menu,
                     menusEnPedido = menusEnPedido,
+                    puedeArmar = recibePedidos,
                     onArmar = onArmarMenu
                 )
                 null -> if (menuHoy != null) {
@@ -449,6 +458,7 @@ private fun DetalleRestauranteContent(
                         horaFin = menuHoy.horaFin,
                         menu = null,
                         menusEnPedido = menusEnPedido,
+                        puedeArmar = recibePedidos,
                         onArmar = onArmarMenu
                     )
                 } else {
@@ -459,6 +469,7 @@ private fun DetalleRestauranteContent(
 
             LaCarta(
                 estado = carta,
+                puedeAgregar = recibePedidos,
                 onAgregar = onAgregarPlato,
                 onCambiarCantidad = onCambiarCantidad,
                 onReintentar = onReintentarCarta

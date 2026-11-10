@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -23,11 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -45,6 +50,7 @@ internal fun formatoSoles(centimos: Int): String = String.format(Locale.US, "%.2
 @Composable
 fun LaCarta(
     estado: CartaUiState,
+    puedeAgregar: Boolean,
     onAgregar: (Plato) -> Unit,
     onCambiarCantidad: (String, Int) -> Unit,
     onReintentar: () -> Unit
@@ -100,6 +106,7 @@ fun LaCarta(
                     FilaPlato(
                         plato = plato,
                         cantidad = carrito?.cantidadDe(clave) ?: 0,
+                        puedeAgregar = puedeAgregar,
                         onAgregar = { onAgregar(plato) },
                         onCambiarCantidad = { onCambiarCantidad(clave, it) }
                     )
@@ -113,6 +120,7 @@ fun LaCarta(
 private fun FilaPlato(
     plato: Plato,
     cantidad: Int,
+    puedeAgregar: Boolean,
     onAgregar: () -> Unit,
     onCambiarCantidad: (Int) -> Unit
 ) {
@@ -170,11 +178,13 @@ private fun FilaPlato(
                 color = MaterialTheme.colorScheme.error
             )
 
-            cantidad == 0 -> BotonCircular(
-                texto = "+",
-                descripcion = stringResource(R.string.carta_agregar, plato.nombre),
-                onClick = onAgregar
-            )
+            cantidad == 0 -> if (puedeAgregar) {
+                BotonCircular(
+                    texto = "+",
+                    descripcion = stringResource(R.string.carta_agregar, plato.nombre),
+                    onClick = onAgregar
+                )
+            }
 
             else -> Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -186,11 +196,13 @@ private fun FilaPlato(
                     onClick = { onCambiarCantidad(cantidad - 1) }
                 )
                 Text(text = cantidad.toString(), fontWeight = FontWeight.Bold)
-                BotonCircular(
-                    texto = "+",
-                    descripcion = stringResource(R.string.carta_agregar_uno),
-                    onClick = { onCambiarCantidad(cantidad + 1) }
-                )
+                if (puedeAgregar) {
+                    BotonCircular(
+                        texto = "+",
+                        descripcion = stringResource(R.string.carta_agregar_uno),
+                        onClick = { onCambiarCantidad(cantidad + 1) }
+                    )
+                }
             }
         }
     }
@@ -231,6 +243,37 @@ private fun ErrorCarta(error: ErrorPedidos, onReintentar: () -> Unit) {
         OutlinedButton(onClick = onReintentar) {
             Text(stringResource(R.string.carta_reintentar))
         }
+    }
+}
+
+@Composable
+fun AvisoLocalEnPausa() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .semantics(mergeDescendants = true) { }
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_pausa),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(stringResource(R.string.detalle_pausado_titulo))
+                }
+                append(" ")
+                append(stringResource(R.string.detalle_pausado_mensaje))
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
