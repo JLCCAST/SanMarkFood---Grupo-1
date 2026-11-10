@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DireccionEntrega
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCrearPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorUbicacion
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ItemCarrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MenuDelCarrito
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Pedido
@@ -157,6 +158,24 @@ class CrearPedidoUseCaseTest {
         }
 
         assertEquals(ErrorUbicacion.NoEncontrada, error)
+        assertEquals(0, pedidos.llamadas)
+    }
+
+    @Test
+    fun unMenuDeOtroDiaSeConsideraVencido() = runBlocking {
+        val pedidos = PedidosFalso()
+        val menuDeAyer = MenuDelCarrito(
+            fecha = "2000-01-01",
+            entrada = "Causa limeña",
+            segundo = "Ají de gallina",
+            precio = 1400,
+            cantidad = 1,
+        )
+        val carrito = CarritoFalso(carritoConPlato.copy(items = carritoConPlato.items + menuDeAyer))
+
+        val error = esperarError { crear(carrito, pedidos)(Modalidad.RECOJO, MetodoPago.EFECTIVO) }
+
+        assertEquals(ErrorCrearPedido.MenuVencido, error)
         assertEquals(0, pedidos.llamadas)
     }
 
