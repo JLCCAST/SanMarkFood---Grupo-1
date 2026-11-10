@@ -6,6 +6,7 @@ import com.equipo.sanmarkfood.comensal.data.repository.CartaRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.ComensalRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.FavoritosRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.GeocodificacionRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.PedidosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.UbicacionRepositoryImpl
@@ -15,6 +16,7 @@ import com.equipo.sanmarkfood.comensal.domain.repository.CartaRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.FavoritosRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.GeocodificacionRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.PedidosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.UbicacionRepository
@@ -63,4 +65,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPedidosRepository(impl: PedidosRepositoryImpl): PedidosRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGeocodificacionRepository(impl: GeocodificacionRepositoryImpl): GeocodificacionRepository
 }
