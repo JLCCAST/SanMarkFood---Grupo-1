@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,10 +54,33 @@ import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
 @Composable
 fun TuPedidoScreen(
     onVolver: () -> Unit,
+    onSeguirPedido: (String) -> Unit,
     viewModel: TuPedidoViewModel = hiltViewModel()
 ) {
     val estado by viewModel.uiState.collectAsState()
     val carrito = estado.carrito?.takeIf { it.items.isNotEmpty() }
+
+    val pedidoEnviado = estado.pedidoEnviado
+    if (pedidoEnviado != null) {
+        HojaPedidoEnviado(
+            metodoPago = estado.metodoPago,
+            onSeguirPedido = { onSeguirPedido(pedidoEnviado.pedidoId) }
+        )
+    }
+
+    estado.errorEnvio?.let { error ->
+        if (esErrorSinConexion(error)) {
+            DialogoSinConexion(
+                onAhoraNo = viewModel::cerrarErrorEnvio,
+                onReintentar = viewModel::confirmar
+            )
+        } else {
+            DialogoErrorEnvio(
+                mensaje = mensajeDeErrorEnvio(error),
+                onCerrar = viewModel::cerrarErrorEnvio
+            )
+        }
+    }
 
     if (estado.agregandoDireccion) {
         DialogoNuevaDireccion(
@@ -69,7 +94,15 @@ fun TuPedidoScreen(
     Scaffold(
         topBar = { BarraSuperior(onVolver) },
         bottomBar = {
-            if (carrito != null) PieConfirmar(total = carrito.total, metodoPago = estado.metodoPago)
+            if (carrito != null) {
+                PieConfirmar(
+                    total = carrito.total,
+                    metodoPago = estado.metodoPago,
+                    habilitado = estado.puedeConfirmar,
+                    enviando = estado.enviando,
+                    onConfirmar = viewModel::confirmar
+                )
+            }
         }
     ) { padding ->
         when {
@@ -392,39 +425,55 @@ private fun OpcionPago(titulo: String, detalle: String, seleccionado: Boolean, o
 }
 
 @Composable
-private fun PieConfirmar(total: Int, metodoPago: MetodoPago) {
+private fun PieConfirmar(
+    total: Int,
+    metodoPago: MetodoPago,
+    habilitado: Boolean,
+    enviando: Boolean,
+    onConfirmar: () -> Unit,
+) {
     val sinPagoAhora = metodoPago == MetodoPago.EFECTIVO
     val monto = formatoSoles(total)
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button(
-            onClick = { },
+            onClick = onConfirmar,
+            enabled = habilitado,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Text(
-                text = stringResource(
-                    if (sinPagoAhora) R.string.pedido_confirmar else R.string.pedido_confirmar_pagar,
-                    monto
-                ),
-                fontWeight = FontWeight.Bold
-            )
+            if (enviando) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    text = stringResource(
+                        if (sinPagoAhora) R.string.pedido_confirmar else R.string.pedido_confirmar_pagar,
+                        monto
+                    ),
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
-        if (!sinPagoAhora) {
-            Text(
-                text = stringResource(R.string.pedido_aviso_biometria),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-        }
+        Text(
+            text = stringResource(
+                if (sinPagoAhora) R.string.pedido_aviso_efectivo else R.string.pedido_aviso_biometria
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

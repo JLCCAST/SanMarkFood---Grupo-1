@@ -3,11 +3,15 @@ package com.equipo.sanmarkfood.comensal.presentation.pedidos
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Carrito
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCrearPedido
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorUbicacion
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.PedidoCreado
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CambiarCantidadCarritoUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CrearPedidoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarCarritoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.QuitarDelCarritoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.AgregarDireccionUseCase
@@ -31,7 +35,16 @@ data class TuPedidoUiState(
     val agregandoDireccion: Boolean = false,
     val guardandoDireccion: Boolean = false,
     val errorDireccion: Boolean = false,
-)
+    val enviando: Boolean = false,
+    val errorEnvio: Exception? = null,
+    val pedidoEnviado: PedidoCreado? = null,
+) {
+    val puedeConfirmar: Boolean
+        get() = carrito?.items?.isNotEmpty() == true &&
+                !enviando &&
+                pedidoEnviado == null &&
+                (modalidad == Modalidad.RECOJO || direccionElegida != null)
+}
 
 @HiltViewModel
 class TuPedidoViewModel @Inject constructor(
@@ -40,6 +53,7 @@ class TuPedidoViewModel @Inject constructor(
     private val cambiarCantidadCarrito: CambiarCantidadCarritoUseCase,
     private val quitarDelCarrito: QuitarDelCarritoUseCase,
     private val agregarDireccion: AgregarDireccionUseCase,
+    private val crearPedido: CrearPedidoUseCase,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
@@ -52,7 +66,9 @@ class TuPedidoViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             observarCarrito().collect { carrito ->
-                _uiState.update { it.copy(cargando = false, carrito = carrito) }
+                _uiState.update {
+                    if (it.pedidoEnviado != null) it else it.copy(cargando = false, carrito = carrito)
+                }
             }
         }
         escucharDirecciones()
@@ -72,6 +88,26 @@ class TuPedidoViewModel @Inject constructor(
 
     fun quitar(clave: String) {
         viewModelScope.launch { quitarDelCarrito(clave) }
+    }
+
+    fun confirmar() {
+        val estado = _uiState.value
+        if (!estado.puedeConfirmar) return
+        _uiState.update { it.copy(enviando = true, errorEnvio = null) }
+        viewModelScope.launch {
+            try {
+                val pedido = crearPedido(estado.modalidad, estado.metodoPago, estado.direccionElegida)
+                _uiState.update { it.copy(enviando = false, pedidoEnviado = pedido) }
+            } catch (e: ErrorCrearPedido) {
+                _uiState.update { it.copy(enviando = false, errorEnvio = e) }
+            } catch (e: ErrorUbicacion) {
+                _uiState.update { it.copy(enviando = false, errorEnvio = e) }
+            }
+        }
+    }
+
+    fun cerrarErrorEnvio() {
+        _uiState.update { it.copy(errorEnvio = null) }
     }
 
     fun elegirDireccion(direccion: Direccion) {

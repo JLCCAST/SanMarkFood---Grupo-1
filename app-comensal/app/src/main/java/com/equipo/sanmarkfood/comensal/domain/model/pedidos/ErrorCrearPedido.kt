@@ -3,6 +3,7 @@ package com.equipo.sanmarkfood.comensal.domain.model.pedidos
 sealed class ErrorCrearPedido : Exception() {
     data object SinConexion : ErrorCrearPedido()
     data object SesionInvalida : ErrorCrearPedido()
+    data object SinDireccion : ErrorCrearPedido()
     data object LocalNoDisponible : ErrorCrearPedido()
     data object LocalCerrado : ErrorCrearPedido()
     data object PlatoAgotado : ErrorCrearPedido()

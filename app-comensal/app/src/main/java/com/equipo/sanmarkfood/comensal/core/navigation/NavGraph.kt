@@ -84,7 +84,15 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
             )
         }
         composable<TuPedido> {
-            TuPedidoScreen(onVolver = { navController.navigateUp() })
+            TuPedidoScreen(
+                onVolver = { navController.navigateUp() },
+                onSeguirPedido = { pedidoId ->
+                    navController.navigate(SeguimientoPedido(pedidoId)) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
         }
         composable<SeguimientoPedido> {
             SeguimientoPedidoScreen(
