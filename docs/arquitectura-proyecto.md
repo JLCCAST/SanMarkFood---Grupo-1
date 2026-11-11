@@ -51,11 +51,23 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 - **App Comensal — `domain/` sin Android (SCRUM-86):** los errores de auth se devuelven como `ErrorAuth` (sealed class en `domain/model/auth/`), con la traducción de las excepciones de Firebase hecha en `data/repository/AuthRepositoryImpl.kt`, siguiendo el mismo patrón que ya usa `app-restaurante`.
 - **App Comensal — HU06 (SCRUM-38) completa:** en `presentation/descubrimiento/`, la lista de restaurantes aprobados ordenada por distancia (SCRUM-86), los filtros con «Con menú hoy» y «Abierto ahora» y el mapa con un pin por local (SCRUM-87), el detalle del local con favoritos y la sincronización entre tarjeta y mapa (SCRUM-88) y la barra superior del mapa (SCRUM-149).
 - **App Comensal — misma estructura que el restaurante (refactor previo a HU08):** Navigation Compose con rutas tipadas en `core/navigation/` (`Rutas.kt` y `ComensalNavGraph`), Hilt en `core/di/` (`FirebaseModule` y `RepositoryModule`) y la barra inferior en `presentation/panel/PanelComensalScreen.kt`. El `GestorSesion` sigue siendo la fuente única de la sesión: el NavGraph lo observa y lleva a la pantalla que corresponde (inicio de sesión, verificación, invitado o panel). El detalle del local es su propia ruta y comparte el `DescubrimientoViewModel` del panel. Todavía sin `data/firebase/` (los `RepositoryImpl` usan Firestore directo).
+- **App Comensal — HU08 (SCRUM-40) completa:** el pedido, de la carta al seguimiento y la calificación. Con ella entraron `data/firebase/` (carta, menú y pedidos), `data/local/` (Room), `data/remote/` (Retrofit) y los procesos `pedidos/` y `resenas/`.
+  - SCRUM-93 (carrito de un solo local): el carrito vive en Room (ver «El carrito del comensal», más abajo). Al agregar algo de otro local se pregunta «¿Empezar un pedido nuevo?» (E1). Tope de 20 unidades por ítem y 20 ítems distintos, los mismos de `crearPedido`. Con el local en pausa (E13) se ve la carta, pero no se puede agregar nada.
+  - SCRUM-150 (armado del menú): B2 lee en vivo `menus/{hoy}` y «Armar mi menú» abre la hoja «Arma tu menú» para elegir 1 entrada y 1 segundo; las opciones agotadas no se pueden elegir (`MenuDeHoy.armar`).
+  - SCRUM-156 (menú vencido): `disponibilidadDelMenu` decide si el menú se ofrece, con la hora de Lima revisada cada minuto: sin publicar (E12), terminado por la hora de fin (E10) o agotado (el local lo terminó, o no quedan entradas o segundos). Si al confirmar el menú es de otro día o el servidor responde `menu_vencido`, se quita del carrito y se avisa (E11).
+  - SCRUM-94 (modalidad y pago): «Tu pedido» (B6) elige recojo o delivery, la dirección entre las frecuentes del perfil (o una nueva, que se guarda en el perfil) y el método de pago. «Confirmar» llama a `crearPedido`, vacía el carrito solo si el pedido se creó y abre «¡Pedido enviado!». Sin conexión muestra G6 y el pedido sigue armado.
+  - SCRUM-167 (Geocoding): `GeocodificacionRepository` convierte la dirección en coordenadas con Geocoding API por Retrofit, con un `OkHttpClient` propio sin el token de Firebase. La clave va en `local.properties` como `GEOCODING_API_KEY` y llega a `BuildConfig`.
+  - SCRUM-95 (biometría): billetera y tarjeta piden huella o rostro con `BiometricPrompt` (`BIOMETRIC_WEAK`); el efectivo no. Tras varios intentos fallidos (D3) se ofrece el bloqueo de pantalla, y un celular sin biometría (D4) ofrece el PIN, Ajustes o pagar en efectivo. Por eso `MainActivity` hereda de `FragmentActivity`.
+  - SCRUM-96 (seguimiento): B7 (`SeguimientoPedido(pedidoId)`) escucha en vivo `pedidos/{id}`: pizarra con el estado, código de recojo o dirección de entrega y la línea de tiempo. En Explorar, una píldora avisa del pedido en curso y vuelve a abrirlo (consulta de los últimos 5 pedidos del comensal).
+  - SCRUM-98 (cancelar): mientras el pedido está `recibido`, «Cancelar pedido» con su confirmación (C3) llama a `actualizarPedido` con `cancelar`.
+  - SCRUM-151 (rechazo): D6 muestra el motivo (o el rechazo automático), la reversión del pago y el plato agotado tachado. «Volver a la carta» devuelve al carrito lo que sigue disponible.
+  - SCRUM-97 (calificación): con el pedido `entregado`, estrellas, comentario y «me gustó / no me gustó» por plato, con la función `resenas`. Solo se votan los platos de la carta: las opciones del menú no tienen `platoId` y la función las rechazaría. Como las reglas todavía no dejan leer las reseñas, un pedido ya calificado se reconoce por la respuesta `ya_calificado`.
+  - Las reglas de los casos de uso tienen pruebas en `app/src/test/` (carrito, menú, crear, cancelar y recuperar el pedido, calificación).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
-- En `app-comensal`: `data/firebase/`, Room, `workers/`, `ai/` y los procesos `pedidos/`, `reservas/`, `resenas/`, `historial/` y `notificaciones/`.
+- En `app-comensal`: `workers/`, `ai/` y los procesos `reservas/`, `historial/` y `notificaciones/`. De `resenas/` solo existe la calificación del pedido (HU08); la lista de reseñas es de HU22.
 - En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, la carpeta `moderacion/`.
 - En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos` y `vencimientos`). Hoy solo existe `revisarLocal` (SCRUM-78).
 
@@ -472,6 +484,16 @@ Mientras el local arma el menú en M5, cada cambio se guarda en la base `sanmark
 
 `origen` y `tipo` se guardan con el nombre del `enum` (`CERO`, `ENTRADA`): esta base es solo del celular, no es un contrato con otra app. Guardar reemplaza todo en una transacción (`BorradorMenuDao.reemplazar`). La base va en la versión 2 (la 1 no tenía las columnas `porRevisar`). Al cambiar de versión se borra el borrador en vez de migrarlo (`fallbackToDestructiveMigration`): es temporal y no hace falta conservarlo.
 
+### El carrito del comensal (Room, HU08)
+
+El carrito vive en la base `sanmarkfood.db` del celular del comensal, no en Firestore: no le sirve a nadie más y no debe perderse si se cierra la app. Es de un solo local, y se vacía cuando `crearPedido` responde con el pedido creado.
+
+| Tabla | Columnas | Notas |
+| --- | --- | --- |
+| `item_carrito` | `clave` (clave), `restauranteId`, `restauranteNombre`, `tipo`, `platoId`, `nombre`, `fotoUrl`, `fecha`, `entrada`, `segundo`, `precio`, `cantidad`, `agregadoEn` | Una fila por ítem. `tipo` es `PLATO` o `MENU`. La `clave` es `plato:<platoId>` o `menu:<entrada>\|<segundo>`: agregar lo mismo suma la cantidad, y cada combinación del menú es un ítem distinto. El precio, en céntimos, es el que se vio al agregar; el servidor vuelve a calcularlo. |
+
+En el dominio, `ItemCarrito` es una interfaz sellada con `PlatoDelCarrito` y `MenuDelCarrito`. La base va en la versión 2 (la 1 solo guardaba platos) y, como el borrador del restaurante, se borra en vez de migrarse al cambiar de versión.
+
 ## Convenciones de código
 
 Para que el código de los tres integrantes se lea como si lo hubiera escrito una sola persona:
@@ -512,11 +534,11 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) — en `app-restaurante` ya se usan Auth, Firestore y Storage; Cloud Functions (`functions/`, HU07) y Cloud Messaging para los avisos |
 | Material Design | `ui/theme/` + `res/font/` de cada app — **ya hecho**, con paleta propia y modo oscuro |
 | MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — en uso en las dos apps |
-| Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions de pedidos y reservas (HU07, HU08, HU09, HU10) y a Geocoding API (HU08, SCRUM-167) |
+| Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions de pedidos y reservas (HU07, HU08, HU09, HU10) y a Geocoding API (HU08, SCRUM-167) — **en uso en las dos apps** |
 | WorkManager | `app-comensal/workers/`: el recordatorio de la reserva (HU10, SCRUM-103) |
-| SQLite | `data/local/` (Room) — **en `app-restaurante`, el borrador del menú del día** (HU04); en `app-comensal`, el carrito (HU08) |
+| SQLite | `data/local/` (Room) — **en las dos apps**: el borrador del menú del día (HU04) y el carrito del comensal (HU08) |
 | Dashboards | `app-restaurante/presentation/dashboard/` y `admin/dashboard_global/` (Vico), con consultas de agregación de Firestore |
-| Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (pizarra y carta, HU04) — **la pizarra ya usa CameraX**; GPS, biometría, micrófono → `app-comensal` |
+| Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (pizarra y carta, HU04) — **la pizarra ya usa CameraX**; GPS, biometría, micrófono → `app-comensal` — **GPS en Explorar (HU06) y biometría al pagar (HU08, `BiometricPrompt`)** |
 | Funcionalidades de IA (mín. 3, el proyecto cubre 4) | `ai/` en ambas apps — **en `app-restaurante`, la lectura de la pizarra con Gemini** (HU04); el chatbot (HU11, Gemini en `app-comensal`); el resumen y el sentimiento de las reseñas (HU14 y HU15, Gemini en las funciones) |
 | Despliegue en Play Store | No es código — checklist aparte en Sprint 3 (firma de cada AAB, ficha de Play Console por app) |
 
