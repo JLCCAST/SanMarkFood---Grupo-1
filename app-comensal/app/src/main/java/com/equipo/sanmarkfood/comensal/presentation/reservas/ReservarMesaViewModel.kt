@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.equipo.sanmarkfood.comensal.core.navigation.ReservarMesa
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
+import com.equipo.sanmarkfood.comensal.domain.model.reservas.AnticipacionRecordatorio
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.DiaReservable
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.ErrorReservas
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.HorarioReservable
@@ -20,6 +21,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.reservas.primeraHoraDeHoy
 import com.equipo.sanmarkfood.comensal.domain.usecase.descubrimiento.ObservarRestauranteUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ObservarOcupacionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ObservarReservasUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ProgramarRecordatorioUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.SolicitarReservaUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,6 +48,7 @@ data class ReservaEnviada(
     val fecha: String,
     val hora: String,
     val personas: Int,
+    val recordatorio: AnticipacionRecordatorio?,
 )
 
 data class ReservarMesaUiState(
@@ -60,6 +63,8 @@ data class ReservarMesaUiState(
     val primeraHoraDeHoy: String? = null,
     val reservas: List<Reserva> = emptyList(),
     val alcanzoElTope: Boolean = false,
+    val conRecordatorio: Boolean = true,
+    val anticipacion: AnticipacionRecordatorio = AnticipacionRecordatorio.UNA_HORA,
     val enviando: Boolean = false,
     val error: ErrorReservas? = null,
     val enviada: ReservaEnviada? = null,
@@ -76,6 +81,8 @@ private data class Seleccion(
     val personas: Int = 2,
     val fecha: String? = null,
     val hora: String? = null,
+    val conRecordatorio: Boolean = true,
+    val anticipacion: AnticipacionRecordatorio = AnticipacionRecordatorio.UNA_HORA,
     val enviando: Boolean = false,
     val error: ErrorReservas? = null,
     val enviada: ReservaEnviada? = null,
@@ -96,6 +103,7 @@ class ReservarMesaViewModel @Inject constructor(
     observarReservas: ObservarReservasUseCase,
     private val observarOcupacion: ObservarOcupacionUseCase,
     private val solicitarReserva: SolicitarReservaUseCase,
+    private val programarRecordatorio: ProgramarRecordatorioUseCase,
 ) : ViewModel() {
 
     private val restauranteId = savedStateHandle.toRoute<ReservarMesa>().restauranteId
@@ -146,6 +154,8 @@ class ReservarMesaViewModel @Inject constructor(
             primeraHoraDeHoy = primeraHoraDeHoy(datos.ahora).takeIf { fecha == fechaLimaDe(datos.ahora) },
             reservas = datos.reservas,
             alcanzoElTope = datos.reservas.alcanzoElTope(fechaLimaDe(datos.ahora)),
+            conRecordatorio = eleccion.conRecordatorio,
+            anticipacion = eleccion.anticipacion,
             enviando = eleccion.enviando,
             error = eleccion.error,
             enviada = eleccion.enviada,
@@ -162,6 +172,11 @@ class ReservarMesaViewModel @Inject constructor(
 
     fun elegirHora(hora: String) = seleccion.update { it.copy(hora = hora) }
 
+    fun cambiarRecordatorio(activo: Boolean) = seleccion.update { it.copy(conRecordatorio = activo) }
+
+    fun elegirAnticipacion(anticipacion: AnticipacionRecordatorio) =
+        seleccion.update { it.copy(anticipacion = anticipacion) }
+
     fun reintentarCarga() = reintento.update { it + 1 }
 
     fun cerrarError() = seleccion.update { it.copy(error = null) }
@@ -176,10 +191,15 @@ class ReservarMesaViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val reservaId = solicitarReserva(restaurante, fecha, hora, estado.personas, estado.reservas)
+                val anticipacion = estado.anticipacion.takeIf { estado.conRecordatorio }
+                val programado = programarRecordatorio(reservaId, restaurante.nombre, fecha, hora, anticipacion)
                 seleccion.update {
                     it.copy(
                         enviando = false,
-                        enviada = ReservaEnviada(reservaId, restaurante.nombre, fecha, hora, estado.personas),
+                        enviada = ReservaEnviada(
+                            reservaId, restaurante.nombre, fecha, hora, estado.personas,
+                            anticipacion.takeIf { programado },
+                        ),
                     )
                 }
             } catch (e: ErrorReservas) {

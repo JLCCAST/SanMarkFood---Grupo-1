@@ -74,7 +74,7 @@ fun ReservarMesaScreen(
     estado.enviada?.let { enviada ->
         HojaReservaEnviada(
             enviada = enviada,
-            pie = null,
+            pie = etiquetaRecordatorio(enviada.recordatorio),
             onListo = onVolver,
             onVerActividad = onVerActividad
         )
@@ -128,6 +128,12 @@ fun ReservarMesaScreen(
                 )
                 SeccionFecha(estado.dias, estado.fecha, viewModel::elegirFecha)
                 SeccionHora(estado.horarios, estado.hora, estado.primeraHoraDeHoy, viewModel::elegirHora)
+                SeccionRecordatorio(
+                    activo = estado.conRecordatorio,
+                    anticipacion = estado.anticipacion,
+                    onCambiarActivo = viewModel::cambiarRecordatorio,
+                    onElegir = viewModel::elegirAnticipacion
+                )
                 Text(
                     text = stringResource(R.string.reserva_nota),
                     style = MaterialTheme.typography.bodyMedium,

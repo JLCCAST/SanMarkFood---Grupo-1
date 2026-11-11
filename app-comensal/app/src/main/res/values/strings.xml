@@ -546,4 +546,14 @@
         <item>nov</item>
         <item>dic</item>
     </string-array>
+    <string name="recordatorio_titulo_seccion">Recordatorio</string>
+    <string name="recordatorio_detalle_seccion">Te avisaremos antes de tu reserva</string>
+    <string name="recordatorio_30_min">30 min</string>
+    <string name="recordatorio_1_h">1 h</string>
+    <string name="recordatorio_2_h">2 h</string>
+    <string name="recordatorio_antes">%1$s antes</string>
+    <string name="recordatorio_etiqueta">Recordatorio %1$s antes de la hora</string>
+    <string name="recordatorio_ninguno">Sin recordatorio</string>
+    <string name="recordatorio_titulo">Recordatorio de tu reserva</string>
+    <string name="recordatorio_texto">%1$s te espera a las %2$s.</string>
 </resources>
