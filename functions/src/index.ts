@@ -10,3 +10,4 @@ export { resenas } from "./resenas.js";
 export { vencimientos } from "./vencimientos.js";
 export { analizarResena } from "./analizarResena.js";
 export { resumenResenas } from "./resumenResenas.js";
+export { datosIniciales } from "./datosIniciales.js";
