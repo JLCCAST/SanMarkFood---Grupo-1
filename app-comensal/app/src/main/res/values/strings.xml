@@ -454,4 +454,184 @@
     <string name="menu_sin_publicar_titulo">El menú de hoy aún no se publica</string>
     <string name="menu_sin_publicar_etiqueta">Por publicar</string>
     <string name="menu_sin_publicar_mensaje">Cuando el local lo publique, lo verás aquí. Mientras tanto, puedes pedir de la carta.</string>
+    <string name="detalle_sin_reservas">No acepta reservas</string>
+    <string name="reserva_titulo">Reservar mesa</string>
+    <string name="reserva_tope_titulo">Ya tienes 2 reservas activas</string>
+    <string name="reserva_tope_mensaje">Puedes tener hasta 2 reservas pendientes o confirmadas a la vez. Cancela o espera a que pase una para pedir otra.</string>
+    <string name="reserva_tope_ver">Ver mis reservas</string>
+    <string name="reserva_comensales_titulo">Número de comensales</string>
+    <string name="reserva_comensales_rango">De %1$d a %2$d por reserva</string>
+    <string name="reserva_comensales_menos">Menos comensales</string>
+    <string name="reserva_comensales_mas">Más comensales</string>
+    <string name="reserva_grupo_grande">¿Son más de 10? Llama al local para grupos grandes: %1$s</string>
+    <string name="reserva_telefono_desconocido">[Teléfono del local]</string>
+    <string name="reserva_fecha_titulo">Fecha</string>
+    <string name="reserva_fecha_detalle">Hasta 7 días desde hoy</string>
+    <string name="reserva_dia_hoy">HOY</string>
+    <string name="reserva_dia_cerrado">CERRADO</string>
+    <string name="reserva_dia_actual">ACTUAL</string>
+    <string name="reserva_hora_titulo">Hora</string>
+    <string name="reserva_hora_detalle">Cada 30 min · tachado = sin cupo</string>
+    <string name="reserva_hoy_desde">Hoy solo puedes reservar desde las %1$s: se reserva con al menos 2 h de anticipación.</string>
+    <string name="reserva_sin_horarios">No quedan horarios para este día. Elige otra fecha.</string>
+    <string name="reserva_nota">El restaurante confirmará o rechazará tu solicitud. Si no responde hasta 60 min antes de la hora, se rechaza sola y te avisamos. Podrás modificarla o cancelarla desde Actividad.</string>
+    <string name="reserva_elige_horario">Elige fecha y hora</string>
+    <string name="reserva_solicitar">Solicitar reserva</string>
+    <string name="reserva_sin_conexion_mensaje">Necesitas conexión para ver los horarios del local.</string>
+    <string name="reserva_estado_pendiente">Pendiente de confirmación</string>
+    <string name="reserva_enviada_titulo">Solicitud enviada</string>
+    <string name="reserva_enviada_mensaje">Te avisaremos cuando %1$s responda. Si no responde hasta 60 min antes de la hora, la solicitud se rechaza sola.</string>
+    <string name="reserva_ticket_fecha">Fecha</string>
+    <string name="reserva_ticket_hora">Hora</string>
+    <string name="reserva_ticket_comensales">Comensales</string>
+    <string name="reserva_enviada_listo">Listo</string>
+    <string name="reserva_enviada_ver_actividad">Ver en Actividad</string>
+    <string name="reserva_error_plazo">Ese horario ya no se puede reservar: se reserva con al menos 2 h y hasta 7 días de anticipación.</string>
+    <string name="reserva_error_horario">El local no atiende a esa hora. Elige otro horario.</string>
+    <string name="reserva_error_franja_llena">Ese horario se acaba de llenar. Elige otro.</string>
+    <string name="reserva_error_tope">Ya tienes 2 reservas activas. Cancela una o espera a que pase para pedir otra.</string>
+    <string name="reserva_error_sin_reservas">Este local ya no acepta reservas desde la app.</string>
+    <string name="reserva_error_comensales">Puedes reservar de 1 a 10 comensales.</string>
+    <string name="reserva_error_sesion">Tu sesión venció. Vuelve a iniciar sesión.</string>
+    <string name="reserva_error_estado">Esta reserva ya no se puede cambiar.</string>
+    <string name="reserva_error_sin_cambios">Elige una fecha u hora distinta a la actual.</string>
+    <string name="reserva_error_desconocido">No pudimos enviar tu solicitud. Inténtalo de nuevo.</string>
+    <plurals name="reserva_comensales">
+        <item quantity="one">%1$d comensal</item>
+        <item quantity="other">%1$d comensales</item>
+    </plurals>
+    <string-array name="reserva_dias_cortos">
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mié</item>
+        <item>Jue</item>
+        <item>Vie</item>
+        <item>Sáb</item>
+        <item>Dom</item>
+    </string-array>
+    <string-array name="reserva_dias_largos">
+        <item>lunes</item>
+        <item>martes</item>
+        <item>miércoles</item>
+        <item>jueves</item>
+        <item>viernes</item>
+        <item>sábado</item>
+        <item>domingo</item>
+    </string-array>
+    <string-array name="reserva_meses">
+        <item>enero</item>
+        <item>febrero</item>
+        <item>marzo</item>
+        <item>abril</item>
+        <item>mayo</item>
+        <item>junio</item>
+        <item>julio</item>
+        <item>agosto</item>
+        <item>setiembre</item>
+        <item>octubre</item>
+        <item>noviembre</item>
+        <item>diciembre</item>
+    </string-array>
+    <string-array name="reserva_meses_cortos">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>set</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
+    <string name="recordatorio_titulo_seccion">Recordatorio</string>
+    <string name="recordatorio_detalle_seccion">Te avisaremos antes de tu reserva</string>
+    <string name="recordatorio_30_min">30 min</string>
+    <string name="recordatorio_1_h">1 h</string>
+    <string name="recordatorio_2_h">2 h</string>
+    <string name="recordatorio_antes">%1$s antes</string>
+    <string name="recordatorio_etiqueta">Recordatorio %1$s antes de la hora</string>
+    <string name="recordatorio_ninguno">Sin recordatorio</string>
+    <string name="recordatorio_titulo">Recordatorio de tu reserva</string>
+    <string name="recordatorio_texto">%1$s te espera a las %2$s.</string>
+    <string name="actividad_tab_pedidos">Pedidos</string>
+    <string name="actividad_tab_reservas">Reservas</string>
+    <string name="actividad_pedidos_pronto">Pronto verás aquí el historial de tus pedidos.</string>
+    <string name="actividad_proxima_reserva">PRÓXIMA RESERVA</string>
+    <string name="actividad_recordatorio">Recordatorio %1$s antes</string>
+    <string name="actividad_modificar">Modificar fecha u hora</string>
+    <string name="actividad_cancelar">Cancelar</string>
+    <string name="actividad_motivo">Motivo: %1$s</string>
+    <string name="actividad_ver_detalle">Ver detalle</string>
+    <string name="actividad_ver_detalle_otro_horario">Ver detalle y probar otro horario</string>
+    <string name="actividad_sin_reservas_titulo">Aún no tienes reservas</string>
+    <string name="actividad_sin_reservas_texto">Cuando reserves una mesa, aquí verás si el local la confirmó y podrás modificarla o cancelarla.</string>
+    <string name="actividad_ver_locales">Ver locales cerca</string>
+    <string name="actividad_sin_conexion">Necesitas conexión para ver tus reservas.</string>
+    <string name="reserva_estado_corto_pendiente">Pendiente</string>
+    <string name="reserva_estado_confirmada">Confirmada</string>
+    <string name="reserva_estado_completada">Completada</string>
+    <string name="reserva_estado_sin_respuesta">Sin respuesta</string>
+    <string name="reserva_estado_rechazada">Rechazada</string>
+    <string name="reserva_estado_cancelada">Cancelada por ti</string>
+    <string name="reserva_motivo_sin_respuesta">el restaurante no respondió a tiempo</string>
+    <string name="reserva_motivo_sin_mesas">sin mesas disponibles a esa hora</string>
+    <string name="reserva_motivo_local_cerrado">el local está cerrado ese día</string>
+    <string name="reserva_motivo_grupo_grande">el grupo es demasiado grande</string>
+    <string name="reserva_motivo_otro">otro motivo del restaurante</string>
+    <string name="cancelar_solicitud_titulo">¿Cancelar la solicitud?</string>
+    <string name="cancelar_solicitud_texto">Avisaremos a %1$s y dejará de contar como reserva activa.</string>
+    <string name="cancelar_solicitud_confirmar">Cancelar solicitud</string>
+    <string name="cancelar_reserva_titulo">¿Cancelar tu reserva?</string>
+    <string name="cancelar_reserva_texto">Liberaremos tu mesa del %1$s a las %2$s y avisaremos al restaurante. Si solo necesitas otro horario, puedes modificarla.</string>
+    <string name="cancelar_reserva_confirmar">Cancelar reserva</string>
+    <string name="cancelar_volver">Volver</string>
+    <string name="detalle_reserva_titulo">Detalle de la reserva</string>
+    <string name="detalle_reserva_volver">Volver a Actividad</string>
+    <string name="detalle_reserva_sin_conexion">Necesitas conexión para ver esta reserva.</string>
+    <string name="detalle_reserva_no_encontrada">No encontramos esta reserva</string>
+    <string name="detalle_reserva_no_encontrada_texto">Puede que ya no exista. Vuelve a Actividad para ver tus reservas.</string>
+    <string name="detalle_reserva_rechazada_local">Rechazada por el restaurante</string>
+    <string name="detalle_reserva_rechazada_auto">Rechazada automáticamente</string>
+    <string name="detalle_reserva_esperando">Esperando la respuesta de %1$s</string>
+    <string name="detalle_reserva_confirmada">%1$s te espera</string>
+    <string name="detalle_reserva_completada">Tu reserva en %1$s ya pasó</string>
+    <string name="detalle_reserva_rechazo_titulo">%1$s rechazó tu reserva</string>
+    <string name="detalle_reserva_sin_respuesta_titulo">El restaurante no respondió a tiempo</string>
+    <string name="detalle_reserva_cancelada_titulo">Cancelaste la solicitud</string>
+    <string name="detalle_reserva_motivo_local">MOTIVO DEL RESTAURANTE\n%1$s</string>
+    <string name="detalle_reserva_que_paso">QUÉ PASÓ\n%1$s</string>
+    <string name="detalle_reserva_sin_respuesta_motivo">Sin respuesta hasta 60 min antes</string>
+    <string name="detalle_reserva_limite">Si el restaurante no responde hasta el %1$s a las %2$s, la solicitud se rechazará automáticamente y te avisaremos.</string>
+    <string name="detalle_reserva_cuenta_activa">Cuenta como una de tus 2 reservas activas.</string>
+    <string name="detalle_reserva_rechazo_explica">Otro horario o un grupo más pequeño podría tener lugar. Tu solicitud anterior ya no está activa.</string>
+    <string name="detalle_reserva_sin_respuesta_explica">Las reservas que el restaurante no confirma hasta 60 minutos antes de la hora se rechazan solas, para que puedas buscar otra mesa a tiempo.</string>
+    <string name="detalle_reserva_otra">Hacer otra reserva</string>
+    <string name="detalle_reserva_probar_otro">Probar otro horario</string>
+    <string name="detalle_reserva_otros_locales">Ver otros locales cerca</string>
+    <string name="evento_reserva_enviada">Enviaste la solicitud</string>
+    <string name="evento_reserva_cambiada">Cambiaste el horario (antes: %1$s)</string>
+    <string name="evento_reserva_esperando">Esperando respuesta del restaurante</string>
+    <string name="evento_reserva_confirmada">El restaurante confirmó tu reserva</string>
+    <string name="evento_reserva_rechazada">El restaurante la rechazó y te avisamos</string>
+    <string name="evento_reserva_sin_respuesta">Sin respuesta del restaurante: se rechazó automáticamente y te avisamos</string>
+    <string name="evento_reserva_cancelada">Cancelaste la solicitud y avisamos al restaurante</string>
+    <string name="modificar_titulo">Modificar reserva</string>
+    <string name="modificar_volver">Volver sin cambios</string>
+    <string name="modificar_actual_confirmada">RESERVA ACTUAL · CONFIRMADA</string>
+    <string name="modificar_actual_pendiente">RESERVA ACTUAL · PENDIENTE</string>
+    <string name="modificar_nota">Al guardar, tu reserva vuelve a quedar pendiente de confirmación con el nuevo horario y se libera tu mesa actual. Si el restaurante la rechaza, no recuperas el horario anterior.</string>
+    <string name="modificar_sin_cambios">SIN CAMBIOS</string>
+    <string name="modificar_nuevo_horario">NUEVO HORARIO</string>
+    <string name="modificar_guardar">Guardar cambios</string>
+    <string name="modificar_confirmar_titulo">¿Cambiar tu reserva?</string>
+    <string name="modificar_confirmar_texto">Liberaremos tu mesa del %1$s a las %2$s y pediremos %3$s. El restaurante tendrá que confirmarla de nuevo.</string>
+    <string name="modificar_confirmar_boton">Cambiar reserva</string>
+    <string name="modificar_hecho_titulo">Reserva cambiada</string>
+    <string name="modificar_liberada">Liberada</string>
+    <string name="modificar_nueva">Nueva</string>
+    <string name="modificar_hecho_texto">Te avisaremos cuando el restaurante responda. Si no responde hasta 60 min antes, se rechaza sola.</string>
+    <string name="modificar_volver_actividad">Volver a Actividad</string>
 </resources>

@@ -23,8 +23,13 @@ import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestau
 import com.equipo.sanmarkfood.comensal.presentation.panel.PanelComensalScreen
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.SeguimientoPedidoScreen
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.TuPedidoScreen
+import com.equipo.sanmarkfood.comensal.presentation.reservas.DetalleReservaScreen
+import com.equipo.sanmarkfood.comensal.presentation.reservas.ModificarReservaScreen
+import com.equipo.sanmarkfood.comensal.presentation.reservas.ReservarMesaScreen
 
 private const val RESTAURANTE_A_ENFOCAR = "restauranteAEnfocar"
+private const val ABRIR_RESERVAS = "abrirReservas"
+private const val ABRIR_EXPLORAR = "abrirExplorar"
 
 @Composable
 fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
@@ -62,8 +67,24 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
             val restauranteAEnfocar by entrada.savedStateHandle
                 .getStateFlow<String?>(RESTAURANTE_A_ENFOCAR, null)
                 .collectAsState()
+            val abrirReservas by entrada.savedStateHandle
+                .getStateFlow(ABRIR_RESERVAS, false)
+                .collectAsState()
+            val abrirExplorar by entrada.savedStateHandle
+                .getStateFlow(ABRIR_EXPLORAR, false)
+                .collectAsState()
             PanelComensalScreen(
                 restauranteAEnfocar = restauranteAEnfocar,
+                abrirReservas = abrirReservas,
+                onReservasAbiertas = { entrada.savedStateHandle[ABRIR_RESERVAS] = false },
+                abrirExplorar = abrirExplorar,
+                onExplorarAbierto = { entrada.savedStateHandle[ABRIR_EXPLORAR] = false },
+                onAbrirReserva = { reservaId ->
+                    navController.navigate(DetalleReserva(reservaId)) { launchSingleTop = true }
+                },
+                onModificarReserva = { reservaId ->
+                    navController.navigate(ModificarReserva(reservaId)) { launchSingleTop = true }
+                },
                 onAbrirRestaurante = { id ->
                     navController.navigate(DetalleRestaurante(id)) { launchSingleTop = true }
                 },
@@ -83,6 +104,7 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                     navController.navigateUp()
                 },
                 onVerPedido = { navController.navigate(TuPedido) { launchSingleTop = true } },
+                onReservar = { id -> navController.navigate(ReservarMesa(id)) { launchSingleTop = true } },
                 viewModel = hiltViewModel(panel),
             )
         }
@@ -91,6 +113,48 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                 onVolver = { navController.navigateUp() },
                 onSeguirPedido = { pedidoId ->
                     navController.navigate(SeguimientoPedido(pedidoId)) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable<ReservarMesa> {
+            ReservarMesaScreen(
+                onVolver = { navController.navigateUp() },
+                onVerActividad = {
+                    navController.getBackStackEntry<PanelComensal>().savedStateHandle[ABRIR_RESERVAS] = true
+                    navController.navigate(PanelComensal) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable<DetalleReserva> {
+            DetalleReservaScreen(
+                onVolver = { navController.navigateUp() },
+                onModificar = { reservaId ->
+                    navController.navigate(ModificarReserva(reservaId)) { launchSingleTop = true }
+                },
+                onReservarOtra = { restauranteId ->
+                    navController.navigate(ReservarMesa(restauranteId)) { launchSingleTop = true }
+                },
+                onVerLocales = {
+                    navController.getBackStackEntry<PanelComensal>().savedStateHandle[ABRIR_EXPLORAR] = true
+                    navController.navigate(PanelComensal) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable<ModificarReserva> {
+            ModificarReservaScreen(
+                onVolver = { navController.navigateUp() },
+                onVolverAActividad = {
+                    navController.getBackStackEntry<PanelComensal>().savedStateHandle[ABRIR_RESERVAS] = true
+                    navController.navigate(PanelComensal) {
                         popUpTo<PanelComensal>()
                         launchSingleTop = true
                     }
@@ -135,6 +199,9 @@ private fun NavDestination.correspondeA(sesion: EstadoSesion): Boolean = when (s
     EstadoSesion.Autenticado -> hasRoute<PanelComensal>() ||
             hasRoute<DetalleRestaurante>() ||
             hasRoute<TuPedido>() ||
+            hasRoute<ReservarMesa>() ||
+            hasRoute<DetalleReserva>() ||
+            hasRoute<ModificarReserva>() ||
             hasRoute<SeguimientoPedido>()
 }
 

@@ -13,7 +13,33 @@ interface FuncionesApi {
 
     @POST("resenas")
     suspend fun calificarPedido(@Body calificacion: CalificacionDto): PedidoCalificadoDto
+
+    @POST("reservas")
+    suspend fun crearReserva(@Body reserva: CrearReservaDto): ReservaCreadaDto
+
+    @POST("reservas")
+    suspend fun cambiarReserva(@Body cambio: CambiarReservaDto): EstadoDto
 }
+
+@Serializable
+data class CrearReservaDto(
+    val accion: String,
+    val restauranteUid: String,
+    val fecha: String,
+    val hora: String,
+    val personas: Int,
+)
+
+@Serializable
+data class ReservaCreadaDto(val reservaId: String)
+
+@Serializable
+data class CambiarReservaDto(
+    val accion: String,
+    val reservaId: String,
+    val fecha: String? = null,
+    val hora: String? = null,
+)
 
 @Serializable
 data class CalificacionDto(
