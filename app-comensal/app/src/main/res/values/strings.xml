@@ -454,4 +454,96 @@
     <string name="menu_sin_publicar_titulo">El menú de hoy aún no se publica</string>
     <string name="menu_sin_publicar_etiqueta">Por publicar</string>
     <string name="menu_sin_publicar_mensaje">Cuando el local lo publique, lo verás aquí. Mientras tanto, puedes pedir de la carta.</string>
+    <string name="detalle_sin_reservas">No acepta reservas</string>
+    <string name="reserva_titulo">Reservar mesa</string>
+    <string name="reserva_tope_titulo">Ya tienes 2 reservas activas</string>
+    <string name="reserva_tope_mensaje">Puedes tener hasta 2 reservas pendientes o confirmadas a la vez. Cancela o espera a que pase una para pedir otra.</string>
+    <string name="reserva_tope_ver">Ver mis reservas</string>
+    <string name="reserva_comensales_titulo">Número de comensales</string>
+    <string name="reserva_comensales_rango">De %1$d a %2$d por reserva</string>
+    <string name="reserva_comensales_menos">Menos comensales</string>
+    <string name="reserva_comensales_mas">Más comensales</string>
+    <string name="reserva_grupo_grande">¿Son más de 10? Llama al local para grupos grandes: %1$s</string>
+    <string name="reserva_telefono_desconocido">[Teléfono del local]</string>
+    <string name="reserva_fecha_titulo">Fecha</string>
+    <string name="reserva_fecha_detalle">Hasta 7 días desde hoy</string>
+    <string name="reserva_dia_hoy">HOY</string>
+    <string name="reserva_dia_cerrado">CERRADO</string>
+    <string name="reserva_dia_actual">ACTUAL</string>
+    <string name="reserva_hora_titulo">Hora</string>
+    <string name="reserva_hora_detalle">Cada 30 min · tachado = sin cupo</string>
+    <string name="reserva_hoy_desde">Hoy solo puedes reservar desde las %1$s: se reserva con al menos 2 h de anticipación.</string>
+    <string name="reserva_sin_horarios">No quedan horarios para este día. Elige otra fecha.</string>
+    <string name="reserva_nota">El restaurante confirmará o rechazará tu solicitud. Si no responde hasta 60 min antes de la hora, se rechaza sola y te avisamos. Podrás modificarla o cancelarla desde Actividad.</string>
+    <string name="reserva_elige_horario">Elige fecha y hora</string>
+    <string name="reserva_solicitar">Solicitar reserva</string>
+    <string name="reserva_sin_conexion_mensaje">Necesitas conexión para ver los horarios del local.</string>
+    <string name="reserva_estado_pendiente">Pendiente de confirmación</string>
+    <string name="reserva_enviada_titulo">Solicitud enviada</string>
+    <string name="reserva_enviada_mensaje">Te avisaremos cuando %1$s responda. Si no responde hasta 60 min antes de la hora, la solicitud se rechaza sola.</string>
+    <string name="reserva_ticket_fecha">Fecha</string>
+    <string name="reserva_ticket_hora">Hora</string>
+    <string name="reserva_ticket_comensales">Comensales</string>
+    <string name="reserva_enviada_listo">Listo</string>
+    <string name="reserva_enviada_ver_actividad">Ver en Actividad</string>
+    <string name="reserva_error_plazo">Ese horario ya no se puede reservar: se reserva con al menos 2 h y hasta 7 días de anticipación.</string>
+    <string name="reserva_error_horario">El local no atiende a esa hora. Elige otro horario.</string>
+    <string name="reserva_error_franja_llena">Ese horario se acaba de llenar. Elige otro.</string>
+    <string name="reserva_error_tope">Ya tienes 2 reservas activas. Cancela una o espera a que pase para pedir otra.</string>
+    <string name="reserva_error_sin_reservas">Este local ya no acepta reservas desde la app.</string>
+    <string name="reserva_error_comensales">Puedes reservar de 1 a 10 comensales.</string>
+    <string name="reserva_error_sesion">Tu sesión venció. Vuelve a iniciar sesión.</string>
+    <string name="reserva_error_estado">Esta reserva ya no se puede cambiar.</string>
+    <string name="reserva_error_sin_cambios">Elige una fecha u hora distinta a la actual.</string>
+    <string name="reserva_error_desconocido">No pudimos enviar tu solicitud. Inténtalo de nuevo.</string>
+    <plurals name="reserva_comensales">
+        <item quantity="one">%1$d comensal</item>
+        <item quantity="other">%1$d comensales</item>
+    </plurals>
+    <string-array name="reserva_dias_cortos">
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mié</item>
+        <item>Jue</item>
+        <item>Vie</item>
+        <item>Sáb</item>
+        <item>Dom</item>
+    </string-array>
+    <string-array name="reserva_dias_largos">
+        <item>lunes</item>
+        <item>martes</item>
+        <item>miércoles</item>
+        <item>jueves</item>
+        <item>viernes</item>
+        <item>sábado</item>
+        <item>domingo</item>
+    </string-array>
+    <string-array name="reserva_meses">
+        <item>enero</item>
+        <item>febrero</item>
+        <item>marzo</item>
+        <item>abril</item>
+        <item>mayo</item>
+        <item>junio</item>
+        <item>julio</item>
+        <item>agosto</item>
+        <item>setiembre</item>
+        <item>octubre</item>
+        <item>noviembre</item>
+        <item>diciembre</item>
+    </string-array>
+    <string-array name="reserva_meses_cortos">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>set</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
 </resources>

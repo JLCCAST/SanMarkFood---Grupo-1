@@ -23,6 +23,7 @@ import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestau
 import com.equipo.sanmarkfood.comensal.presentation.panel.PanelComensalScreen
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.SeguimientoPedidoScreen
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.TuPedidoScreen
+import com.equipo.sanmarkfood.comensal.presentation.reservas.ReservarMesaScreen
 
 private const val RESTAURANTE_A_ENFOCAR = "restauranteAEnfocar"
 
@@ -83,6 +84,7 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                     navController.navigateUp()
                 },
                 onVerPedido = { navController.navigate(TuPedido) { launchSingleTop = true } },
+                onReservar = { id -> navController.navigate(ReservarMesa(id)) { launchSingleTop = true } },
                 viewModel = hiltViewModel(panel),
             )
         }
@@ -91,6 +93,17 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                 onVolver = { navController.navigateUp() },
                 onSeguirPedido = { pedidoId ->
                     navController.navigate(SeguimientoPedido(pedidoId)) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable<ReservarMesa> {
+            ReservarMesaScreen(
+                onVolver = { navController.navigateUp() },
+                onVerActividad = {
+                    navController.navigate(PanelComensal) {
                         popUpTo<PanelComensal>()
                         launchSingleTop = true
                     }
@@ -135,6 +148,7 @@ private fun NavDestination.correspondeA(sesion: EstadoSesion): Boolean = when (s
     EstadoSesion.Autenticado -> hasRoute<PanelComensal>() ||
             hasRoute<DetalleRestaurante>() ||
             hasRoute<TuPedido>() ||
+            hasRoute<ReservarMesa>() ||
             hasRoute<SeguimientoPedido>()
 }
 

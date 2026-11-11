@@ -89,6 +89,7 @@ fun DetalleRestauranteScreen(
     onVolver: () -> Unit,
     onVerEnMapa: (String) -> Unit,
     onVerPedido: () -> Unit,
+    onReservar: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DescubrimientoViewModel = hiltViewModel(),
     cartaViewModel: CartaViewModel = hiltViewModel()
@@ -114,6 +115,7 @@ fun DetalleRestauranteScreen(
         onVolver = onVolver,
         onVerEnMapa = { onVerEnMapa(restauranteId) },
         onVerPedido = onVerPedido,
+        onReservar = { onReservar(restauranteId) },
         carta = carta,
         onAgregarPlato = { cartaViewModel.agregar(it, restaurante.nombre) },
         onCambiarCantidad = cartaViewModel::cambiarCantidad,
@@ -140,6 +142,7 @@ private fun DetalleRestauranteContent(
     onVolver: () -> Unit,
     onVerEnMapa: () -> Unit,
     onVerPedido: () -> Unit,
+    onReservar: () -> Unit,
     carta: CartaUiState,
     onAgregarPlato: (Plato) -> Unit,
     onCambiarCantidad: (String, Int) -> Unit,
@@ -376,11 +379,17 @@ private fun DetalleRestauranteContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = { },
+                    onClick = onReservar,
+                    enabled = restaurante.aceptaReservas,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = guinda)
                 ) {
-                    Text(stringResource(R.string.detalle_boton_reservar))
+                    Text(
+                        stringResource(
+                            if (restaurante.aceptaReservas) R.string.detalle_boton_reservar
+                            else R.string.detalle_sin_reservas
+                        )
+                    )
                 }
                 OutlinedButton(
                     onClick = { },
