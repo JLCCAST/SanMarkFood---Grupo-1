@@ -21,6 +21,8 @@ import com.equipo.sanmarkfood.comensal.presentation.auth.SesionViewModel
 import com.equipo.sanmarkfood.comensal.presentation.auth.VerificacionCorreoScreen
 import com.equipo.sanmarkfood.comensal.presentation.descubrimiento.DetalleRestauranteScreen
 import com.equipo.sanmarkfood.comensal.presentation.panel.PanelComensalScreen
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.SeguimientoPedidoScreen
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.TuPedidoScreen
 
 private const val RESTAURANTE_A_ENFOCAR = "restauranteAEnfocar"
 
@@ -65,6 +67,9 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                 onAbrirRestaurante = { id ->
                     navController.navigate(DetalleRestaurante(id)) { launchSingleTop = true }
                 },
+                onAbrirPedido = { pedidoId ->
+                    navController.navigate(SeguimientoPedido(pedidoId)) { launchSingleTop = true }
+                },
                 onLogout = viewModel::cerrarSesion,
             )
         }
@@ -77,7 +82,35 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                     panel.savedStateHandle[RESTAURANTE_A_ENFOCAR] = id
                     navController.navigateUp()
                 },
+                onVerPedido = { navController.navigate(TuPedido) { launchSingleTop = true } },
                 viewModel = hiltViewModel(panel),
+            )
+        }
+        composable<TuPedido> {
+            TuPedidoScreen(
+                onVolver = { navController.navigateUp() },
+                onSeguirPedido = { pedidoId ->
+                    navController.navigate(SeguimientoPedido(pedidoId)) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable<SeguimientoPedido> {
+            SeguimientoPedidoScreen(
+                onCerrar = {
+                    navController.navigate(PanelComensal) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+                onVolverALaCarta = { restauranteId ->
+                    navController.navigate(DetalleRestaurante(restauranteId)) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
             )
         }
     }
@@ -99,7 +132,10 @@ private fun NavDestination.correspondeA(sesion: EstadoSesion): Boolean = when (s
     EstadoSesion.SinSesion -> hasRoute<InicioSesion>() || hasRoute<Registro>()
     is EstadoSesion.PorVerificar -> hasRoute<VerificarCorreo>()
     EstadoSesion.Invitado -> hasRoute<Invitado>()
-    EstadoSesion.Autenticado -> hasRoute<PanelComensal>() || hasRoute<DetalleRestaurante>()
+    EstadoSesion.Autenticado -> hasRoute<PanelComensal>() ||
+            hasRoute<DetalleRestaurante>() ||
+            hasRoute<TuPedido>() ||
+            hasRoute<SeguimientoPedido>()
 }
 
 private fun NavController.navegarLimpiando(ruta: Any) {

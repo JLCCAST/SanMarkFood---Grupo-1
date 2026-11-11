@@ -33,6 +33,11 @@ android {
 
         // Se usa en el AndroidManifest.xml como ${MAPS_API_KEY}.
         manifestPlaceholders["MAPS_API_KEY"] = propiedadesLocales.getProperty("MAPS_API_KEY", "")
+        buildConfigField(
+            "String",
+            "GEOCODING_API_KEY",
+            "\"${propiedadesLocales.getProperty("GEOCODING_API_KEY", "")}\""
+        )
     }
 
     buildTypes {
@@ -48,6 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -78,6 +84,13 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation(libs.androidx.navigation.compose)
     ksp("com.google.dagger:hilt-compiler:2.60.1")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.fragment.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

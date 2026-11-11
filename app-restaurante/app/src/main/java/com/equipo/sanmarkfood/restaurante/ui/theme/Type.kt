@@ -49,3 +49,4 @@ val Typography = Typography(
 )
 
 val HandwrittenStyle = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 26.sp)
+val HandwrittenLargeStyle = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 40.sp, lineHeight = 40.sp)

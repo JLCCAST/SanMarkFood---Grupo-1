@@ -52,6 +52,7 @@ private enum class Pestana(
 fun PanelComensalScreen(
     restauranteAEnfocar: String?,
     onAbrirRestaurante: (String) -> Unit,
+    onAbrirPedido: (String) -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -91,6 +92,7 @@ fun PanelComensalScreen(
             Pestana.EXPLORAR -> DescubrimientoScreen(
                 restauranteAEnfocar = restauranteAEnfocar,
                 onRestauranteClick = onAbrirRestaurante,
+                onAbrirPedido = onAbrirPedido,
                 modifier = Modifier.padding(innerPadding)
             )
 

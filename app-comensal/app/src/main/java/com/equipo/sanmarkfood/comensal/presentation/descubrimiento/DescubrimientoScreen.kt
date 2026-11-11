@@ -87,6 +87,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.FiltroDescubr
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.AvisoPedidoEnCurso
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -122,6 +123,7 @@ fun DescubrimientoScreen(
     modifier: Modifier = Modifier,
     restauranteAEnfocar: String? = null,
     onRestauranteClick: (String) -> Unit = {},
+    onAbrirPedido: (String) -> Unit = {},
     viewModel: DescubrimientoViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -336,6 +338,11 @@ fun DescubrimientoScreen(
                             }
                         )
                     }
+
+                    AvisoPedidoEnCurso(
+                        onAbrirPedido = onAbrirPedido,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
             }
         }

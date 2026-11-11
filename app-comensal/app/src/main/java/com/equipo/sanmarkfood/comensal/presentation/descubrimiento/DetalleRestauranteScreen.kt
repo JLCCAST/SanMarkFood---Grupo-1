@@ -27,8 +27,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,7 +59,17 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.HorarioDia
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
-import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.AvisoLocalEnPausa
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaUiState
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.CartaViewModel
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.DialogoPedidoNuevo
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.HojaArmarMenu
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.LaCarta
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.TarjetaMenuDeHoy
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.TarjetaMenuNoDisponible
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.DisponibilidadMenu
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.formatoSoles
+import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Plato
 import java.util.Locale
 
 // Claves del horario guardado en Firestore y el nombre que se muestra de cada día.
@@ -80,10 +88,13 @@ fun DetalleRestauranteScreen(
     restauranteId: String,
     onVolver: () -> Unit,
     onVerEnMapa: (String) -> Unit,
+    onVerPedido: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DescubrimientoViewModel = hiltViewModel()
+    viewModel: DescubrimientoViewModel = hiltViewModel(),
+    cartaViewModel: CartaViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val carta by cartaViewModel.uiState.collectAsState()
     // Se busca en la lista completa, no en la filtrada: un filtro activo no debe esconder el local.
     val restaurante = state.todosLosRestaurantes.firstOrNull { it.id == restauranteId }
 
@@ -102,6 +113,19 @@ fun DetalleRestauranteScreen(
         onErrorFavoritoMostrado = { viewModel.limpiarErrorFavorito() },
         onVolver = onVolver,
         onVerEnMapa = { onVerEnMapa(restauranteId) },
+        onVerPedido = onVerPedido,
+        carta = carta,
+        onAgregarPlato = { cartaViewModel.agregar(it, restaurante.nombre) },
+        onCambiarCantidad = cartaViewModel::cambiarCantidad,
+        onReintentarCarta = cartaViewModel::reintentar,
+        onMantenerPedido = cartaViewModel::mantenerActual,
+        onVaciarYAgregar = cartaViewModel::vaciarYAgregar,
+        onLimiteMostrado = cartaViewModel::limpiarLimite,
+        onArmarMenu = cartaViewModel::abrirArmadoMenu,
+        onElegirEntrada = cartaViewModel::elegirEntrada,
+        onElegirSegundo = cartaViewModel::elegirSegundo,
+        onAgregarMenu = { cartaViewModel.agregarMenu(restaurante.nombre) },
+        onCerrarArmadoMenu = cartaViewModel::cerrarArmadoMenu,
         modifier = modifier
     )
 }
@@ -115,13 +139,25 @@ private fun DetalleRestauranteContent(
     onErrorFavoritoMostrado: () -> Unit,
     onVolver: () -> Unit,
     onVerEnMapa: () -> Unit,
+    onVerPedido: () -> Unit,
+    carta: CartaUiState,
+    onAgregarPlato: (Plato) -> Unit,
+    onCambiarCantidad: (String, Int) -> Unit,
+    onReintentarCarta: () -> Unit,
+    onMantenerPedido: () -> Unit,
+    onVaciarYAgregar: () -> Unit,
+    onLimiteMostrado: () -> Unit,
+    onArmarMenu: () -> Unit,
+    onElegirEntrada: (String) -> Unit,
+    onElegirSegundo: (String) -> Unit,
+    onAgregarMenu: () -> Unit,
+    onCerrarArmadoMenu: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val guinda = MaterialTheme.colorScheme.primary
     val dorado = MaterialTheme.colorScheme.secondary
     val verdeEstado = MaterialTheme.colorScheme.tertiary
 
-    // Solo cuenta el menú que es de hoy y está publicado.
     val menuHoy = restaurante.menuVigente()
 
     // Si el local no tiene logo, se usa su portada (igual que la lista).
@@ -139,6 +175,40 @@ private fun DetalleRestauranteContent(
                 onErrorFavoritoMostrado()
             }
         }
+    }
+
+    val mensajeLimite = stringResource(R.string.carta_limite)
+    LaunchedEffect(carta.limiteAlcanzado) {
+        if (carta.limiteAlcanzado) {
+            try {
+                snackbarHostState.showSnackbar(mensajeLimite)
+            } finally {
+                onLimiteMostrado()
+            }
+        }
+    }
+
+    carta.itemPendiente?.let { pendiente ->
+        DialogoPedidoNuevo(
+            pendiente = pendiente,
+            platosEnPedido = carta.carrito?.cantidadTotal ?: 0,
+            onMantener = onMantenerPedido,
+            onVaciar = onVaciarYAgregar
+        )
+    }
+
+    val menuParaArmar = carta.menu
+    val armado = carta.armado
+    if (menuParaArmar != null && armado != null) {
+        HojaArmarMenu(
+            menu = menuParaArmar,
+            armado = armado,
+            puedeAgregar = carta.menuArmado != null,
+            onElegirEntrada = onElegirEntrada,
+            onElegirSegundo = onElegirSegundo,
+            onAgregar = onAgregarMenu,
+            onCerrar = onCerrarArmadoMenu
+        )
     }
 
     Scaffold(
@@ -171,10 +241,13 @@ private fun DetalleRestauranteContent(
             }
         },
         bottomBar = {
-            Surface(
+            val carrito = carta.carrito
+            if (carrito != null && carrito.items.isNotEmpty()) Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(28.dp))
+                    .clickable(onClick = onVerPedido),
                 shape = RoundedCornerShape(28.dp),
                 color = guinda,
                 shadowElevation = 8.dp
@@ -194,7 +267,7 @@ private fun DetalleRestauranteContent(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
-                                    text = "0",
+                                    text = carrito.cantidadTotal.toString(),
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSecondary
                                 )
@@ -209,14 +282,14 @@ private fun DetalleRestauranteContent(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                             Text(
-                                text = stringResource(R.string.detalle_pedido_subtitulo),
+                                text = stringResource(R.string.pedido_en_local, carrito.restauranteNombre),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                             )
                         }
                     }
                     Text(
-                        text = stringResource(R.string.detalle_precio_soles, "0.00"),
+                        text = stringResource(R.string.detalle_precio_soles, formatoSoles(carrito.total)),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -281,14 +354,18 @@ private fun DetalleRestauranteContent(
 
                     val horaCierra = restaurante.horaCierraHoy()
                     Text(
-                        text = if (horaCierra != null) {
-                            stringResource(R.string.detalle_abierto_hasta, horaCierra)
-                        } else {
-                            stringResource(R.string.descubrimiento_cerrado)
+                        text = when {
+                            restaurante.pausado -> stringResource(R.string.detalle_pausado_estado)
+                            horaCierra != null -> stringResource(R.string.detalle_abierto_hasta, horaCierra)
+                            else -> stringResource(R.string.descubrimiento_cerrado)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (horaCierra != null) verdeEstado else MaterialTheme.colorScheme.error
+                        color = when {
+                            restaurante.pausado -> MaterialTheme.colorScheme.onSurfaceVariant
+                            horaCierra != null -> verdeEstado
+                            else -> MaterialTheme.colorScheme.error
+                        }
                     )
                 }
             }
@@ -360,98 +437,43 @@ private fun DetalleRestauranteContent(
                 )
             }
 
-            // Tarjeta Menú de hoy (dinámico, de Firestore)
-            if (menuHoy != null) {
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.extendedColors.superficieFija
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.detalle_menu_titulo),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.extendedColors.sobreSuperficieFija
-                                )
-                                Text(
-                                    text = stringResource(R.string.detalle_menu_sirve_hasta, menuHoy.horaFin),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.extendedColors.sobreSuperficieFijaTenue
-                                )
-                            }
-                            Text(
-                                text = stringResource(
-                                    R.string.detalle_precio_soles,
-                                    String.format(Locale.US, "%.2f", menuHoy.precio / 100.0)
-                                ),
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = dorado
-                            )
-                        }
+            if (restaurante.pausado) AvisoLocalEnPausa()
 
-                        Surface(
-                            color = MaterialTheme.colorScheme.surface,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.detalle_menu_publicado),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = guinda
-                                )
-                                Text(stringResource(R.string.detalle_menu_consulta))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.detalle_menu_disponible_hoy),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Button(
-                                        onClick = { },
-                                        colors = ButtonDefaults.buttonColors(containerColor = guinda)
-                                    ) {
-                                        Text(stringResource(R.string.detalle_boton_armar_menu))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = stringResource(R.string.detalle_sin_menu),
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            val recibePedidos = !restaurante.pausado
+            val menusEnPedido = carta.carrito
+                ?.takeIf { it.restauranteId == restaurante.id }
+                ?.cantidadDeMenus ?: 0
+            when (val disponibilidad = carta.disponibilidadMenu) {
+                is DisponibilidadMenu.Disponible -> TarjetaMenuDeHoy(
+                    precio = disponibilidad.menu.precio,
+                    horaFin = disponibilidad.menu.horaFin,
+                    menu = disponibilidad.menu,
+                    menusEnPedido = menusEnPedido,
+                    puedeArmar = recibePedidos,
+                    onArmar = onArmarMenu
+                )
+                null -> if (menuHoy != null) {
+                    TarjetaMenuDeHoy(
+                        precio = menuHoy.precio,
+                        horaFin = menuHoy.horaFin,
+                        menu = null,
+                        menusEnPedido = menusEnPedido,
+                        puedeArmar = recibePedidos,
+                        onArmar = onArmarMenu
                     )
+                } else {
+                    TarjetaMenuNoDisponible(DisponibilidadMenu.SinPublicar)
                 }
+                else -> TarjetaMenuNoDisponible(disponibilidad)
             }
+
+            LaCarta(
+                estado = carta,
+                puedeAgregar = recibePedidos,
+                onAgregar = onAgregarPlato,
+                onCambiarCantidad = onCambiarCantidad,
+                onReintentar = onReintentarCarta
+            )
 
             // Horario y ubicación reales de Firestore
             Text(
