@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (25 de octubre de 2026)
+## Estado actual del código (11 de noviembre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -63,11 +63,17 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - SCRUM-151 (rechazo): D6 muestra el motivo (o el rechazo automático), la reversión del pago y el plato agotado tachado. «Volver a la carta» devuelve al carrito lo que sigue disponible.
   - SCRUM-97 (calificación): con el pedido `entregado`, estrellas, comentario y «me gustó / no me gustó» por plato, con la función `resenas`. Solo se votan los platos de la carta: las opciones del menú no tienen `platoId` y la función las rechazaría. Como las reglas todavía no dejan leer las reseñas, un pedido ya calificado se reconoce por la respuesta `ya_calificado`.
   - Las reglas de los casos de uso tienen pruebas en `app/src/test/` (carrito, menú, crear, cancelar y recuperar el pedido, calificación).
+- **App Comensal — HU10 (SCRUM-42) completa:** la reserva de mesa, de la solicitud al recordatorio. Con ella entraron `workers/` y los procesos `reservas/` e `historial/` (este último, solo con la pestaña Actividad).
+  - SCRUM-102 (límites): las reglas de A6 viven en `domain/model/reservas/ReglasReserva.kt` y son las mismas que valida la función `reservas`: 7 días desde hoy, horarios cada 30 min dentro del horario del local, al menos 2 h de anticipación, de 1 a 10 comensales y tope de 2 reservas activas. «Reservar mesa» (B5, ruta `ReservarMesa(restauranteId)`) lee en vivo el local, las reservas del comensal y las franjas del día elegido (`ReservasDataSource`), tacha las horas en las que el grupo ya no entra, muestra el aviso del tope (E9) y, con 10 comensales, el teléfono del local. «Solicitar reserva» llama a `crear` y abre «Solicitud enviada». Si el local tiene `aceptaReservas: false`, el botón del detalle sale deshabilitado con «No acepta reservas».
+  - SCRUM-103 (recordatorio): ver «El recordatorio», más abajo.
+  - SCRUM-104 (cancelar): la pestaña Actividad (`presentation/historial/ActividadScreen.kt`) muestra la tarjeta «PRÓXIMA RESERVA» y, en la pestaña Reservas, todas las reservas con su estado visible (`EstadoVisibleReserva`: una confirmada que ya pasó se ve «Completada»; un rechazo automático, «Sin respuesta»). El detalle (G8, E7 y E8, ruta `DetalleReserva(reservaId)`) muestra el ticket, el plazo del rechazo automático o el motivo y la línea de tiempo. «Cancelar», desde la tarjeta o el detalle, pide confirmación y llama a `cancelar`. La pestaña Pedidos es de HU20.
+  - SCRUM-105 (modificar): «Modificar reserva» (C6, ruta `ModificarReserva(reservaId)`) cambia solo la fecha y la hora, como la función `modificar`: los comensales se muestran como dato de la reserva actual. Antes de guardar pide confirmación («¿Cambiar tu reserva?») y al terminar muestra el horario liberado y el nuevo.
+  - Las reglas tienen pruebas en `app/src/test/` (límites, estados visibles, solicitar, cancelar, modificar y los recordatorios).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
-- En `app-comensal`: `workers/`, `ai/` y los procesos `reservas/`, `historial/` y `notificaciones/`. De `resenas/` solo existe la calificación del pedido (HU08); la lista de reseñas es de HU22.
+- En `app-comensal`: `ai/` y el proceso `notificaciones/`. De `resenas/` solo existe la calificación del pedido (HU08); la lista de reseñas es de HU22. De `historial/` solo existe la pestaña Actividad con las reservas (HU10); el historial de pedidos es de HU20.
 - En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, la carpeta `moderacion/`.
 - En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos` y `vencimientos`). Hoy solo existe `revisarLocal` (SCRUM-78).
 
@@ -345,9 +351,9 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 
 `crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal, y que el local acepte reservas. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `sin_reservas`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
 
-**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. El local lo configura en R4 y O8, de 2 a 60 comensales (12 por defecto); mientras no lo guarde, sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5. En la misma sección, el interruptor «Acepto reservas» guarda `aceptaReservas`: si es `false`, `crear` y `modificar` responden `sin_reservas`, y **el comensal no muestra «Reservar» en ese local** (sin el campo, el local acepta reservas).
+**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. El local lo configura en R4 y O8, de 2 a 60 comensales (12 por defecto); mientras no lo guarde, sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5. En la misma sección, el interruptor «Acepto reservas» guarda `aceptaReservas`: si es `false`, `crear` y `modificar` responden `sin_reservas`, y **el comensal no puede reservar en ese local**: el botón del detalle sale deshabilitado con «No acepta reservas» (sin el campo, el local acepta reservas).
 
-**El recordatorio (SCRUM-103)** no pasa por el servidor: al crear o modificar la reserva, la app del comensal programa un trabajo de WorkManager para 30 min, 1 h o 2 h antes, y lo cancela si la reserva se cancela o se rechaza.
+**El recordatorio (SCRUM-103)** no pasa por el servidor. Al crear o modificar la reserva, la app del comensal programa un trabajo único de WorkManager (`workers/RecordatorioReservaWorker`, nombre `recordatorio-{reservaId}`) para 30 min, 1 h o 2 h antes; al modificarla lo reemplaza con la hora nueva, y al cancelarla lo borra. La anticipación elegida se guarda en el celular (`SharedPreferences` `recordatorios_de_reservas`, a través de `RecordatoriosRepository`) para mostrar «Recordatorio 1 h antes» en Actividad. Antes de avisar, el trabajo vuelve a leer la reserva (`VerificarRecordatorioUseCase`, por un `EntryPoint` de Hilt): si ya no está `pendiente` o `confirmada`, o cambió de horario, no avisa; sin conexión, avisa igual. Además, Actividad borra los recordatorios de las reservas que el local rechazó. El aviso sale en el canal «Reservas».
 
 ### Lo que hace el servidor solo
 
@@ -554,7 +560,7 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | Material Design | `ui/theme/` + `res/font/` de cada app — **ya hecho**, con paleta propia y modo oscuro |
 | MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — en uso en las dos apps |
 | Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions de pedidos y reservas (HU07, HU08, HU09, HU10) y a Geocoding API (HU08, SCRUM-167) — **en uso en las dos apps** |
-| WorkManager | `app-comensal/workers/`: el recordatorio de la reserva (HU10, SCRUM-103) |
+| WorkManager | `app-comensal/workers/`: el recordatorio de la reserva (HU10, SCRUM-103) — **en uso** |
 | SQLite | `data/local/` (Room) — **en las dos apps**: el borrador del menú del día (HU04) y el carrito del comensal (HU08) |
 | Dashboards | `app-restaurante/presentation/dashboard/` y `admin/dashboard_global/` (Vico), con consultas de agregación de Firestore |
 | Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (pizarra y carta, HU04) — **la pizarra ya usa CameraX**; GPS, biometría, micrófono → `app-comensal` — **GPS en Explorar (HU06) y biometría al pagar (HU08, `BiometricPrompt`)** |
