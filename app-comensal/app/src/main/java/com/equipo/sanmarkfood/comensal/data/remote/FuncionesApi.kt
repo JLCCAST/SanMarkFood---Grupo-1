@@ -10,7 +10,21 @@ interface FuncionesApi {
 
     @POST("actualizarPedido")
     suspend fun actualizarPedido(@Body cambio: ActualizarPedidoDto): EstadoDto
+
+    @POST("resenas")
+    suspend fun calificarPedido(@Body calificacion: CalificacionDto): PedidoCalificadoDto
 }
+
+@Serializable
+data class CalificacionDto(
+    val pedidoId: String,
+    val estrellas: Int,
+    val comentario: String? = null,
+    val platos: Map<String, Boolean>? = null,
+)
+
+@Serializable
+data class PedidoCalificadoDto(val pedidoId: String)
 
 @Serializable
 data class ActualizarPedidoDto(

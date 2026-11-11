@@ -9,9 +9,12 @@ import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorCancelarPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.EstadoPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Pedido
+import com.equipo.sanmarkfood.comensal.domain.model.resenas.ErrorCalificar
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CancelarPedidoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarPedidoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.RecuperarPedidoEnCarritoUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.resenas.CalificarPedidoUseCase
+import com.equipo.sanmarkfood.comensal.presentation.resenas.CalificacionUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +33,7 @@ data class SeguimientoPedidoUiState(
     val cancelando: Boolean = false,
     val errorCancelar: ErrorCancelarPedido? = null,
     val irALaCarta: String? = null,
+    val calificacion: CalificacionUiState = CalificacionUiState(),
 ) {
     val puedeCancelar: Boolean
         get() = pedido?.estado == EstadoPedido.RECIBIDO && !cancelando
@@ -41,6 +45,7 @@ class SeguimientoPedidoViewModel @Inject constructor(
     private val observarPedido: ObservarPedidoUseCase,
     private val cancelarPedido: CancelarPedidoUseCase,
     private val recuperarPedidoEnCarrito: RecuperarPedidoEnCarritoUseCase,
+    private val calificarPedido: CalificarPedidoUseCase,
 ) : ViewModel() {
 
     private val pedidoId = savedStateHandle.toRoute<SeguimientoPedido>().pedidoId
@@ -95,6 +100,46 @@ class SeguimientoPedidoViewModel @Inject constructor(
 
     fun navegacionHecha() {
         _uiState.update { it.copy(irALaCarta = null) }
+    }
+
+    fun elegirEstrellas(estrellas: Int) {
+        actualizarCalificacion { it.copy(estrellas = estrellas) }
+    }
+
+    fun escribirComentario(comentario: String) {
+        actualizarCalificacion { it.copy(comentario = comentario) }
+    }
+
+    fun votarPlato(platoId: String, meGusto: Boolean) {
+        actualizarCalificacion {
+            val votos = if (it.votos[platoId] == meGusto) it.votos - platoId else it.votos + (platoId to meGusto)
+            it.copy(votos = votos)
+        }
+    }
+
+    fun enviarCalificacion() {
+        val pedido = _uiState.value.pedido ?: return
+        val calificacion = _uiState.value.calificacion
+        if (calificacion.estrellas == 0 || calificacion.enviando) return
+        actualizarCalificacion { it.copy(enviando = true, error = null) }
+        viewModelScope.launch {
+            try {
+                calificarPedido(pedido.id, calificacion.estrellas, calificacion.comentario, calificacion.votos)
+                actualizarCalificacion { it.copy(enviando = false, enviada = true) }
+            } catch (e: ErrorCalificar.YaCalificado) {
+                actualizarCalificacion { it.copy(enviando = false, enviada = true, yaCalificada = true) }
+            } catch (e: ErrorCalificar) {
+                actualizarCalificacion { it.copy(enviando = false, error = e) }
+            }
+        }
+    }
+
+    fun errorCalificarMostrado() {
+        actualizarCalificacion { it.copy(error = null) }
+    }
+
+    private fun actualizarCalificacion(cambio: (CalificacionUiState) -> CalificacionUiState) {
+        _uiState.update { it.copy(calificacion = cambio(it.calificacion)) }
     }
 
     private fun escucharPedido() {

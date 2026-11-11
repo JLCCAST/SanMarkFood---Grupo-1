@@ -364,7 +364,7 @@
     <string name="seguimiento_en_camino_titulo">En camino</string>
     <string name="seguimiento_en_camino_detalle">Llega en unos minutos a tu dirección</string>
     <string name="seguimiento_entregado_titulo">Entregado</string>
-    <string name="seguimiento_entregado_detalle">¡Buen provecho!</string>
+    <string name="seguimiento_entregado_detalle">Buen provecho. Califica tu pedido abajo</string>
     <string name="seguimiento_codigo_titulo">Código de recojo</string>
     <string name="seguimiento_codigo_detalle">Díselo al cajero para recoger</string>
     <string name="seguimiento_entrega_en">ENTREGA EN</string>
@@ -407,6 +407,24 @@
     <string name="rechazo_ver_otros_locales">Ver otros locales cerca</string>
     <string name="rechazo_se_guarda">Lo que sigue disponible vuelve a tu pedido para que no lo armes otra vez.</string>
     <string name="seguimiento_volver_carta">Volver a la carta</string>
+    <string name="calificacion_titulo">¿Qué tal estuvo tu pedido?</string>
+    <string name="calificacion_subtitulo">Tu calificación de %1$s</string>
+    <plurals name="calificacion_estrellas">
+        <item quantity="one">%1$d estrella</item>
+        <item quantity="other">%1$d estrellas</item>
+    </plurals>
+    <string name="calificacion_platos_titulo">¿Te gustaron tus platos? (opcional)</string>
+    <string name="calificacion_de_la_carta">De la carta</string>
+    <string name="calificacion_me_gusto">Me gustó %1$s</string>
+    <string name="calificacion_no_me_gusto">No me gustó %1$s</string>
+    <string name="calificacion_comentario_titulo">Comentario sobre el local (opcional)</string>
+    <string name="calificacion_comentario_pista">Cuéntales a otros sanmarquinos cómo te fue</string>
+    <string name="calificacion_enviar">Enviar calificación</string>
+    <string name="calificacion_gracias">¡Gracias! Tu calificación ayuda a otros comensales.</string>
+    <string name="calificacion_ya_enviada">Ya calificaste este pedido. ¡Gracias por tu opinión!</string>
+    <string name="calificacion_error_sin_conexion">Sin conexión. No pudimos enviar tu calificación.</string>
+    <string name="calificacion_error_no_entregado">Solo puedes calificar un pedido ya entregado.</string>
+    <string name="calificacion_error">No pudimos enviar tu calificación. Inténtalo de nuevo.</string>
     <string name="cancelar_pedido">Cancelar pedido</string>
     <string name="cancelar_pedido_pista">Puedes cancelar mientras el restaurante no lo acepte</string>
     <string name="cancelar_pedido_titulo">¿Cancelar tu pedido?</string>

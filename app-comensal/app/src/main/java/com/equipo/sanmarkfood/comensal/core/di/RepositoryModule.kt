@@ -8,6 +8,7 @@ import com.equipo.sanmarkfood.comensal.data.repository.DispositivosRepositoryImp
 import com.equipo.sanmarkfood.comensal.data.repository.FavoritosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.GeocodificacionRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.PedidosRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.ResenasRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.UbicacionRepositoryImpl
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
@@ -18,6 +19,7 @@ import com.equipo.sanmarkfood.comensal.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.FavoritosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.GeocodificacionRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.PedidosRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.ResenasRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.UbicacionRepository
 import dagger.Binds
@@ -69,4 +71,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindGeocodificacionRepository(impl: GeocodificacionRepositoryImpl): GeocodificacionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindResenasRepository(impl: ResenasRepositoryImpl): ResenasRepository
 }

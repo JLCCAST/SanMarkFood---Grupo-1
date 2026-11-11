@@ -72,6 +72,9 @@ import com.equipo.sanmarkfood.comensal.domain.model.pedidos.EstadoPago
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.EstadoPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Modalidad
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Pedido
+import com.equipo.sanmarkfood.comensal.domain.model.resenas.ErrorCalificar
+import com.equipo.sanmarkfood.comensal.presentation.resenas.TarjetaCalificacion
+import com.equipo.sanmarkfood.comensal.presentation.resenas.platosCalificables
 import com.equipo.sanmarkfood.comensal.ui.theme.HandwrittenLargeStyle
 import com.equipo.sanmarkfood.comensal.ui.theme.extendedColors
 import java.text.SimpleDateFormat
@@ -106,6 +109,16 @@ fun SeguimientoPedidoScreen(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val mensajeErrorCalificar = estado.calificacion.error?.let { stringResource(it.mensaje()) }
+    LaunchedEffect(estado.calificacion.error) {
+        if (mensajeErrorCalificar != null) {
+            try {
+                snackbarHostState.showSnackbar(mensajeErrorCalificar)
+            } finally {
+                viewModel.errorCalificarMostrado()
+            }
+        }
+    }
     val mensajeErrorCancelar = estado.errorCancelar?.let { stringResource(it.mensaje()) }
     LaunchedEffect(estado.errorCancelar) {
         if (mensajeErrorCancelar != null) {
@@ -183,6 +196,17 @@ fun SeguimientoPedidoScreen(
                             SeccionCancelar(
                                 cancelando = estado.cancelando,
                                 onCancelar = viewModel::pedirCancelacion
+                            )
+                        }
+                        if (pedido.estado == EstadoPedido.ENTREGADO) {
+                            TarjetaCalificacion(
+                                restauranteNombre = pedido.restauranteNombre,
+                                platos = platosCalificables(pedido.items),
+                                estado = estado.calificacion,
+                                onElegirEstrellas = viewModel::elegirEstrellas,
+                                onEscribirComentario = viewModel::escribirComentario,
+                                onVotar = viewModel::votarPlato,
+                                onEnviar = viewModel::enviarCalificacion
                             )
                         }
                     }
@@ -619,6 +643,13 @@ private fun ErrorCancelarPedido.mensaje(): Int = when (this) {
     ErrorCancelarPedido.SinConexion -> R.string.cancelar_pedido_error_sin_conexion
     ErrorCancelarPedido.YaAceptado -> R.string.cancelar_pedido_error_ya_aceptado
     ErrorCancelarPedido.Desconocido -> R.string.cancelar_pedido_error
+}
+
+@StringRes
+private fun ErrorCalificar.mensaje(): Int = when (this) {
+    ErrorCalificar.SinConexion -> R.string.calificacion_error_sin_conexion
+    ErrorCalificar.NoEntregado -> R.string.calificacion_error_no_entregado
+    else -> R.string.calificacion_error
 }
 
 @Composable
