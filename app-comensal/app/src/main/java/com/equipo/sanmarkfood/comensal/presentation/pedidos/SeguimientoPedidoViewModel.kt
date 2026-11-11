@@ -11,6 +11,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.pedidos.EstadoPedido
 import com.equipo.sanmarkfood.comensal.domain.model.pedidos.Pedido
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.CancelarPedidoUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.ObservarPedidoUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.pedidos.RecuperarPedidoEnCarritoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,7 @@ data class SeguimientoPedidoUiState(
     val confirmandoCancelacion: Boolean = false,
     val cancelando: Boolean = false,
     val errorCancelar: ErrorCancelarPedido? = null,
+    val irALaCarta: String? = null,
 ) {
     val puedeCancelar: Boolean
         get() = pedido?.estado == EstadoPedido.RECIBIDO && !cancelando
@@ -38,6 +40,7 @@ class SeguimientoPedidoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val observarPedido: ObservarPedidoUseCase,
     private val cancelarPedido: CancelarPedidoUseCase,
+    private val recuperarPedidoEnCarrito: RecuperarPedidoEnCarritoUseCase,
 ) : ViewModel() {
 
     private val pedidoId = savedStateHandle.toRoute<SeguimientoPedido>().pedidoId
@@ -80,6 +83,18 @@ class SeguimientoPedidoViewModel @Inject constructor(
 
     fun errorCancelarMostrado() {
         _uiState.update { it.copy(errorCancelar = null) }
+    }
+
+    fun volverALaCarta() {
+        val pedido = _uiState.value.pedido ?: return
+        viewModelScope.launch {
+            if (pedido.estado == EstadoPedido.RECHAZADO) recuperarPedidoEnCarrito(pedido)
+            _uiState.update { it.copy(irALaCarta = pedido.restauranteId) }
+        }
+    }
+
+    fun navegacionHecha() {
+        _uiState.update { it.copy(irALaCarta = null) }
     }
 
     private fun escucharPedido() {

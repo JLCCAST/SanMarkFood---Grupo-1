@@ -30,6 +30,7 @@ internal fun DocumentSnapshot.aPedido(): Pedido? {
         aceptadoEn = getTimestamp("aceptadoEn")?.toDate()?.time,
         listoAprox = getTimestamp("listoAprox")?.toDate()?.time,
         entregadoEn = getTimestamp("entregadoEn")?.toDate()?.time,
+        actualizadoEn = getTimestamp("actualizadoEn")?.toDate()?.time,
     )
 }
 

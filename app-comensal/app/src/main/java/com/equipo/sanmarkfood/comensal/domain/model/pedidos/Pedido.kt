@@ -40,9 +40,15 @@ data class Pedido(
     val aceptadoEn: Long?,
     val listoAprox: Long?,
     val entregadoEn: Long?,
+    val actualizadoEn: Long? = null,
 ) {
     val enCurso: Boolean
         get() = estado != EstadoPedido.ENTREGADO &&
                 estado != EstadoPedido.RECHAZADO &&
                 estado != EstadoPedido.CANCELADO
+
+    fun seAgoto(item: ItemPedido): Boolean {
+        val agotado = rechazo?.takeIf { it.motivo == MotivoRechazo.PLATO_AGOTADO }?.platoAgotado ?: return false
+        return item.nombre == agotado || item.entrada == agotado || item.segundo == agotado
+    }
 }

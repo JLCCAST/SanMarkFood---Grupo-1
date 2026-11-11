@@ -99,6 +99,12 @@ fun SeguimientoPedidoScreen(
         )
     }
 
+    LaunchedEffect(estado.irALaCarta) {
+        val restauranteId = estado.irALaCarta ?: return@LaunchedEffect
+        viewModel.navegacionHecha()
+        onVolverALaCarta(restauranteId)
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val mensajeErrorCancelar = estado.errorCancelar?.let { stringResource(it.mensaje()) }
     LaunchedEffect(estado.errorCancelar) {
@@ -158,14 +164,13 @@ fun SeguimientoPedidoScreen(
                             if (pedido.pago == EstadoPago.REVERTIDO) R.string.seguimiento_cancelado_con_reversion
                             else R.string.seguimiento_cancelado_mensaje
                         ),
-                        onVolverALaCarta = { onVolverALaCarta(pedido.restauranteId) }
+                        onVolverALaCarta = viewModel::volverALaCarta
                     )
 
-                    EstadoPedido.RECHAZADO -> TarjetaPedidoCerrado(
-                        etiqueta = stringResource(R.string.seguimiento_rechazado_etiqueta),
-                        titulo = stringResource(R.string.seguimiento_rechazado_titulo),
-                        mensaje = stringResource(R.string.seguimiento_rechazado_mensaje),
-                        onVolverALaCarta = { onVolverALaCarta(pedido.restauranteId) }
+                    EstadoPedido.RECHAZADO -> PedidoRechazado(
+                        pedido = pedido,
+                        onVolverALaCarta = viewModel::volverALaCarta,
+                        onVerOtrosLocales = onCerrar
                     )
 
                     else -> {
