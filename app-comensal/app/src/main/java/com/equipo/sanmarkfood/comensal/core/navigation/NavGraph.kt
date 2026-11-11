@@ -26,6 +26,7 @@ import com.equipo.sanmarkfood.comensal.presentation.pedidos.TuPedidoScreen
 import com.equipo.sanmarkfood.comensal.presentation.reservas.ReservarMesaScreen
 
 private const val RESTAURANTE_A_ENFOCAR = "restauranteAEnfocar"
+private const val ABRIR_RESERVAS = "abrirReservas"
 
 @Composable
 fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
@@ -63,8 +64,13 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
             val restauranteAEnfocar by entrada.savedStateHandle
                 .getStateFlow<String?>(RESTAURANTE_A_ENFOCAR, null)
                 .collectAsState()
+            val abrirReservas by entrada.savedStateHandle
+                .getStateFlow(ABRIR_RESERVAS, false)
+                .collectAsState()
             PanelComensalScreen(
                 restauranteAEnfocar = restauranteAEnfocar,
+                abrirReservas = abrirReservas,
+                onReservasAbiertas = { entrada.savedStateHandle[ABRIR_RESERVAS] = false },
                 onAbrirRestaurante = { id ->
                     navController.navigate(DetalleRestaurante(id)) { launchSingleTop = true }
                 },
@@ -103,6 +109,7 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
             ReservarMesaScreen(
                 onVolver = { navController.navigateUp() },
                 onVerActividad = {
+                    navController.getBackStackEntry<PanelComensal>().savedStateHandle[ABRIR_RESERVAS] = true
                     navController.navigate(PanelComensal) {
                         popUpTo<PanelComensal>()
                         launchSingleTop = true
