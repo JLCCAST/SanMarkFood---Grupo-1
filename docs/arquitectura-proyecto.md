@@ -236,7 +236,7 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 - **Reserva:** `pendiente` → `confirmada`. Además, `rechazada` (por el local, o sola 60 minutos antes) y `cancelada`. Si el comensal la modifica, vuelve a `pendiente`.
 - **Menú del día:** no hay documento hasta que se publica; después, `publicado` o `terminado` («Terminar menú de hoy» y «Reabrir»).
 
-**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; `revisarLocal` (HU24), que se dispara sola cuando cambia el `estado` de un local; y `analizarResena` (HU15), que se dispara con cada reseña nueva. El detalle de las de pedidos y reservas está en «Pedidos y reservas», más abajo.
+**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; `revisarLocal` (HU24), que se dispara sola cuando cambia el `estado` de un local; `analizarResena` (HU15), que se dispara con cada reseña nueva; y `datosIniciales` (HU27), HTTPS y solo para el administrador, que carga o borra los datos de prueba (ver «Datos iniciales»). El detalle de las de pedidos y reservas está en «Pedidos y reservas», más abajo.
 
 **Los ítems del pedido (acuerdo del 8 oct, para HU07, HU08 y HU13).** Cada ítem de `pedidos/{id}` guarda `tipo` (`plato` o `menu`), `cantidad`, y el `nombre` y el `precio` copiados al momento de pedir. Un plato de la carta guarda además su `platoId`; el menú del día, la `fecha` del menú y los nombres de la `entrada` y el `segundo` elegidos. El ranking de platos más pedidos de O6 (SCRUM-131, función `rankingPlatos`) cuenta los platos por `platoId` y no por nombre, porque el local puede renombrarlos, y junta todos los ítems `menu` en una sola fila, «Menú del día», como en el diseño. Las opciones del menú no se rankean: son texto libre que cambia cada día, y a veces lo escribe la IA. Por la misma razón, el dashboard del administrador (HU26) no compara platos entre locales; puede agrupar por la `categoria` del local, que es una lista fija.
 
@@ -362,6 +362,25 @@ Todo lleva `ejemplo: true`, así que se borra sin tocar datos reales. Cómo usar
 5. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
 
 **La reseña (`restaurantes/{uid}/resenas/{pedidoId}`):** `{ comensalUid, comensalNombre, estrellas, comentario, platos, creadoEn }`, con `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»). HU15 le agrega `sentimiento` (`positiva`, `neutra` o `negativa`) y, en las negativas que analizó Gemini, `motivo`: una frase corta como «llegó frío y faltó la bebida». HU21 le agrega la `respuesta` del local.
+
+### Datos iniciales (HU27, SCRUM-171)
+
+Pedido de la profesora: un módulo **dentro de la aplicación** que cree los datos iniciales. Vive en la pestaña **Datos** del panel del Administrador (App Restaurante, `presentation/admin/datos_iniciales/`), con «Cargar datos iniciales» y «Borrar datos iniciales», cada uno con su confirmación. Al cargar, la pantalla muestra el resumen y las cuentas de prueba.
+
+La app no puede escribir estos datos: las reglas no le dejan crear cuentas, locales de otros ni pedidos. Por eso lo hace la función HTTPS **`datosIniciales`** (`functions/src/datosIniciales.ts`), con el Admin SDK. Recibe `{ accion: "cargar" | "borrar" }` y solo la acepta si `usuarios/{uid}.rol` es `administrador` (si no, `403 no_autorizado`). **Cargar siempre borra antes la carga anterior**, así que se puede repetir sin duplicar nada. La app la llama con `DatosInicialesApi`, un Retrofit aparte con 120 s de espera, porque la carga tarda varios segundos.
+
+Qué se carga, un módulo por proceso en `functions/src/semilla/`:
+
+| Módulo | Qué crea |
+| --- | --- |
+| `cuentas.ts` | 6 locales aprobados, uno por categoría, cerca de la Ciudad Universitaria, abiertos de 00:00 a 23:30 todos los días, con reservas activadas (cupo 12). 3 comensales con la dirección frecuente «Facultad». Cada uno con su cuenta en Firebase Auth (correo verificado) y su `usuarios/{uid}`. |
+| `carta.ts` | Por local, 2 categorías con 5 platos y el menú de hoy publicado (hasta las 23:00) y el de ayer terminado, más `menuHoy` y `rangoCarta`. En la mitad de los locales hay un plato agotado hoy, y en todos el último segundo del menú está agotado. |
+| `actividad.ts` | Por local, pedidos en todos los estados (recibido, preparando, listo, en camino, rechazado con motivo y automático, cancelado), 3 entregados con reseña y entre 1 y 3 entregas por semana en las últimas 7 semanas (para los dashboards). 5 reservas en distintos estados, con su cupo en `franjas`, `ultimoNumeroPedido` y `calificacion`. |
+| `borrar.ts` | Borra los pedidos y reservas de los locales y comensales de prueba (y devuelve el cupo si una reserva de prueba ocupaba un local real), los locales y usuarios de prueba con sus subcolecciones y las cuentas de Auth. |
+
+Los locales y comensales de prueba tienen `uid` fijos (`semilla-local-criolla`, `semilla-comensal-1`…) y correos `@datos.sanmarkfood.test`, todos con la contraseña `SanMark2026!`. Así se pueden borrar sin tocar los datos reales. Los pedidos, reservas y reseñas llevan `semilla: true`. Ojo: los pedidos `recibido` se rechazan solos a los 10 minutos (`vencimientos`), y las reseñas de 3 estrellas o menos pasan por Gemini (`analizarResena`), como las reales.
+
+**Cuando una historia nueva agregue datos**, se suma su módulo en `semilla/` (o se amplía el de su proceso) y se llama desde `datosIniciales.ts`. Si crea colecciones nuevas ligadas a los locales o comensales de prueba, `borrar.ts` también tiene que limpiarlas.
 
 ### Reglas de Firestore e índices (SCRUM-91)
 

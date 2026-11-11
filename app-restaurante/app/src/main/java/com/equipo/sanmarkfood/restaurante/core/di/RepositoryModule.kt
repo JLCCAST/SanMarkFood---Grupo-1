@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.restaurante.core.di
 
 import com.equipo.sanmarkfood.restaurante.data.repository.AuthRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.BorradorMenuRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.DatosInicialesRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MenuRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MetricasRepositoryImpl
@@ -14,6 +15,7 @@ import com.equipo.sanmarkfood.restaurante.data.repository.RevisionRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.SolicitudesRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.BorradorMenuRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.DatosInicialesRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
@@ -83,4 +85,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindReservasRepository(impl: ReservasRepositoryImpl): ReservasRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDatosInicialesRepository(impl: DatosInicialesRepositoryImpl): DatosInicialesRepository
 }

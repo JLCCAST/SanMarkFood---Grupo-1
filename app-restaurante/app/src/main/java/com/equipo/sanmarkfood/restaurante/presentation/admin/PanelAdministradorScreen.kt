@@ -26,6 +26,7 @@ import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.presentation.admin.aprobacion.SolicitudesScreen
 import com.equipo.sanmarkfood.restaurante.presentation.admin.aprobacion.SolicitudesViewModel
 import com.equipo.sanmarkfood.restaurante.presentation.admin.dashboard_global.MetricasScreen
+import com.equipo.sanmarkfood.restaurante.presentation.admin.datos_iniciales.DatosInicialesScreen
 import com.equipo.sanmarkfood.restaurante.ui.theme.extendedColors
 
 @Composable
@@ -67,6 +68,10 @@ fun PanelAdministradorScreen(
                 modifier = contenido,
             )
             PestanaAdmin.METRICAS -> MetricasScreen(
+                onSalir = viewModel::onCerrarSesion,
+                modifier = contenido,
+            )
+            PestanaAdmin.DATOS -> DatosInicialesScreen(
                 onSalir = viewModel::onCerrarSesion,
                 modifier = contenido,
             )
