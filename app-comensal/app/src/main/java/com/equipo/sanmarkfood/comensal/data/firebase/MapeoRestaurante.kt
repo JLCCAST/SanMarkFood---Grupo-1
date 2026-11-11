@@ -28,7 +28,10 @@ internal fun DocumentSnapshot.aRestaurante(): Restaurante? {
         resumenResenas = ((get("resumenResenas") as? Map<*, *>)?.get("texto") as? String)?.takeIf { it.isNotBlank() },
         menuHoy = (get("menuHoy") as? Map<*, *>)?.aMenuDelDia(),
         rangoCarta = (get("rangoCarta") as? Map<*, *>)?.aRangoCarta(),
-        horario = (get("horario") as? Map<*, *>)?.aHorario().orEmpty()
+        horario = (get("horario") as? Map<*, *>)?.aHorario().orEmpty(),
+        telefono = getString("telefono").orEmpty(),
+        aceptaReservas = getBoolean("aceptaReservas") ?: true,
+        cupoPorFranja = getLong("cupoPorFranja")?.toInt()
     )
 }
 
