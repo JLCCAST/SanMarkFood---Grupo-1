@@ -30,11 +30,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.DialogoErrorEnvio
+import com.equipo.sanmarkfood.comensal.presentation.reservas.DialogoCancelarReserva
 import com.equipo.sanmarkfood.comensal.presentation.reservas.ListaReservas
 import com.equipo.sanmarkfood.comensal.presentation.reservas.ReservasActividadUiState
 import com.equipo.sanmarkfood.comensal.presentation.reservas.ReservasActividadViewModel
 import com.equipo.sanmarkfood.comensal.presentation.reservas.SinReservas
 import com.equipo.sanmarkfood.comensal.presentation.reservas.TarjetaProximaReserva
+import com.equipo.sanmarkfood.comensal.presentation.reservas.mensajeDeErrorReserva
 
 enum class PestanaActividad(val titulo: Int) {
     PEDIDOS(R.string.actividad_tab_pedidos),
@@ -46,11 +49,22 @@ fun ActividadScreen(
     abrirReservas: Boolean,
     onReservasAbiertas: () -> Unit,
     onVerLocales: () -> Unit,
+    onAbrirReserva: (String) -> Unit,
     modifier: Modifier = Modifier,
     reservasViewModel: ReservasActividadViewModel = hiltViewModel(),
 ) {
     val reservas by reservasViewModel.uiState.collectAsState()
     var pestana by rememberSaveable { mutableIntStateOf(PestanaActividad.PEDIDOS.ordinal) }
+
+    reservas.porCancelar?.let { reserva ->
+        DialogoCancelarReserva(
+            reserva = reserva,
+            cancelando = reservas.cancelando,
+            onVolver = reservasViewModel::cerrarCancelar,
+            onConfirmar = reservasViewModel::confirmarCancelar
+        )
+    }
+    reservas.error?.let { DialogoErrorEnvio(mensajeDeErrorReserva(it), reservasViewModel::cerrarError) }
 
     LaunchedEffect(abrirReservas) {
         if (abrirReservas) {
@@ -74,7 +88,8 @@ fun ActividadScreen(
         reservas.proxima?.let { proxima ->
             TarjetaProximaReserva(
                 item = proxima,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp),
+                onCancelar = { reservasViewModel.pedirCancelar(proxima.reserva) }
             )
         }
         PrimaryTabRow(
@@ -102,7 +117,7 @@ fun ActividadScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 40.dp)
             )
-            PestanaActividad.RESERVAS -> ContenidoReservas(reservas, reservasViewModel::reintentar, onVerLocales)
+            PestanaActividad.RESERVAS -> ContenidoReservas(reservas, reservasViewModel::reintentar, onVerLocales, onAbrirReserva)
         }
     }
 }
@@ -112,6 +127,7 @@ private fun ContenidoReservas(
     estado: ReservasActividadUiState,
     onReintentar: () -> Unit,
     onVerLocales: () -> Unit,
+    onAbrirReserva: (String) -> Unit,
 ) {
     when {
         estado.cargando -> Box(
@@ -145,7 +161,8 @@ private fun ContenidoReservas(
         estado.reservas.isEmpty() -> SinReservas(onVerLocales)
         else -> ListaReservas(
             reservas = estado.reservas,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
+            onAbrir = { onAbrirReserva(it.id) }
         )
     }
 }

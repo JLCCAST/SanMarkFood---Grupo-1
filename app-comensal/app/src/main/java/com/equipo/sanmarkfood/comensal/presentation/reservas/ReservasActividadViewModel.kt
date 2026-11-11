@@ -8,6 +8,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.reservas.EstadoVisibleReserv
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.Reserva
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.estadoVisible
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.proximaReserva
+import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.CancelarReservaUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ObservarRecordatoriosUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ObservarReservasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ReservaEnLista(
@@ -36,6 +38,15 @@ data class ReservasActividadUiState(
     val sinConexion: Boolean = false,
     val proxima: ReservaEnLista? = null,
     val reservas: List<ReservaEnLista> = emptyList(),
+    val porCancelar: Reserva? = null,
+    val cancelando: Boolean = false,
+    val error: ErrorReservas? = null,
+)
+
+private data class AccionActividad(
+    val porCancelar: Reserva? = null,
+    val cancelando: Boolean = false,
+    val error: ErrorReservas? = null,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -43,9 +54,11 @@ data class ReservasActividadUiState(
 class ReservasActividadViewModel @Inject constructor(
     observarReservas: ObservarReservasUseCase,
     observarRecordatorios: ObservarRecordatoriosUseCase,
+    private val cancelarReserva: CancelarReservaUseCase,
 ) : ViewModel() {
 
     private val reintento = MutableStateFlow(0)
+    private val accion = MutableStateFlow(AccionActividad())
 
     private val reloj = flow {
         while (true) {
@@ -59,12 +72,14 @@ class ReservasActividadViewModel @Inject constructor(
             observarReservas().map { Result.success(it) }.catch { emit(Result.failure(it)) },
             observarRecordatorios(),
             reloj,
-        ) { resultado, recordatorios, ahora ->
+            accion,
+        ) { resultado, recordatorios, ahora, accion ->
             val reservas = resultado.getOrNull()
             if (reservas == null) {
                 ReservasActividadUiState(
                     cargando = false,
                     sinConexion = resultado.exceptionOrNull() == ErrorReservas.SinConexion,
+                    error = accion.error,
                 )
             } else {
                 val enLista = reservas.map { ReservaEnLista(it, it.estadoVisible(ahora), recordatorios[it.id]) }
@@ -73,12 +88,34 @@ class ReservasActividadViewModel @Inject constructor(
                     cargando = false,
                     proxima = enLista.firstOrNull { it.reserva.id == proxima?.id },
                     reservas = enLista,
+                    porCancelar = accion.porCancelar,
+                    cancelando = accion.cancelando,
+                    error = accion.error,
                 )
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReservasActividadUiState())
 
     fun reintentar() = reintento.update { it + 1 }
+
+    fun pedirCancelar(reserva: Reserva) = accion.update { it.copy(porCancelar = reserva) }
+
+    fun cerrarCancelar() = accion.update { it.copy(porCancelar = null) }
+
+    fun cerrarError() = accion.update { it.copy(error = null) }
+
+    fun confirmarCancelar() {
+        val reserva = accion.value.porCancelar ?: return
+        accion.update { it.copy(cancelando = true) }
+        viewModelScope.launch {
+            try {
+                cancelarReserva(reserva)
+                accion.update { AccionActividad() }
+            } catch (e: ErrorReservas) {
+                accion.update { AccionActividad(error = e) }
+            }
+        }
+    }
 
     private companion object {
         const val MILIS_POR_MINUTO = 60_000L

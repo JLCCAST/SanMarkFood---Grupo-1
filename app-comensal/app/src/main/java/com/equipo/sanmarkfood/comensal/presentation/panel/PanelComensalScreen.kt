@@ -50,6 +50,9 @@ fun PanelComensalScreen(
     restauranteAEnfocar: String?,
     abrirReservas: Boolean,
     onReservasAbiertas: () -> Unit,
+    abrirExplorar: Boolean,
+    onExplorarAbierto: () -> Unit,
+    onAbrirReserva: (String) -> Unit,
     onAbrirRestaurante: (String) -> Unit,
     onAbrirPedido: (String) -> Unit,
     onLogout: () -> Unit,
@@ -63,6 +66,12 @@ fun PanelComensalScreen(
     }
     LaunchedEffect(abrirReservas) {
         if (abrirReservas) seleccionada = Pestana.ACTIVIDAD.ordinal
+    }
+    LaunchedEffect(abrirExplorar) {
+        if (abrirExplorar) {
+            seleccionada = Pestana.EXPLORAR.ordinal
+            onExplorarAbierto()
+        }
     }
     PedirPermisoDeAvisos()
 
@@ -102,6 +111,7 @@ fun PanelComensalScreen(
                 abrirReservas = abrirReservas,
                 onReservasAbiertas = onReservasAbiertas,
                 onVerLocales = { seleccionada = Pestana.EXPLORAR.ordinal },
+                onAbrirReserva = onAbrirReserva,
                 modifier = Modifier.padding(innerPadding)
             )
 
