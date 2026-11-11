@@ -629,28 +629,52 @@ private fun ListaRestaurantes(
     ubicacionActiva: Boolean,
     onActivarUbicacion: () -> Unit
 ) {
-    val elementosEncabezado = if (mostrarAviso) 2 else 1
+    val elementosEncabezado = if (mostrarAviso) 1 else 0
 
     LaunchedEffect(seleccionadoId) {
         val indice = restaurantes.indexOfFirst { it.id == seleccionadoId }
         if (indice >= 0) estadoLista.animateScrollToItem(indice + elementosEncabezado)
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = estadoLista,
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        if (mostrarAviso) {
-            item { AvisoUbicacion(onActivar = onActivarUbicacion) }
-        }
-
-        item {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp)) {
             CabeceraLista(
                 cantidad = restaurantes.size,
                 ubicacionActiva = ubicacionActiva
             )
+        }
+        ContenidoLista(
+            restaurantes = restaurantes,
+            estadoLista = estadoLista,
+            seleccionadoId = seleccionadoId,
+            onSeleccionar = onSeleccionar,
+            hayFiltros = hayFiltros,
+            onLimpiarFiltros = onLimpiarFiltros,
+            mostrarAviso = mostrarAviso,
+            onActivarUbicacion = onActivarUbicacion
+        )
+    }
+}
+
+@Composable
+private fun ContenidoLista(
+    restaurantes: List<Restaurante>,
+    estadoLista: LazyListState,
+    seleccionadoId: String?,
+    onSeleccionar: (String) -> Unit,
+    hayFiltros: Boolean,
+    onLimpiarFiltros: () -> Unit,
+    mostrarAviso: Boolean,
+    onActivarUbicacion: () -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        state = estadoLista,
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        if (mostrarAviso) {
+            item { AvisoUbicacion(onActivar = onActivarUbicacion) }
         }
 
         if (restaurantes.isEmpty()) {
@@ -686,7 +710,7 @@ private fun CabeceraLista(cantidad: Int, ubicacionActiva: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
