@@ -67,6 +67,9 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                 onAbrirRestaurante = { id ->
                     navController.navigate(DetalleRestaurante(id)) { launchSingleTop = true }
                 },
+                onAbrirPedido = { pedidoId ->
+                    navController.navigate(SeguimientoPedido(pedidoId)) { launchSingleTop = true }
+                },
                 onLogout = viewModel::cerrarSesion,
             )
         }

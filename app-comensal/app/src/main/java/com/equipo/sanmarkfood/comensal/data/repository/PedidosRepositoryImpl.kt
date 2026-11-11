@@ -33,6 +33,9 @@ class PedidosRepositoryImpl @Inject constructor(
     override fun observarPedido(pedidoId: String): Flow<Pedido?> =
         dataSource.observarPedido(pedidoId).catch { throw it.aErrorPedidos() }
 
+    override fun observarPedidosRecientes(comensalUid: String): Flow<List<Pedido>> =
+        dataSource.observarPedidosRecientes(comensalUid, PEDIDOS_RECIENTES).catch { throw it.aErrorPedidos() }
+
     override suspend fun cancelarPedido(pedidoId: String) {
         llamarFuncion(json, ErrorCancelarPedido.SinConexion, ::errorDeCancelar) {
             api.actualizarPedido(ActualizarPedidoDto(pedidoId = pedidoId, accion = "cancelar"))
@@ -59,6 +62,8 @@ class PedidosRepositoryImpl @Inject constructor(
         PedidoCreado(pedidoId = respuesta.pedidoId, numero = respuesta.numero)
     }
 }
+
+private const val PEDIDOS_RECIENTES = 5L
 
 private fun errorDeCancelar(codigo: String?): Exception = when (codigo) {
     "estado_invalido" -> ErrorCancelarPedido.YaAceptado

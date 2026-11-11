@@ -31,6 +31,8 @@ class CancelarPedidoUseCaseTest {
 
         override fun observarPedido(pedidoId: String): Flow<Pedido?> = emptyFlow()
 
+        override fun observarPedidosRecientes(comensalUid: String): Flow<List<Pedido>> = emptyFlow()
+
         override suspend fun cancelarPedido(pedidoId: String) {
             cancelados += pedidoId
         }

@@ -425,6 +425,11 @@
     <string name="calificacion_error_sin_conexion">Sin conexión. No pudimos enviar tu calificación.</string>
     <string name="calificacion_error_no_entregado">Solo puedes calificar un pedido ya entregado.</string>
     <string name="calificacion_error">No pudimos enviar tu calificación. Inténtalo de nuevo.</string>
+    <string name="aviso_pedido_recibido">Tu pedido espera confirmación</string>
+    <string name="aviso_pedido_preparando">Tu pedido se está preparando</string>
+    <string name="aviso_pedido_listo">Tu pedido está listo para recoger</string>
+    <string name="aviso_pedido_en_camino">Tu pedido va en camino</string>
+    <string name="aviso_pedido_ver">Ver</string>
     <string name="cancelar_pedido">Cancelar pedido</string>
     <string name="cancelar_pedido_pista">Puedes cancelar mientras el restaurante no lo acepte</string>
     <string name="cancelar_pedido_titulo">¿Cancelar tu pedido?</string>
