@@ -19,7 +19,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -27,7 +26,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,6 +58,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,11 +69,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -122,7 +121,7 @@ private enum class CalificacionMinima(
 }
 
 private val ALTO_HOJA_RECOGIDA = 240.dp
-private val ESPACIO_SOBRE_LA_LISTA = 12.dp
+private val RADIO_HOJA = 28.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -250,10 +249,17 @@ fun DescubrimientoScreen(
     val errorSinDatos = state.error != null && state.restaurantes.isEmpty()
 
     var finDeLosFiltros by remember { mutableIntStateOf(0) }
-    val densidad = LocalDensity.current
+    val bordeDeLaHoja by remember {
+        derivedStateOf {
+            runCatching { estadoHoja.bottomSheetState.requireOffset() }.getOrDefault(Float.MAX_VALUE)
+        }
+    }
+    val visibilidadBarra = if (finDeLosFiltros == 0) 1f
+    else ((bordeDeLaHoja - finDeLosFiltros) / finDeLosFiltros).coerceIn(0f, 1f)
+    val redondeoHoja = if (finDeLosFiltros == 0) 1f
+    else (bordeDeLaHoja / finDeLosFiltros).coerceIn(0f, 1f)
 
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val altoMaximoLista = maxHeight - with(densidad) { finDeLosFiltros.toDp() } - ESPACIO_SOBRE_LA_LISTA
+    Box(modifier = modifier.fillMaxSize()) {
         when {
             cargandoSinDatos -> Cargando()
 
@@ -267,20 +273,22 @@ fun DescubrimientoScreen(
                     scaffoldState = estadoHoja,
                     modifier = Modifier.fillMaxSize(),
                     sheetPeekHeight = ALTO_HOJA_RECOGIDA,
+                    sheetShape = RoundedCornerShape(
+                        topStart = RADIO_HOJA * redondeoHoja,
+                        topEnd = RADIO_HOJA * redondeoHoja
+                    ),
                     sheetContent = {
-                        Box(modifier = Modifier.heightIn(max = altoMaximoLista.coerceAtLeast(ALTO_HOJA_RECOGIDA))) {
-                            ListaRestaurantes(
-                                restaurantes = state.restaurantes,
-                                estadoLista = estadoLista,
-                                seleccionadoId = seleccionadoId,
-                                onSeleccionar = onRestauranteSeleccionado,
-                                hayFiltros = state.filtro != FiltroDescubrimiento(),
-                                onLimpiarFiltros = { viewModel.filtrar(FiltroDescubrimiento()) },
-                                mostrarAviso = !ubicacionLista,
-                                ubicacionActiva = ubicacionLista,
-                                onActivarUbicacion = activarUbicacion
-                            )
-                        }
+                        ListaRestaurantes(
+                            restaurantes = state.restaurantes,
+                            estadoLista = estadoLista,
+                            seleccionadoId = seleccionadoId,
+                            onSeleccionar = onRestauranteSeleccionado,
+                            hayFiltros = state.filtro != FiltroDescubrimiento(),
+                            onLimpiarFiltros = { viewModel.filtrar(FiltroDescubrimiento()) },
+                            mostrarAviso = !ubicacionLista,
+                            ubicacionActiva = ubicacionLista,
+                            onActivarUbicacion = activarUbicacion
+                        )
                     }
                 ) { relleno ->
                     MapaRestaurantes(
@@ -295,8 +303,10 @@ fun DescubrimientoScreen(
                 }
 
                 // Barra superior (búsqueda, campana, avatar) y chips flotando sobre el mapa
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
+                if (visibilidadBarra > 0f) Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer { alpha = visibilidadBarra },
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Row(
