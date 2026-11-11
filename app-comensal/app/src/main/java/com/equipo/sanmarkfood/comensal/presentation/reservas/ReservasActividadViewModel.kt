@@ -9,6 +9,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.reservas.Reserva
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.estadoVisible
 import com.equipo.sanmarkfood.comensal.domain.model.reservas.proximaReserva
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.CancelarReservaUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.LimpiarRecordatoriosUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ObservarRecordatoriosUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.ObservarReservasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,6 +56,7 @@ class ReservasActividadViewModel @Inject constructor(
     observarReservas: ObservarReservasUseCase,
     observarRecordatorios: ObservarRecordatoriosUseCase,
     private val cancelarReserva: CancelarReservaUseCase,
+    private val limpiarRecordatorios: LimpiarRecordatoriosUseCase,
 ) : ViewModel() {
 
     private val reintento = MutableStateFlow(0)
@@ -82,6 +84,7 @@ class ReservasActividadViewModel @Inject constructor(
                     error = accion.error,
                 )
             } else {
+                limpiarRecordatorios(reservas, recordatorios)
                 val enLista = reservas.map { ReservaEnLista(it, it.estadoVisible(ahora), recordatorios[it.id]) }
                 val proxima = reservas.proximaReserva(ahora)
                 ReservasActividadUiState(

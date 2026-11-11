@@ -6,16 +6,31 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.equipo.sanmarkfood.comensal.R
 import com.equipo.sanmarkfood.comensal.avisos.mostrarAviso
+import com.equipo.sanmarkfood.comensal.domain.usecase.reservas.VerificarRecordatorioUseCase
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 class RecordatorioReservaWorker(
     context: Context,
     parametros: WorkerParameters,
 ) : CoroutineWorker(context, parametros) {
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface Dependencias {
+        fun verificarRecordatorio(): VerificarRecordatorioUseCase
+    }
+
     override suspend fun doWork(): Result {
         val reservaId = inputData.getString(CLAVE_RESERVA) ?: return Result.failure()
         val restaurante = inputData.getString(CLAVE_RESTAURANTE).orEmpty()
+        val fecha = inputData.getString(CLAVE_FECHA).orEmpty()
         val hora = inputData.getString(CLAVE_HORA).orEmpty()
+        val verificar = EntryPointAccessors.fromApplication(applicationContext, Dependencias::class.java)
+            .verificarRecordatorio()
+        if (!verificar(reservaId, fecha, hora)) return Result.success()
         mostrarAviso(
             context = applicationContext,
             canal = applicationContext.getString(R.string.canal_reservas_id),
