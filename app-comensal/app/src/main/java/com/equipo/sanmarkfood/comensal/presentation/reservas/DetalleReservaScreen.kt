@@ -53,6 +53,7 @@ private data class EventoReserva(val momento: Long?, val texto: String, val actu
 @Composable
 fun DetalleReservaScreen(
     onVolver: () -> Unit,
+    onModificar: (String) -> Unit,
     onReservarOtra: (String) -> Unit,
     onVerLocales: () -> Unit,
     viewModel: DetalleReservaViewModel = hiltViewModel(),
@@ -79,6 +80,7 @@ fun DetalleReservaScreen(
                     reserva = reserva,
                     estado = visible,
                     onCancelar = viewModel::pedirCancelar,
+                    onModificar = { onModificar(reserva.id) },
                     onReservarOtra = { onReservarOtra(reserva.restauranteId) },
                     onVerLocales = onVerLocales
                 )
@@ -299,6 +301,7 @@ private fun AccionesDetalle(
     reserva: Reserva,
     estado: EstadoVisibleReserva,
     onCancelar: () -> Unit,
+    onModificar: () -> Unit,
     onReservarOtra: () -> Unit,
     onVerLocales: () -> Unit,
 ) {
@@ -311,15 +314,27 @@ private fun AccionesDetalle(
     ) {
         when (estado) {
             EstadoVisibleReserva.PENDIENTE, EstadoVisibleReserva.CONFIRMADA -> {
-                OutlinedButton(
-                    onClick = onCancelar,
-                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.error),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text(stringResource(R.string.actividad_cancelar), fontWeight = FontWeight.SemiBold)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = onCancelar,
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.error),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.height(48.dp)
+                    ) {
+                        Text(stringResource(R.string.actividad_cancelar), fontWeight = FontWeight.SemiBold)
+                    }
+                    Button(
+                        onClick = onModificar,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.inverseSurface,
+                            contentColor = MaterialTheme.colorScheme.inverseOnSurface
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
+                    ) {
+                        Text(stringResource(R.string.actividad_modificar), fontWeight = FontWeight.SemiBold)
+                    }
                 }
                 TextButton(onClick = onReservarOtra, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.detalle_reserva_otra), fontWeight = FontWeight.SemiBold)

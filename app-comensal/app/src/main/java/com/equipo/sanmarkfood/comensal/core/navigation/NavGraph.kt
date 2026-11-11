@@ -24,6 +24,7 @@ import com.equipo.sanmarkfood.comensal.presentation.panel.PanelComensalScreen
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.SeguimientoPedidoScreen
 import com.equipo.sanmarkfood.comensal.presentation.pedidos.TuPedidoScreen
 import com.equipo.sanmarkfood.comensal.presentation.reservas.DetalleReservaScreen
+import com.equipo.sanmarkfood.comensal.presentation.reservas.ModificarReservaScreen
 import com.equipo.sanmarkfood.comensal.presentation.reservas.ReservarMesaScreen
 
 private const val RESTAURANTE_A_ENFOCAR = "restauranteAEnfocar"
@@ -81,6 +82,9 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
                 onAbrirReserva = { reservaId ->
                     navController.navigate(DetalleReserva(reservaId)) { launchSingleTop = true }
                 },
+                onModificarReserva = { reservaId ->
+                    navController.navigate(ModificarReserva(reservaId)) { launchSingleTop = true }
+                },
                 onAbrirRestaurante = { id ->
                     navController.navigate(DetalleRestaurante(id)) { launchSingleTop = true }
                 },
@@ -130,11 +134,26 @@ fun ComensalNavGraph(viewModel: SesionViewModel = hiltViewModel()) {
         composable<DetalleReserva> {
             DetalleReservaScreen(
                 onVolver = { navController.navigateUp() },
+                onModificar = { reservaId ->
+                    navController.navigate(ModificarReserva(reservaId)) { launchSingleTop = true }
+                },
                 onReservarOtra = { restauranteId ->
                     navController.navigate(ReservarMesa(restauranteId)) { launchSingleTop = true }
                 },
                 onVerLocales = {
                     navController.getBackStackEntry<PanelComensal>().savedStateHandle[ABRIR_EXPLORAR] = true
+                    navController.navigate(PanelComensal) {
+                        popUpTo<PanelComensal>()
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable<ModificarReserva> {
+            ModificarReservaScreen(
+                onVolver = { navController.navigateUp() },
+                onVolverAActividad = {
+                    navController.getBackStackEntry<PanelComensal>().savedStateHandle[ABRIR_RESERVAS] = true
                     navController.navigate(PanelComensal) {
                         popUpTo<PanelComensal>()
                         launchSingleTop = true
@@ -182,6 +201,7 @@ private fun NavDestination.correspondeA(sesion: EstadoSesion): Boolean = when (s
             hasRoute<TuPedido>() ||
             hasRoute<ReservarMesa>() ||
             hasRoute<DetalleReserva>() ||
+            hasRoute<ModificarReserva>() ||
             hasRoute<SeguimientoPedido>()
 }
 

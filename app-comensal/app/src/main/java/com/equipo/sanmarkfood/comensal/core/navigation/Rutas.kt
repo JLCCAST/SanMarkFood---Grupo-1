@@ -31,3 +31,6 @@ data class ReservarMesa(val restauranteId: String)
 
 @Serializable
 data class DetalleReserva(val reservaId: String)
+
+@Serializable
+data class ModificarReserva(val reservaId: String)

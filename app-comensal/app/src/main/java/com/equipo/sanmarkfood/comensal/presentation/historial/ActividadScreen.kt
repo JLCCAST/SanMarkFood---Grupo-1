@@ -50,6 +50,7 @@ fun ActividadScreen(
     onReservasAbiertas: () -> Unit,
     onVerLocales: () -> Unit,
     onAbrirReserva: (String) -> Unit,
+    onModificarReserva: (String) -> Unit,
     modifier: Modifier = Modifier,
     reservasViewModel: ReservasActividadViewModel = hiltViewModel(),
 ) {
@@ -89,6 +90,7 @@ fun ActividadScreen(
             TarjetaProximaReserva(
                 item = proxima,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp),
+                onModificar = { onModificarReserva(proxima.reserva.id) },
                 onCancelar = { reservasViewModel.pedirCancelar(proxima.reserva) }
             )
         }

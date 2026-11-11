@@ -53,6 +53,7 @@ fun PanelComensalScreen(
     abrirExplorar: Boolean,
     onExplorarAbierto: () -> Unit,
     onAbrirReserva: (String) -> Unit,
+    onModificarReserva: (String) -> Unit,
     onAbrirRestaurante: (String) -> Unit,
     onAbrirPedido: (String) -> Unit,
     onLogout: () -> Unit,
@@ -112,6 +113,7 @@ fun PanelComensalScreen(
                 onReservasAbiertas = onReservasAbiertas,
                 onVerLocales = { seleccionada = Pestana.EXPLORAR.ordinal },
                 onAbrirReserva = onAbrirReserva,
+                onModificarReserva = onModificarReserva,
                 modifier = Modifier.padding(innerPadding)
             )
 

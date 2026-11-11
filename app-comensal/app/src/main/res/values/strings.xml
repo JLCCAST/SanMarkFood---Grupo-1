@@ -618,4 +618,20 @@
     <string name="evento_reserva_rechazada">El restaurante la rechazó y te avisamos</string>
     <string name="evento_reserva_sin_respuesta">Sin respuesta del restaurante: se rechazó automáticamente y te avisamos</string>
     <string name="evento_reserva_cancelada">Cancelaste la solicitud y avisamos al restaurante</string>
+    <string name="modificar_titulo">Modificar reserva</string>
+    <string name="modificar_volver">Volver sin cambios</string>
+    <string name="modificar_actual_confirmada">RESERVA ACTUAL · CONFIRMADA</string>
+    <string name="modificar_actual_pendiente">RESERVA ACTUAL · PENDIENTE</string>
+    <string name="modificar_nota">Al guardar, tu reserva vuelve a quedar pendiente de confirmación con el nuevo horario y se libera tu mesa actual. Si el restaurante la rechaza, no recuperas el horario anterior.</string>
+    <string name="modificar_sin_cambios">SIN CAMBIOS</string>
+    <string name="modificar_nuevo_horario">NUEVO HORARIO</string>
+    <string name="modificar_guardar">Guardar cambios</string>
+    <string name="modificar_confirmar_titulo">¿Cambiar tu reserva?</string>
+    <string name="modificar_confirmar_texto">Liberaremos tu mesa del %1$s a las %2$s y pediremos %3$s. El restaurante tendrá que confirmarla de nuevo.</string>
+    <string name="modificar_confirmar_boton">Cambiar reserva</string>
+    <string name="modificar_hecho_titulo">Reserva cambiada</string>
+    <string name="modificar_liberada">Liberada</string>
+    <string name="modificar_nueva">Nueva</string>
+    <string name="modificar_hecho_texto">Te avisaremos cuando el restaurante responda. Si no responde hasta 60 min antes, se rechaza sola.</string>
+    <string name="modificar_volver_actividad">Volver a Actividad</string>
 </resources>
