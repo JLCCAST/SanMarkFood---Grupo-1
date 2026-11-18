@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.equipo.sanmarkfood.restaurante.core.navigation.HorarioLocal
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CupoReservas
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Hora
@@ -26,6 +27,7 @@ data class HorarioLocalUiState(
     val cargando: Boolean = false,
     val errorCarga: ErrorRestaurante? = null,
     val dias: Map<DiaSemana, HorarioDia> = Horario.PorDefecto.dias,
+    val reservas: CupoReservas = CupoReservas.PorDefecto,
     val diaEditando: DiaSemana? = null,
     val diasInvalidos: Set<DiaSemana> = emptySet(),
     val guardando: Boolean = false,
@@ -49,7 +51,7 @@ class HorarioLocalViewModel @Inject constructor(
     val uiState: StateFlow<HorarioLocalUiState> = _uiState.asStateFlow()
 
     // El horario guardado al abrir O8, para saber si al salir hay cambios que se perderían.
-    private var diasGuardados: Map<DiaSemana, HorarioDia>? = null
+    private var horarioGuardado: Horario? = null
 
     init {
         // En el alta el local todavía no tiene horario: se empieza con el del prototipo.
@@ -82,6 +84,13 @@ class HorarioLocalViewModel @Inject constructor(
         }
     }
 
+    fun onAlternarReservas() = _uiState.update { it.copy(reservas = it.reservas.copy(acepta = !it.reservas.acepta)) }
+
+    fun onCambiarCupo(cambio: Int) = _uiState.update {
+        val cupo = (it.reservas.porFranja + cambio).coerceIn(CupoReservas.CUPO_MINIMO, CupoReservas.CUPO_MAXIMO)
+        it.copy(reservas = it.reservas.copy(porFranja = cupo))
+    }
+
     // En el alta envía el local a revisión (R4); al editar solo guarda el horario (O8).
     fun onGuardar() {
         val estado = _uiState.value
@@ -90,7 +99,7 @@ class HorarioLocalViewModel @Inject constructor(
         _uiState.update { it.copy(guardando = true, error = null) }
         viewModelScope.launch {
             try {
-                val horario = Horario(estado.dias)
+                val horario = Horario(estado.dias, estado.reservas)
                 when (estado.modo) {
                     ModoFormulario.ALTA -> enviarARevision(horario)
                     // R4 no se abre para corregir (R7 es solo de los datos): el horario se corrige en O8.
@@ -110,7 +119,8 @@ class HorarioLocalViewModel @Inject constructor(
     // En el alta se vuelve a R3 sin preguntar, como en el prototipo. En O8 se pregunta si hay cambios.
     fun onVolver() {
         val estado = _uiState.value
-        val hayCambios = estado.modo == ModoFormulario.EDITAR && !estado.cargando && estado.dias != diasGuardados
+        val hayCambios = estado.modo == ModoFormulario.EDITAR && !estado.cargando &&
+            Horario(estado.dias, estado.reservas) != horarioGuardado
         _uiState.update { if (hayCambios) it.copy(confirmandoDescarte = true) else it.copy(salir = true) }
     }
 
@@ -122,9 +132,9 @@ class HorarioLocalViewModel @Inject constructor(
         _uiState.update { it.copy(cargando = true, errorCarga = null) }
         viewModelScope.launch {
             try {
-                val dias = (obtenerRestaurante()?.horario ?: Horario.PorDefecto).dias
-                diasGuardados = dias
-                _uiState.update { it.copy(cargando = false, dias = dias) }
+                val horario = obtenerRestaurante()?.horario ?: Horario.PorDefecto
+                horarioGuardado = horario
+                _uiState.update { it.copy(cargando = false, dias = horario.dias, reservas = horario.reservas) }
             } catch (e: ErrorRestaurante) {
                 _uiState.update { it.copy(cargando = false, errorCarga = e) }
             }

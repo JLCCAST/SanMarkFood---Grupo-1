@@ -58,7 +58,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -67,7 +69,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -87,6 +92,7 @@ import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.FiltroDescubr
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.Restaurante
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.horaCierraHoy
 import com.equipo.sanmarkfood.comensal.domain.model.descubrimiento.menuVigente
+import com.equipo.sanmarkfood.comensal.presentation.pedidos.AvisoPedidoEnCurso
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -115,6 +121,7 @@ private enum class CalificacionMinima(
 }
 
 private val ALTO_HOJA_RECOGIDA = 240.dp
+private val RADIO_HOJA = 28.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,6 +129,7 @@ fun DescubrimientoScreen(
     modifier: Modifier = Modifier,
     restauranteAEnfocar: String? = null,
     onRestauranteClick: (String) -> Unit = {},
+    onAbrirPedido: (String) -> Unit = {},
     viewModel: DescubrimientoViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -240,6 +248,17 @@ fun DescubrimientoScreen(
     val cargandoSinDatos = state.isLoading && state.restaurantes.isEmpty()
     val errorSinDatos = state.error != null && state.restaurantes.isEmpty()
 
+    var finDeLosFiltros by remember { mutableIntStateOf(0) }
+    val bordeDeLaHoja by remember {
+        derivedStateOf {
+            runCatching { estadoHoja.bottomSheetState.requireOffset() }.getOrDefault(Float.MAX_VALUE)
+        }
+    }
+    val visibilidadBarra = if (finDeLosFiltros == 0) 1f
+    else ((bordeDeLaHoja - finDeLosFiltros) / finDeLosFiltros).coerceIn(0f, 1f)
+    val redondeoHoja = if (finDeLosFiltros == 0) 1f
+    else (bordeDeLaHoja / finDeLosFiltros).coerceIn(0f, 1f)
+
     Box(modifier = modifier.fillMaxSize()) {
         when {
             cargandoSinDatos -> Cargando()
@@ -254,6 +273,10 @@ fun DescubrimientoScreen(
                     scaffoldState = estadoHoja,
                     modifier = Modifier.fillMaxSize(),
                     sheetPeekHeight = ALTO_HOJA_RECOGIDA,
+                    sheetShape = RoundedCornerShape(
+                        topStart = RADIO_HOJA * redondeoHoja,
+                        topEnd = RADIO_HOJA * redondeoHoja
+                    ),
                     sheetContent = {
                         ListaRestaurantes(
                             restaurantes = state.restaurantes,
@@ -280,8 +303,10 @@ fun DescubrimientoScreen(
                 }
 
                 // Barra superior (búsqueda, campana, avatar) y chips flotando sobre el mapa
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
+                if (visibilidadBarra > 0f) Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer { alpha = visibilidadBarra },
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Row(
@@ -299,6 +324,9 @@ fun DescubrimientoScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .onGloballyPositioned { filtros ->
+                                finDeLosFiltros = (filtros.positionInParent().y + filtros.size.height).toInt()
+                            }
                             .horizontalScroll(desplazamientoBotones)
                             .padding(start = 16.dp, end = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -336,6 +364,11 @@ fun DescubrimientoScreen(
                             }
                         )
                     }
+
+                    AvisoPedidoEnCurso(
+                        onAbrirPedido = onAbrirPedido,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
             }
         }
@@ -596,28 +629,52 @@ private fun ListaRestaurantes(
     ubicacionActiva: Boolean,
     onActivarUbicacion: () -> Unit
 ) {
-    val elementosEncabezado = if (mostrarAviso) 2 else 1
+    val elementosEncabezado = if (mostrarAviso) 1 else 0
 
     LaunchedEffect(seleccionadoId) {
         val indice = restaurantes.indexOfFirst { it.id == seleccionadoId }
         if (indice >= 0) estadoLista.animateScrollToItem(indice + elementosEncabezado)
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = estadoLista,
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        if (mostrarAviso) {
-            item { AvisoUbicacion(onActivar = onActivarUbicacion) }
-        }
-
-        item {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp)) {
             CabeceraLista(
                 cantidad = restaurantes.size,
                 ubicacionActiva = ubicacionActiva
             )
+        }
+        ContenidoLista(
+            restaurantes = restaurantes,
+            estadoLista = estadoLista,
+            seleccionadoId = seleccionadoId,
+            onSeleccionar = onSeleccionar,
+            hayFiltros = hayFiltros,
+            onLimpiarFiltros = onLimpiarFiltros,
+            mostrarAviso = mostrarAviso,
+            onActivarUbicacion = onActivarUbicacion
+        )
+    }
+}
+
+@Composable
+private fun ContenidoLista(
+    restaurantes: List<Restaurante>,
+    estadoLista: LazyListState,
+    seleccionadoId: String?,
+    onSeleccionar: (String) -> Unit,
+    hayFiltros: Boolean,
+    onLimpiarFiltros: () -> Unit,
+    mostrarAviso: Boolean,
+    onActivarUbicacion: () -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        state = estadoLista,
+        contentPadding = PaddingValues(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        if (mostrarAviso) {
+            item { AvisoUbicacion(onActivar = onActivarUbicacion) }
         }
 
         if (restaurantes.isEmpty()) {
@@ -653,7 +710,7 @@ private fun CabeceraLista(cantidad: Int, ubicacionActiva: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

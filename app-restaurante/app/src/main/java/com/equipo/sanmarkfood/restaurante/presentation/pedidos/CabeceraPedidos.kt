@@ -4,10 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -16,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -42,6 +47,7 @@ fun CabeceraPedidos(
     cambiando: Boolean,
     error: ErrorRestaurante?,
     onCambiarRecepcion: (recibir: Boolean) -> Unit,
+    onEntregarConCodigo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -95,6 +101,19 @@ fun CabeceraPedidos(
             )
         }
         error?.let { MensajeErrorRestaurante(error = it) }
+        OutlinedButton(
+            onClick = onEntregarConCodigo,
+            modifier = Modifier.fillMaxWidth().height(44.dp),
+            border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.onSurface),
+        ) {
+            Icon(painter = painterResource(R.drawable.ic_pedidos), contentDescription = null)
+            Text(
+                text = stringResource(R.string.pedidos_entregar_con_codigo),
+                modifier = Modifier.padding(start = 8.dp),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 
@@ -103,7 +122,13 @@ fun CabeceraPedidos(
 private fun CabeceraPedidosPausadaPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            CabeceraPedidos(recibiendo = false, cambiando = false, error = null, onCambiarRecepcion = {})
+            CabeceraPedidos(
+                recibiendo = false,
+                cambiando = false,
+                error = null,
+                onCambiarRecepcion = {},
+                onEntregarConCodigo = {},
+            )
         }
     }
 }

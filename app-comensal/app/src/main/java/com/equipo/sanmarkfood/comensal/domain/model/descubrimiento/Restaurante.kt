@@ -62,10 +62,14 @@ data class Restaurante(
     val pausado: Boolean,
     val calificacionPromedio: Double?,
     val totalResenas: Int,
+    val resumenResenas: String? = null,
     val menuHoy: MenuDelDia? = null,
     val rangoCarta: RangoCarta? = null,
     /** Claves `lun`, `mar`, `mie`, `jue`, `vie`, `sab`, `dom`; vacío si el local no tiene horario. */
     val horario: Map<String, HorarioDia> = emptyMap(),
+    val telefono: String = "",
+    val aceptaReservas: Boolean = true,
+    val cupoPorFranja: Int? = null,
     /** Lo calcula el caso de uso; es null si no hay ubicación del usuario o del local. */
     val distanciaMetros: Int? = null
 )

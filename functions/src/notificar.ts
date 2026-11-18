@@ -9,6 +9,7 @@ export interface Aviso {
   canal: string;
   datos?: Record<string, string>;
   guardarEnBandeja?: boolean;
+  soloDatos?: boolean;
 }
 
 const ERRORES_DE_TOKEN = new Set([
@@ -37,15 +38,24 @@ export async function notificar(uid: string, aviso: Aviso): Promise<void> {
     return;
   }
 
-  const respuesta = await getMessaging().sendEachForMulticast({
-    tokens: dispositivos.docs.map((dispositivo) => dispositivo.id),
-    notification: { title: aviso.titulo, body: aviso.cuerpo },
-    data: { tipo: aviso.tipo, ...aviso.datos },
-    android: {
-      priority: "high",
-      notification: { channelId: aviso.canal },
-    },
-  });
+  const tokens = dispositivos.docs.map((dispositivo) => dispositivo.id);
+  const respuesta = await getMessaging().sendEachForMulticast(
+    aviso.soloDatos === true
+      ? {
+          tokens,
+          data: { tipo: aviso.tipo, titulo: aviso.titulo, cuerpo: aviso.cuerpo, canal: aviso.canal, ...aviso.datos },
+          android: { priority: "high" },
+        }
+      : {
+          tokens,
+          notification: { title: aviso.titulo, body: aviso.cuerpo },
+          data: { tipo: aviso.tipo, ...aviso.datos },
+          android: {
+            priority: "high",
+            notification: { channelId: aviso.canal },
+          },
+        },
+  );
 
   const vencidos = dispositivos.docs.filter((_, indice) => {
     const error = respuesta.responses[indice]?.error;

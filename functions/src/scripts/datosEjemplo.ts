@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, Timestamp, getFirestore, type DocumentData } from "firebase-admin/firestore";
+import { notificar } from "../notificar.js";
 import { fechaLima } from "../tiempo.js";
 
 initializeApp();
@@ -255,16 +256,65 @@ async function borrar(localUid: string): Promise<void> {
   console.log(`Borrados: ${pedidos.size} pedidos, ${reservas.size} reservas y ${resenas.size} reseñas de ejemplo.`);
 }
 
+async function pedidoNuevo(localUid: string, comensalUid: string): Promise<void> {
+  const localRef = db.collection("restaurantes").doc(localUid);
+  const local = await localRef.get();
+  if (!local.exists) throw new Error(`No existe restaurantes/${localUid}`);
+  const comensal = await db.collection("usuarios").doc(comensalUid).get();
+  if (!comensal.exists) throw new Error(`No existe usuarios/${comensalUid}`);
+  const comensalNombre = String(comensal.get("nombre") ?? "Comensal de prueba");
+  const carta = await leerCarta(localUid);
+  const items = [itemMenu(carta), itemPlato(carta, 0)];
+  const total = items.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
+  const ref = db.collection("pedidos").doc();
+
+  const numero = await db.runTransaction(async (transaccion) => {
+    const numero = ((await transaccion.get(localRef)).get("ultimoNumeroPedido") ?? 0) + 1;
+    transaccion.update(localRef, { ultimoNumeroPedido: numero });
+    transaccion.set(ref, {
+      numero,
+      comensalUid,
+      comensalNombre,
+      restauranteUid: localUid,
+      restauranteNombre: String(local.get("nombre")),
+      ejemplo: true,
+      modalidad: "recojo",
+      codigoRecojo: codigoRecojo(),
+      metodoPago: "billetera",
+      pago: "pagado",
+      items,
+      total,
+      estado: "recibido",
+      creadoEn: FieldValue.serverTimestamp(),
+      actualizadoEn: FieldValue.serverTimestamp(),
+    });
+    return numero;
+  });
+
+  await notificar(localUid, {
+    titulo: `Pedido nuevo #${String(numero).padStart(4, "0")}`,
+    cuerpo: `${comensalNombre} · ${items.map((item) => item.nombre).join(" + ")} · S/ ${(total / 100).toFixed(2)}`,
+    tipo: "pedido_nuevo",
+    canal: "pedidos_nuevos",
+    datos: { pedidoId: ref.id },
+    soloDatos: true,
+  });
+  console.log(`Listo: pedido nuevo #${String(numero).padStart(4, "0")} creado y avisado al local.`);
+}
+
 async function principal(): Promise<void> {
   const local = argumento("local");
   const comensal = argumento("comensal");
   if (local === undefined) {
     console.error("Uso: npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal>");
+    console.error("     npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal> --nuevo");
     console.error("     npm run datos-ejemplo -- --local <uid del local> --borrar");
     process.exit(1);
   }
   if (process.argv.includes("--borrar")) {
     await borrar(local);
+  } else if (comensal !== undefined && process.argv.includes("--nuevo")) {
+    await pedidoNuevo(local, comensal);
   } else if (comensal !== undefined) {
     await sembrar(local, comensal);
   } else {

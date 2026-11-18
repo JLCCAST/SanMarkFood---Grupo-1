@@ -219,18 +219,15 @@
     <string name="detalle_boton_reservar">Reservar mesa</string>
     <string name="detalle_boton_preguntar">Preguntar</string>
     <string name="detalle_abierto_hasta">Abierto · hasta las %1$s</string>
-    <string name="detalle_calificacion_resumen">Calificación general · Resumen</string>
+    <string name="detalle_calificacion_general">Calificación general</string>
+    <string name="detalle_resumen_ia">%1$s · Resumen IA</string>
     <plurals name="detalle_resenas">
         <item quantity="one">%1$d reseña</item>
         <item quantity="other">%1$d reseñas</item>
     </plurals>
     <string name="detalle_menu_titulo">Menú de hoy</string>
     <string name="detalle_menu_sirve_hasta">Se sirve hasta las %1$s</string>
-    <string name="detalle_menu_publicado">MENÚ PUBLICADO</string>
-    <string name="detalle_menu_consulta">Consulta los platos disponibles de hoy directamente en el local o al armar tu pedido.</string>
-    <string name="detalle_menu_disponible_hoy">Menú disponible hoy</string>
     <string name="detalle_boton_armar_menu">Armar mi menú</string>
-    <string name="detalle_sin_menu">Este restaurante no ha publicado menú para el día de hoy.</string>
     <string name="detalle_horario_ubicacion">HORARIO Y UBICACIÓN</string>
     <string name="detalle_direccion_vacia">Dirección no especificada</string>
     <string name="detalle_horario_no_disponible">Horario no disponible</string>
@@ -250,4 +247,391 @@
     <string name="descubrimiento_menu_hoy_etiqueta">MENÚ HOY</string>
     <string name="descubrimiento_precio_soles">S/ %1$s</string>
     <string name="descubrimiento_calificacion_valor">★ %1$s</string>
+
+
+    <string name="carta_titulo">La carta</string>
+    <string name="carta_subtitulo">Platos de siempre</string>
+    <string name="carta_vacia">Este local aún no tiene platos en su carta.</string>
+    <string name="carta_agotado">Agotado hoy</string>
+    <string name="carta_agregar">Agregar %1$s al pedido</string>
+    <string name="carta_quitar_uno">Quitar uno</string>
+    <string name="carta_agregar_uno">Agregar uno</string>
+    <string name="carta_reintentar">Reintentar</string>
+    <string name="carta_error_sin_conexion">Sin conexión. No pudimos cargar la carta.</string>
+    <string name="carta_error_desconocido">No pudimos cargar la carta. Inténtalo de nuevo.</string>
+    <string name="carta_limite">Máximo 20 unidades por plato y 20 platos distintos por pedido.</string>
+    <string name="pedido_en_local">Pedido en %1$s</string>
+    <string name="pedido_nuevo_titulo">¿Empezar un pedido nuevo?</string>
+    <plurals name="pedido_nuevo_texto">
+        <item quantity="one">Tu pedido tiene %1$d plato de %2$s. Cada pedido es de un solo local: si agregas %3$s, se vaciará el pedido actual.</item>
+        <item quantity="other">Tu pedido tiene %1$d platos de %2$s. Cada pedido es de un solo local: si agregas %3$s, se vaciará el pedido actual.</item>
+    </plurals>
+    <string name="pedido_nuevo_mantener">Mantener el actual</string>
+    <string name="pedido_nuevo_vaciar">Vaciar y agregar</string>
+    <string name="pedido_titulo">Tu pedido</string>
+    <string name="pedido_como_recibes">¿Cómo lo recibes?</string>
+    <string name="pedido_recojo">Recojo en local</string>
+    <string name="pedido_recojo_detalle">Listo en ~15 min, sin fila</string>
+    <string name="pedido_delivery">Delivery</string>
+    <string name="pedido_delivery_detalle">A tu dirección frecuente</string>
+    <string name="pedido_ticket">TICKET</string>
+    <string name="pedido_subtotal">Subtotal</string>
+    <string name="pedido_total">Total</string>
+    <string name="pedido_metodo_pago">Método de pago</string>
+    <string name="pedido_pago_billetera">Billetera digital</string>
+    <string name="pedido_pago_billetera_detalle">Yape / Plin</string>
+    <string name="pedido_pago_tarjeta">Tarjeta</string>
+    <string name="pedido_pago_tarjeta_detalle">Crédito o débito</string>
+    <string name="pedido_pago_efectivo">Efectivo</string>
+    <string name="pedido_pago_efectivo_detalle">Al recibir</string>
+    <string name="pedido_confirmar_pagar">Confirmar y pagar S/ %1$s</string>
+    <string name="pedido_confirmar">Confirmar pedido S/ %1$s</string>
+    <string name="pedido_aviso_biometria">Se te pedirá tu huella o rostro antes de procesar el pago</string>
+    <string name="pedido_aviso_efectivo">Pagas en efectivo al recibir; no se pide huella ni rostro</string>
+    <string name="pago_biometria_titulo">Confirma tu pago</string>
+    <string name="pago_biometria_subtitulo">S/ %1$s · %2$s</string>
+    <string name="pago_biometria_cancelar">Cancelar</string>
+    <string name="pago_cancelado">Pago cancelado. Tu pedido no se envió; puedes intentarlo de nuevo.</string>
+    <string name="pago_bloqueado_mensaje">Demasiados intentos. Confirma con el bloqueo de pantalla de tu celular.</string>
+    <string name="pago_usar_bloqueo">Usar PIN, patrón o contraseña</string>
+    <string name="pago_sin_biometria_titulo">Tu celular no tiene huella ni rostro configurados</string>
+    <string name="pago_sin_biometria_mensaje">Para pagar con billetera o tarjeta necesitamos confirmar que eres tú. Puedes usar el bloqueo de pantalla de tu celular.</string>
+    <string name="pago_sin_biometria_sin_bloqueo">Para pagar con billetera o tarjeta necesitamos confirmar que eres tú. Configura tu huella o un bloqueo de pantalla, o paga en efectivo.</string>
+    <string name="pago_configurar_huella">Configurar huella en Ajustes</string>
+    <string name="pago_mejor_efectivo">Mejor pago en efectivo al recibir</string>
+    <string name="envio_sin_conexion_titulo">No pudimos enviar tu pedido</string>
+    <string name="envio_sin_conexion_mensaje">Parece que no tienes conexión. No se hizo ningún cobro y tu pedido sigue armado aquí.</string>
+    <string name="envio_ahora_no">Ahora no</string>
+    <string name="envio_reintentar">Reintentar</string>
+    <string name="envio_error_titulo">No pudimos enviar tu pedido</string>
+    <string name="envio_entendido">Entendido</string>
+    <string name="envio_error_sesion">Tu sesión venció. Cierra sesión y vuelve a entrar para pedir.</string>
+    <string name="envio_error_sin_direccion">Elige una dirección de entrega para el delivery.</string>
+    <string name="envio_error_local_no_disponible">El local no está recibiendo pedidos por ahora. Tu pedido sigue armado aquí.</string>
+    <string name="envio_error_local_cerrado">El local está cerrado en este momento. Tu pedido sigue armado aquí.</string>
+    <string name="envio_error_plato_agotado">Uno de tus platos se agotó. Quítalo de tu pedido e inténtalo de nuevo.</string>
+    <string name="envio_error_opcion_agotada">Una opción de tu menú se agotó. Vuelve a armarlo desde la carta.</string>
+    <string name="menu_vencido_titulo">El menú de hoy ya no está disponible</string>
+    <string name="menu_vencido_mensaje_hora">%1$s sirvió su menú hasta las %2$s. Lo quitamos de tu pedido; el resto sigue igual.</string>
+    <string name="menu_vencido_mensaje">%1$s ya no tiene menú disponible hoy. Lo quitamos de tu pedido; el resto sigue igual.</string>
+    <string name="menu_vencido_seguir">Seguir sin el menú</string>
+    <string name="envio_error_direccion_no_encontrada">No encontramos esa dirección en el mapa. Escríbela con calle y número, o elige otra.</string>
+    <string name="envio_error_ubicacion">No pudimos ubicar tu dirección. Inténtalo de nuevo en un momento.</string>
+    <string name="envio_error_desconocido">Algo salió mal y no se hizo ningún cobro. Inténtalo de nuevo.</string>
+    <string name="enviado_titulo">¡Pedido enviado!</string>
+    <string name="enviado_pagado">Pago confirmado. Esperando que el restaurante acepte tu pedido.</string>
+    <string name="enviado_efectivo">Pagarás en efectivo al recibir. Esperando que el restaurante acepte tu pedido.</string>
+    <string name="enviado_seguir">Seguir mi pedido</string>
+    <string name="pedido_vacio">Tu pedido está vacío</string>
+    <string name="pedido_direccion_titulo">Dirección de entrega (tus frecuentes)</string>
+    <string name="pedido_direccion_vacia">Aún no tienes direcciones guardadas. Agrega una para recibir tu pedido.</string>
+    <string name="pedido_direccion_agregar">+ Agregar dirección</string>
+    <string name="pedido_direccion_nueva_titulo">Nueva dirección</string>
+    <string name="pedido_direccion_cancelar">Cancelar</string>
+    <string name="pedido_envio">Envío</string>
+    <string name="pedido_envio_detalle">Lo coordina el restaurante</string>
+    <string name="pedido_item_menu">Menú del día</string>
+    <string name="pedido_item_menu_detalle">%1$s + %2$s</string>
+    <string name="menu_elige_entrada">ENTRADA · ELIGE 1</string>
+    <string name="menu_elige_segundo">SEGUNDO · ELIGE 1</string>
+    <string name="menu_opcion_agotada">(agotado)</string>
+    <string name="menu_incluye">Incluye: %1$s</string>
+    <string name="menu_incluidos_por_defecto">Refresco y postre incluidos</string>
+    <plurals name="menu_en_pedido">
+        <item quantity="one">%1$d menú en tu pedido</item>
+        <item quantity="other">%1$d menús en tu pedido</item>
+    </plurals>
+    <string name="menu_arma_titulo">Arma tu menú</string>
+    <string name="menu_cerrar">Cerrar</string>
+    <string name="menu_se_agoto">Se agotó</string>
+    <string name="menu_incluido_uno">Incluido: %1$s.</string>
+    <string name="menu_incluido_dos">Incluido: %1$s y %2$s.</string>
+    <string name="menu_agregar">Agregar menú · S/ %1$s</string>
+    <string name="seguimiento_titulo">Pedido #%1$s</string>
+    <string name="seguimiento_subtitulo">%1$s · %2$s</string>
+    <string name="seguimiento_recojo">Recojo</string>
+    <string name="seguimiento_delivery">Delivery</string>
+    <string name="seguimiento_cerrar">Cerrar</string>
+    <string name="seguimiento_en_vivo">EN TIEMPO REAL</string>
+    <string name="seguimiento_recibido_titulo">Recibido</string>
+    <string name="seguimiento_recibido_detalle">Esperando que el restaurante acepte tu pedido</string>
+    <string name="seguimiento_preparando_titulo">Preparando</string>
+    <string name="seguimiento_preparando_recojo">Listo aprox. a las %1$s · te avisaremos</string>
+    <string name="seguimiento_preparando_delivery">Saldrá aprox. a las %1$s · te avisaremos</string>
+    <string name="seguimiento_preparando_sin_hora">El restaurante ya está cocinando · te avisaremos</string>
+    <string name="seguimiento_listo_titulo">¡Listo!</string>
+    <string name="seguimiento_listo_detalle">Ve a recogerlo con tu código</string>
+    <string name="seguimiento_en_camino_titulo">En camino</string>
+    <string name="seguimiento_en_camino_detalle">Llega en unos minutos a tu dirección</string>
+    <string name="seguimiento_entregado_titulo">Entregado</string>
+    <string name="seguimiento_entregado_detalle">Buen provecho. Califica tu pedido abajo</string>
+    <string name="seguimiento_codigo_titulo">Código de recojo</string>
+    <string name="seguimiento_codigo_detalle">Díselo al cajero para recoger</string>
+    <string name="seguimiento_entrega_en">ENTREGA EN</string>
+    <string name="seguimiento_entrega_sin_direccion">Tu dirección de entrega</string>
+    <string name="seguimiento_entrega_detalle">El restaurante coordina la entrega y te llamará si necesita ubicarte.</string>
+    <string name="seguimiento_paso_recibido">Recibido</string>
+    <string name="seguimiento_paso_recibido_detalle">Esperando que el restaurante lo acepte</string>
+    <string name="seguimiento_paso_preparando">Preparando</string>
+    <string name="seguimiento_paso_preparando_detalle">El restaurante aceptó y ya está cocinando</string>
+    <string name="seguimiento_paso_listo">Listo para recoger</string>
+    <string name="seguimiento_paso_listo_detalle">Acércate al local con tu código</string>
+    <string name="seguimiento_paso_en_camino">En camino</string>
+    <string name="seguimiento_paso_en_camino_detalle">Va hacia tu dirección</string>
+    <string name="seguimiento_paso_entregado">Entregado</string>
+    <string name="seguimiento_paso_entregado_recojo">Pedido recogido</string>
+    <string name="seguimiento_paso_entregado_delivery">Pedido recibido</string>
+    <string name="seguimiento_cancelado_etiqueta">Cancelado</string>
+    <string name="seguimiento_cancelado_titulo">Pedido cancelado</string>
+    <string name="seguimiento_cancelado_mensaje">Lo cancelaste antes de que el restaurante lo aceptara.</string>
+    <string name="seguimiento_cancelado_con_reversion">Lo cancelaste antes de que el restaurante lo aceptara. El pago se revertirá.</string>
+    <string name="rechazo_etiqueta">Pedido rechazado</string>
+    <string name="rechazo_etiqueta_hora">Pedido rechazado · %1$s</string>
+    <string name="rechazo_titulo">%1$s no pudo aceptar tu pedido</string>
+    <string name="rechazo_titulo_automatico">%1$s no respondió a tiempo</string>
+    <string name="rechazo_motivo_titulo">MOTIVO DEL RESTAURANTE</string>
+    <string name="rechazo_motivo_plato_agotado">Plato agotado</string>
+    <string name="rechazo_motivo_plato_agotado_nombre">Plato agotado: %1$s</string>
+    <string name="rechazo_motivo_cocina_saturada">Cocina saturada</string>
+    <string name="rechazo_motivo_local_por_cerrar">El local está por cerrar</string>
+    <string name="rechazo_motivo_otro">Otro motivo</string>
+    <string name="rechazo_motivo_sin_respuesta">No aceptó tu pedido en 10 minutos, así que se rechazó solo.</string>
+    <string name="rechazo_pago_inicio">No se te cobrará: tu pago de</string>
+    <string name="rechazo_pago_fin_billetera">se revertirá a tu billetera digital.</string>
+    <string name="rechazo_pago_fin_tarjeta">se revertirá a tu tarjeta.</string>
+    <string name="rechazo_pago_efectivo">No se te cobrará nada: ibas a pagar en efectivo al recibir.</string>
+    <string name="rechazo_tu_pedido">Tu pedido</string>
+    <string name="rechazo_item">%1$d × %2$s</string>
+    <string name="rechazo_agotado">Agotado</string>
+    <string name="rechazo_volver_cambiar_plato">Volver a la carta y cambiar el plato</string>
+    <string name="rechazo_ver_otros_locales">Ver otros locales cerca</string>
+    <string name="rechazo_se_guarda">Lo que sigue disponible vuelve a tu pedido para que no lo armes otra vez.</string>
+    <string name="seguimiento_volver_carta">Volver a la carta</string>
+    <string name="calificacion_titulo">¿Qué tal estuvo tu pedido?</string>
+    <string name="calificacion_subtitulo">Tu calificación de %1$s</string>
+    <plurals name="calificacion_estrellas">
+        <item quantity="one">%1$d estrella</item>
+        <item quantity="other">%1$d estrellas</item>
+    </plurals>
+    <string name="calificacion_platos_titulo">¿Te gustaron tus platos? (opcional)</string>
+    <string name="calificacion_de_la_carta">De la carta</string>
+    <string name="calificacion_me_gusto">Me gustó %1$s</string>
+    <string name="calificacion_no_me_gusto">No me gustó %1$s</string>
+    <string name="calificacion_comentario_titulo">Comentario sobre el local (opcional)</string>
+    <string name="calificacion_comentario_pista">Cuéntales a otros sanmarquinos cómo te fue</string>
+    <string name="calificacion_enviar">Enviar calificación</string>
+    <string name="calificacion_gracias">¡Gracias! Tu calificación ayuda a otros comensales.</string>
+    <string name="calificacion_ya_enviada">Ya calificaste este pedido. ¡Gracias por tu opinión!</string>
+    <string name="calificacion_error_sin_conexion">Sin conexión. No pudimos enviar tu calificación.</string>
+    <string name="calificacion_error_no_entregado">Solo puedes calificar un pedido ya entregado.</string>
+    <string name="calificacion_error">No pudimos enviar tu calificación. Inténtalo de nuevo.</string>
+    <string name="aviso_pedido_recibido">Tu pedido espera confirmación</string>
+    <string name="aviso_pedido_preparando">Tu pedido se está preparando</string>
+    <string name="aviso_pedido_listo">Tu pedido está listo para recoger</string>
+    <string name="aviso_pedido_en_camino">Tu pedido va en camino</string>
+    <string name="aviso_pedido_ver">Ver</string>
+    <string name="cancelar_pedido">Cancelar pedido</string>
+    <string name="cancelar_pedido_pista">Puedes cancelar mientras el restaurante no lo acepte</string>
+    <string name="cancelar_pedido_titulo">¿Cancelar tu pedido?</string>
+    <string name="cancelar_pedido_mensaje_pagado">Avisaremos a %1$s y se revertirá el pago. No se puede deshacer.</string>
+    <string name="cancelar_pedido_mensaje">Avisaremos a %1$s. No se puede deshacer.</string>
+    <string name="cancelar_pedido_mantener">Mantener pedido</string>
+    <string name="cancelar_pedido_error_sin_conexion">Sin conexión. No pudimos cancelar tu pedido.</string>
+    <string name="cancelar_pedido_error_ya_aceptado">El restaurante ya aceptó tu pedido; ya no se puede cancelar.</string>
+    <string name="cancelar_pedido_error">No pudimos cancelar tu pedido. Inténtalo de nuevo.</string>
+    <string name="seguimiento_error_sin_conexion">Sin conexión. No pudimos cargar tu pedido.</string>
+    <string name="seguimiento_error">No pudimos cargar tu pedido. Inténtalo de nuevo.</string>
+    <string name="seguimiento_no_encontrado">No encontramos este pedido.</string>
+    <string name="detalle_pausado_estado">Cerrado por ahora · no recibe pedidos</string>
+    <string name="detalle_pausado_titulo">No está recibiendo pedidos por ahora.</string>
+    <string name="detalle_pausado_mensaje">Puedes ver la carta y reservar; vuelve en un rato para pedir.</string>
+    <string name="menu_agotado_titulo">Menú agotado</string>
+    <string name="menu_agotado_etiqueta">Agotado</string>
+    <string name="menu_agotado_mensaje">Ya no quedan menús por hoy. Puedes pedir de la carta.</string>
+    <string name="menu_terminado_titulo">El menú de hoy terminó</string>
+    <string name="menu_terminado_etiqueta">Hasta las %1$s</string>
+    <string name="menu_terminado_mensaje">Se sirvió hasta las %1$s. Vuelve mañana o pide de la carta.</string>
+    <string name="menu_sin_publicar_titulo">El menú de hoy aún no se publica</string>
+    <string name="menu_sin_publicar_etiqueta">Por publicar</string>
+    <string name="menu_sin_publicar_mensaje">Cuando el local lo publique, lo verás aquí. Mientras tanto, puedes pedir de la carta.</string>
+    <string name="detalle_sin_reservas">No acepta reservas</string>
+    <string name="reserva_titulo">Reservar mesa</string>
+    <string name="reserva_tope_titulo">Ya tienes 2 reservas activas</string>
+    <string name="reserva_tope_mensaje">Puedes tener hasta 2 reservas pendientes o confirmadas a la vez. Cancela o espera a que pase una para pedir otra.</string>
+    <string name="reserva_tope_ver">Ver mis reservas</string>
+    <string name="reserva_comensales_titulo">Número de comensales</string>
+    <string name="reserva_comensales_rango">De %1$d a %2$d por reserva</string>
+    <string name="reserva_comensales_menos">Menos comensales</string>
+    <string name="reserva_comensales_mas">Más comensales</string>
+    <string name="reserva_grupo_grande">¿Son más de 10? Llama al local para grupos grandes: %1$s</string>
+    <string name="reserva_telefono_desconocido">[Teléfono del local]</string>
+    <string name="reserva_fecha_titulo">Fecha</string>
+    <string name="reserva_fecha_detalle">Hasta 7 días desde hoy</string>
+    <string name="reserva_dia_hoy">HOY</string>
+    <string name="reserva_dia_cerrado">CERRADO</string>
+    <string name="reserva_dia_actual">ACTUAL</string>
+    <string name="reserva_hora_titulo">Hora</string>
+    <string name="reserva_hora_detalle">Cada 30 min · tachado = sin cupo</string>
+    <string name="reserva_hoy_desde">Hoy solo puedes reservar desde las %1$s: se reserva con al menos 2 h de anticipación.</string>
+    <string name="reserva_sin_horarios">No quedan horarios para este día. Elige otra fecha.</string>
+    <string name="reserva_nota">El restaurante confirmará o rechazará tu solicitud. Si no responde hasta 60 min antes de la hora, se rechaza sola y te avisamos. Podrás modificarla o cancelarla desde Actividad.</string>
+    <string name="reserva_elige_horario">Elige fecha y hora</string>
+    <string name="reserva_solicitar">Solicitar reserva</string>
+    <string name="reserva_sin_conexion_mensaje">Necesitas conexión para ver los horarios del local.</string>
+    <string name="reserva_estado_pendiente">Pendiente de confirmación</string>
+    <string name="reserva_enviada_titulo">Solicitud enviada</string>
+    <string name="reserva_enviada_mensaje">Te avisaremos cuando %1$s responda. Si no responde hasta 60 min antes de la hora, la solicitud se rechaza sola.</string>
+    <string name="reserva_ticket_fecha">Fecha</string>
+    <string name="reserva_ticket_hora">Hora</string>
+    <string name="reserva_ticket_comensales">Comensales</string>
+    <string name="reserva_enviada_listo">Listo</string>
+    <string name="reserva_enviada_ver_actividad">Ver en Actividad</string>
+    <string name="reserva_error_plazo">Ese horario ya no se puede reservar: se reserva con al menos 2 h y hasta 7 días de anticipación.</string>
+    <string name="reserva_error_horario">El local no atiende a esa hora. Elige otro horario.</string>
+    <string name="reserva_error_franja_llena">Ese horario se acaba de llenar. Elige otro.</string>
+    <string name="reserva_error_tope">Ya tienes 2 reservas activas. Cancela una o espera a que pase para pedir otra.</string>
+    <string name="reserva_error_sin_reservas">Este local ya no acepta reservas desde la app.</string>
+    <string name="reserva_error_comensales">Puedes reservar de 1 a 10 comensales.</string>
+    <string name="reserva_error_sesion">Tu sesión venció. Vuelve a iniciar sesión.</string>
+    <string name="reserva_error_estado">Esta reserva ya no se puede cambiar.</string>
+    <string name="reserva_error_sin_cambios">Elige una fecha u hora distinta a la actual.</string>
+    <string name="reserva_error_desconocido">No pudimos enviar tu solicitud. Inténtalo de nuevo.</string>
+    <plurals name="reserva_comensales">
+        <item quantity="one">%1$d comensal</item>
+        <item quantity="other">%1$d comensales</item>
+    </plurals>
+    <string-array name="reserva_dias_cortos">
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mié</item>
+        <item>Jue</item>
+        <item>Vie</item>
+        <item>Sáb</item>
+        <item>Dom</item>
+    </string-array>
+    <string-array name="reserva_dias_largos">
+        <item>lunes</item>
+        <item>martes</item>
+        <item>miércoles</item>
+        <item>jueves</item>
+        <item>viernes</item>
+        <item>sábado</item>
+        <item>domingo</item>
+    </string-array>
+    <string-array name="reserva_meses">
+        <item>enero</item>
+        <item>febrero</item>
+        <item>marzo</item>
+        <item>abril</item>
+        <item>mayo</item>
+        <item>junio</item>
+        <item>julio</item>
+        <item>agosto</item>
+        <item>setiembre</item>
+        <item>octubre</item>
+        <item>noviembre</item>
+        <item>diciembre</item>
+    </string-array>
+    <string-array name="reserva_meses_cortos">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>set</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
+    <string name="recordatorio_titulo_seccion">Recordatorio</string>
+    <string name="recordatorio_detalle_seccion">Te avisaremos antes de tu reserva</string>
+    <string name="recordatorio_30_min">30 min</string>
+    <string name="recordatorio_1_h">1 h</string>
+    <string name="recordatorio_2_h">2 h</string>
+    <string name="recordatorio_antes">%1$s antes</string>
+    <string name="recordatorio_etiqueta">Recordatorio %1$s antes de la hora</string>
+    <string name="recordatorio_ninguno">Sin recordatorio</string>
+    <string name="recordatorio_titulo">Recordatorio de tu reserva</string>
+    <string name="recordatorio_texto">%1$s te espera a las %2$s.</string>
+    <string name="actividad_tab_pedidos">Pedidos</string>
+    <string name="actividad_tab_reservas">Reservas</string>
+    <string name="actividad_pedidos_pronto">Pronto verás aquí el historial de tus pedidos.</string>
+    <string name="actividad_proxima_reserva">PRÓXIMA RESERVA</string>
+    <string name="actividad_recordatorio">Recordatorio %1$s antes</string>
+    <string name="actividad_modificar">Modificar fecha u hora</string>
+    <string name="actividad_cancelar">Cancelar</string>
+    <string name="actividad_motivo">Motivo: %1$s</string>
+    <string name="actividad_ver_detalle">Ver detalle</string>
+    <string name="actividad_ver_detalle_otro_horario">Ver detalle y probar otro horario</string>
+    <string name="actividad_sin_reservas_titulo">Aún no tienes reservas</string>
+    <string name="actividad_sin_reservas_texto">Cuando reserves una mesa, aquí verás si el local la confirmó y podrás modificarla o cancelarla.</string>
+    <string name="actividad_ver_locales">Ver locales cerca</string>
+    <string name="actividad_sin_conexion">Necesitas conexión para ver tus reservas.</string>
+    <string name="reserva_estado_corto_pendiente">Pendiente</string>
+    <string name="reserva_estado_confirmada">Confirmada</string>
+    <string name="reserva_estado_completada">Completada</string>
+    <string name="reserva_estado_sin_respuesta">Sin respuesta</string>
+    <string name="reserva_estado_rechazada">Rechazada</string>
+    <string name="reserva_estado_cancelada">Cancelada por ti</string>
+    <string name="reserva_motivo_sin_respuesta">el restaurante no respondió a tiempo</string>
+    <string name="reserva_motivo_sin_mesas">sin mesas disponibles a esa hora</string>
+    <string name="reserva_motivo_local_cerrado">el local está cerrado ese día</string>
+    <string name="reserva_motivo_grupo_grande">el grupo es demasiado grande</string>
+    <string name="reserva_motivo_otro">otro motivo del restaurante</string>
+    <string name="cancelar_solicitud_titulo">¿Cancelar la solicitud?</string>
+    <string name="cancelar_solicitud_texto">Avisaremos a %1$s y dejará de contar como reserva activa.</string>
+    <string name="cancelar_solicitud_confirmar">Cancelar solicitud</string>
+    <string name="cancelar_reserva_titulo">¿Cancelar tu reserva?</string>
+    <string name="cancelar_reserva_texto">Liberaremos tu mesa del %1$s a las %2$s y avisaremos al restaurante. Si solo necesitas otro horario, puedes modificarla.</string>
+    <string name="cancelar_reserva_confirmar">Cancelar reserva</string>
+    <string name="cancelar_volver">Volver</string>
+    <string name="detalle_reserva_titulo">Detalle de la reserva</string>
+    <string name="detalle_reserva_volver">Volver a Actividad</string>
+    <string name="detalle_reserva_sin_conexion">Necesitas conexión para ver esta reserva.</string>
+    <string name="detalle_reserva_no_encontrada">No encontramos esta reserva</string>
+    <string name="detalle_reserva_no_encontrada_texto">Puede que ya no exista. Vuelve a Actividad para ver tus reservas.</string>
+    <string name="detalle_reserva_rechazada_local">Rechazada por el restaurante</string>
+    <string name="detalle_reserva_rechazada_auto">Rechazada automáticamente</string>
+    <string name="detalle_reserva_esperando">Esperando la respuesta de %1$s</string>
+    <string name="detalle_reserva_confirmada">%1$s te espera</string>
+    <string name="detalle_reserva_completada">Tu reserva en %1$s ya pasó</string>
+    <string name="detalle_reserva_rechazo_titulo">%1$s rechazó tu reserva</string>
+    <string name="detalle_reserva_sin_respuesta_titulo">El restaurante no respondió a tiempo</string>
+    <string name="detalle_reserva_cancelada_titulo">Cancelaste la solicitud</string>
+    <string name="detalle_reserva_motivo_local">MOTIVO DEL RESTAURANTE\n%1$s</string>
+    <string name="detalle_reserva_que_paso">QUÉ PASÓ\n%1$s</string>
+    <string name="detalle_reserva_sin_respuesta_motivo">Sin respuesta hasta 60 min antes</string>
+    <string name="detalle_reserva_limite">Si el restaurante no responde hasta el %1$s a las %2$s, la solicitud se rechazará automáticamente y te avisaremos.</string>
+    <string name="detalle_reserva_cuenta_activa">Cuenta como una de tus 2 reservas activas.</string>
+    <string name="detalle_reserva_rechazo_explica">Otro horario o un grupo más pequeño podría tener lugar. Tu solicitud anterior ya no está activa.</string>
+    <string name="detalle_reserva_sin_respuesta_explica">Las reservas que el restaurante no confirma hasta 60 minutos antes de la hora se rechazan solas, para que puedas buscar otra mesa a tiempo.</string>
+    <string name="detalle_reserva_otra">Hacer otra reserva</string>
+    <string name="detalle_reserva_probar_otro">Probar otro horario</string>
+    <string name="detalle_reserva_otros_locales">Ver otros locales cerca</string>
+    <string name="evento_reserva_enviada">Enviaste la solicitud</string>
+    <string name="evento_reserva_cambiada">Cambiaste el horario (antes: %1$s)</string>
+    <string name="evento_reserva_esperando">Esperando respuesta del restaurante</string>
+    <string name="evento_reserva_confirmada">El restaurante confirmó tu reserva</string>
+    <string name="evento_reserva_rechazada">El restaurante la rechazó y te avisamos</string>
+    <string name="evento_reserva_sin_respuesta">Sin respuesta del restaurante: se rechazó automáticamente y te avisamos</string>
+    <string name="evento_reserva_cancelada">Cancelaste la solicitud y avisamos al restaurante</string>
+    <string name="modificar_titulo">Modificar reserva</string>
+    <string name="modificar_volver">Volver sin cambios</string>
+    <string name="modificar_actual_confirmada">RESERVA ACTUAL · CONFIRMADA</string>
+    <string name="modificar_actual_pendiente">RESERVA ACTUAL · PENDIENTE</string>
+    <string name="modificar_nota">Al guardar, tu reserva vuelve a quedar pendiente de confirmación con el nuevo horario y se libera tu mesa actual. Si el restaurante la rechaza, no recuperas el horario anterior.</string>
+    <string name="modificar_sin_cambios">SIN CAMBIOS</string>
+    <string name="modificar_nuevo_horario">NUEVO HORARIO</string>
+    <string name="modificar_guardar">Guardar cambios</string>
+    <string name="modificar_confirmar_titulo">¿Cambiar tu reserva?</string>
+    <string name="modificar_confirmar_texto">Liberaremos tu mesa del %1$s a las %2$s y pediremos %3$s. El restaurante tendrá que confirmarla de nuevo.</string>
+    <string name="modificar_confirmar_boton">Cambiar reserva</string>
+    <string name="modificar_hecho_titulo">Reserva cambiada</string>
+    <string name="modificar_liberada">Liberada</string>
+    <string name="modificar_nueva">Nueva</string>
+    <string name="modificar_hecho_texto">Te avisaremos cuando el restaurante responda. Si no responde hasta 60 min antes, se rechaza sola.</string>
+    <string name="modificar_volver_actividad">Volver a Actividad</string>
 </resources>

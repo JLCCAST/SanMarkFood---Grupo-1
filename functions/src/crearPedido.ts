@@ -69,6 +69,7 @@ export const crearPedido = funcionHttps(async ({ uid, cuerpo }) => {
     tipo: "pedido_nuevo",
     canal: CANAL_PEDIDOS_NUEVOS,
     datos: { pedidoId: pedidoRef.id },
+    soloDatos: true,
   }).catch((error) => logger.error("No se pudo avisar del pedido nuevo", { pedidoId: pedidoRef.id, error }));
 
   return { pedidoId: pedidoRef.id, numero };

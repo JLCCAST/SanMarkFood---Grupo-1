@@ -1,15 +1,29 @@
 package com.equipo.sanmarkfood.comensal.core.di
 
 import com.equipo.sanmarkfood.comensal.data.repository.AuthRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.CarritoRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.CartaRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.ComensalRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.FavoritosRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.GeocodificacionRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.PedidosRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.RecordatoriosRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.ResenasRepositoryImpl
+import com.equipo.sanmarkfood.comensal.data.repository.ReservasRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.comensal.data.repository.UbicacionRepositoryImpl
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.CarritoRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.CartaRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.FavoritosRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.GeocodificacionRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.PedidosRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.RecordatoriosRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.ResenasRepository
+import com.equipo.sanmarkfood.comensal.domain.repository.ReservasRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.comensal.domain.repository.UbicacionRepository
 import dagger.Binds
@@ -45,4 +59,32 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindDispositivosRepository(impl: DispositivosRepositoryImpl): DispositivosRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCarritoRepository(impl: CarritoRepositoryImpl): CarritoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCartaRepository(impl: CartaRepositoryImpl): CartaRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPedidosRepository(impl: PedidosRepositoryImpl): PedidosRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGeocodificacionRepository(impl: GeocodificacionRepositoryImpl): GeocodificacionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindResenasRepository(impl: ResenasRepositoryImpl): ResenasRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReservasRepository(impl: ReservasRepositoryImpl): ReservasRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecordatoriosRepository(impl: RecordatoriosRepositoryImpl): RecordatoriosRepository
 }

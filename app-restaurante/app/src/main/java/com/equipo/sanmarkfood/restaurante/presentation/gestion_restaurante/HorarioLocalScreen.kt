@@ -1,6 +1,8 @@
 package com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,13 +14,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -36,7 +45,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -51,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
+import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.CupoReservas
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.DiaSemana
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.Hora
@@ -85,6 +97,8 @@ fun HorarioLocalScreen(
         onAlternarDia = viewModel::onAlternarDia,
         onEditarHoras = viewModel::onEditarHoras,
         onCopiarLunesATodos = viewModel::onCopiarLunesATodos,
+        onAlternarReservas = viewModel::onAlternarReservas,
+        onCambiarCupo = viewModel::onCambiarCupo,
         onGuardar = viewModel::onGuardar,
     )
 
@@ -115,6 +129,8 @@ private fun HorarioLocalContenido(
     onAlternarDia: (DiaSemana) -> Unit,
     onEditarHoras: (DiaSemana) -> Unit,
     onCopiarLunesATodos: () -> Unit,
+    onAlternarReservas: () -> Unit,
+    onCambiarCupo: (Int) -> Unit,
     onGuardar: () -> Unit,
 ) {
     val alta = uiState.modo == ModoFormulario.ALTA
@@ -149,6 +165,8 @@ private fun HorarioLocalContenido(
                     onAlternarDia = onAlternarDia,
                     onEditarHoras = onEditarHoras,
                     onCopiarLunesATodos = onCopiarLunesATodos,
+                    onAlternarReservas = onAlternarReservas,
+                    onCambiarCupo = onCambiarCupo,
                     modifier = Modifier.weight(1f),
                 )
                 PieHorario(uiState = uiState, onGuardar = onGuardar)
@@ -163,6 +181,8 @@ private fun ListaHorario(
     onAlternarDia: (DiaSemana) -> Unit,
     onEditarHoras: (DiaSemana) -> Unit,
     onCopiarLunesATodos: () -> Unit,
+    onAlternarReservas: () -> Unit,
+    onCambiarCupo: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -202,6 +222,102 @@ private fun ListaHorario(
             Text(
                 text = stringResource(R.string.horario_ayuda),
                 modifier = Modifier.padding(top = 6.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        SeccionReservas(
+            reservas = uiState.reservas,
+            onAlternar = onAlternarReservas,
+            onCambiarCupo = onCambiarCupo,
+        )
+    }
+}
+
+@Composable
+private fun SeccionReservas(
+    reservas: CupoReservas,
+    onAlternar: () -> Unit,
+    onCambiarCupo: (Int) -> Unit,
+) {
+    val acepto = stringResource(R.string.reservas_acepto)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = acepto, style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = stringResource(R.string.reservas_acepto_ayuda),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = reservas.acepta,
+                onCheckedChange = { onAlternar() },
+                modifier = Modifier.semantics { contentDescription = acepto },
+            )
+        }
+
+        if (reservas.acepta) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = stringResource(R.string.reservas_cupo), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        text = stringResource(R.string.reservas_cupo_ayuda),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                OutlinedIconButton(
+                    onClick = { onCambiarCupo(-1) },
+                    modifier = Modifier.size(40.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.onSurface),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_quitar),
+                        contentDescription = stringResource(R.string.reservas_menos_cupo),
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+                Text(
+                    text = reservas.porFranja.toString(),
+                    modifier = Modifier
+                        .widthIn(min = 34.dp)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                )
+                FilledIconButton(
+                    onClick = { onCambiarCupo(1) },
+                    modifier = Modifier.size(40.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.inverseSurface,
+                        contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    ),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_agregar),
+                        contentDescription = stringResource(R.string.reservas_mas_cupo),
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
+            Text(
+                text = stringResource(R.string.reservas_cupo_nota),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -381,6 +497,8 @@ private fun HorarioLocalPreview() {
                 onAlternarDia = {},
                 onEditarHoras = {},
                 onCopiarLunesATodos = {},
+                onAlternarReservas = {},
+                onCambiarCupo = {},
                 onGuardar = {},
             )
         }

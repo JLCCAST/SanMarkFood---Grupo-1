@@ -53,3 +53,4 @@ val Typography = Typography(
 
 // Detalles "escritos a mano" (firma del ticket). No es un rol de M3.
 val HandwrittenStyle = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 26.sp)
+val HandwrittenLargeStyle = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 40.sp, lineHeight = 40.sp)

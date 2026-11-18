@@ -10,3 +10,7 @@ private val zonaLima = TimeZone.getTimeZone("America/Lima")
 private fun formatoFecha() = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).apply { timeZone = zonaLima }
 
 fun fechaDeHoy(): String = formatoFecha().format(Date())
+
+private fun formatoHora() = SimpleDateFormat("HH:mm", Locale.ROOT).apply { timeZone = zonaLima }
+
+fun horaActualLima(): String = formatoHora().format(Date())

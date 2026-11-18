@@ -2,9 +2,12 @@ package com.equipo.sanmarkfood.restaurante.core.di
 
 import com.equipo.sanmarkfood.restaurante.data.repository.AuthRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.BorradorMenuRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.DatosInicialesRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MenuRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.MetricasRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.PedidosRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.ReservasRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.PizarraRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.RestauranteRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.VerificacionTelefonoRepositoryImpl
@@ -12,9 +15,12 @@ import com.equipo.sanmarkfood.restaurante.data.repository.RevisionRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.SolicitudesRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.BorradorMenuRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.DatosInicialesRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.PedidosRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.ReservasRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.PizarraRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.RestauranteRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.VerificacionTelefonoRepository
@@ -71,4 +77,16 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPedidosRepository(impl: PedidosRepositoryImpl): PedidosRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMetricasRepository(impl: MetricasRepositoryImpl): MetricasRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReservasRepository(impl: ReservasRepositoryImpl): ReservasRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDatosInicialesRepository(impl: DatosInicialesRepositoryImpl): DatosInicialesRepository
 }

@@ -18,6 +18,8 @@ internal fun DocumentSnapshot.aPedido(): Pedido = Pedido(
     estado = opcion("estado"),
     creadoEn = getTimestamp("creadoEn")?.toDate() ?: throw ErrorPedidos.Desconocido,
     listoAprox = getTimestamp("listoAprox")?.toDate(),
+    codigoRecojo = getString("codigoRecojo"),
+    entregadoEn = getTimestamp("entregadoEn")?.toDate(),
 )
 
 private fun Any?.aItemPedido(): ItemPedido {
@@ -26,6 +28,7 @@ private fun Any?.aItemPedido(): ItemPedido {
         cantidad = (campos["cantidad"] as? Number)?.toInt() ?: throw ErrorPedidos.Desconocido,
         nombre = campos["nombre"] as? String ?: throw ErrorPedidos.Desconocido,
         precio = (campos["precio"] as? Number)?.toInt() ?: throw ErrorPedidos.Desconocido,
+        platoId = campos["platoId"] as? String,
         entrada = campos["entrada"] as? String,
         segundo = campos["segundo"] as? String,
     )

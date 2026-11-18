@@ -16,6 +16,7 @@ enum class PestanaAdmin(@param:DrawableRes val icono: Int, @param:StringRes val 
     SOLICITUDES(R.drawable.ic_solicitudes, R.string.admin_solicitudes),
     REPORTES(R.drawable.ic_reportes, R.string.admin_reportes),
     METRICAS(R.drawable.ic_metricas, R.string.admin_metricas),
+    DATOS(R.drawable.ic_datos, R.string.admin_datos),
 }
 
 data class PanelAdministradorUiState(

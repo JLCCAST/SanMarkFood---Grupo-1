@@ -87,8 +87,7 @@ class RestaurantesDataSource @Inject constructor(
     suspend fun enviarARevision(uid: String, horario: Horario) {
         llamarFirebaseRestaurante {
             documento(uid).update(
-                mapOf(
-                    "horario" to horario.aCampos(),
+                horario.aCamposDelLocal() + mapOf(
                     "estado" to EstadoRestaurante.PENDIENTE.valor(),
                     "enviadoEn" to FieldValue.serverTimestamp(),
                     "actualizadoEn" to FieldValue.serverTimestamp(),
@@ -142,10 +141,7 @@ class RestaurantesDataSource @Inject constructor(
     suspend fun actualizarHorario(uid: String, horario: Horario) {
         llamarFirebaseRestaurante {
             documento(uid).update(
-                mapOf(
-                    "horario" to horario.aCampos(),
-                    "actualizadoEn" to FieldValue.serverTimestamp(),
-                )
+                horario.aCamposDelLocal() + mapOf("actualizadoEn" to FieldValue.serverTimestamp())
             ).await()
         }
     }

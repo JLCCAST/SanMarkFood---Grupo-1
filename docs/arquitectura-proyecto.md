@@ -2,7 +2,7 @@
 
 MVVM + Clean Architecture por capas, repetida en **dos proyectos de Android Studio completamente independientes** (no un Gradle multi-módulo): cada app tiene su propio `build.gradle.kts`, su propio `gradlew` y su propio ciclo de compilación. Viven como carpetas hermanas dentro del mismo repositorio de Git, pero Android Studio las abre por separado, una ventana por app.
 
-## Estado actual del código (25 de octubre de 2026)
+## Estado actual del código (11 de noviembre de 2026)
 
 El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco. Antes de buscar una carpeta, ten esto claro:
 
@@ -41,6 +41,8 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
   - Re-evaluación por cambios sensibles (regla agregada a la historia): si un local `aprobado` cambia la dirección, la ubicación, la portada o el logo, vuelve a `pendiente`; si cambia solo el nombre, la categoría o el teléfono, sigue aprobado. Antes de guardar, O7 avisa con «¿Enviar tu local a revisión?» (`RequiereNuevaRevisionUseCase`), y el panel pasa solo a la pestaña Pedidos para mostrar «En revisión». El administrador lo ve en A1 con la etiqueta «Actualizado» y en A2 con el aviso «Actualización de datos» y los campos que cambiaron.
   - Las reglas de Firestore ya viven en el repositorio, en `firestore.rules` (ver «Reglas de seguridad», más abajo).
 - **Backend — HU07 (SCRUM-39):** en `functions/`, la base de las funciones HTTPS (`https.ts`, `notificar.ts`), `crearPedido`, `reservas` y `resenas`, desplegadas; las reglas e índices de pedidos y reservas; el script de datos de ejemplo; y en la app del comensal, el registro del token de avisos (SCRUM-169). Falta la primera llamada con Retrofit desde una app para cerrar SCRUM-90 (ver «Pedidos y reservas», más abajo).
+- **App Restaurante — HU26 (SCRUM-52) completa:** A4 en `presentation/admin/dashboard_global/`, la pestaña Métricas del administrador. Muestra restaurantes activos, pendientes de aprobación (con los reenviados), pedidos de la semana y reseñas reportadas; el gráfico de pedidos de las últimas 8 semanas, con Vico; y los 4 locales con más pedidos de la semana. Se calcula al abrir la pestaña (`ObtenerMetricasUseCase`, `MetricasRepository`, `MetricasDataSource`), con consultas `count()`. Las semanas empiezan el lunes, en hora de Lima, y el porcentaje compara con el mismo tramo de la semana anterior. «Reseñas reportadas» cuenta los documentos de `reportes` en todos los locales: hoy da 0, y HU25 tendrá que ajustarlo para contar reseñas sin revisar.
+- **Backend y App Comensal — HU14 (SCRUM-46) completa:** en `functions/`, `resumenResenas` corre cada día a las 3:00 a. m. (hora de Lima) y guarda en cada local aprobado un resumen de sus reseñas hecho con Gemini (SCRUM-116; la regla está en «Resumen de reseñas», más abajo). El detalle del local lo muestra en la fila de la calificación, con «· Resumen IA»; sin resumen, dice «Calificación general». La lista de reseñas (B3) y su estado vacío (G3) quedan para HU22.
 - **Backend — HU15 (SCRUM-48) completa:** en `functions/`, `analizarResena` se dispara con cada reseña nueva y le guarda el `sentimiento` y, si es negativa, el `motivo` (SCRUM-121 y 122; la regla está en «Análisis de reseñas», más abajo). Si la reseña es negativa, avisa al local con `notificar` en el canal «Reseñas» (SCRUM-123), que la app del restaurante crea al abrir junto con «Estado del local»; con la app abierta, `AvisosService` muestra cada aviso en el canal que trae.
 - **App Restaurante — HU09 (SCRUM-41), en curso:** SCRUM-99, la bandeja O1 en la pestaña Pedidos de un local aprobado (`presentation/pedidos/BandejaPedidos.kt`, `PedidosViewModel`): escucha en vivo los pedidos del día (`PedidosDataSource`, `ObservarPedidosDeHoyUseCase`), muestra arriba los pedidos nuevos y debajo «En preparación», «Listos para recoger» y «En camino», en orden de llegada, y avisa cuando está sin conexión. Los botones de aceptar, rechazar, listo y entregado y la cuenta regresiva llegan con SCRUM-163, 152, 100, 164 y 162.
 - **App Comensal — HU05 (SCRUM-36) completa:** inicio de sesión, registro, verificación de correo, recuperación de contraseña y exploración sin cuenta, con rol de la cuenta: documento `usuarios/{uid}` con `rol: comensal`, creado al registrarse, y rechazo de cuentas de otro rol al iniciar sesión (cuentas antiguas sin documento se crean como comensal). Ya con Hilt, Firestore y capa `domain/`, alineada con esta arquitectura.
@@ -49,13 +51,31 @@ El árbol de la sección siguiente es el **destino**, no lo que hay hoy en disco
 - **App Comensal — `domain/` sin Android (SCRUM-86):** los errores de auth se devuelven como `ErrorAuth` (sealed class en `domain/model/auth/`), con la traducción de las excepciones de Firebase hecha en `data/repository/AuthRepositoryImpl.kt`, siguiendo el mismo patrón que ya usa `app-restaurante`.
 - **App Comensal — HU06 (SCRUM-38) completa:** en `presentation/descubrimiento/`, la lista de restaurantes aprobados ordenada por distancia (SCRUM-86), los filtros con «Con menú hoy» y «Abierto ahora» y el mapa con un pin por local (SCRUM-87), el detalle del local con favoritos y la sincronización entre tarjeta y mapa (SCRUM-88) y la barra superior del mapa (SCRUM-149).
 - **App Comensal — misma estructura que el restaurante (refactor previo a HU08):** Navigation Compose con rutas tipadas en `core/navigation/` (`Rutas.kt` y `ComensalNavGraph`), Hilt en `core/di/` (`FirebaseModule` y `RepositoryModule`) y la barra inferior en `presentation/panel/PanelComensalScreen.kt`. El `GestorSesion` sigue siendo la fuente única de la sesión: el NavGraph lo observa y lleva a la pantalla que corresponde (inicio de sesión, verificación, invitado o panel). El detalle del local es su propia ruta y comparte el `DescubrimientoViewModel` del panel. Todavía sin `data/firebase/` (los `RepositoryImpl` usan Firestore directo).
+- **App Comensal — HU08 (SCRUM-40) completa:** el pedido, de la carta al seguimiento y la calificación. Con ella entraron `data/firebase/` (carta, menú y pedidos), `data/local/` (Room), `data/remote/` (Retrofit) y los procesos `pedidos/` y `resenas/`.
+  - SCRUM-93 (carrito de un solo local): el carrito vive en Room (ver «El carrito del comensal», más abajo). Al agregar algo de otro local se pregunta «¿Empezar un pedido nuevo?» (E1). Tope de 20 unidades por ítem y 20 ítems distintos, los mismos de `crearPedido`. Con el local en pausa (E13) se ve la carta, pero no se puede agregar nada.
+  - SCRUM-150 (armado del menú): B2 lee en vivo `menus/{hoy}` y «Armar mi menú» abre la hoja «Arma tu menú» para elegir 1 entrada y 1 segundo; las opciones agotadas no se pueden elegir (`MenuDeHoy.armar`).
+  - SCRUM-156 (menú vencido): `disponibilidadDelMenu` decide si el menú se ofrece, con la hora de Lima revisada cada minuto: sin publicar (E12), terminado por la hora de fin (E10) o agotado (el local lo terminó, o no quedan entradas o segundos). Si al confirmar el menú es de otro día o el servidor responde `menu_vencido`, se quita del carrito y se avisa (E11).
+  - SCRUM-94 (modalidad y pago): «Tu pedido» (B6) elige recojo o delivery, la dirección entre las frecuentes del perfil (o una nueva, que se guarda en el perfil) y el método de pago. «Confirmar» llama a `crearPedido`, vacía el carrito solo si el pedido se creó y abre «¡Pedido enviado!». Sin conexión muestra G6 y el pedido sigue armado.
+  - SCRUM-167 (Geocoding): `GeocodificacionRepository` convierte la dirección en coordenadas con Geocoding API por Retrofit, con un `OkHttpClient` propio sin el token de Firebase. La clave va en `local.properties` como `GEOCODING_API_KEY` y llega a `BuildConfig`.
+  - SCRUM-95 (biometría): billetera y tarjeta piden huella o rostro con `BiometricPrompt` (`BIOMETRIC_WEAK`); el efectivo no. Tras varios intentos fallidos (D3) se ofrece el bloqueo de pantalla, y un celular sin biometría (D4) ofrece el PIN, Ajustes o pagar en efectivo. Por eso `MainActivity` hereda de `FragmentActivity`.
+  - SCRUM-96 (seguimiento): B7 (`SeguimientoPedido(pedidoId)`) escucha en vivo `pedidos/{id}`: pizarra con el estado, código de recojo o dirección de entrega y la línea de tiempo. En Explorar, una píldora avisa del pedido en curso y vuelve a abrirlo (consulta de los últimos 5 pedidos del comensal).
+  - SCRUM-98 (cancelar): mientras el pedido está `recibido`, «Cancelar pedido» con su confirmación (C3) llama a `actualizarPedido` con `cancelar`.
+  - SCRUM-151 (rechazo): D6 muestra el motivo (o el rechazo automático), la reversión del pago y el plato agotado tachado. «Volver a la carta» devuelve al carrito lo que sigue disponible.
+  - SCRUM-97 (calificación): con el pedido `entregado`, estrellas, comentario y «me gustó / no me gustó» por plato, con la función `resenas`. Solo se votan los platos de la carta: las opciones del menú no tienen `platoId` y la función las rechazaría. Como las reglas todavía no dejan leer las reseñas, un pedido ya calificado se reconoce por la respuesta `ya_calificado`.
+  - Las reglas de los casos de uso tienen pruebas en `app/src/test/` (carrito, menú, crear, cancelar y recuperar el pedido, calificación).
+- **App Comensal — HU10 (SCRUM-42) completa:** la reserva de mesa, de la solicitud al recordatorio. Con ella entraron `workers/` y los procesos `reservas/` e `historial/` (este último, solo con la pestaña Actividad).
+  - SCRUM-102 (límites): las reglas de A6 viven en `domain/model/reservas/ReglasReserva.kt` y son las mismas que valida la función `reservas`: 7 días desde hoy, horarios cada 30 min dentro del horario del local, al menos 2 h de anticipación, de 1 a 10 comensales y tope de 2 reservas activas. «Reservar mesa» (B5, ruta `ReservarMesa(restauranteId)`) lee en vivo el local, las reservas del comensal y las franjas del día elegido (`ReservasDataSource`), tacha las horas en las que el grupo ya no entra, muestra el aviso del tope (E9) y, con 10 comensales, el teléfono del local. «Solicitar reserva» llama a `crear` y abre «Solicitud enviada». Si el local tiene `aceptaReservas: false`, el botón del detalle sale deshabilitado con «No acepta reservas».
+  - SCRUM-103 (recordatorio): ver «El recordatorio», más abajo.
+  - SCRUM-104 (cancelar): la pestaña Actividad (`presentation/historial/ActividadScreen.kt`) muestra la tarjeta «PRÓXIMA RESERVA» y, en la pestaña Reservas, todas las reservas con su estado visible (`EstadoVisibleReserva`: una confirmada que ya pasó se ve «Completada»; un rechazo automático, «Sin respuesta»). El detalle (G8, E7 y E8, ruta `DetalleReserva(reservaId)`) muestra el ticket, el plazo del rechazo automático o el motivo y la línea de tiempo. «Cancelar», desde la tarjeta o el detalle, pide confirmación y llama a `cancelar`. La pestaña Pedidos es de HU20.
+  - SCRUM-105 (modificar): «Modificar reserva» (C6, ruta `ModificarReserva(reservaId)`) cambia solo la fecha y la hora, como la función `modificar`: los comensales se muestran como dato de la reserva actual. Antes de guardar pide confirmación («¿Cambiar tu reserva?») y al terminar muestra el horario liberado y el nuevo.
+  - Las reglas tienen pruebas en `app/src/test/` (límites, estados visibles, solicitar, cancelar, modificar y los recordatorios).
 - Todo el diseño de pantallas, decidido y revisado: 46 pantallas del comensal y 29 del restaurante. Los prototipos son material interno del equipo, fuera del repositorio.
 
 **Todavía no existe:**
 
-- En `app-comensal`: `data/firebase/`, Room, `workers/`, `ai/` y los procesos `pedidos/`, `reservas/`, `resenas/`, `historial/` y `notificaciones/`.
-- En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, las carpetas `moderacion/` y `dashboard_global/`.
-- En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos`, `vencimientos` y `resumenResenas`). Hoy solo existe `revisarLocal` (SCRUM-78).
+- En `app-comensal`: `ai/` y el proceso `notificaciones/`. De `resenas/` solo existe la calificación del pedido (HU08); la lista de reseñas es de HU22. De `historial/` solo existe la pestaña Actividad con las reservas (HU10); el historial de pedidos es de HU20.
+- En `app-restaurante`: `core/util/`, `data/remote/`, `workers/`, los paquetes `reservas/` y `resenas/` de `presentation/` y, dentro de `presentation/admin/`, la carpeta `moderacion/`.
+- En `functions/`: las funciones de HU07 (`crearPedido`, `actualizarPedido`, `reservas`, `resenas`, `rankingPlatos` y `vencimientos`). Hoy solo existe `revisarLocal` (SCRUM-78).
 
 Esas carpetas se crean **una por una, cuando la primera historia de usuario que las necesita entra en desarrollo** — no se arma el esqueleto completo vacío de entrada.
 
@@ -97,8 +117,7 @@ SanMarkFood---Grupo-1/
 │           │   └── perfil/                  # Perfil, tema claro/oscuro y preferencias de aviso
 │           ├── workers/                     # WorkManager (recordatorio de reserva, HU10)
 │           └── ai/
-│               ├── chatbot/                 # HU11 — chatbot con entrada por voz
-│               └── resumen_resenas/         # HU14 — resumen de reseñas con IA
+│               └── chatbot/                 # HU11 — chatbot con entrada por voz
 │
 ├── app-restaurante/                         # Proyecto Android independiente
 │   └── app/src/main/
@@ -123,13 +142,13 @@ SanMarkFood---Grupo-1/
 │           │   └── admin/                   # Proceso: Moderación y administración — acceso del administrador ✔ (HU23)
 │           │       ├── aprobacion/          # HU24 — aprobación de restaurantes — solicitudes, filtros y revisión ✔ (SCRUM-76, SCRUM-77)
 │           │       ├── moderacion/          # HU25 — moderación de reseñas
-│           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma
-│           ├── avisos/                      # Avisos push (FCM): AvisosService y los canales «Estado del local» (SCRUM-78) y «Reseñas» (SCRUM-123) ✔
+│           │       └── dashboard_global/    # HU26 — dashboard agregado de la plataforma ✔
+│           ├── avisos/                      # Avisos push (FCM): AvisosService y los canales «Estado del local» ✔ (SCRUM-78), «Reseñas» ✔ (SCRUM-123), «Pedidos nuevos» ✔ (SCRUM-162), «Cambios en tus pedidos» y «Reservas»
 │           ├── workers/                     # WorkManager: sin uso por ahora (el recordatorio de HU10 vive en el comensal)
 │           └── ai/
 │               └── digitalizacion_carta/    # HU04 — digitalización de carta con IA — la pizarra ✔ (LectorPizarra)
 │
-├── functions/                               # Cloud Functions (TypeScript, Node 22) — revisarLocal ✔ (SCRUM-78) y analizarResena ✔ (HU15); el resto, HU07
+├── functions/                               # Cloud Functions (TypeScript, Node 22) — revisarLocal ✔ (SCRUM-78), analizarResena ✔ (HU15) y resumenResenas ✔ (HU14); el resto, HU07
 │   └── src/                                 # index.ts, una función por archivo (revisarLocal.ts) y sus ayudas (avisos.ts)
 ├── firestore.rules                          # Reglas de seguridad de Firestore ✔ (se publican con la CLI)
 ├── firebase.json, .firebaserc               # Configuración de la CLI de Firebase: proyecto, reglas y funciones ✔
@@ -171,7 +190,7 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | Base de datos local | **Room** 2.8.4 (SQLite), una base por app. En el restaurante, el borrador del menú del día (HU04); en el comensal, el carrito (HU08) | Requisito del curso. Guarda lo que no debe perderse si se cierra la app y que no le sirve a nadie más: por eso no va en Firestore. |
 | Servidor y datos (HU07, acuerdo del 3 oct) | **Todos los datos en Firestore.** Lo que no puede vivir en el celular va en **Cloud Functions**: funciones HTTPS, que las apps llaman con Retrofit, y funciones programadas. Sin Ktor ni PostgreSQL | Hay tareas que una app no puede hacer de forma confiable: los avisos push a la otra app, los rechazos automáticos (pedido a los 10 min, reserva 60 min antes), el cupo por franja y validar precio y menú al crear un pedido. Con una sola base, la otra app se entera en tiempo real sin programar nada, hay un solo esquema y no hay servidor que mantener encendido. PostgreSQL no es requisito del curso: la base relacional que pide es SQLite (Room). |
 | Retrofit (acuerdo del 3 oct; Geocoding movido a HU08 el 25 oct) | Para las **funciones HTTPS** del equipo y para **Geocoding API**, que convierte en coordenadas la dirección de delivery del pedido (HU08, SCRUM-167) | Requisito del sílabo (Corrutinas + Retrofit). Las funciones se escriben como HTTPS normales y no como «callable», porque esas se llaman con el SDK de Firebase y no usan Retrofit. Geocoding usa una clave propia, restringida solo a esa API y con tope diario. El mapa (Maps SDK) y la IA tienen su propio SDK y no pasan por Retrofit. |
-| Dashboards | Consultas de agregación de Firestore (`count()`, `sum()`, `average()`); el ranking de platos más pedidos lo calcula una función | Firestore suma y cuenta en el servidor, así que no hacen falta colecciones de estadísticas ni otra base. |
+| Dashboards | Consultas de agregación de Firestore (`count()`, `sum()`, `average()`); el ranking de platos más pedidos lo calcula una función. El de locales de A4 (HU26) no la necesita: un `count()` por local aprobado, con el índice de pedidos por local y fecha. Los gráficos usan **Vico** | Firestore suma y cuenta en el servidor, así que no hacen falta colecciones de estadísticas ni otra base. Vico está hecho para Compose; MPAndroidChart usa Views clásicas. |
 | Plan de Firebase (HU02) | **Blaze**, con la prueba gratuita de Google Cloud. El bucket de Storage está en `us-east1` | Desde febrero de 2026, Cloud Storage para Firebase exige Blaze. En `us-east1` el uso de Storage entra en la capa gratuita de Google Cloud. La prueba dura 90 días: al terminar hay que activar la cuenta de facturación o el proyecto vuelve a Spark y Storage deja de funcionar. Conviene tener una alerta de presupuesto. |
 | Local del restaurante (HU02) | Documento `restaurantes/{uid}`, con el mismo `uid` de la cuenta. Estados: `borrador` → `pendiente` → `aprobado` o `rechazado` (y de `rechazado` otra vez a `pendiente` al reenviar) | Una cuenta = un local: el `uid` como id lo garantiza sin consultas. Campos, estados y reglas en «El documento del local», más abajo. |
 | Estado del local en pantalla (HU02) | El panel escucha `restaurantes/{uid}` en vivo (*snapshot listener*) | Si el administrador aprueba o rechaza el local, la pantalla del restaurante cambia sola, sin reiniciar la app. |
@@ -181,9 +200,10 @@ Lo que sí se mantiene idéntico a mano en las dos apps es el tema (`ui/theme/` 
 | App Check (HU04) | **Aplicado en Firebase AI Logic**: el servidor solo acepta pedidos de la app original. En las versiones debug, el proveedor de depuración (`src/debug/…/ProveedorAppCheck.kt`); en release, Play Integrity (`src/release/…`). `RestauranteApp` lo instala al abrir la app | La configuración de Firebase va dentro del APK y cualquiera podría usarla para llamar a Gemini a costa del proyecto. Play Integrity solo certifica apps instaladas desde Play Store, por eso en desarrollo cada celular usa un token de depuración (ver «App Check», más abajo). El proveedor de depuración no entra en el APK de release. Firestore y Storage no lo exigen todavía. |
 | Chatbot (HU11, acuerdo del 25 oct) | **Gemini con Firebase AI Logic**, como la pizarra. El prompt lleva los datos del local (horario, menú de hoy, carta) y el pedido o la reserva activa del comensal, leídos de Firestore. La voz entra con `SpeechRecognizer` | Ya está configurado en el proyecto (crédito de Google Cloud, App Check) y no necesita clave ni servidor. No pasa por Retrofit: ese requisito ya lo cubren las funciones de HU07 y Geocoding. La conversación no se guarda. |
 | Análisis de reseñas (HU15) | La función `analizarResena` decide el `sentimiento` sin IA cuando puede: 4 o 5 estrellas son `positiva`, y sin comentario manda la nota (1 o 2 estrellas, `negativa`; 3, `neutra`). Solo las de 3 estrellas o menos con comentario van a **Gemini** (`@google/genai` en Vertex AI, ubicación `global`, `gemini-3.5-flash`, el mismo modelo de la pizarra), que elige entre `neutra` y `negativa` y, en la misma llamada, saca el `motivo` | Gemini se usa solo donde hay que leer el texto: una reseña de 4 o 5 estrellas no es una alerta, y sin comentario no hay motivo que sacar. El motivo se guarda como lo muestra O5 («Negativa · motivo detectado: …»): hasta 60 caracteres, en minúscula y sin punto final (`motivo.ts`). |
+| Resumen de reseñas (HU14) | La función programada `resumenResenas` toma las 30 reseñas más recientes de cada local aprobado y, si hay al menos 3 con comentario, le pide a **Gemini** 2 o 3 líneas cortas (hasta 140 caracteres). Guarda el resumen en el documento del local. Si `calificacion.total` sigue igual que al generarlo (`resumenResenas.totalResenas`), no vuelve a llamar a Gemini | El resumen se lee con el documento del local, sin consultas de más, y Gemini solo se usa cuando hay reseñas nuevas. Con menos de 3 comentarios, una sola opinión definiría todo el resumen; por eso el diseño dice que se genera «cuando haya suficientes opiniones». |
 | Cámara (HU04, SCRUM-71) | **CameraX** 1.6.2 con `LifecycleCameraController` y `PreviewView` (`camera-view`) | El controlador junta la vista previa, la foto y el ciclo de vida: se enciende al abrir M2 y se apaga al salir, sin código propio. La galería usa el mismo selector de fotos de HU02, que no pide permisos. |
 | Mapa (HU02) | **Maps Compose** (`maps-compose`). La clave va en `local.properties` como `MAPS_API_KEY` y el Gradle la pasa al manifiesto | La clave no se sube al repositorio. Cada integrante agrega la suya; sin ella la app compila y abre, pero el mapa sale en blanco. |
-| Versiones fijadas (HU02) | Coil 3.4.0 y maps-compose 8.3.1 | Las versiones más nuevas traen `kotlin-stdlib` 2.4 y el proyecto compila con Kotlin 2.2.10, que no puede leerla. Para subirlas hay que actualizar Kotlin en todo el proyecto. |
+| Versiones fijadas (HU02, HU26) | Coil 3.4.0, maps-compose 8.3.1 y Vico 3.1.0 | Las versiones más nuevas traen `kotlin-stdlib` 2.4 y el proyecto compila con Kotlin 2.2.10, que no puede leerla. Para subirlas hay que actualizar Kotlin en todo el proyecto. Vico 3.2 pide además Compose 1.11, más nueva que la del BOM. |
 
 Las reglas de Firestore viven en la consola de Firebase (Firestore → Reglas), y las de Storage en Storage → Reglas. **Cada colección o carpeta nueva necesita su regla**: sin regla queda inaccesible, y con una regla floja queda abierta a cualquiera.
 
@@ -234,7 +254,7 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 - **Reserva:** `pendiente` → `confirmada`. Además, `rechazada` (por el local, o sola 60 minutos antes) y `cancelada`. Si el comensal la modifica, vuelve a `pendiente`.
 - **Menú del día:** no hay documento hasta que se publica; después, `publicado` o `terminado` («Terminar menú de hoy» y «Reabrir»).
 
-**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; `revisarLocal` (HU24), que se dispara sola cuando cambia el `estado` de un local; y `analizarResena` (HU15), que se dispara con cada reseña nueva. El detalle de las de pedidos y reservas está en «Pedidos y reservas», más abajo.
+**Las funciones (HU07):** `crearPedido`, `actualizarPedido`, `reservas`, `resenas` y `rankingPlatos`, que son HTTPS y las apps llaman con Retrofit; `vencimientos` (cada minuto) y `resumenResenas` (diaria), que son programadas; `revisarLocal` (HU24), que se dispara sola cuando cambia el `estado` de un local; `analizarResena` (HU15), que se dispara con cada reseña nueva; y `datosIniciales` (HU27), HTTPS y solo para el administrador, que carga o borra los datos de prueba (ver «Datos iniciales»). El detalle de las de pedidos y reservas está en «Pedidos y reservas», más abajo.
 
 **Los ítems del pedido (acuerdo del 8 oct, para HU07, HU08 y HU13).** Cada ítem de `pedidos/{id}` guarda `tipo` (`plato` o `menu`), `cantidad`, y el `nombre` y el `precio` copiados al momento de pedir. Un plato de la carta guarda además su `platoId`; el menú del día, la `fecha` del menú y los nombres de la `entrada` y el `segundo` elegidos. El ranking de platos más pedidos de O6 (SCRUM-131, función `rankingPlatos`) cuenta los platos por `platoId` y no por nombre, porque el local puede renombrarlos, y junta todos los ítems `menu` en una sola fila, «Menú del día», como en el diseño. Las opciones del menú no se rankean: son texto libre que cambia cada día, y a veces lo escribe la IA. Por la misma razón, el dashboard del administrador (HU26) no compara platos entre locales; puede agrupar por la `categoria` del local, que es una lista fija.
 
@@ -242,12 +262,12 @@ Todos los datos viven en Firestore; las fotos, en Storage; el carrito del comens
 
 ## Pedidos y reservas (acuerdo del 25 de octubre)
 
-Es el contrato entre HU07, HU09 y HU12 (Jose: funciones y restaurante), HU08 y HU10 (Camila: comensal) y HU14 y HU15 (Rodrigo: reseñas con IA). Lo acordaron Jose y Claude; el resto del equipo se adapta a lo que vaya avanzando. Si alguien necesita cambiar un nombre o un campo, lo cambia aquí primero y avisa.
+Es el contrato entre HU07, HU09 y HU12 (Jose: funciones y restaurante), HU08 y HU10 (Camila: comensal) y HU14, HU15 y HU26 (Rodrigo: reseñas con IA y dashboard del administrador). Lo acordaron Jose y Claude; el resto del equipo se adapta a lo que vaya avanzando. Si alguien necesita cambiar un nombre o un campo, lo cambia aquí primero y avisa.
 
 **Quién escribe qué función** (todas en `functions/`):
 
 - **Jose (HU07, HU09 y HU12):** la base que usan todas (verificar el token, responder errores, enviar avisos), `crearPedido`, `actualizarPedido`, `reservas` (con la validación del cupo), `resenas` (SCRUM-170), `vencimientos`, los datos de ejemplo (SCRUM-168), los avisos en la app del comensal (SCRUM-169), las reglas, los índices y el despliegue. También el campo `cupoPorFranja` en O8 y su regla (SCRUM-165).
-- **Rodrigo (HU14 y HU15):** `resumenResenas` (programada) y `analizarResena`, que se dispara con cada reseña nueva, las dos con Gemini, usando la base de Jose para los avisos.
+- **Rodrigo (HU14, HU15 y HU26):** `resumenResenas` (programada) y `analizarResena`, que se dispara con cada reseña nueva, las dos con Gemini, usando la base de Jose para los avisos. HU26 (dashboard global) no necesita funciones: usa consultas de agregación de Firestore (`count()`) sobre `restaurantes` y `pedidos`, que las reglas ya le permiten al administrador.
 - **Camila (HU08 y HU10):** solo la app del comensal; no escribe funciones.
 
 ### Orden del Sprint 2 (hasta el 9 de noviembre)
@@ -257,12 +277,12 @@ Para que nadie espere a nadie, lo primero de Jose es lo que usan los otros dos, 
 | | Semana 1 (26 oct – 1 nov) | Semana 2 (2 – 9 nov) |
 | --- | --- | --- |
 | **Jose** | Días 1 y 2: la base de las funciones, los datos de ejemplo (SCRUM-168), las reglas y los índices. Después: `crearPedido`, `reservas`, los avisos del comensal (SCRUM-169) y la bandeja O1 con los datos de ejemplo (SCRUM-99) | `actualizarPedido` con aceptar, avanzar, rechazar y entregar (SCRUM-163, 100, 152, 164), el cupo en O8 (SCRUM-165), las reservas en O4 (SCRUM-106, 107), el aviso de pedido nuevo (SCRUM-162), `vencimientos` (SCRUM-153, 155), los avisos al comensal (SCRUM-101, 108), `resenas` (SCRUM-170) y el despliegue final |
-| **Rodrigo** | Con las reseñas de ejemplo: la clasificación del sentimiento y el motivo con Gemini (SCRUM-121, 122) y el resumen (SCRUM-116) | El resumen en caché (SCRUM-117), el aviso al local por reseña negativa (SCRUM-123) y probarlo con reseñas reales cuando exista `resenas` |
+| **Rodrigo** | Con las reseñas de ejemplo: la clasificación del sentimiento y el motivo con Gemini (SCRUM-121, 122) y el resumen (SCRUM-116). El dashboard global con los pedidos de ejemplo: métricas con `count()` (SCRUM-133, 134) | El resumen en caché (SCRUM-117), el aviso al local por reseña negativa (SCRUM-123), el gráfico de pedidos por semana (SCRUM-135) y probarlo todo con datos reales |
 | **Camila** | Lo que no necesita servidor: el carrito con Room (SCRUM-93), el menú (SCRUM-150), modalidad y pago (SCRUM-94), Geocoding (SCRUM-167), la biometría (SCRUM-95), el formulario de reserva (SCRUM-102) y el recordatorio con WorkManager (SCRUM-103) | Conectar con `crearPedido` y `reservas`, el seguimiento (SCRUM-96), el rechazo (SCRUM-151), el menú vencido (SCRUM-156), cancelar (SCRUM-98, 104), modificar (SCRUM-105) y la calificación (SCRUM-97) |
 
 Las únicas esperas que quedan: Camila necesita `crearPedido` y `reservas` al empezar la semana 2, y Rodrigo necesita los datos de ejemplo desde el día 2. Por eso Jose los entrega primero. Mientras tanto, todos prueban con los datos de ejemplo.
 
-Si el sprint se aprieta, estos criterios pueden pasar al Sprint 3 sin perder ningún requisito del curso: modificar la reserva (SCRUM-105), la entrega con código (SCRUM-164), el sonido que se repite (SCRUM-162) y la calificación (SCRUM-97).
+HU26 volvió al Sprint 2 el 27 oct: la profesora ya enseñó los dashboards con librerías, así que ese requisito también entra en este sprint. Si el sprint se aprieta, estos criterios pueden pasar al Sprint 3 sin perder ningún requisito del curso: modificar la reserva (SCRUM-105), la entrega con código (SCRUM-164), el sonido que se repite (SCRUM-162) y la calificación (SCRUM-97).
 
 ### Cómo llaman las apps a las funciones
 
@@ -329,16 +349,17 @@ Errores: `no_autorizado` (no es su pedido), `estado_invalido` (la acción no val
 | `confirmar` | local | `reservaId` | `{ estado }` |
 | `rechazar` | local | `reservaId`, `motivo`, `detalle?` | `{ estado }` |
 
-`crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
+`crear` y `modificar` validan lo de la decisión A6: entre 2 h y 7 días de anticipación, dentro del horario del local, de 1 a 10 personas y **máximo 2 reservas activas** (`pendiente` o `confirmada`) por comensal, y que el local acepte reservas. Errores: `fuera_de_plazo`, `fuera_de_horario`, `franja_llena`, `sin_reservas`, `tope_reservas`, `estado_invalido`, `no_autorizado`, `datos_invalidos`.
 
-**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. Mientras el local no configure `cupoPorFranja` (SCRUM-165), sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5.
+**El cupo (SCRUM-165).** Cada reserva ocupa **solo su franja de 30 minutos**. El conteo vive en `restaurantes/{uid}/franjas/{AAAA-MM-DD_HHmm}` como `{ ocupados }` (número de personas) y cambia en la misma transacción que la reserva: suma al crear, se mueve al modificar y resta al cancelar o rechazar. Una franja está llena si `ocupados + personas > cupoPorFranja`. El local lo configura en R4 y O8, de 2 a 60 comensales (12 por defecto); mientras no lo guarde, sus franjas no tienen límite. El comensal lee las franjas del día para tachar las llenas en B5. En la misma sección, el interruptor «Acepto reservas» guarda `aceptaReservas`: si es `false`, `crear` y `modificar` responden `sin_reservas`, y **el comensal no puede reservar en ese local**: el botón del detalle sale deshabilitado con «No acepta reservas» (sin el campo, el local acepta reservas).
 
-**El recordatorio (SCRUM-103)** no pasa por el servidor: al crear o modificar la reserva, la app del comensal programa un trabajo de WorkManager para 30 min, 1 h o 2 h antes, y lo cancela si la reserva se cancela o se rechaza.
+**El recordatorio (SCRUM-103)** no pasa por el servidor. Al crear o modificar la reserva, la app del comensal programa un trabajo único de WorkManager (`workers/RecordatorioReservaWorker`, nombre `recordatorio-{reservaId}`) para 30 min, 1 h o 2 h antes; al modificarla lo reemplaza con la hora nueva, y al cancelarla lo borra. La anticipación elegida se guarda en el celular (`SharedPreferences` `recordatorios_de_reservas`, a través de `RecordatoriosRepository`) para mostrar «Recordatorio 1 h antes» en Actividad. Antes de avisar, el trabajo vuelve a leer la reserva (`VerificarRecordatorioUseCase`, por un `EntryPoint` de Hilt): si ya no está `pendiente` o `confirmada`, o cambió de horario, no avisa; sin conexión, avisa igual. Además, Actividad borra los recordatorios de las reservas que el local rechazó. El aviso sale en el canal «Reservas».
 
 ### Lo que hace el servidor solo
 
-- **`vencimientos`** (cada minuto): un pedido que sigue `recibido` 10 minutos después de `creadoEn` pasa a `rechazado` con `sin_respuesta` y `automatico: true`, y su `pago` a `revertido` si estaba `pagado`. Una reserva `pendiente` a la que le faltan 60 minutos o menos pasa a `rechazada` igual y libera su franja.
+- **`vencimientos`** (cada minuto): un pedido que sigue `recibido` 10 minutos después de `creadoEn` pasa a `rechazado` con `sin_respuesta` y `automatico: true`, y su `pago` a `revertido` si estaba `pagado`. Una reserva `pendiente` a la que le faltan 60 minutos o menos pasa a `rechazada` igual y libera su franja. En los dos casos avisa al comensal y lo guarda en su bandeja: «<local> no respondió a tiempo» (`pedido_rechazado`, canal `pedidos`) y «Tu reserva fue rechazada» (`reserva_rechazada`, canal `reservas`, solo si tiene activado ese aviso). Como corre cada minuto, el pedido puede seguir en la bandeja hasta un minuto después de que la cuenta regresiva llegue a 0:00. Está en `functions/src/vencimientos.ts` (SCRUM-153 y SCRUM-155).
 - **Avisos push**: cada función que cambia un estado avisa al otro lado, con los tokens de `usuarios/{uid}/dispositivos`, y guarda el aviso en `usuarios/{uid}/notificaciones` (C5). Al local: pedido nuevo (**alta prioridad**, para que suene aunque el celular esté en reposo, SCRUM-162) y reserva nueva o modificada. Al comensal: cada cambio de estado del pedido (fijo, no se puede apagar, decisión C4) y la respuesta a la reserva (solo si tiene activado el aviso de reservas en su perfil).
+- **El aviso de pedido nuevo (SCRUM-162)** sale como mensaje de solo datos (`soloDatos: true` en `notificar`, con `titulo`, `cuerpo`, `canal` y `pedidoId` en `data`). Así lo arma siempre `AvisosService` de la app del restaurante, aun con la app cerrada, en el canal «Pedidos nuevos» (importancia alta) y con sonido insistente: suena hasta que se abre la cortina de avisos o la bandeja O1, que lo quita en cuanto ve el pedido. Si la app ya está al frente, suena una sola vez (Firestore puede traer el pedido a la bandeja antes que llegue el aviso), y la bandeja lo quita al aceptar o rechazar. La tarjeta «PEDIDO NUEVO» de O1 muestra la cuenta regresiva de 10 minutos antes del rechazo automático. Los demás avisos llevan `notification` con su canal: `estado_local`, `pedidos` y `reservas` en el restaurante; `pedidos` y `reservas` en el comensal.
 - **En la app del comensal (SCRUM-169):** guardar su token de avisos en `usuarios/{uid}/dispositivos/{token}` con `app: "comensal"`, como ya lo hace el restaurante (`RegistrarDispositivoUseCase`). Sin eso no le llega ningún aviso.
 - **`resenas` (SCRUM-170):** recibe `{ pedidoId, estrellas, comentario?, platos? }`: `estrellas` de 1 a 5, `comentario` de hasta 500 caracteres y `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»), solo con platos de ese pedido. Vale solo para el comensal del pedido, con el pedido `entregado` y una sola vez. Guarda `restaurantes/{uid}/resenas/{pedidoId}` y actualiza `calificacion { promedio, total }` del local en la misma transacción (el promedio se guarda sin redondear; la app lo muestra con un decimal). Devuelve `{ pedidoId }`. Errores: `estado_invalido`, `ya_calificado`, `no_autorizado`, `datos_invalidos`.
 
@@ -355,18 +376,39 @@ Todo lleva `ejemplo: true`, así que se borra sin tocar datos reales. Cómo usar
 1. Una vez: en Firebase → Configuración del proyecto → **Cuentas de servicio** → «Generar nueva clave privada». Guarda el JSON **fuera del repositorio** (por si acaso, `.gitignore` ya ignora `*-firebase-adminsdk-*.json`). Esa clave da acceso total al proyecto: no se comparte ni se sube.
 2. En la terminal, dentro de `functions/` (con `npm ci` hecho), apunta a la clave: `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\ruta\a\la\clave.json"` en PowerShell, o `export GOOGLE_APPLICATION_CREDENTIALS=...` en Git Bash.
 3. Cargar: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal>`. Los `uid` se ven en Firebase → Authentication. Se puede correr varias veces: cada vez agrega otro juego.
-4. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
+4. Probar el aviso de pedido nuevo: `npm run datos-ejemplo -- --local <uid del local> --comensal <uid del comensal> --nuevo` crea un solo pedido `recibido` con la hora actual y le manda al local el mismo aviso que `crearPedido`.
+5. Borrar: `npm run datos-ejemplo -- --local <uid del local> --borrar`.
 
 **La reseña (`restaurantes/{uid}/resenas/{pedidoId}`):** `{ comensalUid, comensalNombre, estrellas, comentario, platos, creadoEn }`, con `platos` como mapa `{ <platoId>: true | false }` («me gustó» o «no me gustó»). HU15 le agrega `sentimiento` (`positiva`, `neutra` o `negativa`) y, en las negativas que analizó Gemini, `motivo`: una frase corta como «llegó frío y faltó la bebida». HU21 le agrega la `respuesta` del local.
+
+### Datos iniciales (HU27, SCRUM-171)
+
+Pedido de la profesora: un módulo **dentro de la aplicación** que cree los datos iniciales. Vive en la pestaña **Datos** del panel del Administrador (App Restaurante, `presentation/admin/datos_iniciales/`), con «Cargar datos iniciales» y «Borrar datos iniciales», cada uno con su confirmación. Al cargar, la pantalla muestra el resumen y las cuentas de prueba.
+
+La app no puede escribir estos datos: las reglas no le dejan crear cuentas, locales de otros ni pedidos. Por eso lo hace la función HTTPS **`datosIniciales`** (`functions/src/datosIniciales.ts`), con el Admin SDK. Recibe `{ accion: "cargar" | "borrar" }` y solo la acepta si `usuarios/{uid}.rol` es `administrador` (si no, `403 no_autorizado`). **Cargar siempre borra antes la carga anterior**, así que se puede repetir sin duplicar nada. La app la llama con `DatosInicialesApi`, un Retrofit aparte con 120 s de espera, porque la carga tarda varios segundos.
+
+Qué se carga, un módulo por proceso en `functions/src/semilla/`:
+
+| Módulo | Qué crea |
+| --- | --- |
+| `cuentas.ts` | 6 locales aprobados, uno por categoría, cerca de la Ciudad Universitaria, abiertos de 00:00 a 23:30 todos los días, con reservas activadas (cupo 12). 3 comensales con la dirección frecuente «Facultad». Cada uno con su cuenta en Firebase Auth (correo verificado) y su `usuarios/{uid}`. |
+| `carta.ts` | Por local, 2 categorías con 5 platos y el menú de hoy publicado (hasta las 23:00) y el de ayer terminado, más `menuHoy` y `rangoCarta`. En la mitad de los locales hay un plato agotado hoy, y en todos el último segundo del menú está agotado. |
+| `actividad.ts` | Por local, pedidos en todos los estados (recibido, preparando, listo, en camino, rechazado con motivo y automático, cancelado), 3 entregados con reseña y entre 1 y 3 entregas por semana en las últimas 7 semanas (para los dashboards). 5 reservas en distintos estados, con su cupo en `franjas`, `ultimoNumeroPedido` y `calificacion`. |
+| `borrar.ts` | Borra los pedidos y reservas de los locales y comensales de prueba (y devuelve el cupo si una reserva de prueba ocupaba un local real), los locales y usuarios de prueba con sus subcolecciones y las cuentas de Auth. |
+
+Los locales y comensales de prueba tienen `uid` fijos (`semilla-local-criolla`, `semilla-comensal-1`…) y correos `@datos.sanmarkfood.test`, todos con la contraseña `SanMark2026!`. Así se pueden borrar sin tocar los datos reales. Los pedidos, reservas y reseñas llevan `semilla: true`. Ojo: los pedidos `recibido` se rechazan solos a los 10 minutos (`vencimientos`), y las reseñas de 3 estrellas o menos pasan por Gemini (`analizarResena`), como las reales.
+
+**Cuando una historia nueva agregue datos**, se suma su módulo en `semilla/` (o se amplía el de su proceso) y se llama desde `datosIniciales.ts`. Si crea colecciones nuevas ligadas a los locales o comensales de prueba, `borrar.ts` también tiene que limpiarlas.
 
 ### Reglas de Firestore e índices (SCRUM-91)
 
 Ya están en `firestore.rules`:
 
 - `pedidos/{id}` y `reservas/{id}`: los leen solo su comensal (`comensalUid`) y su local (`restauranteUid`), con el correo verificado; los pedidos, también el administrador (para HU26). Nadie los escribe desde una app. Por eso cada consulta de las apps tiene que filtrar por `comensalUid` o `restauranteUid` igual al `uid` de la sesión, o Firestore la rechaza.
+- `restaurantes/{uid}/resenas/{pedidoId}/reportes/{comensalUid}`: los lee el administrador, en todos los locales (para HU26).
 - `restaurantes/{uid}/franjas/{id}`: la lee cualquier cuenta con sesión; nadie la escribe desde una app.
 - `usuarios/{uid}/notificaciones/{id}`: la lee su dueño, que solo puede marcarla como leída (`leida: true`).
-- **Pendiente (SCRUM-165):** que el cambio de horario del local acepte `cupoPorFranja`.
+- El cambio de horario del local (R4 y O8) acepta también `aceptaReservas` (booleano) y `cupoPorFranja` (entero de 2 a 60), SCRUM-165.
 
 Los índices compuestos están en `firestore.indexes.json` (registrado en `firebase.json`): pedidos por local y por comensal ordenados por `creadoEn`, reservas por local ordenadas por `fecha` y `hora`, reservas por comensal por `fecha`, y los de `vencimientos` (pedidos por `estado` y `creadoEn`; reservas por `estado` y `fecha`). Se publican junto con las reglas: `firebase deploy --only firestore`.
 
@@ -389,8 +431,9 @@ Lo crea y lo mantiene la app del restaurante (HU02). Lo leen también la secció
 | `creadoEn`, `enviadoEn`, `actualizadoEn` | fecha | el local | Siempre la hora del servidor. `enviadoEn` es el último envío a revisión. |
 | `menuHoy` | mapa | el local (HU03) | `{ fecha, precio, horaFin, estado }`: copia del menú del día, que se escribe junto con él. Los pines del mapa del comensal muestran ese precio, o «Carta» si no hay menú hoy. |
 | `rangoCarta` | mapa | el local (HU03) | `{ min, max }` en céntimos: el plato más barato y el más caro. Se recalcula al guardar o eliminar un plato. Es el segundo filtro de precio del comensal; el primero es `menuHoy.precio` (HU06). |
-| `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos (SCRUM-165). |
-| `calificacion`, `resumenResenas`, `ultimoNumeroPedido` | mapa, mapa, entero | las funciones | `{ promedio, total }` de las reseñas; `{ texto, generadoEn }`, el resumen de la IA (SCRUM-117); el último número de pedido del local («#0132»). |
+| `aceptaReservas` | booleano | el local (R4, O8) | Interruptor «Acepto reservas». Sin el campo, acepta. Si es `false`, el comensal no ve «Reservar» (SCRUM-165). |
+| `cupoPorFranja` | entero | el local (R4, O8) | Comensales por franja de 30 minutos, de 2 a 60. Sin el campo, las franjas no tienen límite (SCRUM-165). |
+| `calificacion`, `resumenResenas`, `ultimoNumeroPedido` | mapa, mapa, entero | las funciones | `{ promedio, total }` de las reseñas; `{ texto, totalResenas, generadoEn }`, el resumen de la IA y cuántas reseñas tenía el local al generarlo (SCRUM-117); el último número de pedido del local («#0132»). |
 | `revisadoEn` | fecha | el administrador (HU24) | Cuándo se aprobó o rechazó. |
 
 Qué garantizan las reglas de Firestore:
@@ -398,12 +441,11 @@ Qué garantizan las reglas de Firestore:
 - El dueño solo puede crear su local en `borrador`. Después, cada cambio tiene que ser uno de estos seis:
   - cambiar los datos y las fotos;
   - enviar a revisión (de `borrador` a `pendiente`, con el horario);
-  - cambiar el horario;
+  - cambiar el horario, junto con `aceptaReservas` y `cupoPorFranja`;
   - pausar o reanudar los pedidos (solo si está `aprobado`);
   - reenviar después de un rechazo (de `rechazado` a `pendiente`);
   - cambiar la carta (HU03): tocar solo `menuHoy` (`{ fecha, precio, horaFin, estado }`), `rangoCarta` (`{ min, max }`) y `actualizadoEn`, en cualquier estado del local (uno pendiente también puede preparar su carta).
 - Ninguna de esas escrituras le permite al local aprobarse solo ni inventar el motivo del rechazo.
-- **Pendiente (Rodrigo):** que el cambio de horario acepte `cupoPorFranja`.
 - Las reglas del administrador (leer todas las solicitudes, aprobar y rechazar) están pendientes de HU24.
 
 En Storage, las fotos van en `restaurantes/{uid}/portada-<hora>.jpg` y `logo-<hora>.jpg`. Solo las sube el dueño, si su cuenta es de rol `restaurante`: la regla consulta `usuarios/{uid}` en Firestore, para lo cual se le dio permiso a Storage al publicarla. Solo se aceptan JPEG de menos de 2 MB. Los demás ven las fotos con la URL de descarga guardada en el documento, que no pasa por estas reglas.
@@ -467,6 +509,16 @@ Mientras el local arma el menú en M5, cada cambio se guarda en la base `sanmark
 
 `origen` y `tipo` se guardan con el nombre del `enum` (`CERO`, `ENTRADA`): esta base es solo del celular, no es un contrato con otra app. Guardar reemplaza todo en una transacción (`BorradorMenuDao.reemplazar`). La base va en la versión 2 (la 1 no tenía las columnas `porRevisar`). Al cambiar de versión se borra el borrador en vez de migrarlo (`fallbackToDestructiveMigration`): es temporal y no hace falta conservarlo.
 
+### El carrito del comensal (Room, HU08)
+
+El carrito vive en la base `sanmarkfood.db` del celular del comensal, no en Firestore: no le sirve a nadie más y no debe perderse si se cierra la app. Es de un solo local, y se vacía cuando `crearPedido` responde con el pedido creado.
+
+| Tabla | Columnas | Notas |
+| --- | --- | --- |
+| `item_carrito` | `clave` (clave), `restauranteId`, `restauranteNombre`, `tipo`, `platoId`, `nombre`, `fotoUrl`, `fecha`, `entrada`, `segundo`, `precio`, `cantidad`, `agregadoEn` | Una fila por ítem. `tipo` es `PLATO` o `MENU`. La `clave` es `plato:<platoId>` o `menu:<entrada>\|<segundo>`: agregar lo mismo suma la cantidad, y cada combinación del menú es un ítem distinto. El precio, en céntimos, es el que se vio al agregar; el servidor vuelve a calcularlo. |
+
+En el dominio, `ItemCarrito` es una interfaz sellada con `PlatoDelCarrito` y `MenuDelCarrito`. La base va en la versión 2 (la 1 solo guardaba platos) y, como el borrador del restaurante, se borra en vez de migrarse al cambiar de versión.
+
 ## Convenciones de código
 
 Para que el código de los tres integrantes se lea como si lo hubiera escrito una sola persona:
@@ -507,11 +559,11 @@ Los criterios de aceptación de la HU son subtareas en Jira: la pantalla está l
 | Firebase | `data/firebase/` en ambas apps (mismo proyecto Firebase, dos apps Android registradas) — en `app-restaurante` ya se usan Auth, Firestore y Storage; Cloud Functions (`functions/`, HU07) y Cloud Messaging para los avisos |
 | Material Design | `ui/theme/` + `res/font/` de cada app — **ya hecho**, con paleta propia y modo oscuro |
 | MVVM + Clean Code | Estructura de 3 capas repetida en `app-comensal` y `app-restaurante` — en uso en las dos apps |
-| Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions de pedidos y reservas (HU07, HU08, HU09, HU10) y a Geocoding API (HU08, SCRUM-167) |
-| WorkManager | `app-comensal/workers/`: el recordatorio de la reserva (HU10, SCRUM-103) |
-| SQLite | `data/local/` (Room) — **en `app-restaurante`, el borrador del menú del día** (HU04); en `app-comensal`, el carrito (HU08) |
-| Dashboards | `app-restaurante/presentation/dashboard/` y `admin/dashboard_global/` (Vico o MPAndroidChart), con consultas de agregación de Firestore |
-| Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (pizarra y carta, HU04) — **la pizarra ya usa CameraX**; GPS, biometría, micrófono → `app-comensal` |
+| Corrutinas + Retrofit | `data/remote/` + `domain/usecase/` (`suspend fun`) — llaman a las Cloud Functions de pedidos y reservas (HU07, HU08, HU09, HU10) y a Geocoding API (HU08, SCRUM-167) — **en uso en las dos apps** |
+| WorkManager | `app-comensal/workers/`: el recordatorio de la reserva (HU10, SCRUM-103) — **en uso** |
+| SQLite | `data/local/` (Room) — **en las dos apps**: el borrador del menú del día (HU04) y el carrito del comensal (HU08) |
+| Dashboards | `app-restaurante/presentation/dashboard/` y `admin/dashboard_global/` (Vico), con consultas de agregación de Firestore |
+| Recursos del móvil (mín. 3, el proyecto cubre 4) | Cámara → `app-restaurante` (pizarra y carta, HU04) — **la pizarra ya usa CameraX**; GPS, biometría, micrófono → `app-comensal` — **GPS en Explorar (HU06) y biometría al pagar (HU08, `BiometricPrompt`)** |
 | Funcionalidades de IA (mín. 3, el proyecto cubre 4) | `ai/` en ambas apps — **en `app-restaurante`, la lectura de la pizarra con Gemini** (HU04); el chatbot (HU11, Gemini en `app-comensal`); el resumen y el sentimiento de las reseñas (HU14 y HU15, Gemini en las funciones) |
 | Despliegue en Play Store | No es código — checklist aparte en Sprint 3 (firma de cada AAB, ficha de Play Console por app) |
 

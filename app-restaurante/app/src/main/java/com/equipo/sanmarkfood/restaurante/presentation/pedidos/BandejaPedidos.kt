@@ -1,8 +1,10 @@
 package com.equipo.sanmarkfood.restaurante.presentation.pedidos
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,16 +18,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -36,39 +45,53 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
+import com.equipo.sanmarkfood.restaurante.avisos.cancelarAvisoPedidoNuevo
+import com.equipo.sanmarkfood.restaurante.domain.model.menu.TipoOpcion
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Agotado
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ErrorPedidos
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.EstadoPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.ItemPedido
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MINUTOS_PARA_ACEPTAR
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MetodoPago
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Modalidad
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.MotivoRechazo
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.Pedido
 import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.TIEMPOS_ESTIMADOS
+import com.equipo.sanmarkfood.restaurante.domain.model.pedidos.agotables
 import com.equipo.sanmarkfood.restaurante.presentation.auth.BotonPrincipal
+import com.equipo.sanmarkfood.restaurante.presentation.auth.CampoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.menu.precioTexto
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.delay
 
 @Composable
 fun BandejaPedidos(
+    onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PedidosViewModel = hiltViewModel(),
 ) {
@@ -80,7 +103,17 @@ fun BandejaPedidos(
         onElegirMinutos = viewModel::onElegirMinutos,
         onCerrarHoja = viewModel::onCerrarHoja,
         onConfirmarAceptar = viewModel::onConfirmarAceptar,
-        onAceptadoMostrado = viewModel::onAceptadoMostrado,
+        onRechazar = viewModel::onRechazar,
+        onElegirMotivo = viewModel::onElegirMotivo,
+        onCambiarDetalle = viewModel::onCambiarDetalle,
+        onAlternarAgotado = viewModel::onAlternarAgotado,
+        onCerrarHojaRechazar = viewModel::onCerrarHojaRechazar,
+        onConfirmarRechazar = viewModel::onConfirmarRechazar,
+        onAvanzar = viewModel::onAvanzar,
+        onEntregar = viewModel::onEntregar,
+        onEntregarConCodigo = onEntregarConCodigo,
+        onAbrirPedido = onAbrirPedido,
+        onAvisoMostrado = viewModel::onAvisoMostrado,
         modifier = modifier,
     )
 }
@@ -93,22 +126,44 @@ fun BandejaPedidosContenido(
     onElegirMinutos: (Int) -> Unit,
     onCerrarHoja: () -> Unit,
     onConfirmarAceptar: () -> Unit,
-    onAceptadoMostrado: () -> Unit,
+    onRechazar: (Pedido) -> Unit,
+    onElegirMotivo: (MotivoRechazo) -> Unit,
+    onCambiarDetalle: (String) -> Unit,
+    onAlternarAgotado: (Agotado) -> Unit,
+    onCerrarHojaRechazar: () -> Unit,
+    onConfirmarRechazar: () -> Unit,
+    onAvanzar: (Pedido) -> Unit,
+    onEntregar: (Pedido) -> Unit,
+    onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
+    onAvisoMostrado: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(uiState.nuevos.map { it.id }) { cancelarAvisoPedidoNuevo(context) }
+
     val avisos = remember { SnackbarHostState() }
-    val aceptado = uiState.aceptado
-    val textoAceptado = aceptado?.let { stringResource(R.string.pedidos_aceptado, it.comensal, horaLima(it.listoA)) }
+    val aviso = uiState.aviso
+    val textoAviso = aviso?.let { textoDelAviso(it) }
     val ok = stringResource(R.string.pedidos_ok)
-    LaunchedEffect(aceptado) {
-        if (textoAceptado != null) {
-            avisos.showSnackbar(textoAceptado, actionLabel = ok, duration = SnackbarDuration.Long)
-            onAceptadoMostrado()
+    LaunchedEffect(aviso) {
+        if (textoAviso != null) {
+            avisos.showSnackbar(textoAviso, actionLabel = ok, duration = SnackbarDuration.Long)
+            onAvisoMostrado()
         }
     }
 
     Box(modifier = modifier) {
-        ListaPedidos(uiState = uiState, onReintentar = onReintentar, onAceptar = onAceptar)
+        ListaPedidos(
+            uiState = uiState,
+            onReintentar = onReintentar,
+            onAceptar = onAceptar,
+            onRechazar = onRechazar,
+            onAvanzar = onAvanzar,
+            onEntregar = onEntregar,
+            onEntregarConCodigo = onEntregarConCodigo,
+            onAbrirPedido = onAbrirPedido,
+        )
         SnackbarHost(hostState = avisos, modifier = Modifier.align(Alignment.BottomCenter))
     }
     uiState.hojaAceptar?.let { hoja ->
@@ -119,10 +174,29 @@ fun BandejaPedidosContenido(
             onConfirmar = onConfirmarAceptar,
         )
     }
+    uiState.hojaRechazar?.let { hoja ->
+        HojaRechazar(
+            hoja = hoja,
+            onElegirMotivo = onElegirMotivo,
+            onCambiarDetalle = onCambiarDetalle,
+            onAlternarAgotado = onAlternarAgotado,
+            onCerrar = onCerrarHojaRechazar,
+            onConfirmar = onConfirmarRechazar,
+        )
+    }
 }
 
 @Composable
-private fun ListaPedidos(uiState: PedidosUiState, onReintentar: () -> Unit, onAceptar: (Pedido) -> Unit) {
+private fun ListaPedidos(
+    uiState: PedidosUiState,
+    onReintentar: () -> Unit,
+    onAceptar: (Pedido) -> Unit,
+    onRechazar: (Pedido) -> Unit,
+    onAvanzar: (Pedido) -> Unit,
+    onEntregar: (Pedido) -> Unit,
+    onEntregarConCodigo: () -> Unit,
+    onAbrirPedido: (pedidoId: String) -> Unit,
+) {
     val modifier = Modifier.fillMaxSize()
     val error = uiState.error
     when {
@@ -151,32 +225,65 @@ private fun ListaPedidos(uiState: PedidosUiState, onReintentar: () -> Unit, onAc
                 item { AvisoSinConexion() }
             }
             items(uiState.nuevos, key = { it.id }) { pedido ->
-                TarjetaPedidoNuevo(pedido = pedido, onAceptar = { onAceptar(pedido) })
+                TarjetaPedidoNuevo(pedido = pedido, onAceptar = { onAceptar(pedido) }, onRechazar = { onRechazar(pedido) })
             }
             item {
                 SeccionPedidos(
                     titulo = R.string.pedidos_seccion_preparacion,
                     vacio = R.string.pedidos_vacio_preparacion,
                     pedidos = uiState.enPreparacion,
-                ) { pedido ->
-                    val hora = pedido.listoAprox?.let { horaLima(it) }
-                    if (hora == null) resumen(pedido.items)
-                    else stringResource(R.string.pedidos_listo_aprox, resumen(pedido.items), hora)
-                }
+                    onAbrir = onAbrirPedido,
+                    detalle = { pedido ->
+                        val hora = pedido.listoAprox?.let { horaLima(it) }
+                        if (hora == null) resumen(pedido.items)
+                        else stringResource(R.string.pedidos_listo_aprox, resumen(pedido.items), hora)
+                    },
+                    accion = { pedido ->
+                        BotonFila(
+                            texto = stringResource(
+                                if (pedido.modalidad == Modalidad.DELIVERY) R.string.pedidos_en_camino
+                                else R.string.pedidos_listo
+                            ),
+                            oscuro = false,
+                            habilitado = pedido.id !in uiState.procesando,
+                            onClick = { onAvanzar(pedido) },
+                        )
+                    },
+                )
             }
             item {
                 SeccionPedidos(
                     titulo = R.string.pedidos_seccion_listos,
                     vacio = R.string.pedidos_vacio_listos,
                     pedidos = uiState.listos,
-                ) { pedido -> stringResource(R.string.pedidos_esperando, resumen(pedido.items)) }
+                    onAbrir = onAbrirPedido,
+                    detalle = { pedido -> stringResource(R.string.pedidos_esperando, resumen(pedido.items)) },
+                    accion = {
+                        BotonFila(
+                            texto = stringResource(R.string.pedidos_entregar),
+                            oscuro = true,
+                            habilitado = true,
+                            onClick = onEntregarConCodigo,
+                        )
+                    },
+                )
             }
             item {
                 SeccionPedidos(
                     titulo = R.string.pedidos_seccion_en_camino,
                     vacio = R.string.pedidos_vacio_en_camino,
                     pedidos = uiState.enCamino,
-                ) { pedido -> pedido.direccion ?: resumen(pedido.items) }
+                    onAbrir = onAbrirPedido,
+                    detalle = { pedido -> pedido.direccion ?: resumen(pedido.items) },
+                    accion = { pedido ->
+                        BotonFila(
+                            texto = stringResource(R.string.pedidos_entregado),
+                            oscuro = true,
+                            habilitado = pedido.id !in uiState.procesando,
+                            onClick = { onEntregar(pedido) },
+                        )
+                    },
+                )
             }
         }
     }
@@ -198,7 +305,7 @@ private fun AvisoSinConexion() {
 }
 
 @Composable
-private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit) {
+private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit, onRechazar: () -> Unit) {
     val forma = RoundedCornerShape(18.dp)
     Column(
         modifier = Modifier
@@ -208,15 +315,7 @@ private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit) {
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .semantics { liveRegion = LiveRegionMode.Assertive },
     ) {
-        Text(
-            text = stringResource(R.string.pedidos_nuevo),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondary)
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-        )
+        BandaPedidoNuevo(pedido)
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -258,11 +357,21 @@ private fun TarjetaPedidoNuevo(pedido: Pedido, onAceptar: () -> Unit) {
                 )
                 Text(text = precioTexto(pedido.total), style = MaterialTheme.typography.titleMedium)
             }
-            Button(
-                onClick = onAceptar,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp).height(48.dp),
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(text = stringResource(R.string.pedidos_aceptar), style = MaterialTheme.typography.labelLarge)
+                OutlinedButton(
+                    onClick = onRechazar,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.error),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
+                    Text(text = stringResource(R.string.pedidos_rechazar), style = MaterialTheme.typography.labelLarge)
+                }
+                Button(onClick = onAceptar, modifier = Modifier.weight(1f).height(48.dp)) {
+                    Text(text = stringResource(R.string.pedidos_aceptar), style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }
@@ -339,6 +448,176 @@ private fun HojaAceptar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HojaRechazar(
+    hoja: HojaRechazar,
+    onElegirMotivo: (MotivoRechazo) -> Unit,
+    onCambiarDetalle: (String) -> Unit,
+    onAlternarAgotado: (Agotado) -> Unit,
+    onCerrar: () -> Unit,
+    onConfirmar: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onCerrar,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outline) },
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.pedidos_hoja_rechazar_titulo, numero(hoja.pedido)),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Text(
+                text = stringResource(
+                    if (hoja.pedido.pago == EstadoPago.PAGADO) R.string.pedidos_hoja_rechazar_texto_pagado
+                    else R.string.pedidos_hoja_rechazar_texto
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(text = stringResource(R.string.pedidos_motivo), style = MaterialTheme.typography.labelLarge)
+            MotivoRechazo.entries.forEach { motivo ->
+                OpcionMotivoRechazo(
+                    texto = stringResource(motivo.texto()),
+                    elegido = motivo == hoja.motivo,
+                    habilitado = !hoja.enviando,
+                    onElegir = { onElegirMotivo(motivo) },
+                )
+            }
+            if (hoja.motivo == MotivoRechazo.PLATO_AGOTADO) {
+                Text(
+                    text = stringResource(R.string.pedidos_que_se_agoto),
+                    modifier = Modifier.padding(top = 4.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                hoja.pedido.agotables().forEach { agotado ->
+                    OpcionAgotado(
+                        texto = textoAgotado(agotado),
+                        marcado = agotado in hoja.agotados,
+                        habilitado = !hoja.enviando,
+                        onAlternar = { onAlternarAgotado(agotado) },
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.pedidos_agotado_nota),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (hoja.motivo == MotivoRechazo.OTRO) {
+                CampoFormulario(
+                    etiqueta = stringResource(R.string.pedidos_detalle_otro),
+                    valor = hoja.detalle,
+                    onValorChange = onCambiarDetalle,
+                    tipoTeclado = KeyboardType.Text,
+                    capitalizacion = KeyboardCapitalization.Sentences,
+                    ejemplo = stringResource(R.string.pedidos_detalle_ejemplo),
+                )
+            }
+            hoja.error?.let {
+                Text(
+                    text = stringResource(it.mensaje()),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                TextButton(onClick = onCerrar, modifier = Modifier.height(48.dp)) {
+                    Text(text = stringResource(R.string.pedidos_volver), style = MaterialTheme.typography.labelLarge)
+                }
+                Button(
+                    onClick = onConfirmar,
+                    enabled = hoja.completa && !hoja.enviando,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+                ) {
+                    if (hoja.enviando) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = LocalContentColor.current,
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Text(text = stringResource(R.string.pedidos_rechazar_confirmar), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun OpcionMotivoRechazo(texto: String, elegido: Boolean, habilitado: Boolean, onElegir: () -> Unit) {
+    val forma = RoundedCornerShape(12.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clip(forma)
+            .border(
+                1.5.dp,
+                if (elegido) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                forma,
+            )
+            .selectable(selected = elegido, enabled = habilitado, role = Role.RadioButton, onClick = onElegir)
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        RadioButton(selected = elegido, onClick = null, enabled = habilitado)
+        Text(text = texto, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+private fun OpcionAgotado(texto: String, marcado: Boolean, habilitado: Boolean, onAlternar: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 44.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .toggleable(value = marcado, enabled = habilitado, role = Role.Checkbox, onValueChange = { onAlternar() })
+            .padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Checkbox(checked = marcado, onCheckedChange = null, enabled = habilitado)
+        Text(text = texto, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+private fun textoAgotado(agotado: Agotado): String = when (agotado) {
+    is Agotado.Plato -> agotado.nombre
+    is Agotado.Opcion -> stringResource(
+        if (agotado.tipo == TipoOpcion.ENTRADA) R.string.pedidos_agotado_entrada else R.string.pedidos_agotado_segundo,
+        agotado.nombre,
+    )
+}
+
+@StringRes
+private fun MotivoRechazo.texto(): Int = when (this) {
+    MotivoRechazo.PLATO_AGOTADO -> R.string.pedidos_motivo_plato_agotado
+    MotivoRechazo.COCINA_SATURADA -> R.string.pedidos_motivo_cocina_saturada
+    MotivoRechazo.LOCAL_POR_CERRAR -> R.string.pedidos_motivo_local_por_cerrar
+    MotivoRechazo.OTRO -> R.string.pedidos_motivo_otro
+}
+
 @Composable
 private fun OpcionMinutos(
     minutos: Int,
@@ -371,6 +650,42 @@ private fun OpcionMinutos(
 }
 
 @Composable
+private fun BandaPedidoNuevo(pedido: Pedido) {
+    val ahora by produceState(System.currentTimeMillis()) {
+        while (true) {
+            value = System.currentTimeMillis()
+            delay(1_000)
+        }
+    }
+    val restante = (pedido.creadoEn.time + MINUTOS_PARA_ACEPTAR * 60_000L - ahora).coerceAtLeast(0) / 1_000
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.pedidos_nuevo),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        Text(
+            text = stringResource(R.string.pedidos_se_rechaza_en),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        Text(
+            text = "%d:%02d".format(Locale.ROOT, restante / 60, restante % 60),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+    }
+}
+
+@Composable
 private fun LineaItem(item: ItemPedido) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
@@ -392,7 +707,9 @@ private fun SeccionPedidos(
     @StringRes titulo: Int,
     @StringRes vacio: Int,
     pedidos: List<Pedido>,
+    onAbrir: (pedidoId: String) -> Unit,
     detalle: @Composable (Pedido) -> String,
+    accion: (@Composable (Pedido) -> Unit)? = null,
 ) {
     Column {
         Text(
@@ -409,17 +726,34 @@ private fun SeccionPedidos(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        pedidos.forEach { pedido -> FilaPedido(pedido = pedido, detalle = detalle(pedido)) }
+        pedidos.forEach { pedido ->
+            FilaPedido(
+                pedido = pedido,
+                detalle = detalle(pedido),
+                onAbrir = { onAbrir(pedido.id) },
+                accion = accion?.let { { it(pedido) } },
+            )
+        }
     }
 }
 
 @Composable
-private fun FilaPedido(pedido: Pedido, detalle: String) {
+private fun FilaPedido(pedido: Pedido, detalle: String, onAbrir: () -> Unit, accion: (@Composable () -> Unit)?) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        DatosFila(pedido = pedido, detalle = detalle, modifier = Modifier.weight(1f).clickable(onClick = onAbrir))
+        accion?.invoke()
+    }
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun DatosFila(pedido: Pedido, detalle: String, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .padding(vertical = 8.dp),
+        modifier = modifier.padding(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -436,7 +770,40 @@ private fun FilaPedido(pedido: Pedido, detalle: String) {
         }
         Text(text = detalle, style = MaterialTheme.typography.bodySmall)
     }
-    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun BotonFila(texto: String, oscuro: Boolean, habilitado: Boolean, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        enabled = habilitado,
+        modifier = Modifier.height(40.dp),
+        colors = if (oscuro) {
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface,
+            )
+        } else {
+            ButtonDefaults.buttonColors()
+        },
+    ) {
+        Text(text = texto, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
+@Composable
+private fun textoDelAviso(aviso: AvisoBandeja): String = when (aviso) {
+    is AvisoBandeja.Aceptado -> stringResource(R.string.pedidos_aceptado, aviso.comensal, horaLima(aviso.listoA))
+    is AvisoBandeja.Avanzado -> stringResource(
+        if (aviso.modalidad == Modalidad.DELIVERY) R.string.pedidos_aviso_en_camino else R.string.pedidos_aviso_listo,
+        numero(aviso.numero),
+    )
+    is AvisoBandeja.Entregado -> stringResource(R.string.pedidos_aviso_entregado, numero(aviso.numero))
+    is AvisoBandeja.Rechazado -> stringResource(
+        if (aviso.pagoRevertido) R.string.pedidos_aviso_rechazado else R.string.pedidos_aviso_rechazado_sin_pago,
+        aviso.comensal,
+    )
+    is AvisoBandeja.Fallo -> stringResource(aviso.error.mensaje())
 }
 
 @Composable
@@ -458,11 +825,11 @@ private fun ChipModalidad(modalidad: Modalidad) {
 }
 
 @Composable
-private fun resumen(items: List<ItemPedido>): String =
+internal fun resumen(items: List<ItemPedido>): String =
     items.map { stringResource(R.string.pedidos_item, it.cantidad, it.nombre) }.joinToString(" + ")
 
 @Composable
-private fun textoPago(pedido: Pedido): String {
+internal fun textoPago(pedido: Pedido): String {
     val metodo = stringResource(
         when (pedido.metodoPago) {
             MetodoPago.EFECTIVO -> R.string.pedidos_efectivo
@@ -483,15 +850,18 @@ private fun Modalidad.texto(): Int = when (this) {
 }
 
 @StringRes
-private fun ErrorPedidos.mensaje(): Int = when (this) {
+internal fun ErrorPedidos.mensaje(): Int = when (this) {
     ErrorPedidos.SinConexion -> R.string.error_sin_conexion
     ErrorPedidos.YaCambio -> R.string.error_pedido_ya_cambio
+    ErrorPedidos.CodigoIncorrecto -> R.string.error_pedido_codigo_incorrecto
     ErrorPedidos.Desconocido -> R.string.error_desconocido
 }
 
-private fun numero(pedido: Pedido): String = "%04d".format(Locale.ROOT, pedido.numero)
+internal fun numero(pedido: Pedido): String = numero(pedido.numero)
 
-private fun horaLima(fecha: Date): String =
+internal fun numero(numero: Int): String = "%04d".format(Locale.ROOT, numero)
+
+internal fun horaLima(fecha: Date): String =
     SimpleDateFormat("HH:mm", Locale.ROOT).apply { timeZone = TimeZone.getTimeZone("America/Lima") }.format(fecha)
 
 @Preview(showBackground = true, widthDp = 390, heightDp = 844)
@@ -539,7 +909,17 @@ private fun BandejaPedidosPreview() {
                 onElegirMinutos = {},
                 onCerrarHoja = {},
                 onConfirmarAceptar = {},
-                onAceptadoMostrado = {},
+                onRechazar = {},
+                onElegirMotivo = {},
+                onCambiarDetalle = {},
+                onAlternarAgotado = {},
+                onCerrarHojaRechazar = {},
+                onConfirmarRechazar = {},
+                onAvanzar = {},
+                onEntregar = {},
+                onEntregarConCodigo = {},
+                onAbrirPedido = {},
+                onAvisoMostrado = {},
             )
         }
     }

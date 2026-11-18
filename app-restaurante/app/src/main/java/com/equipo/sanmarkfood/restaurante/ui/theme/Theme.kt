@@ -91,6 +91,7 @@ private val DarkColorScheme = darkColorScheme(
 @Immutable
 data class ExtendedColors(
     val pizarra: Color,
+    val pizarraMarco: Color,
     // Superficies que siguen oscuras en los dos temas: cabecera del menú del día y aviso de pedido en curso.
     val superficieFija: Color,
     val sobreSuperficieFija: Color,
@@ -99,6 +100,7 @@ data class ExtendedColors(
 
 private val LightExtendedColors = ExtendedColors(
     pizarra = Pizarra,
+    pizarraMarco = PizarraMarco,
     superficieFija = LightSuperficieFija,
     sobreSuperficieFija = LightSobreSuperficieFija,
     sobreSuperficieFijaTenue = SobreSuperficieFijaTenue,
