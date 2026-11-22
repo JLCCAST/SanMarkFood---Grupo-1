@@ -11,6 +11,8 @@ plugins {
 
 // La clave de Maps va en local.properties (MAPS_API_KEY=...), que no se sube al repositorio.
 // Sin ella la app compila y abre, pero el mapa sale en blanco.
+// La llave de subida a Google Play también: FIRMA_ARCHIVO, FIRMA_CLAVE_ALMACEN, FIRMA_ALIAS y FIRMA_CLAVE_LLAVE.
+// Sin ellas, la versión release sale sin firmar.
 val localProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
@@ -39,8 +41,20 @@ android {
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey ?: "YOUR_KEY_HERE"
     }
 
+    signingConfigs {
+        create("release") {
+            localProperties.getProperty("FIRMA_ARCHIVO")?.let { storeFile = file(it) }
+            storePassword = localProperties.getProperty("FIRMA_CLAVE_ALMACEN")
+            keyAlias = localProperties.getProperty("FIRMA_ALIAS")
+            keyPassword = localProperties.getProperty("FIRMA_CLAVE_LLAVE")
+        }
+    }
+
     buildTypes {
         release {
+            if (localProperties.containsKey("FIRMA_ARCHIVO")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             optimization {
                 enable = false
             }
