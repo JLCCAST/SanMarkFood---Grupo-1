@@ -28,6 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -164,4 +170,16 @@ private fun ErrorAuth.mensaje(): Int = when (this) {
     ErrorAuth.SinCuentaGoogle -> R.string.error_sin_cuenta_google
     ErrorAuth.DemasiadosIntentos -> R.string.error_demasiados_intentos
     ErrorAuth.Desconocido -> R.string.error_desconocido
+}
+
+@Composable
+fun textoConEnlace(texto: String, enlace: String, url: String): AnnotatedString {
+    val estilo = TextLinkStyles(
+        SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)
+    )
+    return buildAnnotatedString {
+        append(texto)
+        val inicio = texto.indexOf(enlace)
+        if (inicio >= 0) addLink(LinkAnnotation.Url(url, estilo), inicio, inicio + enlace.length)
+    }
 }

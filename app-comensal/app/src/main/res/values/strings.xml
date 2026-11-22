@@ -37,7 +37,9 @@
     <string name="registro_regla_longitud">Al menos 8 caracteres</string>
     <string name="registro_regla_numero">Al menos un número</string>
     <string name="registro_regla_cumplida">Cumplida</string>
-    <string name="registro_acepto_terminos">Acepto los términos y la política de privacidad.</string>
+    <string name="registro_acepto_terminos">Acepto los términos y la %1$s.</string>
+    <string name="politica_privacidad">política de privacidad</string>
+    <string name="url_politica_privacidad" translatable="false">https://sanmarket-food.web.app/privacidad</string>
     <string name="registro_boton_crear">Crear cuenta</string>
     <string name="registro_ya_tienes_cuenta">¿Ya tienes cuenta?</string>
     <string name="registro_ir_a_login">Inicia sesión</string>

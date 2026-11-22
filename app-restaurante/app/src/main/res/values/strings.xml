@@ -54,6 +54,9 @@
     <string name="registro_contrasena_valida">Contraseña válida</string>
     <string name="registro_no_coinciden">Las contraseñas no coinciden.</string>
     <string name="registro_crear_cuenta">Crear cuenta</string>
+    <string name="registro_acepta_privacidad">Al crear tu cuenta aceptas la %1$s.</string>
+    <string name="politica_privacidad">política de privacidad</string>
+    <string name="url_politica_privacidad" translatable="false">https://sanmarket-food.web.app/privacidad</string>
 
     <!-- Verificación de correo -->
     <string name="verificar_titulo">Confirma tu correo</string>

@@ -24,6 +24,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -169,4 +175,16 @@ fun ErrorAuth.mensaje(): Int = when (this) {
     ErrorAuth.CorreoVacio -> R.string.error_recuperar_correo_vacio
     ErrorAuth.CorreoNoRegistrado -> R.string.error_recuperar_correo_no_encontrado
     ErrorAuth.CorreoSinVerificar -> R.string.error_verificacion_pendiente
+}
+
+@Composable
+fun textoConEnlace(texto: String, enlace: String, url: String): AnnotatedString {
+    val estilo = TextLinkStyles(
+        SpanStyle(color = MaterialTheme.colorScheme.primary, textDecoration = TextDecoration.Underline)
+    )
+    return buildAnnotatedString {
+        append(texto)
+        val inicio = texto.indexOf(enlace)
+        if (inicio >= 0) addLink(LinkAnnotation.Url(url, estilo), inicio, inicio + enlace.length)
+    }
 }
