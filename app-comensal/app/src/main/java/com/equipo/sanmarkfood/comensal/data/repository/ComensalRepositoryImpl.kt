@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.comensal.data.repository
 
 import android.net.Uri
+import com.equipo.sanmarkfood.comensal.data.remote.FuncionesApi
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Comensal
 import com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion
 import com.equipo.sanmarkfood.comensal.domain.repository.ComensalRepository
@@ -17,7 +18,8 @@ import javax.inject.Inject
 class ComensalRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val storage: FirebaseStorage,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val api: FuncionesApi
 ) : ComensalRepository {
 
     private fun documento(uid: String) = firestore.collection("usuarios").document(uid)
@@ -89,6 +91,9 @@ class ComensalRepositoryImpl @Inject constructor(
             referencia.putFile(Uri.parse(rutaLocal)).await()
             referencia.downloadUrl.await().toString()
         }
+
+    override suspend fun eliminarCuenta(): Result<Unit> =
+        runCatching { api.eliminarCuenta() }.map { }
 
     override suspend fun actualizarFoto(uid: String, fotoUrl: String): Result<Unit> =
         runCatching {

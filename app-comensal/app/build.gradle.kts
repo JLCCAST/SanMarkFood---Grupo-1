@@ -11,6 +11,8 @@ plugins {
 
 // La clave de Maps se lee de local.properties, que Git ignora.
 // Si el archivo o la clave no existen, queda vacía: la app compila pero el mapa sale en blanco.
+// La llave de subida a Google Play también: FIRMA_ARCHIVO, FIRMA_CLAVE_ALMACEN, FIRMA_ALIAS y FIRMA_CLAVE_LLAVE.
+// Sin ellas, la versión release sale sin firmar.
 val propiedadesLocales = Properties().apply {
     val archivo = rootProject.file("local.properties")
     if (archivo.exists()) archivo.inputStream().use { load(it) }
@@ -40,8 +42,20 @@ android {
         )
     }
 
+    signingConfigs {
+        create("release") {
+            propiedadesLocales.getProperty("FIRMA_ARCHIVO")?.let { storeFile = file(it) }
+            storePassword = propiedadesLocales.getProperty("FIRMA_CLAVE_ALMACEN")
+            keyAlias = propiedadesLocales.getProperty("FIRMA_ALIAS")
+            keyPassword = propiedadesLocales.getProperty("FIRMA_CLAVE_LLAVE")
+        }
+    }
+
     buildTypes {
         release {
+            if (propiedadesLocales.containsKey("FIRMA_ARCHIVO")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             optimization {
                 enable = false
             }
@@ -92,6 +106,9 @@ dependencies {
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

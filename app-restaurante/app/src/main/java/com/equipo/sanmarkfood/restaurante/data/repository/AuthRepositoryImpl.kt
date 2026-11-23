@@ -2,15 +2,20 @@ package com.equipo.sanmarkfood.restaurante.data.repository
 
 import com.equipo.sanmarkfood.restaurante.data.firebase.AuthDataSource
 import com.equipo.sanmarkfood.restaurante.data.firebase.UsuariosDataSource
+import com.equipo.sanmarkfood.restaurante.data.remote.FuncionesApi
+import com.equipo.sanmarkfood.restaurante.data.remote.llamarFuncion
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.EstadoSesion
 import com.equipo.sanmarkfood.restaurante.domain.model.auth.Rol
 import com.equipo.sanmarkfood.restaurante.domain.repository.AuthRepository
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: AuthDataSource,
     private val usuariosDataSource: UsuariosDataSource,
+    private val api: FuncionesApi,
+    private val json: Json,
 ) : AuthRepository {
 
     override suspend fun registrar(correo: String, contrasena: String) {
@@ -40,6 +45,10 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun cerrarSesion() = authDataSource.cerrarSesion()
+
+    override suspend fun eliminarCuenta() {
+        llamarFuncion(json, ErrorAuth.SinConexion, { ErrorAuth.Desconocido }) { api.eliminarCuenta() }
+    }
 
     override suspend fun enviarRecuperacion(correo: String) = authDataSource.enviarRecuperacion(correo)
 

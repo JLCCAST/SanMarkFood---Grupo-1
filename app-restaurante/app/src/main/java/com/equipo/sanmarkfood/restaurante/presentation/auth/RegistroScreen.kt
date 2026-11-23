@@ -3,6 +3,7 @@ package com.equipo.sanmarkfood.restaurante.presentation.auth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -17,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -113,6 +115,18 @@ private fun RegistroContenido(
                 onClick = onCrearCuenta,
                 habilitado = uiState.puedeCrear,
                 cargando = uiState.cargando,
+            )
+            val enlace = stringResource(R.string.politica_privacidad)
+            Text(
+                text = textoConEnlace(
+                    texto = stringResource(R.string.registro_acepta_privacidad, enlace),
+                    enlace = enlace,
+                    url = stringResource(R.string.url_politica_privacidad),
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
             )
         }
     }

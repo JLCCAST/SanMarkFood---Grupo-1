@@ -18,5 +18,10 @@
         "npm --prefix functions run build"
       ]
     }
-  ]
+  ],
+  "hosting": {
+    "public": "sitio",
+    "cleanUrls": true,
+    "ignore": ["firebase.json", "**/.*"]
+  }
 }

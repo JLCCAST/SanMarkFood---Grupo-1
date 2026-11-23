@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Política de privacidad · San Mark Food</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<main>
+  <h1>Política de privacidad</h1>
+  <p class="fecha">Última actualización: 21 de noviembre de 2026</p>
+
+  <p>Esta política explica qué datos recopilan las apps <strong>San Mark</strong> (para comensales) y <strong>SoySMF</strong> (para restaurantes y la administración de la plataforma), para qué los usamos, con quién se comparten y cómo puedes ejercer tus derechos.</p>
+
+  <h2>1. Quiénes somos</h2>
+  <p>San Mark Food es un proyecto académico del curso Desarrollo de Aplicaciones Móviles de la Universidad Nacional Mayor de San Marcos, desarrollado por un equipo de estudiantes. Para cualquier consulta sobre tus datos escríbenos a <a href="mailto:sanmarkfood.app@gmail.com">sanmarkfood.app@gmail.com</a>.</p>
+
+  <h2>2. Qué datos recopilamos</h2>
+  <p><strong>Si usas San Mark (comensales):</strong></p>
+  <ul>
+    <li><strong>Cuenta:</strong> correo electrónico y contraseña. La contraseña la gestiona Firebase Authentication; nosotros nunca la vemos.</li>
+    <li><strong>Perfil:</strong> nombre, teléfono y, si la subes, una foto.</li>
+    <li><strong>Direcciones frecuentes:</strong> el texto de la dirección y sus coordenadas, para los pedidos con delivery. Para obtener las coordenadas enviamos la dirección a la API de Geocoding de Google.</li>
+    <li><strong>Pedidos:</strong> platos, montos, modalidad (recojo o delivery), dirección de entrega y método de pago elegido. <strong>El pago es simulado:</strong> la app no pide ni guarda datos de tarjetas ni de cuentas bancarias.</li>
+    <li><strong>Reservas:</strong> local, fecha, hora y número de personas.</li>
+    <li><strong>Calificaciones y reseñas</strong> que escribes sobre los locales.</li>
+    <li><strong>Preferencias de avisos</strong> y el identificador de notificaciones de tu celular.</li>
+  </ul>
+  <p><strong>Ubicación:</strong> con tu permiso, la app usa la ubicación de tu celular para mostrarte los locales cercanos. Esa ubicación no se guarda.</p>
+  <p><strong>Huella o rostro:</strong> al confirmar un pedido, la verificación biométrica la hace el propio sistema Android. La app solo recibe si la verificación fue correcta; nunca recibe ni guarda tu huella ni tu rostro.</p>
+
+  <p><strong>Si usas SoySMF (restaurantes):</strong></p>
+  <ul>
+    <li><strong>Cuenta:</strong> correo electrónico y contraseña, o tu cuenta de Google si inicias sesión con ella.</li>
+    <li><strong>Datos del local:</strong> nombre, categoría, dirección, ubicación en el mapa, teléfono (verificado por SMS), horario, cupo de reservas y fotos de portada, logo y platos.</li>
+    <li><strong>Carta y menú del día.</strong> Si tomas una foto de tu carta o de la pizarra del menú, la foto se envía a Gemini (inteligencia artificial de Google) para leer los platos y precios, y no se guarda.</li>
+    <li><strong>Pedidos, reservas y reseñas</strong> que recibe tu local, con el nombre del comensal.</li>
+    <li>El identificador de notificaciones de tu celular.</li>
+  </ul>
+
+  <p><strong>En las dos apps:</strong> Google Analytics para Firebase recopila automáticamente datos de uso y diagnóstico, como las pantallas que abres, la versión de la app, el modelo del celular y un identificador de instalación. Estos datos no incluyen tu nombre ni tu correo.</p>
+
+  <h2>3. Para qué los usamos</h2>
+  <ul>
+    <li>Crear tu cuenta, mantener tu sesión y verificar tu correo o teléfono.</li>
+    <li>Mostrar los locales, sus cartas y menús, y gestionar pedidos y reservas entre comensales y restaurantes.</li>
+    <li>Enviarte avisos sobre tus pedidos, reservas y reseñas.</li>
+    <li>Calcular la calificación de cada local, y resumir y clasificar las reseñas con Gemini.</li>
+    <li>Proteger el servicio contra el uso indebido (por ejemplo, con Firebase App Check) y mejorar las apps con los datos de uso.</li>
+  </ul>
+  <p>No vendemos tus datos ni mostramos publicidad.</p>
+
+  <h2>4. Con quién se comparten</h2>
+  <ul>
+    <li><strong>Con otros usuarios, solo lo necesario:</strong> el restaurante ve tu nombre y el detalle de tu pedido o reserva; el comensal ve los datos públicos del local. Tus reseñas se muestran a los demás comensales con tu nombre.</li>
+    <li><strong>Con Google</strong>, que nos presta la infraestructura: Firebase (Authentication, Cloud Firestore, Cloud Storage, Cloud Functions, Cloud Messaging, Analytics, App Check y Firebase AI Logic con Gemini) y Google Maps Platform (mapas y Geocoding). Los datos se guardan en servidores de Google en Estados Unidos.</li>
+  </ul>
+
+  <h2>5. Seguridad</h2>
+  <p>Toda la comunicación entre las apps y los servidores va cifrada (HTTPS/TLS). Las reglas de seguridad de la base de datos limitan quién puede leer cada dato: por ejemplo, un pedido solo lo ven el comensal que lo hizo y el local que lo recibe.</p>
+
+  <h2>6. Cuánto tiempo los guardamos</h2>
+  <p>Mientras tengas tu cuenta. Puedes eliminarla cuando quieras; en <a href="/eliminar-cuenta">Cómo eliminar tu cuenta</a> explicamos qué se borra y qué se conserva.</p>
+
+  <h2>7. Tus derechos</h2>
+  <p>De acuerdo con la Ley N.º 29733, Ley de Protección de Datos Personales del Perú, puedes pedir el acceso, la rectificación, la cancelación o la oposición al tratamiento de tus datos. Puedes corregir tu perfil desde la app, eliminar tu cuenta desde la app o escribirnos a <a href="mailto:sanmarkfood.app@gmail.com">sanmarkfood.app@gmail.com</a>.</p>
+
+  <h2>8. Menores de edad</h2>
+  <p>Las apps no están dirigidas a menores de 14 años.</p>
+
+  <h2>9. Cambios en esta política</h2>
+  <p>Si cambiamos esta política, publicaremos la nueva versión en esta página con su fecha de actualización.</p>
+
+  <footer>
+    <a href="/">San Mark Food</a> · <a href="/eliminar-cuenta">Eliminar cuenta</a> ·
+    <a href="mailto:sanmarkfood.app@gmail.com">sanmarkfood.app@gmail.com</a>
+  </footer>
+</main>
+</body>
+</html>

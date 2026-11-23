@@ -12,6 +12,7 @@ import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ActualizarDatosPerfilUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ActualizarPreferenciasNotificacionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.AgregarDireccionUseCase
+import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.EliminarCuentaUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.EliminarDireccionUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.ObservarPerfilUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.perfil.SubirFotoPerfilUseCase
@@ -33,7 +34,11 @@ data class PerfilUiState(
     val isLoading: Boolean = false,
     val subiendoFoto: Boolean = false,
     @param:StringRes val error: Int? = null,
-    val guardadoExitoso: Boolean = false
+    val guardadoExitoso: Boolean = false,
+    val confirmandoEliminacion: Boolean = false,
+    val eliminandoCuenta: Boolean = false,
+    @param:StringRes val errorEliminacion: Int? = null,
+    val cuentaEliminada: Boolean = false
 ) {
     // Se usa cuando falte un dato esencial para completar un pedido o reserva.
     // Pensado para que la futura pantalla de pedidos lo consulte antes de confirmar.
@@ -49,6 +54,7 @@ class ComensalViewModel @Inject constructor(
     private val agregarDireccionUseCase: AgregarDireccionUseCase,
     private val eliminarDireccionUseCase: EliminarDireccionUseCase,
     private val actualizarPreferencias: ActualizarPreferenciasNotificacionUseCase,
+    private val eliminarCuentaUseCase: EliminarCuentaUseCase,
     private val repositorioAuth: AuthRepository
 ) : ViewModel() {
 
@@ -168,6 +174,31 @@ class ComensalViewModel @Inject constructor(
                 .onFailure { e ->
                     Log.e(TAG, "subirFoto", e)
                     setError(R.string.error_perfil_foto)
+                }
+        }
+    }
+
+    fun pedirEliminarCuenta() =
+        _uiState.update { it.copy(confirmandoEliminacion = true, errorEliminacion = null) }
+
+    fun cancelarEliminarCuenta() {
+        if (_uiState.value.eliminandoCuenta) return
+        _uiState.update { it.copy(confirmandoEliminacion = false, errorEliminacion = null) }
+    }
+
+    fun eliminarCuenta() {
+        if (_uiState.value.eliminandoCuenta) return
+        _uiState.update { it.copy(eliminandoCuenta = true, errorEliminacion = null) }
+        viewModelScope.launch {
+            eliminarCuentaUseCase()
+                .onSuccess {
+                    _uiState.update { it.copy(eliminandoCuenta = false, cuentaEliminada = true) }
+                }
+                .onFailure { e ->
+                    Log.e(TAG, "eliminarCuenta", e)
+                    _uiState.update {
+                        it.copy(eliminandoCuenta = false, errorEliminacion = R.string.error_perfil_eliminar_cuenta)
+                    }
                 }
         }
     }

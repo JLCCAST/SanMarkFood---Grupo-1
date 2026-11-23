@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.presentation.dashboard
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,11 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,8 +58,18 @@ fun NegocioScreen(
         onEditarPerfil = onEditarPerfil,
         onEditarHorario = onEditarHorario,
         onCerrarSesion = viewModel::onCerrarSesion,
+        onEliminarCuenta = viewModel::onPedirEliminacion,
         modifier = modifier,
     )
+
+    if (uiState.confirmandoEliminacion) {
+        DialogoEliminarCuenta(
+            eliminando = uiState.eliminando,
+            error = uiState.errorEliminacion,
+            onConfirmar = viewModel::onEliminarCuenta,
+            onCancelar = viewModel::onCancelarEliminacion,
+        )
+    }
 }
 
 @Composable
@@ -63,6 +77,7 @@ private fun NegocioContenido(
     onEditarPerfil: () -> Unit,
     onEditarHorario: () -> Unit,
     onCerrarSesion: () -> Unit,
+    onEliminarCuenta: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Los bordes de la pantalla los maneja el Scaffold del panel.
@@ -97,8 +112,55 @@ private fun NegocioContenido(
                 onClick = onCerrarSesion,
                 color = MaterialTheme.colorScheme.error,
             )
+            FilaEnlace(
+                titulo = stringResource(R.string.negocio_eliminar_cuenta),
+                ayuda = stringResource(R.string.negocio_eliminar_cuenta_ayuda),
+                onClick = onEliminarCuenta,
+                color = MaterialTheme.colorScheme.error,
+            )
         }
     }
+}
+
+@Composable
+private fun DialogoEliminarCuenta(
+    eliminando: Boolean,
+    @StringRes error: Int?,
+    onConfirmar: () -> Unit,
+    onCancelar: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        title = { Text(stringResource(R.string.negocio_eliminar_titulo)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.negocio_eliminar_texto))
+                if (error != null) {
+                    Text(
+                        text = stringResource(error),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirmar,
+                enabled = !eliminando,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            ) {
+                Text(
+                    stringResource(if (eliminando) R.string.negocio_eliminar_eliminando else R.string.negocio_eliminar_confirmar)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar, enabled = !eliminando) {
+                Text(stringResource(R.string.negocio_eliminar_cancelar))
+            }
+        },
+    )
 }
 
 @Composable
@@ -139,7 +201,7 @@ private fun FilaEnlace(
 private fun NegocioPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            NegocioContenido(onEditarPerfil = {}, onEditarHorario = {}, onCerrarSesion = {})
+            NegocioContenido(onEditarPerfil = {}, onEditarHorario = {}, onCerrarSesion = {}, onEliminarCuenta = {})
         }
     }
 }

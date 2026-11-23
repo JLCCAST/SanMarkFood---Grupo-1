@@ -34,6 +34,7 @@ class DispositivoUseCasesTest {
         }
         override suspend fun enviarRecuperacion(correo: String) = Unit
         override suspend fun iniciarSesionConGoogle() = false
+        override suspend fun eliminarCuenta() = Unit
     }
 
     private val registrarDispositivo = RegistrarDispositivoUseCase(dispositivos)

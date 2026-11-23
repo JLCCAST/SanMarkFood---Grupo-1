@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.comensal.presentation.perfil
 
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.annotation.StringRes
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -20,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -81,6 +84,10 @@ fun PerfilScreen(
 
     LaunchedEffect(Unit) {
         viewModel.cargarPerfil()
+    }
+
+    LaunchedEffect(state.cuentaEliminada) {
+        if (state.cuentaEliminada) onCerrarSesion()
     }
 
     // El mensaje "Cambios guardados" se oculta solo a los 2,5 segundos.
@@ -234,7 +241,62 @@ fun PerfilScreen(
         ) {
             Text(stringResource(R.string.perfil_boton_cerrar_sesion), fontWeight = FontWeight.SemiBold)
         }
+
+        TextButton(
+            onClick = viewModel::pedirEliminarCuenta,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                stringResource(R.string.perfil_boton_eliminar_cuenta),
+                color = colors.error,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
+
+    if (state.confirmandoEliminacion) {
+        DialogoEliminarCuenta(
+            eliminando = state.eliminandoCuenta,
+            error = state.errorEliminacion,
+            onConfirmar = viewModel::eliminarCuenta,
+            onCancelar = viewModel::cancelarEliminarCuenta
+        )
+    }
+}
+
+@Composable
+private fun DialogoEliminarCuenta(
+    eliminando: Boolean,
+    @StringRes error: Int?,
+    onConfirmar: () -> Unit,
+    onCancelar: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        title = { Text(stringResource(R.string.perfil_eliminar_titulo)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.perfil_eliminar_texto))
+                if (error != null) ErrorMessage(stringResource(error))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirmar,
+                enabled = !eliminando,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(
+                    stringResource(if (eliminando) R.string.perfil_eliminar_eliminando else R.string.perfil_eliminar_confirmar)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar, enabled = !eliminando) {
+                Text(stringResource(R.string.common_cancelar))
+            }
+        }
+    )
 }
 
 @Composable

@@ -147,8 +147,13 @@ fun RegistroScreen(
                 verticalAlignment = Alignment.Top
             ) {
                 Checkbox(checked = acceptedTerms, onCheckedChange = null)
+                val enlace = stringResource(R.string.politica_privacidad)
                 Text(
-                    text = stringResource(R.string.registro_acepto_terminos),
+                    text = textoConEnlace(
+                        texto = stringResource(R.string.registro_acepto_terminos, enlace),
+                        enlace = enlace,
+                        url = stringResource(R.string.url_politica_privacidad),
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

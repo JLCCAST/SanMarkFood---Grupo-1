@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ResultadoInicioSesion
+import com.equipo.sanmarkfood.comensal.domain.usecase.auth.IniciarSesionConGoogleUseCase
 import com.equipo.sanmarkfood.comensal.domain.usecase.auth.IniciarSesionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +16,14 @@ import javax.inject.Inject
 
 data class InicioSesionUiState(
     val isLoading: Boolean = false,
+    val cargandoGoogle: Boolean = false,
     val error: ErrorAuth? = null
 )
 
 @HiltViewModel
 class InicioSesionViewModel @Inject constructor(
     private val iniciarSesion: IniciarSesionUseCase,
+    private val iniciarSesionConGoogle: IniciarSesionConGoogleUseCase,
     private val gestorSesion: GestorSesion
 ) : ViewModel() {
 
@@ -30,24 +33,37 @@ class InicioSesionViewModel @Inject constructor(
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _uiState.value = InicioSesionUiState(isLoading = true)
+            mostrar(iniciarSesion(email, password))
+        }
+    }
 
-            when (val resultado = iniciarSesion(email, password)) {
-                is ResultadoInicioSesion.Autenticado -> {
-                    _uiState.value = InicioSesionUiState()
-                    gestorSesion.marcarAutenticado()
-                }
+    fun continuarConGoogle() {
+        if (_uiState.value.isLoading || _uiState.value.cargandoGoogle) return
+        viewModelScope.launch {
+            _uiState.value = InicioSesionUiState(cargandoGoogle = true)
+            mostrar(iniciarSesionConGoogle())
+        }
+    }
 
-                is ResultadoInicioSesion.PorVerificar -> {
-                    _uiState.value = InicioSesionUiState()
-                    gestorSesion.marcarPorVerificar(resultado.correo)
-                }
+    private fun mostrar(resultado: ResultadoInicioSesion?) {
+        when (resultado) {
+            null -> _uiState.value = InicioSesionUiState()
 
-                is ResultadoInicioSesion.CampoInvalido ->
-                    _uiState.value = InicioSesionUiState(error = resultado.error)
-
-                is ResultadoInicioSesion.Fallo ->
-                    _uiState.value = InicioSesionUiState(error = resultado.error)
+            is ResultadoInicioSesion.Autenticado -> {
+                _uiState.value = InicioSesionUiState()
+                gestorSesion.marcarAutenticado()
             }
+
+            is ResultadoInicioSesion.PorVerificar -> {
+                _uiState.value = InicioSesionUiState()
+                gestorSesion.marcarPorVerificar(resultado.correo)
+            }
+
+            is ResultadoInicioSesion.CampoInvalido ->
+                _uiState.value = InicioSesionUiState(error = resultado.error)
+
+            is ResultadoInicioSesion.Fallo ->
+                _uiState.value = InicioSesionUiState(error = resultado.error)
         }
     }
 

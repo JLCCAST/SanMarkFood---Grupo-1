@@ -14,6 +14,7 @@ sealed class ErrorAuth : Exception() {
     data object CorreoInvalido : ErrorAuth()
     data object CorreoSinVerificar : ErrorAuth()
     data object DemasiadosIntentos : ErrorAuth()
+    data object SinCuentaGoogle : ErrorAuth()
     data object Desconocido : ErrorAuth()
 
     // Propios de comensal.

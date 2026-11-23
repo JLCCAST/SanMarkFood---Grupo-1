@@ -54,6 +54,9 @@
     <string name="registro_contrasena_valida">Contraseña válida</string>
     <string name="registro_no_coinciden">Las contraseñas no coinciden.</string>
     <string name="registro_crear_cuenta">Crear cuenta</string>
+    <string name="registro_acepta_privacidad">Al crear tu cuenta aceptas la %1$s.</string>
+    <string name="politica_privacidad">política de privacidad</string>
+    <string name="url_politica_privacidad" translatable="false">https://sanmarket-food.web.app/privacidad</string>
 
     <!-- Verificación de correo -->
     <string name="verificar_titulo">Confirma tu correo</string>
@@ -170,6 +173,14 @@
     <string name="negocio_horario_ayuda">Días de atención y cupo por franja</string>
     <string name="negocio_cerrar_sesion">Cerrar sesión</string>
     <string name="negocio_cerrar_sesion_ayuda">Podrás volver a entrar con tu correo</string>
+    <string name="negocio_eliminar_cuenta">Eliminar cuenta</string>
+    <string name="negocio_eliminar_cuenta_ayuda">Borra tu local y tu acceso para siempre</string>
+    <string name="negocio_eliminar_titulo">¿Eliminar tu cuenta?</string>
+    <string name="negocio_eliminar_texto">Se borrarán tu local, tu carta, tus menús, tus fotos y tu acceso. Los pedidos y reservas que tengas en curso se rechazarán y avisaremos a cada comensal. No se puede deshacer.</string>
+    <string name="negocio_eliminar_confirmar">Eliminar</string>
+    <string name="negocio_eliminar_eliminando">Eliminando…</string>
+    <string name="negocio_eliminar_cancelar">Cancelar</string>
+    <string name="negocio_eliminar_error">No se pudo eliminar la cuenta. Inténtalo de nuevo.</string>
 
     <!-- Panel del local: barra inferior -->
     <string name="panel_pedidos">Pedidos</string>

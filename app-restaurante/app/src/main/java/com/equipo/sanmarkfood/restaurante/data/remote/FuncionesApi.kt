@@ -10,7 +10,13 @@ interface FuncionesApi {
 
     @POST("reservas")
     suspend fun reservas(@Body accion: AccionReservaDto): EstadoReservaDto
+
+    @POST("eliminarCuenta")
+    suspend fun eliminarCuenta(): CuentaEliminadaDto
 }
+
+@Serializable
+data class CuentaEliminadaDto(val eliminada: Boolean)
 
 @Serializable
 data class AccionReservaDto(

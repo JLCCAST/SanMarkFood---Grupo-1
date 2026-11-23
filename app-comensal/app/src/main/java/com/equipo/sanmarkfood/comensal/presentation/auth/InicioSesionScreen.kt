@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -41,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 
 @Composable
 fun InicioSesionScreen(
@@ -64,8 +68,8 @@ fun InicioSesionScreen(
         recuperarViewModel.limpiar()
     }
 
-    val emailMissing = state.error != null && email.isBlank()
-    val passwordMissing = state.error != null && password.isEmpty()
+    val emailMissing = state.error == ErrorAuth.CamposVacios && email.isBlank()
+    val passwordMissing = state.error == ErrorAuth.CamposVacios && password.isEmpty()
 
     // Partes del nombre de la marca (el espacio entre ambas se agrega en el código).
     val marcaSanMark = stringResource(R.string.login_marca_san_mark)
@@ -167,7 +171,16 @@ fun InicioSesionScreen(
             PrimaryButton(
                 text = stringResource(R.string.login_boton_iniciar),
                 onClick = { viewModel.login(email, password) },
+                enabled = !state.cargandoGoogle,
                 isLoading = state.isLoading
+            )
+
+            SeparadorO()
+
+            BotonGoogle(
+                onClick = viewModel::continuarConGoogle,
+                habilitado = !state.isLoading,
+                cargando = state.cargandoGoogle
             )
 
             // Exploración sin cuenta (SCRUM-154)
@@ -266,5 +279,35 @@ fun InicioSesionScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun SeparadorO() {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+        Text(
+            text = stringResource(R.string.login_o),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+    }
+}
+
+@Composable
+private fun BotonGoogle(onClick: () -> Unit, habilitado: Boolean, cargando: Boolean) {
+    OutlinedButton(
+        onClick = onClick,
+        enabled = habilitado && !cargando,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        if (cargando) {
+            CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+        } else {
+            Text(stringResource(R.string.login_google), fontWeight = FontWeight.Bold)
+        }
     }
 }
