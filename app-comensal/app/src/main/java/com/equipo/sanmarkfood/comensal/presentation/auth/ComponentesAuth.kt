@@ -165,6 +165,7 @@ fun ErrorAuth.mensaje(): Int = when (this) {
     ErrorAuth.CorreoYaRegistrado -> R.string.error_correo_en_uso
     ErrorAuth.CorreoInvalido -> R.string.error_correo_invalido
     ErrorAuth.DemasiadosIntentos -> R.string.error_demasiados_intentos
+    ErrorAuth.SinCuentaGoogle -> R.string.error_sin_cuenta_google
     ErrorAuth.Desconocido -> R.string.error_generico
     ErrorAuth.CuentaDeOtroRol -> R.string.error_cuenta_otro_rol
     ErrorAuth.ContrasenaDebil -> R.string.error_contrasena_debil

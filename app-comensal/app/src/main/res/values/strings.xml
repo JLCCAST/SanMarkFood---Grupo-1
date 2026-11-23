@@ -18,6 +18,9 @@
     <string name="login_olvidaste_contrasena">¿Olvidaste tu contraseña?</string>
     <string name="login_boton_iniciar">Iniciar sesión</string>
     <string name="login_boton_explorar">Explorar sin cuenta</string>
+    <string name="login_o">o</string>
+    <string name="login_google">Continuar con Google</string>
+    <string name="id_cliente_web_google" translatable="false">91238604246-rvv9lst7cop9hmgbp4voibv1jhk0rq1h.apps.googleusercontent.com</string>
     <string name="login_primera_vez">¿Primera vez aquí?</string>
     <string name="login_crear_cuenta">Crea tu cuenta</string>
 
@@ -120,6 +123,7 @@
     <string name="invitado_iniciar_sesion">Iniciar sesión</string>
 
     <!-- Errores de autenticación (compartidos) -->
+    <string name="error_sin_cuenta_google">No hay una cuenta de Google en este celular. Agrégala en Ajustes o inicia sesión con tu correo.</string>
     <string name="error_cuenta_otro_rol">Esta cuenta no es de comensal. Usa otro correo o la app para restaurantes</string>
     <string name="error_correo_en_uso">Ya existe una cuenta con ese correo</string>
     <string name="error_contrasena_debil">La contraseña es muy débil</string>

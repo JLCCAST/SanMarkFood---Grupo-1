@@ -1,8 +1,18 @@
 package com.equipo.sanmarkfood.comensal.data.repository
 
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
+import com.equipo.sanmarkfood.comensal.R
+import com.equipo.sanmarkfood.comensal.data.firebase.ActividadActual
 import com.equipo.sanmarkfood.comensal.domain.model.auth.ErrorAuth
 import com.equipo.sanmarkfood.comensal.domain.model.auth.SesionUsuario
 import com.equipo.sanmarkfood.comensal.domain.repository.AuthRepository
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
@@ -11,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,7 +31,8 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val actividadActual: ActividadActual
 ) : AuthRepository {
 
     init {
@@ -81,6 +93,41 @@ class AuthRepositoryImpl @Inject constructor(
             }
             user.aSesionUsuario()
         }
+
+    override suspend fun loginConGoogle(): Result<SesionUsuario?> =
+        conErrorAuth {
+            val idToken = pedirTokenDeGoogle() ?: return@conErrorAuth null
+            val user = auth.signInWithCredential(GoogleAuthProvider.getCredential(idToken, null)).await().user
+                ?: error("No se pudo iniciar sesión")
+
+            try {
+                verificarRolComensal(user)
+            } catch (e: Exception) {
+                auth.signOut()
+                throw e
+            }
+            user.aSesionUsuario()
+        }
+
+    private suspend fun pedirTokenDeGoogle(): String? {
+        val actividad = actividadActual.obtener() ?: throw ErrorAuth.Desconocido
+        val opcion = GetSignInWithGoogleOption.Builder(actividad.getString(R.string.id_cliente_web_google)).build()
+        val pedido = GetCredentialRequest.Builder().addCredentialOption(opcion).build()
+        val respuesta = try {
+            CredentialManager.create(actividad).getCredential(actividad, pedido)
+        } catch (e: GetCredentialCancellationException) {
+            return null
+        } catch (e: NoCredentialException) {
+            throw ErrorAuth.SinCuentaGoogle
+        } catch (e: GetCredentialException) {
+            throw ErrorAuth.Desconocido
+        }
+        val credencial = respuesta.credential
+        if (credencial !is CustomCredential || credencial.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+            throw ErrorAuth.Desconocido
+        }
+        return GoogleIdTokenCredential.createFrom(credencial.data).idToken
+    }
 
     /**
      * D5: esta app solo admite cuentas con rol "comensal". Si la cuenta no tiene
