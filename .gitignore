@@ -42,3 +42,6 @@ google-services.json
 # Claves de cuentas de servicio de Firebase (nunca se suben)
 *-firebase-adminsdk-*.json
 clave-servicio*.json
+
+# Caché de Firebase Hosting (lo crea firebase deploy)
+.firebase/
