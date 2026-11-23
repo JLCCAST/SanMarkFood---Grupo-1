@@ -5,6 +5,7 @@ import com.equipo.sanmarkfood.restaurante.data.repository.BorradorMenuRepository
 import com.equipo.sanmarkfood.restaurante.data.repository.DatosInicialesRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.DispositivosRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MenuRepositoryImpl
+import com.equipo.sanmarkfood.restaurante.data.repository.DashboardRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.MetricasRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.PedidosRepositoryImpl
 import com.equipo.sanmarkfood.restaurante.data.repository.ReservasRepositoryImpl
@@ -18,6 +19,7 @@ import com.equipo.sanmarkfood.restaurante.domain.repository.BorradorMenuReposito
 import com.equipo.sanmarkfood.restaurante.domain.repository.DatosInicialesRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.DispositivosRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MenuRepository
+import com.equipo.sanmarkfood.restaurante.domain.repository.DashboardRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.MetricasRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.PedidosRepository
 import com.equipo.sanmarkfood.restaurante.domain.repository.ReservasRepository
@@ -89,4 +91,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindDatosInicialesRepository(impl: DatosInicialesRepositoryImpl): DatosInicialesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDashboardRepository(impl: DashboardRepositoryImpl): DashboardRepository
 }

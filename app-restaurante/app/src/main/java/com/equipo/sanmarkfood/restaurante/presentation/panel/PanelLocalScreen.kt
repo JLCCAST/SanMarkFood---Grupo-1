@@ -174,6 +174,7 @@ private fun PanelLocalContenido(
                 modifier = contenido,
             )
             PestanaPanel.NEGOCIO -> NegocioScreen(
+                conIndicadores = aprobado,
                 // Rechazado, cambiar los datos es corregirlos: termina en «Guardar y reenviar a revisión» (R7).
                 onEditarPerfil = if (rechazado) onCorregir else onEditarPerfil,
                 onEditarHorario = onEditarHorario,
