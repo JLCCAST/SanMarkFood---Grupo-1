@@ -18,4 +18,6 @@ interface ComensalRepository {
     /** Sube la foto de perfil; rutaLocal es la ubicación de la imagen en el teléfono. */
     suspend fun subirFoto(uid: String, rutaLocal: String): Result<String>
     suspend fun actualizarFoto(uid: String, fotoUrl: String): Result<Unit>
+
+    suspend fun eliminarCuenta(): Result<Unit>
 }

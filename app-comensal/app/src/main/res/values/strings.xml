@@ -71,6 +71,11 @@
     <string name="perfil_cambios_guardados">Cambios guardados</string>
     <string name="perfil_boton_guardar">Guardar cambios</string>
     <string name="perfil_boton_cerrar_sesion">Cerrar sesión</string>
+    <string name="perfil_boton_eliminar_cuenta">Eliminar cuenta</string>
+    <string name="perfil_eliminar_titulo">¿Eliminar tu cuenta?</string>
+    <string name="perfil_eliminar_texto">Se borrarán tu perfil, tus direcciones, tus favoritos y tu acceso. Los pedidos que el local aún no aceptó y tus próximas reservas se cancelarán. No se puede deshacer.</string>
+    <string name="perfil_eliminar_confirmar">Eliminar</string>
+    <string name="perfil_eliminar_eliminando">Eliminando…</string>
 
     <string name="perfil_direcciones_titulo">Direcciones frecuentes</string>
     <string name="perfil_direcciones_vacio">Aún no tienes direcciones guardadas. Agrega una para pedir más rápido.</string>
@@ -146,6 +151,7 @@
     <string name="error_perfil_direccion_guardar">No se pudo guardar la dirección</string>
     <string name="error_perfil_direccion_eliminar">No se pudo eliminar la dirección</string>
     <string name="error_perfil_preferencias">No se pudieron guardar las preferencias</string>
+    <string name="error_perfil_eliminar_cuenta">No se pudo eliminar tu cuenta. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="error_perfil_foto">No se pudo subir la foto</string>
 
     <!-- Descubrimiento de restaurantes (HU06) -->

@@ -10,5 +10,6 @@ interface AuthRepository {
     suspend fun iniciarSesionConGoogle(): Boolean
     suspend fun estadoSesion(): EstadoSesion
     fun cerrarSesion()
+    suspend fun eliminarCuenta()
     suspend fun enviarRecuperacion(correo: String)
 }
