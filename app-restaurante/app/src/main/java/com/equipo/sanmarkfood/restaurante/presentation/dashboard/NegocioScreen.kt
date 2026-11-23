@@ -31,30 +31,46 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import java.util.Date
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.CifrasVentas
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PeriodoNegocio
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PlatoPedido
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.ResumenNegocio
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.TramoDePedidos
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
 
 /**
- * O6 «Tu negocio», la pestaña Negocio del panel. Por ahora solo tiene la sección «Tu local» (HU02):
- * los indicadores y gráficos llegan con HU13.
+ * O6 «Tu negocio», la pestaña Negocio del panel: los indicadores y el gráfico de pedidos (HU13),
+ * solo con el local aprobado, y la sección «Tu local» (HU02).
  */
 @Composable
 fun NegocioScreen(
+    conIndicadores: Boolean,
     onEditarPerfil: () -> Unit,
     onEditarHorario: () -> Unit,
     onSesionCerrada: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: NegocioViewModel = hiltViewModel(),
+    resumenViewModel: ResumenNegocioViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val resumenState by resumenViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.sesionCerrada) {
         if (uiState.sesionCerrada) onSesionCerrada()
     }
 
+    LaunchedEffect(conIndicadores) {
+        if (conIndicadores) resumenViewModel.onAbrir()
+    }
+
     NegocioContenido(
+        resumen = resumenState.takeIf { conIndicadores },
+        onElegirPeriodo = resumenViewModel::onElegirPeriodo,
+        onReintentar = resumenViewModel::onReintentar,
         onEditarPerfil = onEditarPerfil,
         onEditarHorario = onEditarHorario,
         onCerrarSesion = viewModel::onCerrarSesion,
@@ -74,6 +90,9 @@ fun NegocioScreen(
 
 @Composable
 private fun NegocioContenido(
+    resumen: ResumenNegocioUiState?,
+    onElegirPeriodo: (PeriodoNegocio) -> Unit,
+    onReintentar: () -> Unit,
     onEditarPerfil: () -> Unit,
     onEditarHorario: () -> Unit,
     onCerrarSesion: () -> Unit,
@@ -88,7 +107,16 @@ private fun NegocioContenido(
             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(text = stringResource(R.string.negocio_titulo), style = MaterialTheme.typography.displaySmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.negocio_titulo),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.displaySmall,
+            )
+            if (resumen != null) SelectorPeriodo(actual = resumen.periodo, onElegir = onElegirPeriodo)
+        }
+
+        if (resumen != null) ResumenDelNegocio(uiState = resumen, onReintentar = onReintentar)
 
         Column {
             Text(
@@ -201,7 +229,32 @@ private fun FilaEnlace(
 private fun NegocioPreview() {
     ApprestauranteTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            NegocioContenido(onEditarPerfil = {}, onEditarHorario = {}, onCerrarSesion = {}, onEliminarCuenta = {})
+            NegocioContenido(
+                resumen = ResumenNegocioUiState(
+                    resumenes = mapOf(
+                        PeriodoNegocio.SEMANA to ResumenNegocio(
+                            periodo = PeriodoNegocio.SEMANA,
+                            actual = CifrasVentas(pedidos = 86, centimos = 184_200),
+                            anterior = CifrasVentas(pedidos = 74, centimos = 169_000),
+                            reservas = 14,
+                            reservasAnterior = 16,
+                            tramos = listOf(14, 11, 13, 16, 19, 9, 4).map { TramoDePedidos(Date(), it) },
+                            tramoActual = 4,
+                            platosMasPedidos = listOf(
+                                PlatoPedido("Menú del día", 53),
+                                PlatoPedido("Lomo saltado", 16),
+                                PlatoPedido("Chicharrón de pescado", 8),
+                            ),
+                        ),
+                    ),
+                ),
+                onElegirPeriodo = {},
+                onReintentar = {},
+                onEditarPerfil = {},
+                onEditarHorario = {},
+                onCerrarSesion = {},
+                onEliminarCuenta = {},
+            )
         }
     }
 }

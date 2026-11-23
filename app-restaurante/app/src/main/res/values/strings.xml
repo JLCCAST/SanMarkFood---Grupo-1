@@ -166,6 +166,49 @@
 
     <!-- Tu negocio (O6). Los indicadores y gráficos llegan con HU13. -->
     <string name="negocio_titulo">Tu negocio</string>
+    <string name="negocio_periodo_semana">Semana</string>
+    <string name="negocio_periodo_mes">Mes</string>
+    <string name="negocio_pedidos">Pedidos</string>
+    <string name="negocio_ventas">Ventas</string>
+    <string name="negocio_reservas">Reservas</string>
+    <string name="negocio_sube">+%1$d</string>
+    <string name="negocio_baja">−%1$d</string>
+    <string name="negocio_vs_anterior">%1$s vs. anterior</string>
+    <string name="negocio_porcentaje">%1$s %%</string>
+    <string name="negocio_sin_cambios">Sin cambios</string>
+    <string name="negocio_pedidos_por_dia">Pedidos por día</string>
+    <string name="negocio_pedidos_por_semana">Pedidos por semana</string>
+    <string name="negocio_sin_pedidos">Aún no tienes pedidos entregados en este periodo.</string>
+    <string name="negocio_grafico_descripcion">Pedidos: %1$s</string>
+    <string name="negocio_semana_corta">S%1$d</string>
+    <string-array name="negocio_iniciales_dias">
+        <item>L</item>
+        <item>M</item>
+        <item>M</item>
+        <item>J</item>
+        <item>V</item>
+        <item>S</item>
+        <item>D</item>
+    </string-array>
+    <string name="negocio_error_cifras">No pudimos cargar tus cifras.</string>
+    <string name="negocio_platos_mas_pedidos">Platos más pedidos</string>
+    <string name="negocio_sin_platos">Todavía no hay platos pedidos en este periodo.</string>
+    <string name="negocio_puesto">%1$d.</string>
+    <string name="negocio_calificacion_titulo">Calificación promedio</string>
+    <string name="negocio_calificacion_valor">%1$s ★</string>
+    <plurals name="negocio_calificacion_cambio">
+        <item quantity="one">%1$s ★ · %2$s en %3$d semana</item>
+        <item quantity="other">%1$s ★ · %2$s en %3$d semanas</item>
+    </plurals>
+    <string name="negocio_sube_decimal">+%1$s</string>
+    <string name="negocio_baja_decimal">−%1$s</string>
+    <plurals name="negocio_hace_semanas">
+        <item quantity="one">hace %d sem.</item>
+        <item quantity="other">hace %d sem.</item>
+    </plurals>
+    <string name="negocio_hoy">hoy</string>
+    <string name="negocio_sin_resenas">Aún no tienes reseñas.</string>
+    <string name="negocio_calificacion_descripcion">Calificación por semana: %1$s</string>
     <string name="negocio_tu_local">Tu local</string>
     <string name="negocio_perfil">Perfil del local</string>
     <string name="negocio_perfil_ayuda">Nombre, fotos, dirección y teléfono</string>

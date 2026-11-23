@@ -45,6 +45,13 @@ const RESENAS = [
   { estrellas: 2, comentario: "La comida llegó fría y tardó mucho.", gusto: false },
 ];
 
+const RESENAS_ANTERIORES = [
+  { estrellas: 4, comentario: "Rico, aunque tardó un poco.", gusto: true },
+  { estrellas: 5, comentario: "Bien servido y a buen precio.", gusto: true },
+  { estrellas: 4, comentario: "Buena atención, volvería.", gusto: true },
+  { estrellas: 5, comentario: "Llegó calientito, todo muy bueno.", gusto: true },
+];
+
 function haceMinutos(minutos: number): Timestamp {
   return Timestamp.fromMillis(Date.now() - minutos * 60_000);
 }
@@ -98,8 +105,13 @@ function pedidosDe(carta: CartaCargada, indiceLocal: number): PedidoDePrueba[] {
     const cantidad = 1 + ((semana + indiceLocal) % 3);
     for (let vez = 0; vez < cantidad; vez++) {
       pedidos.push({ modalidad: "recojo", metodoPago: vez % 2 === 0 ? "efectivo" : "tarjeta", estado: "entregado",
-        items: [itemPlato(carta, semana + vez)], minutos: (semana * 7 + vez) * MINUTOS_POR_DIA, estimado: 15 });
+        items: [itemPlato(carta, semana + vez)], minutos: (semana * 7 + vez) * MINUTOS_POR_DIA, estimado: 15,
+        ...(vez === 0 ? { resena: RESENAS_ANTERIORES[(semana + indiceLocal) % RESENAS_ANTERIORES.length] } : {}) });
     }
+  }
+  for (let vez = 0; vez < 2; vez++) {
+    pedidos.push({ modalidad: "recojo", metodoPago: "billetera", estado: "entregado",
+      items: [itemMenu(carta, vez), itemPlato(carta, vez + 2)], minutos: 180 + vez * 90, estimado: 15 });
   }
   return pedidos;
 }

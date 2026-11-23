@@ -295,6 +295,11 @@ service cloud.firestore {
         allow delete: if false;
       }
 
+      match /resenas/{pedidoId} {
+        allow read: if esDueno() || esAdministrador();
+        allow write: if false;
+      }
+
       match /franjas/{franjaId} {
         allow read: if request.auth != null;
         allow write: if false;
