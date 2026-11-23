@@ -286,13 +286,19 @@ private fun ColumnasDePedidos(resumen: ResumenNegocio) {
     val texto = rememberTextComponent(style = MaterialTheme.typography.labelSmall.copy(color = colores.onSurface))
     val cifras = remember { CartesianValueFormatter { _, valor, _ -> valor.toInt().toString() } }
     val tramosEnEje = remember(etiquetas) {
-        CartesianValueFormatter { _, valor, _ -> etiquetas.getOrElse(valor.toInt()) { "" } }
+        CartesianValueFormatter { _, valor, _ -> etiquetas.getOrElse(valor.toInt()) { valor.toInt().toString() } }
     }
     val grafico = rememberCartesianChart(
         rememberColumnCartesianLayer(
             columnProvider = columnas,
             dataLabel = texto,
             dataLabelValueFormatter = cifras,
+            rangeProvider = remember(resumen.tramos) {
+                CartesianLayerRangeProvider.fixed(
+                    minY = 0.0,
+                    maxY = resumen.tramos.maxOf { it.pedidos } * ESPACIO_SOBRE_LAS_BARRAS,
+                )
+            },
         ),
         bottomAxis = HorizontalAxis.rememberBottom(
             line = null,
@@ -461,7 +467,7 @@ private fun LineaDeCalificacion(calificacion: EvolucionCalificacion) {
             when (valor.toInt()) {
                 0 -> inicio
                 ultimo -> hoy
-                else -> " "
+                else -> conUnDecimal(valor)
             }
         }
     }
@@ -480,6 +486,7 @@ private fun LineaDeCalificacion(calificacion: EvolucionCalificacion) {
             valueFormatter = enEje,
             tick = null,
             guideline = null,
+            itemPlacer = remember(ultimo) { HorizontalAxis.ItemPlacer.aligned(spacing = { ultimo }) },
         ),
     )
     val modelo = remember(valores) { CartesianChartModel(LineCartesianLayerModel.build { series(valores) }) }
@@ -527,6 +534,7 @@ private val ALTO_GRAFICO = 150.dp
 private val ALTO_CARGANDO = 120.dp
 private val ALTO_LINEA = 90.dp
 private val ALTO_BARRA_PLATO = 6.dp
+private const val ESPACIO_SOBRE_LAS_BARRAS = 1.25
 private val GROSOR_LINEA = 3.dp
 private val TAMANO_PUNTO = 10.dp
 private const val MARGEN_ESTRELLAS = 0.2
