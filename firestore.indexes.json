@@ -22,6 +22,15 @@
       "fields": [
         { "fieldPath": "restauranteUid", "order": "ASCENDING" },
         { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "creadoEn", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "pedidos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "restauranteUid", "order": "ASCENDING" },
+        { "fieldPath": "estado", "order": "ASCENDING" },
         { "fieldPath": "creadoEn", "order": "ASCENDING" },
         { "fieldPath": "total", "order": "ASCENDING" }
       ]

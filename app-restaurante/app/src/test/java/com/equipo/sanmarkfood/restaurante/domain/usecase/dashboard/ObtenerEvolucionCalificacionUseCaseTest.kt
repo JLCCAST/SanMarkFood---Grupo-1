@@ -1,6 +1,7 @@
 package com.equipo.sanmarkfood.restaurante.domain.usecase.dashboard
 
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.CifrasVentas
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PlatoPedido
 import com.equipo.sanmarkfood.restaurante.domain.repository.DashboardRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -16,6 +17,8 @@ class ObtenerEvolucionCalificacionUseCaseTest {
         override suspend fun reservasConfirmadasEntre(desde: Date, hasta: Date): Int = 0
 
         override suspend fun promedioDeResenasHasta(hasta: Date): Double? = promedios[hasta.time]
+
+        override suspend fun platosMasPedidos(desde: Date, hasta: Date): List<PlatoPedido> = emptyList()
     }
 
     private val ahora = Date(100 * UNA_SEMANA)

@@ -15,6 +15,8 @@ data class CifrasVentas(val pedidos: Int, val centimos: Long) {
 
 data class TramoDePedidos(val inicio: Date, val pedidos: Int)
 
+data class PlatoPedido(val nombre: String, val cantidad: Int)
+
 data class ResumenNegocio(
     val periodo: PeriodoNegocio,
     val actual: CifrasVentas,
@@ -23,6 +25,7 @@ data class ResumenNegocio(
     val reservasAnterior: Int,
     val tramos: List<TramoDePedidos>,
     val tramoActual: Int,
+    val platosMasPedidos: List<PlatoPedido> = emptyList(),
 ) {
     val diferenciaPedidos: Int
         get() = actual.pedidos - anterior.pedidos

@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.restaurante.domain.usecase.dashboard
 
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.CifrasVentas
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PeriodoNegocio
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PlatoPedido
 import com.equipo.sanmarkfood.restaurante.domain.repository.DashboardRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -22,6 +23,7 @@ class ObtenerResumenNegocioUseCaseTest {
     ) : DashboardRepository {
         val rangosVentas: MutableList<Pair<Date, Date>> = Collections.synchronizedList(mutableListOf())
         val rangosReservas: MutableList<Pair<Date, Date>> = Collections.synchronizedList(mutableListOf())
+        var rangoDelRanking: Pair<Date, Date>? = null
         var inicioDelPeriodoAnterior: Date? = null
 
         override suspend fun ventasEntre(desde: Date, hasta: Date): CifrasVentas {
@@ -35,6 +37,11 @@ class ObtenerResumenNegocioUseCaseTest {
         }
 
         override suspend fun promedioDeResenasHasta(hasta: Date): Double? = null
+
+        override suspend fun platosMasPedidos(desde: Date, hasta: Date): List<PlatoPedido> {
+            rangoDelRanking = desde to hasta
+            return listOf(PlatoPedido("Menú del día", 12), PlatoPedido("Lomo saltado", 4))
+        }
     }
 
     private val formato = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ROOT).apply {
@@ -57,6 +64,16 @@ class ObtenerResumenNegocioUseCaseTest {
         assertEquals(2, resumen.tramoActual)
         assertTrue(lima("2026-11-18 00:00") to miercoles in repositorio.rangosVentas)
         assertEquals(CifrasVentas(pedidos = 6, centimos = 9_000), resumen.actual)
+    }
+
+    @Test
+    fun `los platos mas pedidos son los del mismo periodo`() {
+        val repositorio = RepositorioFalso().apply { inicioDelPeriodoAnterior = lima("2026-09-28 00:00") }
+
+        val resumen = runBlocking { ObtenerResumenNegocioUseCase(repositorio)(PeriodoNegocio.MES, miercoles) }
+
+        assertEquals(lima("2026-10-26 00:00") to miercoles, repositorio.rangoDelRanking)
+        assertEquals("Menú del día", resumen.platosMasPedidos.first().nombre)
     }
 
     @Test

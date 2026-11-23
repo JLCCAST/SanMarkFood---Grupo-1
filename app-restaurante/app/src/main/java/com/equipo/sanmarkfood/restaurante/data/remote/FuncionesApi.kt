@@ -13,7 +13,19 @@ interface FuncionesApi {
 
     @POST("eliminarCuenta")
     suspend fun eliminarCuenta(): CuentaEliminadaDto
+
+    @POST("rankingPlatos")
+    suspend fun rankingPlatos(@Body rango: RangoDto): RankingPlatosDto
 }
+
+@Serializable
+data class RangoDto(val desde: Long, val hasta: Long)
+
+@Serializable
+data class RankingPlatosDto(val platos: List<PlatoPedidoDto>)
+
+@Serializable
+data class PlatoPedidoDto(val nombre: String, val cantidad: Int)
 
 @Serializable
 data class CuentaEliminadaDto(val eliminada: Boolean)

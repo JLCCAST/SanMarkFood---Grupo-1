@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.CifrasVentas
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PeriodoNegocio
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PlatoPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.ResumenNegocio
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.TramoDePedidos
 import com.equipo.sanmarkfood.restaurante.ui.theme.ApprestauranteTheme
@@ -239,6 +240,11 @@ private fun NegocioPreview() {
                             reservasAnterior = 16,
                             tramos = listOf(14, 11, 13, 16, 19, 9, 4).map { TramoDePedidos(Date(), it) },
                             tramoActual = 4,
+                            platosMasPedidos = listOf(
+                                PlatoPedido("Menú del día", 53),
+                                PlatoPedido("Lomo saltado", 16),
+                                PlatoPedido("Chicharrón de pescado", 8),
+                            ),
                         ),
                     ),
                 ),

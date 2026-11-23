@@ -191,6 +191,9 @@
         <item>D</item>
     </string-array>
     <string name="negocio_error_cifras">No pudimos cargar tus cifras.</string>
+    <string name="negocio_platos_mas_pedidos">Platos más pedidos</string>
+    <string name="negocio_sin_platos">Todavía no hay platos pedidos en este periodo.</string>
+    <string name="negocio_puesto">%1$d.</string>
     <string name="negocio_calificacion_titulo">Calificación promedio</string>
     <string name="negocio_calificacion_valor">%1$s ★</string>
     <plurals name="negocio_calificacion_cambio">

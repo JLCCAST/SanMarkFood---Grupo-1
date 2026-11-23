@@ -35,6 +35,7 @@ class ObtenerResumenNegocioUseCase @Inject constructor(
         val anterior = async { dashboardRepository.ventasEntre(desdeAntes, hastaAntes) }
         val reservas = async { dashboardRepository.reservasConfirmadasEntre(desde, ahora) }
         val reservasAnterior = async { dashboardRepository.reservasConfirmadasEntre(desdeAntes, hastaAntes) }
+        val platosMasPedidos = async { dashboardRepository.platosMasPedidos(desde, ahora) }
         val cifras = cifrasPorTramo.awaitAll()
 
         ResumenNegocio(
@@ -45,6 +46,7 @@ class ObtenerResumenNegocioUseCase @Inject constructor(
             reservasAnterior = reservasAnterior.await(),
             tramos = inicios.zip(cifras) { inicio, cifrasDelTramo -> TramoDePedidos(inicio, cifrasDelTramo.pedidos) },
             tramoActual = inicios.indexOfLast { !it.after(ahora) },
+            platosMasPedidos = platosMasPedidos.await(),
         )
     }
 

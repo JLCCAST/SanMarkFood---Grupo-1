@@ -35,10 +35,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.equipo.sanmarkfood.restaurante.R
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.EvolucionCalificacion
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PeriodoNegocio
+import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.PlatoPedido
 import com.equipo.sanmarkfood.restaurante.domain.model.dashboard.ResumenNegocio
 import com.equipo.sanmarkfood.restaurante.domain.model.gestion_restaurante.ErrorRestaurante
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -103,6 +105,7 @@ fun ResumenDelNegocio(uiState: ResumenNegocioUiState, onReintentar: () -> Unit, 
         resumen != null -> Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Indicadores(resumen = resumen)
             GraficoPedidos(resumen = resumen)
+            PlatosMasPedidos(platos = resumen.platosMasPedidos)
             val calificacion = uiState.calificacion
             when {
                 calificacion != null -> TarjetaCalificacion(calificacion = calificacion)
@@ -315,6 +318,64 @@ private fun ColumnasDePedidos(resumen: ResumenNegocio) {
 }
 
 @Composable
+private fun PlatosMasPedidos(platos: List<PlatoPedido>) {
+    val colores = MaterialTheme.colorScheme
+    val forma = RoundedCornerShape(16.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(forma)
+            .background(colores.surfaceContainerLowest)
+            .border(1.dp, colores.outlineVariant, forma)
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(text = stringResource(R.string.negocio_platos_mas_pedidos), style = MaterialTheme.typography.titleSmall)
+        if (platos.isEmpty()) {
+            Text(
+                text = stringResource(R.string.negocio_sin_platos),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colores.onSurfaceVariant,
+            )
+        }
+        val maximo = platos.maxOfOrNull { it.cantidad }?.coerceAtLeast(1) ?: 1
+        platos.forEachIndexed { indice, plato ->
+            Column(
+                modifier = Modifier.semantics(mergeDescendants = true) {},
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(text = stringResource(R.string.negocio_puesto, indice + 1), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        text = plato.nombre,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(text = plato.cantidad.toString(), style = MaterialTheme.typography.labelLarge)
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ALTO_BARRA_PLATO)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(colores.surfaceContainerHigh),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(plato.cantidad.toFloat() / maximo)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(colores.primary),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun TarjetaCalificacion(calificacion: EvolucionCalificacion) {
     val forma = RoundedCornerShape(16.dp)
     Column(
@@ -465,6 +526,7 @@ private val ANCHO_COLUMNA = 24.dp
 private val ALTO_GRAFICO = 150.dp
 private val ALTO_CARGANDO = 120.dp
 private val ALTO_LINEA = 90.dp
+private val ALTO_BARRA_PLATO = 6.dp
 private val GROSOR_LINEA = 3.dp
 private val TAMANO_PUNTO = 10.dp
 private const val MARGEN_ESTRELLAS = 0.2
