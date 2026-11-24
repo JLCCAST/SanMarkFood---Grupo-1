@@ -1,0 +1,8 @@
+# En la versión release no se escribe nada en el Logcat.
+-assumenosideeffects class android.util.Log {
+    public static *** v(...);
+    public static *** d(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** e(...);
+}
