@@ -2,6 +2,7 @@ package com.equipo.sanmarkfood.restaurante.core.navigation
 
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoCamara
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -40,8 +41,13 @@ data class Plato(val platoId: String? = null)
 @Serializable
 data class ArmarMenu(val modo: ModoArmarMenu)
 
+/** M2 con la pizarra del menú del día; M9 con la carta. */
 @Serializable
-data object Camara
+data class Camara(val modo: ModoCamara)
+
+/** M10: la carta leída por la IA, antes de agregarla. */
+@Serializable
+data object RevisarCarta
 
 @Serializable
 data object EntregarCodigo

@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -52,9 +54,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,7 +76,7 @@ import java.io.File
 @Composable
 fun CamaraScreen(
     onCerrar: () -> Unit,
-    onRevisar: () -> Unit,
+    onRevisar: (ModoCamara) -> Unit,
     viewModel: CamaraViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,11 +100,18 @@ fun CamaraScreen(
             uiState = uiState,
             camara = camara.takeIf { permitida },
             onCerrar = onCerrar,
-            onRevisar = onRevisar,
+            onCambiarModo = viewModel::onCambiarModo,
+            onRevisar = { onRevisar(uiState.modo) },
             onPermitir = { pedirPermiso.launch(Manifest.permission.CAMERA) },
             onTomarFoto = {
                 viewModel.onTomarFoto()
-                tomarFoto(context, camara, onLista = viewModel::onFotoLista, onFallo = viewModel::onErrorFoto)
+                tomarFoto(
+                    context = context,
+                    camara = camara,
+                    archivo = if (uiState.modo == ModoCamara.CARTA) "carta.jpg" else "pizarra.jpg",
+                    onLista = viewModel::onFotoLista,
+                    onFallo = viewModel::onErrorFoto,
+                )
             },
             onElegirDeGaleria = {
                 elegirDeGaleria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -114,15 +126,16 @@ private fun tienePermisoDeCamara(context: Context): Boolean =
 private fun tomarFoto(
     context: Context,
     camara: LifecycleCameraController,
+    archivo: String,
     onLista: (String) -> Unit,
     onFallo: () -> Unit,
 ) {
-    val archivo = File(context.cacheDir, "pizarra.jpg")
+    val destino = File(context.cacheDir, archivo)
     camara.takePicture(
-        ImageCapture.OutputFileOptions.Builder(archivo).build(),
+        ImageCapture.OutputFileOptions.Builder(destino).build(),
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageSavedCallback {
-            override fun onImageSaved(resultado: ImageCapture.OutputFileResults) = onLista(Uri.fromFile(archivo).toString())
+            override fun onImageSaved(resultado: ImageCapture.OutputFileResults) = onLista(Uri.fromFile(destino).toString())
 
             override fun onError(excepcion: ImageCaptureException) = onFallo()
         },
@@ -134,12 +147,14 @@ private fun CamaraContenido(
     uiState: CamaraUiState,
     camara: LifecycleCameraController?,
     onCerrar: () -> Unit,
+    onCambiarModo: (ModoCamara) -> Unit,
     onRevisar: () -> Unit,
     onPermitir: () -> Unit,
     onTomarFoto: () -> Unit,
     onElegirDeGaleria: () -> Unit,
 ) {
     val ocupada = uiState.tomando || uiState.leyendo || uiState.listo
+    val carta = uiState.modo == ModoCamara.CARTA
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,7 +162,7 @@ private fun CamaraContenido(
             .safeDrawingPadding(),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 4.dp),
+            modifier = Modifier.fillMaxWidth().height(64.dp).padding(start = 4.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onCerrar) {
@@ -157,6 +172,12 @@ private fun CamaraContenido(
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
+            SelectorModo(
+                actual = uiState.modo,
+                habilitado = !uiState.tomando && !uiState.leyendo,
+                onElegir = onCambiarModo,
+            )
         }
 
         Box(
@@ -170,7 +191,9 @@ private fun CamaraContenido(
         ) {
             if (camara != null) VistaPreviaCamara(camara = camara) else AvisoPermiso(onPermitir = onPermitir)
             GuiasEncuadre(modifier = Modifier.fillMaxSize())
-            if (uiState.leyendo || uiState.listo) LecturaPizarra(listo = uiState.listo, onRevisar = onRevisar)
+            if (uiState.leyendo || uiState.listo) {
+                Lectura(carta = carta, listo = uiState.listo, platosLeidos = uiState.platosLeidos, onRevisar = onRevisar)
+            }
         }
 
         Column(
@@ -183,7 +206,7 @@ private fun CamaraContenido(
                 MensajeErrorMenu(error = error)
             } else {
                 Text(
-                    text = stringResource(R.string.camara_consejo_pizarra),
+                    text = stringResource(if (carta) R.string.camara_consejo_carta else R.string.camara_consejo_pizarra),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -257,7 +280,41 @@ private fun AvisoPermiso(onPermitir: () -> Unit) {
 }
 
 @Composable
-private fun LecturaPizarra(listo: Boolean, onRevisar: () -> Unit) {
+private fun SelectorModo(actual: ModoCamara, habilitado: Boolean, onElegir: (ModoCamara) -> Unit) {
+    val descripcion = stringResource(R.string.camara_que_fotografiar)
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(3.dp)
+            .selectableGroup()
+            .semantics { contentDescription = descripcion },
+    ) {
+        listOf(ModoCamara.CARTA to R.string.camara_modo_carta, ModoCamara.PIZARRA to R.string.camara_modo_pizarra)
+            .forEach { (modo, texto) ->
+                val elegido = modo == actual
+                Box(
+                    modifier = Modifier
+                        .height(36.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .then(if (elegido) Modifier.background(MaterialTheme.colorScheme.secondary) else Modifier)
+                        .selectable(selected = elegido, enabled = habilitado, role = Role.Tab, onClick = { onElegir(modo) })
+                        .padding(horizontal = 14.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(texto),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (elegido) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+    }
+}
+
+@Composable
+private fun Lectura(carta: Boolean, listo: Boolean, platosLeidos: Int, onRevisar: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -267,13 +324,23 @@ private fun LecturaPizarra(listo: Boolean, onRevisar: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = stringResource(if (listo) R.string.camara_leido else R.string.camara_leyendo),
+            text = when {
+                carta && listo -> pluralStringResource(R.plurals.camara_leida_carta, platosLeidos, platosLeidos)
+                carta -> stringResource(R.string.camara_leyendo_carta)
+                listo -> stringResource(R.string.camara_leido)
+                else -> stringResource(R.string.camara_leyendo)
+            },
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
         )
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             PasoLectura(texto = stringResource(R.string.camara_paso_texto), hecho = listo, enCurso = !listo)
-            PasoLectura(texto = stringResource(R.string.camara_paso_separar), hecho = listo, enCurso = !listo)
+            PasoLectura(
+                texto = stringResource(if (carta) R.string.camara_paso_ordenar else R.string.camara_paso_separar),
+                hecho = listo,
+                enCurso = !listo,
+            )
             PasoLectura(texto = stringResource(R.string.camara_paso_listo), hecho = listo, enCurso = false)
         }
         if (listo) {
@@ -373,9 +440,10 @@ private fun BotonDisparador(habilitado: Boolean, onClick: () -> Unit) {
 private fun CamaraPreview() {
     ApprestauranteTheme(darkTheme = true) {
         CamaraContenido(
-            uiState = CamaraUiState(),
+            uiState = CamaraUiState(modo = ModoCamara.CARTA, leyendo = true),
             camara = null,
             onCerrar = {},
+            onCambiarModo = {},
             onRevisar = {},
             onPermitir = {},
             onTomarFoto = {},

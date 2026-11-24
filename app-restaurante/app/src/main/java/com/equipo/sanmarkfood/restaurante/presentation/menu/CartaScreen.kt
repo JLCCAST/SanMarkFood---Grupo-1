@@ -1,5 +1,6 @@
 package com.equipo.sanmarkfood.restaurante.presentation.menu
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +20,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +57,7 @@ import java.util.Locale
 fun CartaScreen(
     onElegirSeccion: (SeccionMenu) -> Unit,
     onAgregarPlato: () -> Unit,
+    onEscanearCarta: () -> Unit,
     onAbrirPlato: (platoId: String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CartaViewModel = hiltViewModel(),
@@ -64,6 +68,7 @@ fun CartaScreen(
         uiState = uiState,
         onElegirSeccion = onElegirSeccion,
         onAgregarPlato = onAgregarPlato,
+        onEscanearCarta = onEscanearCarta,
         onAbrirPlato = onAbrirPlato,
         onCambiarDisponible = viewModel::onCambiarDisponible,
         onReintentar = viewModel::onReintentar,
@@ -76,6 +81,7 @@ private fun CartaContenido(
     uiState: CartaUiState,
     onElegirSeccion: (SeccionMenu) -> Unit,
     onAgregarPlato: () -> Unit,
+    onEscanearCarta: () -> Unit,
     onAbrirPlato: (platoId: String) -> Unit,
     onCambiarDisponible: (Plato, Boolean) -> Unit,
     onReintentar: () -> Unit,
@@ -89,13 +95,25 @@ private fun CartaContenido(
             detalle = secciones?.let { resumenCarta(it) },
             onElegirSeccion = onElegirSeccion,
         )
-        Button(
-            onClick = onAgregarPlato,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp).fillMaxWidth().height(44.dp),
+        Row(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(painter = painterResource(R.drawable.ic_agregar), contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = stringResource(R.string.carta_agregar_plato), style = MaterialTheme.typography.labelLarge)
+            Button(onClick = onAgregarPlato, modifier = Modifier.weight(1f).height(44.dp)) {
+                Icon(painter = painterResource(R.drawable.ic_agregar), contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = stringResource(R.string.carta_agregar_plato), style = MaterialTheme.typography.labelLarge)
+            }
+            OutlinedButton(
+                onClick = onEscanearCarta,
+                modifier = Modifier.weight(1f).height(44.dp),
+                border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.onSurface),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+            ) {
+                Icon(painter = painterResource(R.drawable.ic_camara), contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = stringResource(R.string.carta_escanear), style = MaterialTheme.typography.labelLarge)
+            }
         }
         uiState.errorDisponibilidad?.let {
             MensajeErrorMenu(error = it, modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp))
@@ -284,6 +302,7 @@ private fun CartaPreview() {
                 ),
                 onElegirSeccion = {},
                 onAgregarPlato = {},
+                onEscanearCarta = {},
                 onAbrirPlato = {},
                 onCambiarDisponible = { _, _ -> },
                 onReintentar = {},
@@ -301,6 +320,7 @@ private fun CartaVaciaPreview() {
                 uiState = CartaUiState(secciones = emptyList()),
                 onElegirSeccion = {},
                 onAgregarPlato = {},
+                onEscanearCarta = {},
                 onAbrirPlato = {},
                 onCambiarDisponible = { _, _ -> },
                 onReintentar = {},

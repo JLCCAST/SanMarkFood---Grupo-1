@@ -9,5 +9,7 @@ sealed class ErrorMenu : Exception() {
     data object MenuYaPublicado : ErrorMenu()
     data object ImagenIlegible : ErrorMenu()
     data object PizarraSinMenu : ErrorMenu()
+    data object CartaSinPlatos : ErrorMenu()
+    data class PlatosLeidosInvalidos(val filas: Set<Int>) : ErrorMenu()
     data object Desconocido : ErrorMenu()
 }
