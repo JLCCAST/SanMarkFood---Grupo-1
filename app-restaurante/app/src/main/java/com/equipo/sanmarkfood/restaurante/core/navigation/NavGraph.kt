@@ -19,6 +19,8 @@ import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.Horar
 import com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ArmarMenuScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.CamaraScreen
+import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoCamara
+import com.equipo.sanmarkfood.restaurante.presentation.menu.RevisarCartaScreen
 import com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu
 import com.equipo.sanmarkfood.restaurante.presentation.menu.PlatoScreen
 import com.equipo.sanmarkfood.restaurante.presentation.panel.PanelLocalScreen
@@ -88,9 +90,10 @@ fun RestauranteNavGraph() {
                 onCorregir = { navController.navigate(DatosLocal(ModoFormulario.CORREGIR)) { launchSingleTop = true } },
                 onEditarHorario = { navController.navigate(HorarioLocal(ModoFormulario.EDITAR)) { launchSingleTop = true } },
                 onAgregarPlato = { navController.navigate(Plato()) { launchSingleTop = true } },
+                onEscanearCarta = { navController.navigate(Camara(ModoCamara.CARTA)) { launchSingleTop = true } },
                 onAbrirPlato = { platoId -> navController.navigate(Plato(platoId)) { launchSingleTop = true } },
                 onArmarMenu = { modo -> navController.navigate(ArmarMenu(modo)) { launchSingleTop = true } },
-                onFotoPizarra = { navController.navigate(Camara) { launchSingleTop = true } },
+                onFotoPizarra = { navController.navigate(Camara(ModoCamara.PIZARRA)) { launchSingleTop = true } },
                 onEntregarConCodigo = { navController.navigate(EntregarCodigo) { launchSingleTop = true } },
                 onAbrirPedido = { pedidoId -> navController.navigate(PedidoDetalle(pedidoId)) { launchSingleTop = true } },
                 onSesionCerrada = { navController.navegarLimpiando(InicioSesion) },
@@ -110,7 +113,7 @@ fun RestauranteNavGraph() {
                 onCerrar = { navController.navigateUp() },
                 onPublicado = { navController.navigateUp() },
                 onTomarOtraFoto = {
-                    navController.navigate(Camara) {
+                    navController.navigate(Camara(ModoCamara.PIZARRA)) {
                         popUpTo<ArmarMenu> { inclusive = true }
                     }
                 },
@@ -119,11 +122,22 @@ fun RestauranteNavGraph() {
         composable<Camara> {
             CamaraScreen(
                 onCerrar = { navController.navigateUp() },
-                onRevisar = {
-                    navController.navigate(ArmarMenu(ModoArmarMenu.IA)) {
+                onRevisar = { modo ->
+                    val revision: Any = if (modo == ModoCamara.CARTA) RevisarCarta else ArmarMenu(ModoArmarMenu.IA)
+                    navController.navigate(revision) {
                         popUpTo<Camara> { inclusive = true }
                     }
                 },
+            )
+        }
+        composable<RevisarCarta> {
+            RevisarCartaScreen(
+                onTomarOtraFoto = {
+                    navController.navigate(Camara(ModoCamara.CARTA)) {
+                        popUpTo<RevisarCarta> { inclusive = true }
+                    }
+                },
+                onAgregada = { navController.navigateUp() },
             )
         }
         composable<Plato> {
