@@ -47,7 +47,7 @@ Mínimos obligatorios según el sílabo. Se marcan conforme se implementan de ve
 - [x] SQLite (Room) — en las dos apps: el borrador del menú del día (HU04) y el carrito del comensal (HU08)
 - [ ] Dashboards (restaurante y administrador) — los dos hechos con Vico: el del administrador (HU26, pedidos por semana) y el del restaurante (HU13, pedidos por día o semana y evolución de la calificación, más indicadores y platos más pedidos); falta probar el del restaurante en el celular
 - [ ] Mínimo 3 recursos del móvil (cámara, GPS, biometría, micrófono — el proyecto cubre los 4) — cámara hecha en la App Restaurante (HU04, CameraX); GPS (HU06) y biometría al pagar (HU08) hechos en la App Comensal
-- [ ] Mínimo 3 funcionalidades de IA (el proyecto cubre 4: digitalización de carta, chatbot con voz, resumen de reseñas, alerta de reseñas negativas) — digitalización hecha para la pizarra del menú del día (HU04, Gemini con Firebase AI Logic); falta la carta. Resumen de reseñas (HU14) y alerta de reseñas negativas (HU15) hechas, con Gemini en las Cloud Functions
+- [ ] Mínimo 3 funcionalidades de IA (el proyecto cubre 4: digitalización de carta, chatbot con voz, resumen de reseñas, alerta de reseñas negativas) — digitalización hecha para la pizarra del menú del día y para la carta (HU04, Gemini con Firebase AI Logic). Resumen de reseñas (HU14) y alerta de reseñas negativas (HU15) hechas, con Gemini en las Cloud Functions
 - [ ] Despliegue en Google Play Store (2 apps)
 
 ## Stack tecnológico
