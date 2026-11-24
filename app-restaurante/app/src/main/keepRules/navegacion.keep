@@ -1,0 +1,3 @@
+# Navigation busca por su nombre los enum que van como argumento de una ruta (Rutas.kt).
+-keep enum com.equipo.sanmarkfood.restaurante.presentation.gestion_restaurante.ModoFormulario { *; }
+-keep enum com.equipo.sanmarkfood.restaurante.presentation.menu.ModoArmarMenu { *; }

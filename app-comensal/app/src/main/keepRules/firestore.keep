@@ -1,0 +1,3 @@
+# Firestore arma Comensal y Direccion con toObject(), que usa reflexión sobre sus campos.
+-keep class com.equipo.sanmarkfood.comensal.domain.model.perfil.Comensal { *; }
+-keep class com.equipo.sanmarkfood.comensal.domain.model.perfil.Direccion { *; }
