@@ -532,6 +532,29 @@ El carrito vive en la base `sanmarkfood.db` del celular del comensal, no en Fire
 
 En el dominio, `ItemCarrito` es una interfaz sellada con `PlatoDelCarrito` y `MenuDelCarrito`. La base va en la versión 2 (la 1 solo guardaba platos) y, como el borrador del restaurante, se borra en vez de migrarse al cambiar de versión.
 
+## Seguridad (HU16, OWASP MASVS)
+
+Cada criterio de HU16 corresponde a un grupo de controles del estándar OWASP MASVS.
+
+| Criterio | Grupo MASVS | Qué hay en el proyecto |
+| --- | --- | --- |
+| Credenciales y tokens (SCRUM-136) | MASVS-STORAGE | La app nunca guarda contraseñas. La sesión (el token de refresco) la guarda Firebase Auth en los datos privados de la app. `allowBackup="false"` y `res/xml/data_extraction_rules.xml` sacan todos los datos de la copia de Google y del paso a otro celular, para que la sesión no salga del equipo. Room (borrador del menú, carrito) y las preferencias de los recordatorios no guardan datos sensibles, así que no se cifran. Las claves de Maps y Geocoding van en `local.properties` y no se suben al repositorio. Como igual terminan dentro del APK, se protegen en Google Cloud: Geocoding solo acepta esa API y tiene un tope diario. En release no se escribe nada en el Logcat (`keepRules/logs.keep`). |
+| Ofuscación (SCRUM-137) | MASVS-RESILIENCE | R8 está activo en release (`optimization { enable = true }`): encoge, optimiza y ofusca el código y quita los recursos sin usar. Las reglas propias van en `app/src/main/keepRules/*.keep`, que en AGP 9 reemplaza a `proguard-rules.pro`. El archivo de mapeo va dentro del AAB, así que Play muestra los errores con los nombres reales. |
+| HTTPS/TLS (SCRUM-138) | MASVS-NETWORK | `res/xml/network_security_config.xml` prohíbe el tráfico sin cifrar y solo acepta los certificados del sistema, aun en Android 7 y 8, donde HTTP todavía está permitido por defecto. Todo va por HTTPS: los SDK de Firebase, las funciones (`cloudfunctions.net`) y Geocoding (`maps.googleapis.com`). No se fija el certificado (*pinning*) porque Google cambia los suyos seguido y la app dejaría de conectarse. |
+| Endpoints del administrador (SCRUM-139) | MASVS-AUTH | El servidor decide, no la app. Las reglas de Firestore impiden crear una cuenta como `administrador` y cambiar el rol después. Solo `esAdministrador()` puede aprobar o rechazar un local y leer `usuarios`, `pedidos` y `reportes` de otros. `datosIniciales` revisa el rol antes de hacer nada (403 `no_autorizado`), y cada función HTTPS exige un token de Firebase con el correo verificado. Lo comprueba `functions/src/pruebas/accesoAdministrador.ts` (ver abajo). |
+
+**La prueba del administrador.** `npm run prueba-admin`, dentro de `functions/`, levanta los emuladores de Auth, Firestore y Functions con el proyecto `demo-sanmarkfood` y corre 7 casos con `node --test`. Cada uno comprueba que el comensal y el restaurante reciben 403 y que el administrador sí pasa. Solo usa los emuladores: no toca Firestore real ni las cuentas de prueba, y el script se niega a correr fuera de ellos. Los puertos están en `firebase.json` (Firestore usa el 8180 porque el 8080 suele estar ocupado). Necesita Java; en Windows, el de Android Studio con el mismo arreglo que Gradle:
+
+```bash
+export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr" PATH="/c/Program Files/Android/Android Studio/jbr/bin:$PATH"
+export JAVA_TOOL_OPTIONS='-Djdk.net.unixdomain.tmpdir=<carpeta con ruta corta y sin espacios>'
+npm run prueba-admin
+```
+
+La primera vez descarga el emulador de Firestore (unos 137 MB).
+
+**Al agregar código:** si Firestore lee una clase nueva con `toObject()`, agrégala a `keepRules/firestore.keep` del comensal; si no, R8 le cambia los nombres a sus campos y la app los lee vacíos. Si una ruta de `Rutas.kt` recibe un `enum`, agrégalo a `keepRules/navegacion.keep`: Navigation lo busca por su nombre y, sin la regla, la app se cierra al abrir (pasó con `ModoFormulario` y `ModoArmarMenu`). Antes de subir un AAB, prueba la versión release en el celular: R8 puede romper cosas que en debug funcionan.
+
 ## Convenciones de código
 
 Para que el código de los tres integrantes se lea como si lo hubiera escrito una sola persona:
