@@ -352,6 +352,36 @@
     <string name="camara_paso_listo">Listo para revisar</string>
     <string name="camara_revisar">Revisar resultado</string>
 
+    <!-- Cámara de la carta (M9, HU04): la misma cámara, con las pestañas Carta / Pizarra del menú -->
+    <string name="camara_que_fotografiar">Qué vas a fotografiar</string>
+    <string name="camara_modo_carta">Carta</string>
+    <string name="camara_modo_pizarra">Pizarra del menú</string>
+    <string name="camara_consejo_carta">Encuadra toda la carta, con buena luz y sin reflejos.</string>
+    <string name="camara_leyendo_carta">Leyendo tu carta…</string>
+    <string name="camara_paso_ordenar">Ordenando platos, precios y categorías</string>
+    <plurals name="camara_leida_carta">
+        <item quantity="one">Encontramos %d plato</item>
+        <item quantity="other">Encontramos %d platos</item>
+    </plurals>
+
+    <!-- Revisar la carta leída por la IA (M10, HU04) -->
+    <string name="revision_titulo">Revisa lo que leímos</string>
+    <string name="revision_otra_foto">Tomar otra foto</string>
+    <string name="revision_aviso_inicio">Encontramos</string>
+    <string name="revision_aviso_resto">en %1$s. Corrige lo marcado y desmarca lo que no quieras agregar. Nada se publica hasta que confirmes.</string>
+    <string name="revision_nombre">Nombre del plato</string>
+    <string name="revision_precio">Precio</string>
+    <string name="revision_marcar">Agregar %1$s</string>
+    <string name="revision_nombre_dudoso">No se leyó bien el nombre</string>
+    <string name="revision_precio_dudoso">No se leyó bien el precio</string>
+    <string name="revision_invalido">Falta el nombre o el precio no es válido</string>
+    <plurals name="revision_agregar">
+        <item quantity="one">Agregar %d plato a la carta</item>
+        <item quantity="other">Agregar %d platos a la carta</item>
+    </plurals>
+    <string name="revision_nota">Podrás agregar fotos y descripciones después, plato por plato.</string>
+    <string name="revision_sin_lectura">No hay una carta leída para revisar. Toma una foto de tu carta.</string>
+
     <!-- Disponible o agotado (SCRUM-70): en la carta, en el plato y en las opciones del menú de hoy -->
     <string name="disponible">Disponible</string>
     <string name="agotado">Agotado</string>
@@ -373,9 +403,9 @@
         <item quantity="other">%d categorías</item>
     </plurals>
     <string name="carta_agregar_plato">Agregar plato</string>
+    <string name="carta_escanear">Escanear carta</string>
     <string name="carta_vacia_titulo">Tu carta está vacía</string>
-    <!-- Con HU04 vuelve al texto del prototipo, que ofrece también la foto de la carta con IA. -->
-    <string name="carta_vacia_texto">Agrega tus platos uno por uno.</string>
+    <string name="carta_vacia_texto">Toma una foto de tu carta impresa y la IA la transcribe por ti, o agrega los platos uno por uno.</string>
 
     <!-- Alta de plato (M8, HU03) -->
     <string name="plato_nuevo_titulo">Nuevo plato</string>
@@ -416,6 +446,8 @@
     <string name="error_datos_menu">Falta el precio, una entrada o un segundo.</string>
     <string name="error_menu_ya_publicado">El menú de hoy ya está publicado.</string>
     <string name="error_pizarra_sin_menu">No encontramos un menú en la foto. Toma otra con toda la pizarra a la vista.</string>
+    <string name="error_carta_sin_platos">No encontramos platos en la foto. Toma otra con toda la carta a la vista.</string>
+    <string name="error_platos_leidos">Revisa los platos marcados en rojo.</string>
 
     <!-- Cabecera de Pedidos (O1) con la pausa (SCRUM-66). El resto de O1 llega con HU09. -->
     <string name="pedidos_titulo">Pedidos</string>
